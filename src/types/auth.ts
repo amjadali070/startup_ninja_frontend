@@ -9,6 +9,11 @@ export interface AuthResponse {
   message: string;
   user?: User;
   token?: string;
+  errors?: Array<{
+    msg: string;
+    param: string;
+    location: string;
+  }>;
 }
 
 export interface LoginRequest {
