@@ -19,6 +19,11 @@ export interface AuthResponse {
   }>;
 }
 
+export interface GoogleAuthPayload {
+  credential?: string;
+  accessToken?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

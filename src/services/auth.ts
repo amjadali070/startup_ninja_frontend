@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../types/auth';
+import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload } from '../types/auth';
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -48,9 +48,9 @@ export const authService = {
     }
   },
 
-  async googleLogin(credential: string): Promise<AuthResponse> {
+  async googleLogin(payload: GoogleAuthPayload): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/google', { credential });
+      const response = await apiClient.post<AuthResponse>('/auth/google', payload);
 
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
