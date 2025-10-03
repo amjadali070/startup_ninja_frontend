@@ -17,15 +17,14 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({ userName, profilePicture })
     .toUpperCase();
 
   return (
-    <div className="px-8 xl:px-12 pt-10 pb-6">
+    <div className="px-10 xl:px-16 pt-10 pb-6">
       <div className="flex items-center justify-between gap-6">
         <div>
           <h1 className="text-[32px] font-semibold tracking-tight text-white">Dashboard</h1>
-          <p className="mt-1 text-sm text-white/50">Monitor your activity, manage projects, and explore new AI tools.</p>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center rounded-full bg-white/5 border border-white/10 px-4 py-2.5 w-[280px]">
+          <div className="hidden lg:flex items-center rounded-md bg-white/5 border border-white/10 px-4 py-2.5 w-[320px]">
             <FiSearch className="w-4 h-4 text-white/40" />
             <input
               type="search"
@@ -36,14 +35,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({ userName, profilePicture })
 
           <button
             type="button"
-            className="hidden lg:inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] px-6 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(229,0,0,0.35)] transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#FF3B3B]/50"
-          >
-            + Start New Project
-          </button>
-
-          <button
-            type="button"
-            className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white transition"
+            className="relative flex h-11 w-11 items-center justify-center"
             aria-label="Notifications"
           >
             <HiMiniBellAlert className="w-5 h-5" />
@@ -53,7 +45,6 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({ userName, profilePicture })
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex flex-col text-right">
               <span className="text-sm font-semibold text-white">{displayName}</span>
-              <span className="text-xs text-white/40">Product Designer</span>
             </div>
             {profilePicture ? (
               <img

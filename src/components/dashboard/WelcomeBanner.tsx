@@ -4,24 +4,30 @@ interface WelcomeBannerProps {
   name: string;
 }
 
-const WelcomeBanner: FC<WelcomeBannerProps> = () => {
+const WelcomeBanner: FC<WelcomeBannerProps> = ({ name }) => {
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_left,#FF4D4D_0%,rgba(8,7,12,0.6)_45%,rgba(8,7,12,0.95)_100%)] px-8 py-10 xl:px-10 xl:py-12 border border-white/10 shadow-[0_24px_60px_rgba(229,0,0,0.25)]">
+    <section className="relative overflow-hidden rounded-3xl bg-[#151515] border border-black px-8 py-10 xl:px-10 xl:py-12">
       <div className="absolute inset-0">
-        <img
-          src="/images/login-bg.png"
-          alt="Hero"
-          className="h-full w-full object-cover opacity-40 mix-blend-lighten"
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(229,0,0,0.25)_0%,rgba(8,7,12,0.92)_70%)]" />
+        <div className="absolute inset-0 bg-[#151515]" />
       </div>
-      <div className="relative z-10 max-w-2xl">
-        <h2 className="text-[32px] uppercase tracking-[0.2em] font-semibold text-white">Welcome back</h2>
-        <p  className="text-sm mt-4 leading-snug tracking-[0.2em] text-white/70" >
-          What do you want to create today?
-        </p>
-        
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="max-w-2xl">
+          <h2 className="text-[32px] font-bold text-white">Welcome back, {name || 'Ninja'}</h2>
+          <p className="text-sm mt-2 text-gray-400">
+            What do you want to create today?
+          </p>
+        </div>
+        <button
+          type="button"
+          className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all duration-200 hover:shadow-lg"
+          style={{
+            background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'
+          }}
+        >
+          <span className="text-lg font-bold">+</span>
+          Start New Project
+        </button>
       </div>
     </section>
   );
