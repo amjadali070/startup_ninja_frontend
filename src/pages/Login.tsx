@@ -4,6 +4,7 @@ import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
 import { FaApple } from 'react-icons/fa';
 import { FaMicrosoft } from 'react-icons/fa6';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { HiOutlineMail } from 'react-icons/hi';
 import GoogleSignUp from '../components/GoogleSignUp';
 
@@ -15,6 +16,8 @@ const Login: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPasswordStep, setShowPasswordStep] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -26,6 +29,29 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!showPasswordStep) {
+      const trimmedEmail = formData.email.trim();
+      if (!trimmedEmail) {
+        setError('Please enter your email address.');
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        setError('Please enter a valid email address.');
+        return;
+      }
+
+      setShowPasswordStep(true);
+      setShowPassword(false);
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      setError('Please enter your password.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -96,35 +122,71 @@ const Login: React.FC = () => {
             <div className="flex-1 h-px bg-[#333333]"></div>
           </div>
 
-          <div className="mb-5 sm:mb-6">
-            <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="name@host.com"
-              className="w-full h-[44px] sm:h-[48px] bg-[#333333] border border-[#404040] rounded-[8px] px-4 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000] transition-colors duration-200"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="mb-5 sm:mb-6 p-3 bg-red-900/20 border border-red-500 rounded-[8px] text-red-400 text-[13px] sm:text-[14px]">
-              {error}
+          <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit} noValidate>
+            <div>
+              <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@host.com"
+                className="w-full h-[44px] sm:h-[48px] bg-[#333333] border border-[#404040] rounded-[8px] px-4 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000] transition-colors duration-200"
+                autoComplete="email"
+                required
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full h-[44px] sm:h-[48px] bg-[#E50000] hover:bg-[#CC0000] disabled:opacity-50 rounded-[8px] text-white text-[13px] sm:text-[14px] font-semibold tracking-wide transition-colors duration-200 mb-5 sm:mb-6"
-          >
-            {loading ? 'CONTINUING...' : 'CONTINUE'}
-          </button>
+            {showPasswordStep && (
+              <div>
+                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    className="w-full h-[44px] sm:h-[48px] bg-[#333333] border border-[#404040] rounded-[8px] px-4 pr-12 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000] transition-colors duration-200"
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-[#888888] hover:text-white transition-colors duration-200"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-3 bg-red-900/20 border border-red-500 rounded-[8px] text-red-400 text-[13px] sm:text-[14px]">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-[44px] sm:h-[48px] bg-[#E50000] hover:bg-[#CC0000] disabled:opacity-50 rounded-[8px] text-white text-[13px] sm:text-[14px] font-semibold tracking-wide transition-colors duration-200"
+            >
+              {loading
+                ? showPasswordStep
+                  ? 'LOGGING IN...'
+                  : 'CONTINUING...'
+                : showPasswordStep
+                  ? 'LOG IN'
+                  : 'CONTINUE'}
+            </button>
+          </form>
 
           <div className="text-center pb-8 sm:pb-0">
             <button className="text-[#888888] text-[13px] sm:text-[14px] font-medium hover:text-white transition-colors duration-200">
