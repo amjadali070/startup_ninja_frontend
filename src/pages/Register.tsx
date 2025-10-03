@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import GoogleSignUp from '../components/GoogleSignUp';
 import { authService } from '../services/auth';
-import { RegisterRequest } from '../types/auth';
+import { RegisterRequest, AuthResponse } from '../types/auth';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -55,6 +56,17 @@ const Register: React.FC = () => {
     }
   };
 
+  const handleGoogleSuccess = (response: AuthResponse) => {
+    setError('');
+    if (response.token) {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleGoogleError = (message: string) => {
+    setError(message);
+  };
+
   return (
     <div className="min-h-screen bg-primary-black flex">
       {/* Left Side - Register Form */}
@@ -75,7 +87,19 @@ const Register: React.FC = () => {
             </h2>
           </div>
           
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <GoogleSignUp
+            className="w-full"
+            onAuthSuccess={handleGoogleSuccess}
+            onAuthError={handleGoogleError}
+          />
+
+          <div className="flex items-center mt-6">
+            <div className="flex-1 h-px bg-[#333333]"></div>
+            <span className="px-3 text-[#888888] text-xs uppercase tracking-widest">Or continue with email</span>
+            <div className="flex-1 h-px bg-[#333333]"></div>
+          </div>
+
+          <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <Input
                 label="Username"

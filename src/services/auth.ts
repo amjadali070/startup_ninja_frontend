@@ -48,6 +48,27 @@ export const authService = {
     }
   },
 
+  async googleLogin(credential: string): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/google', { credential });
+
+      if (response.success && response.token) {
+        apiClient.setAuthToken(response.token);
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+      }
+
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Google authentication failed',
+        errors: error.response?.data?.errors
+      };
+    }
+  },
+
   logout() {
     apiClient.clearAuthToken();
   },

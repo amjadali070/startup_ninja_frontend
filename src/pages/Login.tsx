@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
-import { LoginRequest } from '../types/auth';
+import { LoginRequest, AuthResponse } from '../types/auth';
 import { FaApple } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
 import { FaMicrosoft } from 'react-icons/fa6';
 import { HiOutlineMail } from 'react-icons/hi';
+import GoogleSignUp from '../components/GoogleSignUp';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -31,8 +31,7 @@ const Login: React.FC = () => {
     try {
       const response = await authService.login(formData);
       if (response.success && response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        setError('');
         navigate('/dashboard');
       } else {
         setError(response.message || 'Login failed');
@@ -42,6 +41,17 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = (response: AuthResponse) => {
+    setError('');
+    if (response.token) {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleGoogleError = (message: string) => {
+    setError(message);
   };
 
   return (
@@ -62,10 +72,12 @@ const Login: React.FC = () => {
               Apple
             </button>
 
-            <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
-              <FcGoogle className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
-              Google
-            </button>
+            <GoogleSignUp
+              className="w-full"
+              buttonText="continue_with"
+              onAuthSuccess={handleGoogleSuccess}
+              onAuthError={handleGoogleError}
+            />
 
             <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
               <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#00BCF2]" />
