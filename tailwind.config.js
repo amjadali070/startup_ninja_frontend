@@ -25,6 +25,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        'plus-jakarta': ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        'inter': ['Inter', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
         'gradient-login': 'linear-gradient(90deg, #000000 0%, #000000 3%, rgba(0,0,0,0.95) 6%, rgba(0,0,0,0.85) 10%, rgba(0,0,0,0.7) 15%, rgba(0,0,0,0.5) 25%, rgba(0,0,0,0.3) 35%, rgba(0,0,0,0.15) 50%, transparent 70%)',

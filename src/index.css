@@ -10,3 +10,8 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
+
+/* Ninja Assistant Card Custom Styles */
+.ninja-assistant-card {
+  box-shadow: 0px 4px 40px 0px #7F1D1D80;
+}

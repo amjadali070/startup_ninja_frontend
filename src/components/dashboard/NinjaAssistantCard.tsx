@@ -1,31 +1,56 @@
 import type { FC } from 'react';
 
 interface NinjaAssistantCardProps {
-  suggestions: string[];
+  suggestions?: string[];
 }
 
-const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({ suggestions }) => {
+const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
+  suggestions = [
+    'Want to create a pitch deck based on your last doc?',
+    'Try AI Image Generator to design your brand\'s logo.',
+    'Schedule your next social campaign with AI.',
+    'Generate hero section visuals for your landing page.'
+  ]
+}) => {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-[linear-gradient(160deg,rgba(28,28,43,0.95)_0%,rgba(23,23,35,0.95)_100%)] p-6 xl:p-7">
-      <div className="relative">
-        <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
-          Ninja Assistant
+    <div className="ninja-assistant-card w-full max-w-[368px] max-h-[526.67px] rounded-2xl p-6 bg-[#0D0D0D]">
+      {/* Header with Logo and Title */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-600">
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="ninja-star-icon"
+          >
+            <path 
+              d="M12 2L15.09 8.26L22 9L17 14.74L18.18 21.02L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
+              fill="white"
+            />
+            <path 
+              d="M12 2L12 8L16 12L12 16L12 22L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
+              fill="white"
+              fillOpacity="0.8"
+            />
+            <circle cx="12" cy="12" r="2" fill="#DC2626"/>
+          </svg>
         </div>
-        <h3 className="mt-5 text-xl font-semibold text-white">Need a creative jumpstart?</h3>
-        <p className="mt-2 text-sm text-white/60 leading-relaxed">
-          Tap into AI powered suggestions to accelerate your next project.
-        </p>
-        <ul className="mt-6 space-y-3 text-sm text-white/80">
-          {suggestions.map((suggestion) => (
-            <li
-              key={suggestion}
-              className="flex items-start gap-3 rounded-2xl bg-white/5 px-4 py-3 border border-white/5"
-            >
-              <span className="mt-1 inline-flex h-2 w-2 flex-shrink-0 rounded-full bg-[#FF4D4D]" />
-              <span>{suggestion}</span>
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-white text-xl font-semibold">Ninja Assistant</h2>
+      </div>
+
+      <div className="space-y-4">
+        {suggestions.map((suggestion, index) => (
+          <div
+            key={index}
+            className="ninja-suggestion-item rounded-2xl p-4 cursor-pointer transition-all duration-200 hover:bg-white/5 bg-white/[0.03]"
+          >
+            <p className="text-white text-sm leading-relaxed">
+              {suggestion}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
