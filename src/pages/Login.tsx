@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
@@ -9,6 +10,7 @@ import SocialAuth from '../components/SocialAuth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',
@@ -57,6 +59,7 @@ const Login: React.FC = () => {
       const response = await authService.login(formData);
       if (response.success && response.token) {
         setError('');
+        login(response.user, response.token); // update context
         navigate('/dashboard');
       } else {
         setError(response.message || 'Login failed');
@@ -70,7 +73,8 @@ const Login: React.FC = () => {
 
   const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError('');
-    if (response.token) {
+    if (response.token && response.user) {
+      login(response.user, response.token);
       navigate('/dashboard');
     }
   };
@@ -82,7 +86,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
       <div className="w-full lg:w-[460px] xl:w-[480px] 2xl:w-[500px] bg-black px-6 sm:mx-0 md:mx-0 lg:mx-32 sm:px-8 md:px-12 lg:px-16 flex flex-col justify-center relative z-10 min-h-screen pt-8 sm:pt-12 lg:pt-16">
-        <div className="absolute top-8 sm:top-12 lg:top-16 left-6 sm:left-8 md:left-12 lg:left-16">
+        <div className="site-logo">
           <img src="/images/logo.png" alt="Startup Ninja" className="h-16 sm:h-12 lg:h-16 w-auto" />
         </div>
 

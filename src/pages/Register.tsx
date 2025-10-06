@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Input from '../components/Input';
@@ -8,6 +9,7 @@ import { RegisterRequest, AuthResponse } from '../types/auth';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<RegisterRequest>({
     username: '',
     email: '',
@@ -42,7 +44,10 @@ const Register: React.FC = () => {
 
     try {
       const response = await authService.register(formData);
-      if (response.success) {
+      if (response.success && response.token && response.user) {
+        login(response.user, response.token);
+        navigate('/dashboard');
+      } else if (response.success) {
         navigate('/login', { 
           state: { message: 'Registration successful! Please log in.' } 
         });
@@ -58,7 +63,8 @@ const Register: React.FC = () => {
 
   const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError('');
-    if (response.token) {
+    if (response.token && response.user) {
+      login(response.user, response.token);
       navigate('/dashboard');
     }
   };
