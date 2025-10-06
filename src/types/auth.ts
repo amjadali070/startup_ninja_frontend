@@ -44,6 +44,10 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  fullName?: string;
+  phoneNumber?: string;
+  countryCode?: string;
+  country?: string;
 }
 
 export interface ForgotPasswordRequest {
