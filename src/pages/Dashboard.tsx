@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineChatBubbleLeftRight } from 'react-icons/hi2';
 import { PiImageBold } from 'react-icons/pi';
@@ -62,6 +63,7 @@ const projectShowcase: ProjectConfig[] = [
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +80,10 @@ const Dashboard: React.FC = () => {
         if (response.success && response.user) {
           setProfile(response.user);
         } else {
+          if(response.message === 'User not found'){
+            logout();
+            navigate('/login', { replace: true });
+          }
           setError(response.message || 'Unable to load profile.');
         }
       } catch (err) {
@@ -92,7 +98,7 @@ const Dashboard: React.FC = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    authService.logout();
+    logout(); // update context and localStorage
     navigate('/login', { replace: true });
   };
 
