@@ -7,9 +7,9 @@ export interface User {
   role?: 'admin' | 'user';
   picture?: string | null;
   country?: string;
-  phone_number?: string;
+  phoneNumber?: string;
   loginType?: 'Apple' | 'Microsoft' | 'Google' | 'Email';
-  status?: 0 | 1;
+  status?: 'active' | 'inactive';
   isEmailVerified?: boolean;
 }
 
