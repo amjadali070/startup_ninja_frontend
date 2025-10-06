@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
@@ -10,6 +11,7 @@ import GoogleSignUp from '../components/GoogleSignUp';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',
@@ -58,6 +60,7 @@ const Login: React.FC = () => {
       const response = await authService.login(formData);
       if (response.success && response.token) {
         setError('');
+        login(response.user, response.token); // update context
         navigate('/dashboard');
       } else {
         setError(response.message || 'Login failed');
@@ -71,7 +74,8 @@ const Login: React.FC = () => {
 
   const handleGoogleSuccess = (response: AuthResponse) => {
     setError('');
-    if (response.token) {
+    if (response.token && response.user) {
+      login(response.user, response.token);
       navigate('/dashboard');
     }
   };
@@ -83,11 +87,11 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
       <div className="w-full lg:w-[460px] xl:w-[480px] 2xl:w-[500px] bg-black px-6 sm:mx-0 md:mx-0 lg:mx-32 sm:px-8 md:px-12 lg:px-16 flex flex-col justify-center relative z-10 min-h-screen pt-8 sm:pt-12 lg:pt-16">
-        <div className="absolute top-8 sm:top-12 lg:top-16 left-6 sm:left-8 md:left-12 lg:left-16">
+        <div className="site-logo">
           <img src="/images/logo.png" alt="Startup Ninja" className="h-16 sm:h-12 lg:h-16 w-auto" />
         </div>
 
-        <div className="w-full max-w-full mx-auto lg:mx-0 pt-20 sm:pt-24 lg:pt-8">
+        <div className="w-full max-w-full mx-auto lg:mx-0 pt-10 sm:pt-24 lg:pt-8">
           <h1 className="text-white text-[15px] sm:text-[16px] font-normal mb-6 sm:mb-8 leading-relaxed">
             Sign up or Login with
           </h1>
@@ -200,10 +204,10 @@ const Login: React.FC = () => {
         <img 
           src="/images/login-bg.png" 
           alt="Samurai silhouette" 
-          className="absolute inset-0 w-[90%] h-full ml-36"
+          className="absolute inset-0 w-[100%] h-full object-cover object-center pointer-events-none select-none"
         />
         
-        <div className="absolute inset-0 bg-gradient-login ml-32"></div>
+        <div className="absolute inset-0 bg-gradient-login"></div>
 
         {/* Top blend gradient to create visual padding with black mix */}
         {/* <div className="absolute top-0 left-0 right-0 h-40 sm:h-48 lg:h-56 bg-gradient-to-b from-black via-black/85 to-transparent pointer-events-none"></div> */}
