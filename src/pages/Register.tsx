@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import GoogleSignUp from '../components/GoogleSignUp';
+import SocialAuth from '../components/SocialAuth';
 import { authService } from '../services/auth';
 import { RegisterRequest, AuthResponse } from '../types/auth';
 
@@ -56,14 +56,14 @@ const Register: React.FC = () => {
     }
   };
 
-  const handleGoogleSuccess = (response: AuthResponse) => {
+  const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError('');
     if (response.token) {
       navigate('/dashboard');
     }
   };
 
-  const handleGoogleError = (message: string) => {
+  const handleSocialAuthError = (message: string) => {
     setError(message);
   };
 
@@ -87,10 +87,11 @@ const Register: React.FC = () => {
             </h2>
           </div>
           
-          <GoogleSignUp
-            className="w-full"
-            onAuthSuccess={handleGoogleSuccess}
-            onAuthError={handleGoogleError}
+          <SocialAuth
+            buttonText="signup_with"
+            onAuthSuccess={handleSocialAuthSuccess}
+            onAuthError={handleSocialAuthError}
+            showDivider={false}
           />
 
           <div className="flex items-center mt-6">

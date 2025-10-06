@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
 import { FaApple } from 'react-icons/fa';
-import { FaMicrosoft } from 'react-icons/fa6';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { HiOutlineMail } from 'react-icons/hi';
-import GoogleSignUp from '../components/GoogleSignUp';
+import SocialAuth from '../components/SocialAuth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -69,14 +68,14 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleSuccess = (response: AuthResponse) => {
+  const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError('');
     if (response.token) {
       navigate('/dashboard');
     }
   };
 
-  const handleGoogleError = (message: string) => {
+  const handleSocialAuthError = (message: string) => {
     setError(message);
   };
 
@@ -98,17 +97,12 @@ const Login: React.FC = () => {
               Apple
             </button>
 
-            <GoogleSignUp
-              className="w-full"
+            <SocialAuth
               buttonText="continue_with"
-              onAuthSuccess={handleGoogleSuccess}
-              onAuthError={handleGoogleError}
+              onAuthSuccess={handleSocialAuthSuccess}
+              onAuthError={handleSocialAuthError}
+              showDivider={false}
             />
-
-            <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
-              <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#00BCF2]" />
-              Microsoft
-            </button>
 
             <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
               <HiOutlineMail className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />

@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload } from '../types/auth';
+import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload, MicrosoftAuthPayload } from '../types/auth';
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -75,6 +75,27 @@ export const authService = {
 
   getToken() {
     return localStorage.getItem('token');
+  },
+
+  async microsoftLogin(payload: MicrosoftAuthPayload): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/microsoft', payload);
+
+      if (response.success && response.token) {
+        apiClient.setAuthToken(response.token);
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+      }
+
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Microsoft authentication failed',
+        errors: error.response?.data?.errors
+      };
+    }
   },
 
   getUser() {
