@@ -69,6 +69,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
+      setLoading(false);
       navigate('/login', { replace: true });
       return;
     }
@@ -79,8 +80,8 @@ const Dashboard: React.FC = () => {
         if (response.success && response.user) {
           setProfile(response.user);
         } else {
-          if(response.message === 'User not found'){
-            logout();
+          if (response.message === 'User not found') {
+            await logout();
             navigate('/login', { replace: true });
           }
           setError(response.message || 'Unable to load profile.');
@@ -94,11 +95,11 @@ const Dashboard: React.FC = () => {
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, [logout, navigate]);
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      await logout();
     } catch (error) {
       console.error('Dashboard logout failed:', error);
     } finally {
