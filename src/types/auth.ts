@@ -2,6 +2,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  username?: string;
+  picture?: string | null;
 }
 
 export interface AuthResponse {
@@ -9,11 +11,17 @@ export interface AuthResponse {
   message: string;
   user?: User;
   token?: string;
+  isNewUser?: boolean;
   errors?: Array<{
     msg: string;
     param: string;
     location: string;
   }>;
+}
+
+export interface GoogleAuthPayload {
+  credential?: string;
+  accessToken?: string;
 }
 
 export interface LoginRequest {
