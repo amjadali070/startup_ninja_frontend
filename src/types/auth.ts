@@ -8,9 +8,9 @@ export interface User {
   picture?: string | null;
   country?: string;
   phone_number?: string;
-  login_type?: 'Apple' | 'Microsoft' | 'Google' | 'Email';
+  loginType?: 'Apple' | 'Microsoft' | 'Google' | 'Email';
   status?: 0 | 1;
-  email_verified_at?: string | null;
+  isEmailVerified?: boolean;
 }
 
 export interface AuthResponse {
