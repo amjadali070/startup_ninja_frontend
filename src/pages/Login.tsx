@@ -87,7 +87,7 @@ const Login: React.FC = () => {
         </div>
 
         <div className="w-full max-w-full mx-auto lg:mx-0 pt-20 sm:pt-24 lg:pt-8">
-          <h1 className="text-white text-[15px] sm:text-[16px] font-normal mb-6 sm:mb-8 leading-relaxed">
+          <h1 className="text-white text-[15px] sm:text-[16px] font-normal mb-6 sm:mb-8 leading-relaxed font-plus-jakarta">
             Sign up or Login with
           </h1>
 
@@ -182,8 +182,8 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          <div className="text-center pb-8 sm:pb-0">
-            <button className="text-[#888888] text-[13px] sm:text-[14px] font-medium hover:text-white transition-colors duration-200">
+          <div className="text-center mt-4 pb-8 sm:pb-0">
+            <button className="text-[#888888] text-[13px] font-plus-jakarta sm:text-[14px] font-medium hover:text-white transition-colors duration-200">
               Need Help?
             </button>
           </div>
@@ -194,15 +194,15 @@ const Login: React.FC = () => {
         <img 
           src="/images/login-bg.png" 
           alt="Samurai silhouette" 
-          className="absolute inset-0 w-[90%] h-full ml-36"
+          className="absolute inset-0 w-[88%] h-full ml-[12%]"
         />
         
-        <div className="absolute inset-0 bg-gradient-login ml-32"></div>
+        <div className="absolute inset-0 bg-gradient-login ml-[10%]"></div>
 
         {/* Top blend gradient to create visual padding with black mix */}
         {/* <div className="absolute top-0 left-0 right-0 h-40 sm:h-48 lg:h-56 bg-gradient-to-b from-black via-black/85 to-transparent pointer-events-none"></div> */}
 
-        <div className="absolute bottom-6 sm:bottom-8 lg:bottom-16 right-6 sm:right-8 lg:right-24 max-w-[500px] xl:max-w-[650px] z-10">
+        {/* <div className="absolute bottom-6 sm:bottom-8 lg:bottom-16 right-6 sm:right-8 lg:right-24 max-w-[500px] xl:max-w-[650px] z-10">
           <div className="bg-white/10 backdrop-blur-md rounded-[12px] lg:rounded-[16px] p-4 lg:p-6 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <p className="text-white/90 text-[12px] lg:text-[13px] leading-[1.5] lg:leading-[1.6] font-normal antialiased justify">
               A sleek red sports bike parked in a narrow urban alley, realistic 3D render style. 
@@ -213,7 +213,7 @@ const Login: React.FC = () => {
               photoshoot in a city alley.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

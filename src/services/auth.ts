@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload, MicrosoftAuthPayload } from '../types/auth';
+import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload, MicrosoftAuthPayload, LogoutResponse } from '../types/auth';
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -69,8 +69,20 @@ export const authService = {
     }
   },
 
-  logout() {
-    apiClient.clearAuthToken();
+  async logout(): Promise<LogoutResponse> {
+    try {
+      const response = await apiClient.post<LogoutResponse>('/auth/logout');
+      return response;
+    } catch (error: any) {
+      const message = error?.response?.data?.message || 'Logout failed';
+      return {
+        success: false,
+        message
+      };
+    } finally {
+      apiClient.clearAuthToken();
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
   },
 
   getToken() {

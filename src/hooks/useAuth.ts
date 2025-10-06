@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authService } from '../services/auth';
 
 export const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -20,9 +21,8 @@ export const useAuth = () => {
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
   };
 

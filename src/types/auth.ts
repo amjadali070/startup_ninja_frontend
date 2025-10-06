@@ -49,3 +49,8 @@ export interface RegisterRequest {
 export interface ForgotPasswordRequest {
   email: string;
 }
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
