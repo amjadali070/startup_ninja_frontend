@@ -9,61 +9,61 @@ interface TokenUsageCardProps {
 
 const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) => {
   const usagePercent = Math.min((used / limit) * 100, 100);
-  const radius = 74;
+  const radius = 86;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (usagePercent / 100) * circumference;
   const gradientId = useId();
 
   return (
-    <div className="rounded-3xl border border-white/5 bg-[linear-gradient(160deg,rgba(28,28,43,0.95)_0%,rgba(23,23,35,0.95)_100%)] p-6 xl:p-7">
-      <h3 className="text-lg font-semibold text-white">Tokens Usage</h3>
-      <p className="mt-1 text-sm text-white/50">Monitor your AI consumption in real time.</p>
+  <div className="relative w-full max-w-full rounded-[12px] border-[1.33px] border-[#191919] bg-[#050505] px-8 pb-10 pt-9 text-center">
+      <h3 className="font-plus-jakarta text-[24px] font-semibold leading-[30px] text-white">Tokens Usage</h3>
 
-      <div className="mt-8 flex items-center justify-center">
-        <div className="relative h-48 w-48 flex items-center justify-center">
-          <svg className="h-48 w-48 -rotate-90" viewBox="0 0 200 200" aria-hidden="true">
+      <div className="mt-10 flex justify-center">
+        <div className="relative h-[248px] w-[248px]">
+          <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 240 240" aria-hidden="true">
             <defs>
-              <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FF4D4D" />
-                <stop offset="50%" stopColor="#E50000" />
-                <stop offset="100%" stopColor="#A60000" />
+              <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FF3B3B" />
+                <stop offset="48%" stopColor="#E00000" />
+                <stop offset="100%" stopColor="#A00000" />
               </linearGradient>
             </defs>
             <circle
-              cx="100"
-              cy="100"
+              cx="120"
+              cy="120"
               r={radius}
-              stroke="rgba(255,255,255,0.08)"
-              strokeWidth="16"
+              stroke="#1F2026"
+              strokeWidth="36"
               fill="none"
             />
             <circle
-              cx="100"
-              cy="100"
+              cx="120"
+              cy="120"
               r={radius}
               stroke={`url(#${gradientId})`}
-              strokeWidth="16"
-              strokeLinecap="round"
+              strokeWidth="36"
+              strokeLinecap="square"
               fill="none"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
             />
           </svg>
-          <div className="absolute flex h-[152px] w-[152px] flex-col items-center justify-center rounded-full border border-white/5 bg-[#09090E] text-center">
-            <span className="text-3xl font-semibold text-white">{used.toLocaleString()}</span>
-            <span className="text-xs uppercase tracking-[0.2em] text-white/40">Token Used</span>
+
+          <div className="absolute inset-[34px] flex flex-col items-center justify-center rounded-full bg-[#050505]">
+            <span className="font-plus-jakarta text-[42px] font-semibold leading-[46px] text-white">{used.toLocaleString()}</span>
+            <span className="mt-1 font-plus-jakarta text-lg text-[#A7ADB7]">Token Used</span>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 space-y-4 text-sm text-white/70">
+      <div className="mt-10 space-y-6 text-left">
         <div className="flex items-center justify-between">
-          <span className="text-white/50">Daily Limit</span>
-          <span className="font-semibold text-white">{limit.toLocaleString()} Token</span>
+          <span className="font-plus-jakarta text-lg text-[#9CA3AF]">Daily Limit</span>
+          <span className="font-plus-jakarta text-lg font-semibold text-white">{limit.toLocaleString()} Token</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-white/50">Reset In</span>
-          <span className="font-semibold text-white">{resetInHours} Hours</span>
+          <span className="font-plus-jakarta text-lg text-[#9CA3AF]">Reset In</span>
+          <span className="font-plus-jakarta text-lg font-semibold text-white">{resetInHours} Hours</span>
         </div>
       </div>
     </div>

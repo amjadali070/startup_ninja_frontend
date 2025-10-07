@@ -234,49 +234,35 @@ const Dashboard: React.FC = () => {
               ))}
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,0.9fr)]">
-              <NinjaAssistantCard suggestions={assistantSuggestions} />
-
-              <div className="rounded-3xl border border-white/5 bg-[linear-gradient(155deg,rgba(19,19,30,0.95)_0%,rgba(12,12,20,0.95)_100%)] p-6 xl:p-7">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Ongoing Projects</h3>
-                    <p className="mt-1 text-sm text-white/50">Keep track of your workspace progress in real time.</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="hidden rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/10 lg:inline-flex"
-                  >
-                    View All
-                  </button>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {projectShowcase.map((project) => (
-                    <ProjectCard key={project.title} {...project} />
-                  ))}
+            <section className="flex flex-col gap-6 xl:flex-row xl:flex-nowrap xl:items-start xl:gap-6 xl:pb-2">
+              <div className="flex w-full justify-center xl:w-auto">
+                <div className="w-full max-w-[368px]">
+                  <NinjaAssistantCard suggestions={assistantSuggestions} />
                 </div>
               </div>
 
-              <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
-            </section>
+              <div className="relative h-[714.67px] w-full max-w-[754.67px] rounded-[8px] border-[1.6px] border-[#242424] p-8 shadow-[0px_8px_30px_rgba(0,0,0,0.45)]">
+                <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.6px] border-transparent " />
+                <div className="relative z-10 flex h-full flex-col">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-plus-jakarta text-[22px] font-semibold leading-[28px] text-white">Ongoing Projects</h3>
+                      <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">Keep track of your workspace progress in real time.</p>
+                    </div>
+                  </div>
 
-            <section className="rounded-3xl border border-white/5 bg-[linear-gradient(160deg,rgba(25,26,38,0.95)_0%,rgba(16,16,24,0.95)_100%)] p-6 xl:p-7 text-sm text-white/70">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Secure &amp; Authenticated</h3>
-                  <p className="mt-2 max-w-xl leading-relaxed">
-                    You&apos;re viewing a protected area powered by your JWT. All requests are automatically authenticated via our
-                    <span className="mx-1 rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-white/70">apiClient</span>
-                    interceptor.
-                  </p>
+                  <div className="mt-8 flex flex-1 flex-col justify-start gap-[22px]">
+                    {projectShowcase.slice(0, 3).map((project) => (
+                      <ProjectCard key={project.title} {...project} />
+                    ))}
+                  </div>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-white/20 px-6 text-sm font-semibold text-white/70 transition-colors hover:bg-white/10"
-                >
-                  Log out
-                </button>
+              </div>
+
+              <div className="flex w-full justify-center xl:w-auto">
+                <div className="w-full max-w-[368px]">
+                  <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
+                </div>
               </div>
             </section>
           </div>
