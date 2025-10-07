@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
 import { FaApple } from 'react-icons/fa';
-import { FaMicrosoft } from 'react-icons/fa6';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { HiOutlineMail } from 'react-icons/hi';
-import GoogleSignUp from '../components/GoogleSignUp';
+import SocialAuth from '../components/SocialAuth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -72,7 +71,7 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleSuccess = (response: AuthResponse) => {
+  const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError('');
     if (response.token && response.user) {
       login(response.user, response.token);
@@ -80,19 +79,21 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleError = (message: string) => {
+  const handleSocialAuthError = (message: string) => {
     setError(message);
   };
 
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
       <div className="w-full lg:w-[460px] xl:w-[480px] 2xl:w-[500px] bg-black px-6 sm:mx-0 md:mx-0 lg:mx-32 sm:px-8 md:px-12 lg:px-16 flex flex-col justify-center relative z-10 min-h-screen pt-8 sm:pt-12 lg:pt-16">
-        <div className="site-logo">
-          <img src="/images/logo.png" alt="Startup Ninja" className="h-16 sm:h-12 lg:h-16 w-auto" />
-        </div>
+          <img
+            src="/images/logo.png"
+            alt="Startup Ninja"
+            className="h-20 sm:h-24 lg:h-28 w-auto mx-auto"
+          />
 
-        <div className="w-full max-w-full mx-auto lg:mx-0 pt-10 sm:pt-24 lg:pt-8">
-          <h1 className="text-white text-[15px] sm:text-[16px] font-normal mb-6 sm:mb-8 leading-relaxed">
+        <div className="w-full max-w-full mx-auto lg:mx-0 pt-20 sm:pt-24 lg:pt-8">
+          <h1 className="text-white text-[15px] sm:text-[16px] font-normal mb-6 sm:mb-8 leading-relaxed font-plus-jakarta">
             Sign up or Login with
           </h1>
 
@@ -102,17 +103,12 @@ const Login: React.FC = () => {
               Apple
             </button>
 
-            <GoogleSignUp
-              className="w-full"
+            <SocialAuth
               buttonText="continue_with"
-              onAuthSuccess={handleGoogleSuccess}
-              onAuthError={handleGoogleError}
+              onAuthSuccess={handleSocialAuthSuccess}
+              onAuthError={handleSocialAuthError}
+              showDivider={false}
             />
-
-            <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
-              <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#00BCF2]" />
-              Microsoft
-            </button>
 
             <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
               <HiOutlineMail className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
@@ -180,8 +176,12 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[44px] sm:h-[48px] bg-[#E50000] hover:bg-[#CC0000] disabled:opacity-50 rounded-[8px] text-white text-[13px] sm:text-[14px] font-semibold tracking-wide transition-colors duration-200"
-            >
+              className="w-full h-[44px] sm:h-[48px] 
+                [background:linear-gradient(90deg,#DC2626_0%,#B91C1C_100%)] 
+                hover:[background:linear-gradient(90deg,#B91C1C_0%,#7F1D1D_100%)] 
+                disabled:opacity-50 
+                rounded-[8px] text-white text-[13px] sm:text-[14px] 
+                font-semibold tracking-wide transition-colors duration-200" >            
               {loading
                 ? showPasswordStep
                   ? 'LOGGING IN...'
@@ -192,10 +192,21 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          <div className="text-center pb-8 sm:pb-0">
-            <button className="text-[#888888] text-[13px] sm:text-[14px] font-medium hover:text-white transition-colors duration-200">
-              Need Help?
-            </button>
+          <div className="text-center mt-6 pb-8 sm:pb-0 flex flex-col items-center gap-2">
+            
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <span className="text-[#9CA3AF] text-[13px] sm:text-[14px] leading-tight">
+                New here?
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="text-[13px] sm:text-[14px] font-semibold leading-tight bg-gradient-to-r from-[#DC2626] via-[#E50000] to-[#B91C1C] text-transparent bg-clip-text hover:from-[#FF5A5A] hover:via-[#FF1A1A] hover:to-[#B80000] transition-colors duration-200"
+              >
+                Create a Startup Ninja account
+              </button>
+            </div>
+            
           </div>
         </div>
       </div>
@@ -204,15 +215,15 @@ const Login: React.FC = () => {
         <img 
           src="/images/login-bg.png" 
           alt="Samurai silhouette" 
-          className="absolute inset-0 w-[100%] h-full object-cover object-center pointer-events-none select-none"
+          className="absolute inset-0 w-[88%] h-full ml-[12%]"
         />
         
-        <div className="absolute inset-0 bg-gradient-login"></div>
+        <div className="absolute inset-0 bg-gradient-login ml-[10%]"></div>
 
         {/* Top blend gradient to create visual padding with black mix */}
         {/* <div className="absolute top-0 left-0 right-0 h-40 sm:h-48 lg:h-56 bg-gradient-to-b from-black via-black/85 to-transparent pointer-events-none"></div> */}
 
-        <div className="absolute bottom-6 sm:bottom-8 lg:bottom-16 right-6 sm:right-8 lg:right-24 max-w-[500px] xl:max-w-[650px] z-10">
+        {/* <div className="absolute bottom-6 sm:bottom-8 lg:bottom-16 right-6 sm:right-8 lg:right-24 max-w-[500px] xl:max-w-[650px] z-10">
           <div className="bg-white/10 backdrop-blur-md rounded-[12px] lg:rounded-[16px] p-4 lg:p-6 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <p className="text-white/90 text-[12px] lg:text-[13px] leading-[1.5] lg:leading-[1.6] font-normal antialiased justify">
               A sleek red sports bike parked in a narrow urban alley, realistic 3D render style. 
@@ -223,7 +234,7 @@ const Login: React.FC = () => {
               photoshoot in a city alley.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

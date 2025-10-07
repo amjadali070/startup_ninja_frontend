@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { authService } from '../services/auth';
 
 // Replace 'any' with your actual user type if available
 export type User = any;
@@ -8,7 +9,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (userData: User, token: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -29,19 +30,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element
     setLoading(false);
   }, []);
 
-  const login = (userData: User, token: string) => {
+  const login = useCallback((userData: User, token: string) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setToken(token);
     setUser(userData);
-  };
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-  };
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('AuthProvider logout failed:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setToken(null);
+      setUser(null);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: !!user }}>

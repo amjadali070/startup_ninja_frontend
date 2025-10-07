@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload } from '../types/auth';
+import { AuthResponse, LoginRequest, RegisterRequest, GoogleAuthPayload, MicrosoftAuthPayload, LogoutResponse } from '../types/auth';
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
@@ -69,12 +69,45 @@ export const authService = {
     }
   },
 
-  logout() {
-    apiClient.clearAuthToken();
+  async logout(): Promise<LogoutResponse> {
+    try {
+      const response = await apiClient.post<LogoutResponse>('/auth/logout', {});
+      return response;
+    } catch (error: any) {
+      const message = error?.response?.data?.message || 'Logout failed';
+      return {
+        success: false,
+        message
+      };
+    } finally {
+      apiClient.clearAuthToken();
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
   },
 
   getToken() {
     return localStorage.getItem('token');
+  },
+
+  async microsoftLogin(payload: MicrosoftAuthPayload): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/microsoft', payload);
+
+      if (response.success && response.token) {
+        apiClient.setAuthToken(response.token);
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+      }
+
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Microsoft authentication failed',
+        errors: error.response?.data?.errors
+      };
+    }
   },
 
   getUser() {
