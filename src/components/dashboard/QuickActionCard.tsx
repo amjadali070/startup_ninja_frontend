@@ -13,7 +13,7 @@ const QuickActionCard: FC<QuickActionCardProps> = ({ title, description, buttonL
    
       <div className="mb-4 sm:mb-6 lg:mb-7 flex flex-shrink-0">
         <span className="inline-flex p-[2px] sm:p-[2.67px]">
-          <span className="flex w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] items-center justify-center text-[#F87171] bg-[#151515] rounded-md text-xl sm:text-2xl lg:text-3xl">
+          <span className="flex w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] items-center justify-center text-[#F87171] rounded-md text-xl sm:text-2xl lg:text-3xl">
             {icon}
           </span>
         </span>
