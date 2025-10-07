@@ -55,7 +55,7 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
             />
           </svg>
 
-            <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-full bg-[#050505]">
+            <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-md">
               <span className="font-plus-jakarta text-[32px] font-semibold leading-[36px] text-white sm:text-[40px] sm:leading-[44px]">
                 {used.toLocaleString()}
               </span>

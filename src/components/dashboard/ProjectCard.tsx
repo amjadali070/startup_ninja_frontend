@@ -34,8 +34,8 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
 
   return (
     <div className="relative w-full">
-      <div className="relative flex h-full w-full overflow-hidden rounded-[8px] border-[1.33px] border-[#191919] px-6 py-6 shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)] sm:px-8 sm:py-[26px]">
-        <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.33px] border-transparent" />
+      <div className="relative flex h-full w-full overflow-hidden rounded-md border-[1.33px] border-[#191919] px-6 py-6 shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)] sm:px-8 sm:py-[26px]">
+        <div className="pointer-events-none absolute inset-0 rounded-md border-[1.33px] border-transparent" />
         <div className="relative z-10 flex w-full flex-col gap-6 text-white md:flex-row md:items-center md:justify-between md:gap-10">
           <div className="flex w-full flex-col gap-3 md:max-w-[430px]">
             <div className="flex flex-wrap items-center gap-3">

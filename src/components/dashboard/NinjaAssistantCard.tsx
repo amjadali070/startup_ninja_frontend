@@ -13,9 +13,9 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   ]
 }) => {
   return (
-  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-2xl bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
+  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
       <div className="mb-6 flex items-center gap-3 sm:mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-600 sm:h-14 sm:w-14">
+        <div className="flex h-12 w-12 items-center justify-center rounded-md bg-red-600 sm:h-14 sm:w-14">
           <svg 
             width="24" 
             height="24" 
