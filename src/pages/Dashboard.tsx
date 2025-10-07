@@ -60,12 +60,47 @@ const projectShowcase: ProjectConfig[] = [
   },
 ];
 
+const ABSOLUTE_IMAGE_URL_REGEX = /^(?:https?:|data:|blob:|chrome-extension:)/i;
+
+const resolveProfilePictureUrl = (picture?: string | null): string | null => {
+  if (!picture || !picture.trim()) {
+    return null;
+  }
+
+  const trimmedPicture = picture.trim();
+
+  if (ABSOLUTE_IMAGE_URL_REGEX.test(trimmedPicture)) {
+    return trimmedPicture;
+  }
+
+  const baseUrl = import.meta.env.VITE_ASSET_BASE_URL || import.meta.env.VITE_API_BASE_URL;
+
+  if (!baseUrl) {
+    return trimmedPicture.startsWith('/') ? trimmedPicture : `/${trimmedPicture}`;
+  }
+
+  try {
+    return new URL(trimmedPicture, baseUrl).href;
+  } catch (error) {
+    console.warn('Failed to build absolute profile picture URL:', error);
+    const sanitizedBase = baseUrl.replace(/\/+$/, '');
+    const sanitizedPath = trimmedPicture.startsWith('/') ? trimmedPicture : `/${trimmedPicture}`;
+    return `${sanitizedBase}${sanitizedPath}`;
+  }
+};
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const resolvedProfilePicture = useMemo(() => {
+    const fallbackUser = authService.getUser?.() ?? null;
+    const fallbackPicture = fallbackUser?.profilePicture ?? fallbackUser?.picture ?? null;
+    return resolveProfilePictureUrl(profile?.profilePicture ?? fallbackPicture);
+  }, [profile?.profilePicture]);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -182,7 +217,7 @@ const Dashboard: React.FC = () => {
       <div className="flex-1">
         <DashboardTopbar
           userName={displayName}
-          profilePicture={profile.profilePicture}
+          profilePicture={resolvedProfilePicture}
           email={profile.email}
           username={profile.username}
           onLogout={handleLogout}

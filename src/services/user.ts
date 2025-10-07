@@ -32,6 +32,20 @@ export const userService = {
   async getProfile(): Promise<UserProfileResponse> {
     try {
       const response = await apiClient.get<UserProfileResponse>('/user/profile');
+      if (response.success && response.user) {
+        try {
+          const storedUserRaw = localStorage.getItem('user');
+          const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
+          const normalizedUser = {
+            ...storedUser,
+            ...response.user,
+            picture: response.user.profilePicture ?? storedUser?.picture ?? storedUser?.profilePicture ?? null
+          };
+          localStorage.setItem('user', JSON.stringify(normalizedUser));
+        } catch (storageError) {
+          console.error('Failed to sync profile with local storage:', storageError);
+        }
+      }
       return response;
     } catch (error: any) {
       return {

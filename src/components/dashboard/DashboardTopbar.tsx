@@ -151,6 +151,8 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                   <img
                     src={profilePicture}
                     alt={displayName}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (
