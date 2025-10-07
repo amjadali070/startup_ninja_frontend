@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiSearch } from 'react-icons/fi';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
 import type { RegisterRequest } from '../types/auth';
 import { COUNTRY_OPTIONS } from '../data/countries';

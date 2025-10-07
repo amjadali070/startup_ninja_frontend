@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth.tsx';
 import { useNavigate } from 'react-router-dom';
 import { PiImageSquareBold } from "react-icons/pi";
 import { FiGlobe, FiMessageSquare } from "react-icons/fi";
@@ -14,12 +14,14 @@ import TokenUsageCard from '../components/dashboard/TokenUsageCard';
 import { authService } from '../services/auth';
 import { userService, UserProfile } from '../services/user';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { resolveProfilePictureUrl } from '../utils/profile';
 
 interface QuickActionConfig {
   title: string;
   description: string;
   buttonLabel: string;
   icon: ReactNode;
+  to?: string;
 }
 
 interface ProjectConfig {
@@ -53,35 +55,6 @@ const projectShowcase: ProjectConfig[] = [
     lastUpdated: '3h ago',
   },
 ];
-
-const ABSOLUTE_IMAGE_URL_REGEX = /^(?:https?:|data:|blob:|chrome-extension:)/i;
-
-const resolveProfilePictureUrl = (picture?: string | null): string | null => {
-  if (!picture || !picture.trim()) {
-    return null;
-  }
-
-  const trimmedPicture = picture.trim();
-
-  if (ABSOLUTE_IMAGE_URL_REGEX.test(trimmedPicture)) {
-    return trimmedPicture;
-  }
-
-  const baseUrl = import.meta.env.VITE_ASSET_BASE_URL || import.meta.env.VITE_API_BASE_URL;
-
-  if (!baseUrl) {
-    return trimmedPicture.startsWith('/') ? trimmedPicture : `/${trimmedPicture}`;
-  }
-
-  try {
-    return new URL(trimmedPicture, baseUrl).href;
-  } catch (error) {
-    console.warn('Failed to build absolute profile picture URL:', error);
-    const sanitizedBase = baseUrl.replace(/\/+$/, '');
-    const sanitizedPath = trimmedPicture.startsWith('/') ? trimmedPicture : `/${trimmedPicture}`;
-    return `${sanitizedBase}${sanitizedPath}`;
-  }
-};
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -147,6 +120,7 @@ const Dashboard: React.FC = () => {
         description: 'Generate content instantly with our advanced AI.',
         buttonLabel: 'Generate Content',
         icon: <FiMessageSquare className="h-12 w-12" />,
+        to: '/ai-tools/chat',
       },
       {
         title: 'AI Image Generator',
@@ -205,6 +179,7 @@ const Dashboard: React.FC = () => {
 
       <div className="flex-1">
         <DashboardTopbar
+          title="Dashboard"
           userName={displayName}
           profilePicture={resolvedProfilePicture}
           email={profile.email}
@@ -213,8 +188,8 @@ const Dashboard: React.FC = () => {
           onSettings={handleOpenSettings}
         />
 
-        <main className="flex-1 px-6 pb-16 md:px-10 xl:px-14">
-          <div className="space-y-10">
+        <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
+          <div className="space-y-6">
             <WelcomeBanner name={displayName} />
 
             <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
