@@ -169,9 +169,11 @@ const AIChat: FC = () => {
           onSettings={handleOpenSettings}
         />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-16 md:px-10 xl:px-14">
-          <div className="mx-auto w-full max-w-6xl">
-            <AIChatUpgradeBanner />
+        <main className="flex-1 overflow-y-auto px-4 pb-14 pt-8 sm:px-6 md:px-10 xl:px-14 xl:pb-16">
+          <div className="mx-auto flex w-full max-w-[1035.667px] flex-col gap-[32px] sm:gap-[36px] min-h-[648.667px]">
+            <div className="w-full">
+              <AIChatUpgradeBanner />
+            </div>
             <AIChatHeroTitle />
             <AIChatComposer
               prompt={prompt}
@@ -180,9 +182,10 @@ const AIChat: FC = () => {
               isGenerating={isGenerating}
               tokenUsage={tokenUsage}
               usageLimit={usageLimit}
+              className="w-full"
             />
 
-            <section className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <section className="grid w-full gap-[24px] md:grid-cols-2 lg:grid-cols-3">
               {quickActions.map((action) => (
                 <AIChatQuickActionCard
                   key={action.title}
@@ -194,7 +197,9 @@ const AIChat: FC = () => {
               ))}
             </section>
 
-            <AIChatFooterNotice />
+            <div className="w-full">
+              <AIChatFooterNotice />
+            </div>
           </div>
         </main>
       </div>
