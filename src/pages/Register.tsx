@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiSearch } from 'react-icons/fi';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/auth';
@@ -82,6 +83,8 @@ const Register: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isCountryOpen, setIsCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
@@ -494,18 +497,28 @@ const Register: React.FC = () => {
                 <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
                   Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Create your password"
-                  className={getFieldInputClasses(!!fieldErrors.password)}
-                  aria-invalid={fieldErrors.password ? 'true' : 'false'}
-                  onBlur={() => runFieldValidation('password')}
-                  autoComplete="new-password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Create your password"
+                    className={`${getFieldInputClasses(!!fieldErrors.password)} pr-12`}
+                    aria-invalid={fieldErrors.password ? 'true' : 'false'}
+                    onBlur={() => runFieldValidation('password')}
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-[#888888] hover:text-white transition-colors duration-200"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {fieldErrors.password && (
                   <p className="mt-2 text-[12px] text-red-400">
                     {fieldErrors.password}
@@ -517,17 +530,27 @@ const Register: React.FC = () => {
                 <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
                   Confirm Password
                 </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => handleConfirmPasswordChange(event.target.value)}
-                  placeholder="Re-enter your password"
-                  className={getFieldInputClasses(!!fieldErrors.confirmPassword)}
-                  aria-invalid={fieldErrors.confirmPassword ? 'true' : 'false'}
-                  onBlur={() => runFieldValidation('confirmPassword')}
-                  autoComplete="new-password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(event) => handleConfirmPasswordChange(event.target.value)}
+                    placeholder="Re-enter your password"
+                    className={`${getFieldInputClasses(!!fieldErrors.confirmPassword)} pr-12`}
+                    aria-invalid={fieldErrors.confirmPassword ? 'true' : 'false'}
+                    onBlur={() => runFieldValidation('confirmPassword')}
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center px-4 text-[#888888] hover:text-white transition-colors duration-200"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {fieldErrors.confirmPassword && (
                   <p className="mt-2 text-[12px] text-red-400">
                     {fieldErrors.confirmPassword}
