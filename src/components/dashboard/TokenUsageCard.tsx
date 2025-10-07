@@ -15,7 +15,7 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
   const gradientId = useId();
 
   return (
-  <div className="relative w-full max-w-full rounded-[12px] border-[1.33px] border-[#191919] bg-[#050505] px-8 pb-10 pt-9 text-center">
+  <div className="relative w-full max-w-full rounded-[12px] border-[1.33px] border-[#191919] px-10 pb-10 pt-9 text-center">
       <h3 className="font-plus-jakarta text-[24px] font-semibold leading-[30px] text-white">Tokens Usage</h3>
 
       <div className="mt-10 flex justify-center">

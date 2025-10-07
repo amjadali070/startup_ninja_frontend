@@ -33,9 +33,9 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
   const gradientId = useId();
 
   return (
-  <div className="relative w-full max-w-[686.67px]">
-      <div className="relative flex h-[196px] w-full items-center overflow-hidden rounded-[8px] border-[1.33px] border-[#191919] px-8 py-[26px] shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)]">
-        <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.33px] border-transparent [mask:linear-gradient(#fff,#fff)_content-box,linear-gradient(#fff,#fff)] [mask-composite:exclude]" />
+    <div className="relative w-full max-w-[100%]">
+      <div className="relative flex h-full w-full items-center overflow-hidden rounded-[8px] border-[1.33px] border-[#191919] px-8 py-[26px] shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)]">
+        <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.33px] border-transparent" />
         <div className="relative z-10 flex w-full items-center justify-between gap-10 text-white">
           <div className="flex w-full max-w-[430px] flex-col gap-3">
             <div className="flex flex-wrap items-center gap-3">
