@@ -3,8 +3,9 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AIChat from './pages/AIChat';
 import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
-import { AuthProvider } from './hooks/useAuth';
+import { AuthProvider } from './hooks/useAuth.tsx';
 
 
 function App() {
@@ -30,6 +31,11 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/chat" element={
+            <ProtectedRoute>
+              <AIChat />
             </ProtectedRoute>
           } />
         </Routes>

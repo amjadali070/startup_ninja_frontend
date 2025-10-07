@@ -10,6 +10,7 @@ interface DashboardTopbarProps {
   username?: string | null;
   onLogout: () => Promise<void> | void;
   onSettings?: () => void;
+  title?: string;
 }
 
 const DashboardTopbar: FC<DashboardTopbarProps> = ({
@@ -18,7 +19,8 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   email,
   username,
   onLogout,
-  onSettings
+  onSettings,
+  title = 'Dashboard'
 }) => {
   const displayName = userName && userName.trim() ? userName : 'Ninja';
   const initials = displayName
@@ -97,11 +99,11 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   };
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pt-6 sm:pt-8 lg:pt-10 pb-4 sm:pb-6">
+    <div className="px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pt-6 sm:pt-8 lg:pt-10 pb-4 sm:pb-6 border-b border-white/10">
       <div className="flex items-center justify-between gap-3 sm:gap-4 lg:gap-6">
         <div className="flex-1 min-w-0">
           <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[32px] font-semibold tracking-tight text-white truncate">
-            Dashboard
+            {title}
           </h1>
         </div>
 
@@ -151,6 +153,8 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                   <img
                     src={profilePicture}
                     alt={displayName}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (

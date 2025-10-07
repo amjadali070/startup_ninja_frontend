@@ -46,7 +46,6 @@ export interface RegisterRequest {
   password: string;
   fullName?: string;
   phoneNumber?: string;
-  countryCode?: string;
   country?: string;
 }
 
