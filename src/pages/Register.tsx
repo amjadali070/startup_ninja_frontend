@@ -416,6 +416,7 @@ const Register: React.FC = () => {
                   <input
                     type="tel"
                     value={phoneNumber}
+                    maxLength={10}
                     onChange={(event) => handlePhoneChange(event.target.value)}
                     placeholder="300 1234567"
                     className="flex-1 h-full bg-transparent px-4 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none"
@@ -578,7 +579,7 @@ const Register: React.FC = () => {
         <img
           src="/images/register-bg.png"
           alt="Samurai silhouette"
-          className="w-full h-full aspect-[2/1]"
+          className="object- w-full h-full aspect-[2/1]"
         />
       </div>
     </div>
