@@ -578,7 +578,7 @@ const Register: React.FC = () => {
         <img
           src="/images/register-bg.png"
           alt="Samurai silhouette"
-          className="absolute inset-0 w-full h-full"
+          className="w-full h-full aspect-[2/1]"
         />
       </div>
     </div>
