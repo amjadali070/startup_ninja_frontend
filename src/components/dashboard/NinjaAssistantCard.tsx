@@ -13,10 +13,9 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   ]
 }) => {
   return (
-    <div className="ninja-assistant-card w-full max-w-[368px] max-h-[526.67px] rounded-2xl p-6 bg-[#0D0D0D]">
-      {/* Header with Logo and Title */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-600">
+  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-2xl bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
+      <div className="mb-6 flex items-center gap-3 sm:mb-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-600 sm:h-14 sm:w-14">
           <svg 
             width="24" 
             height="24" 
@@ -37,16 +36,17 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
             <circle cx="12" cy="12" r="2" fill="#DC2626"/>
           </svg>
         </div>
-        <h2 className="text-white text-xl font-semibold">Ninja Assistant</h2>
+        <h2 className="font-plus-jakarta text-lg font-semibold text-white sm:text-xl lg:text-[22px]">Ninja Assistant</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-1 flex-col gap-3 sm:gap-4">
         {suggestions.map((suggestion, index) => (
           <div
             key={index}
-            className="ninja-suggestion-item rounded-2xl p-4 cursor-pointer transition-all duration-200 hover:bg-white/5 bg-white/[0.03]"
+            tabIndex={0}
+            className="ninja-suggestion-item cursor-pointer rounded-2xl bg-white/[0.04] p-4 transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 sm:p-5"
           >
-            <p className="text-white text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed text-white sm:text-[15px]">
               {suggestion}
             </p>
           </div>

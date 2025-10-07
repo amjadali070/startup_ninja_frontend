@@ -51,13 +51,6 @@ const projectShowcase: ProjectConfig[] = [
     progress: 45,
     lastUpdated: '3h ago',
   },
-  {
-    title: 'Social Calendar',
-    category: 'Social Pro',
-    status: 'Live',
-    progress: 68,
-    lastUpdated: '1h ago',
-  },
 ];
 
 const ABSOLUTE_IMAGE_URL_REGEX = /^(?:https?:|data:|blob:|chrome-extension:)/i;
@@ -234,24 +227,22 @@ const Dashboard: React.FC = () => {
               ))}
             </section>
 
-            <section className="flex flex-col gap-6 xl:flex-row xl:flex-nowrap xl:items-start xl:gap-6 xl:pb-2">
-              <div className="flex w-full justify-center xl:w-auto">
-                <div className="w-full max-w-[368px]">
-                  <NinjaAssistantCard suggestions={assistantSuggestions} />
-                </div>
+            <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[360px_minmax(0,1fr)_360px] xl:items-stretch xl:pb-2">
+              <div className="flex h-full w-full">
+                <NinjaAssistantCard suggestions={assistantSuggestions} />
               </div>
 
-              <div className="relative h-[714.67px] w-full max-w-[754.67px] rounded-[8px] border-[1.6px] border-[#242424] p-8 shadow-[0px_8px_30px_rgba(0,0,0,0.45)]">
-                <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.6px] border-transparent " />
+              <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] bg-[#0C0C14] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
+                <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
                 <div className="relative z-10 flex h-full flex-col">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h3 className="font-plus-jakarta text-[22px] font-semibold leading-[28px] text-white">Ongoing Projects</h3>
+                      <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">Ongoing Projects</h3>
                       <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">Keep track of your workspace progress in real time.</p>
                     </div>
                   </div>
 
-                  <div className="mt-8 flex flex-1 flex-col justify-start gap-[22px]">
+                  <div className="mt-8 flex flex-1 flex-col justify-start gap-6">
                     {projectShowcase.slice(0, 3).map((project) => (
                       <ProjectCard key={project.title} {...project} />
                     ))}
@@ -259,10 +250,8 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex w-full justify-center xl:w-auto">
-                <div className="w-full max-w-[368px]">
-                  <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
-                </div>
+              <div className="flex h-full w-full">
+                <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
               </div>
             </section>
           </div>

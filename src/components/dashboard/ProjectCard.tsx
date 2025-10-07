@@ -33,11 +33,11 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
   const gradientId = useId();
 
   return (
-    <div className="relative w-full max-w-[100%]">
-      <div className="relative flex h-full w-full items-center overflow-hidden rounded-[8px] border-[1.33px] border-[#191919] px-8 py-[26px] shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)]">
+    <div className="relative w-full">
+      <div className="relative flex h-full w-full overflow-hidden rounded-[8px] border-[1.33px] border-[#191919] px-6 py-6 shadow-[0px_5.33px_5.33px_rgba(0,0,0,0.25)] sm:px-8 sm:py-[26px]">
         <div className="pointer-events-none absolute inset-0 rounded-[8px] border-[1.33px] border-transparent" />
-        <div className="relative z-10 flex w-full items-center justify-between gap-10 text-white">
-          <div className="flex w-full max-w-[430px] flex-col gap-3">
+        <div className="relative z-10 flex w-full flex-col gap-6 text-white md:flex-row md:items-center md:justify-between md:gap-10">
+          <div className="flex w-full flex-col gap-3 md:max-w-[430px]">
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="font-plus-jakarta text-[18px] font-semibold leading-[28px] tracking-[-0.01em]">{title}</h3>
               <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold leading-none ${statusTheme.badge} ${statusTheme.text}`}>
@@ -64,13 +64,13 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
             </div>
           </div>
 
-          <div className="flex h-full min-w-[180px] flex-col items-end justify-between">
+          <div className="flex w-full flex-col items-start justify-between gap-4 md:h-full md:w-auto md:min-w-[180px] md:items-end">
             <span className="font-plus-jakarta text-xs text-white/60">
               Last Update <span className="text-white/80 ">{lastUpdated}</span>
             </span>
             <button
               type="button"
-              className=" mt-3 inline-flex h-[48px] w-[186px] items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] font-plus-jakarta text-sm font-semibold text-white shadow-[0px_5.33px_20px_rgba(229,0,0,0.35)] transition-transform duration-200 hover:scale-[1.01]"
+              className="inline-flex h-[48px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] font-plus-jakarta text-sm font-semibold text-white shadow-[0px_5.33px_20px_rgba(229,0,0,0.35)] transition-transform duration-200 hover:scale-[1.01] md:w-[186px]"
             >
               Continue Building
             </button>
