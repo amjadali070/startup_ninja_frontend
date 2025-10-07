@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { HiOutlineChatBubbleLeftRight } from 'react-icons/hi2';
-import { PiImageBold } from 'react-icons/pi';
-import { LuGlobe } from 'react-icons/lu';
-import { TbShare3 } from 'react-icons/tb';
+import { PiImageSquareBold } from "react-icons/pi";
+import { FiGlobe, FiMessageSquare } from "react-icons/fi";
+import { RiOrganizationChart } from "react-icons/ri";
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import DashboardTopbar from '../components/dashboard/DashboardTopbar';
 import WelcomeBanner from '../components/dashboard/WelcomeBanner';
@@ -70,6 +69,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
+      setLoading(false);
       navigate('/login', { replace: true });
       return;
     }
@@ -80,8 +80,8 @@ const Dashboard: React.FC = () => {
         if (response.success && response.user) {
           setProfile(response.user);
         } else {
-          if(response.message === 'User not found'){
-            logout();
+          if (response.message === 'User not found') {
+            await logout();
             navigate('/login', { replace: true });
           }
           setError(response.message || 'Unable to load profile.');
@@ -95,11 +95,20 @@ const Dashboard: React.FC = () => {
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, [logout, navigate]);
 
-  const handleLogout = () => {
-    logout(); // update context and localStorage
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Dashboard logout failed:', error);
+    } finally {
+      navigate('/login', { replace: true });
+    }
+  };
+
+  const handleOpenSettings = () => {
+    navigate('/settings');
   };
 
   const quickActions = useMemo<QuickActionConfig[]>(
@@ -108,25 +117,25 @@ const Dashboard: React.FC = () => {
         title: 'AI Chat',
         description: 'Generate content instantly with our advanced AI.',
         buttonLabel: 'Generate Content',
-        icon: <HiOutlineChatBubbleLeftRight className="h-12 w-12" />,
+        icon: <FiMessageSquare className="h-12 w-12" />,
       },
       {
         title: 'AI Image Generator',
         description: 'Create stunning visuals from text prompts.',
         buttonLabel: 'Generate Visual',
-        icon: <PiImageBold className="h-12 w-12" />,
+        icon: <PiImageSquareBold className="h-12 w-12" />,
       },
       {
         title: 'Website Builder',
         description: 'Build professional websites with AI assistance.',
         buttonLabel: 'Build Website',
-      icon: <LuGlobe className="h-12 w-12" />,
+      icon: <FiGlobe className="h-12 w-12" />,
       },
       {
         title: 'Social Pro',
         description: 'Automate and manage your social presence.',
         buttonLabel: 'Schedule Content',
-        icon: <TbShare3 className="h-12 w-12" />,
+        icon: <RiOrganizationChart className="h-12 w-12" />,
       },
     ],
     []
@@ -171,7 +180,14 @@ const Dashboard: React.FC = () => {
       <DashboardSidebar activePath="/dashboard" />
 
       <div className="flex-1">
-        <DashboardTopbar userName={displayName} profilePicture={profile.profilePicture} />
+        <DashboardTopbar
+          userName={displayName}
+          profilePicture={profile.profilePicture}
+          email={profile.email}
+          username={profile.username}
+          onLogout={handleLogout}
+          onSettings={handleOpenSettings}
+        />
 
         <main className="flex-1 px-6 pb-16 md:px-10 xl:px-14">
           <div className="space-y-10">

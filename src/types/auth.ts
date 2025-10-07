@@ -1,9 +1,16 @@
 export interface User {
   id: string;
+  fullname?: string;
   email: string;
   name: string;
   username?: string;
+  role?: 'admin' | 'user';
   picture?: string | null;
+  country?: string;
+  phoneNumber?: string;
+  loginType?: 'Apple' | 'Microsoft' | 'Google' | 'Email';
+  status?: 'active' | 'inactive';
+  isEmailVerified?: boolean;
 }
 
 export interface AuthResponse {
@@ -24,6 +31,10 @@ export interface GoogleAuthPayload {
   accessToken?: string;
 }
 
+export interface MicrosoftAuthPayload {
+  accessToken: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -33,8 +44,17 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  fullName?: string;
+  phoneNumber?: string;
+  countryCode?: string;
+  country?: string;
 }
 
 export interface ForgotPasswordRequest {
   email: string;
+}
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
 }
