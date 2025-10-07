@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AIChat from './pages/AIChat';
+import AITools from './pages/AITools';
 import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 
@@ -31,6 +32,16 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools" element={
+            <ProtectedRoute>
+              <AITools />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/:toolId" element={
+            <ProtectedRoute>
+              <AITools />
             </ProtectedRoute>
           } />
           <Route path="/ai-tools/chat" element={
