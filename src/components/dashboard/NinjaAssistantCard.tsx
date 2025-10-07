@@ -17,7 +17,7 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
       <div className="mb-6 flex items-center gap-3 sm:mb-8">
         <div className="flex items-center justify-center">
-          <MdAssistant className="w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] text-red-600" />
+          <MdAssistant className="w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] text-[#B91C1C]" />
         </div>
         <h2 className="font-plus-jakarta text-lg font-semibold text-white sm:text-xl lg:text-[22px]">Ninja Assistant</h2>
       </div>

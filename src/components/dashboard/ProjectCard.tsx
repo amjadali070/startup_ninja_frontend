@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 
 interface ProjectCardProps {
@@ -30,7 +30,13 @@ const statusStyles: Record<ProjectCardProps['status'], { badge: string; dot: str
 const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, lastUpdated }) => {
   const clampedProgress = Math.min(Math.max(progress, 0), 100);
   const statusTheme = statusStyles[status];
-  const gradientId = useId();
+  const progressFillRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (progressFillRef.current) {
+      progressFillRef.current.style.width = `${clampedProgress}%`;
+    }
+  }, [clampedProgress]);
 
   return (
     <div className="relative w-full">
@@ -48,18 +54,18 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
             <p className="font-plus-jakarta text-sm text-white/60">{category}</p>
             <div className="flex flex-col gap-2 pt-1">
               <span className="font-plus-jakarta text-xs uppercase tracking-[0.24em] text-white/50">{clampedProgress}% Complete</span>
-              <div className="relative h-[10.67px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.08)]">
-                <svg viewBox="0 0 100 10.67" className="h-full w-full" aria-hidden="true" focusable="false">
-                  <defs>
-                    <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#FF3B3B" />
-                      <stop offset="52%" stopColor="#E50000" />
-                      <stop offset="100%" stopColor="#A60000" />
-                    </linearGradient>
-                  </defs>
-                  <rect x="0" y="0" width="100" height="10.67" rx="5.335" fill="rgba(255,255,255,0.08)" />
-                  <rect x="0" y="0" width={clampedProgress} height="10.67" rx="5.335" fill={`url(#${gradientId})`} />
-                </svg>
+              <div
+                role="progressbar"
+                aria-valuenow={clampedProgress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${clampedProgress}% complete`}
+                className="relative h-3 w-full overflow-hidden rounded-full bg-white/10"
+              >
+                <div
+                  ref={progressFillRef}
+                  className="absolute inset-y-0 left-0 w-0 rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] shadow-[0px_4px_16px_rgba(229,0,0,0.35)] transition-[width] duration-300 ease-out"
+                />
               </div>
             </div>
           </div>
