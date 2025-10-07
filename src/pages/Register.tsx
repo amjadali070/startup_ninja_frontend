@@ -273,7 +273,6 @@ const Register: React.FC = () => {
         fullName: fullName.trim(),
         phoneNumber: `${selectedCountry.dialCode}${sanitizedPhone}`,
         country: selectedCountry.name,
-        countryCode: selectedCountry.dialCode,
       };
 
       const response = await authService.register(payload);
