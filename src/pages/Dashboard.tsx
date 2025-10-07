@@ -232,7 +232,7 @@ const Dashboard: React.FC = () => {
                 <NinjaAssistantCard suggestions={assistantSuggestions} />
               </div>
 
-              <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] bg-[#0C0C14] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
+              <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
                 <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

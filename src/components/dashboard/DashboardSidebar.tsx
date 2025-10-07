@@ -67,6 +67,7 @@ const navItems: SidebarNavItem[] = [
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dashboard' }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobileCollapsed, _setIsMobileCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const location = useLocation();
 
@@ -120,33 +121,35 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
       <button
         type="button"
         onClick={toggleMobileSidebar}
-        className="fixed left-4 top-4 z-40 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur lg:hidden"
+        className="fixed left-3 top-16 sm:left-4 sm:top-5 z-[60] inline-flex items-center justify-center rounded-full bg-black/40 px-3 py-2 text-sm font-semibold text-white shadow-lg ring-1 ring-white/15 backdrop-blur-md lg:hidden"
         aria-controls="dashboard-sidebar"
         aria-expanded={isMobileOpen}
         aria-label="Toggle sidebar"
         title="Toggle sidebar"
       >
-        {isMobileOpen ? <FiX className="h-5 w-5" /> : <FiMenu className="h-5 w-5" />}
-        <span className="sr-only">Toggle sidebar</span>
+        {isMobileOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
       </button>
 
       {isMobileOpen && (
         <div
           role="presentation"
           onClick={closeMobileSidebar}
-          className="fixed inset-0 z-30 cursor-pointer bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 cursor-pointer backdrop-blur-sm lg:hidden"
         />
       )}
 
       <aside
         id="dashboard-sidebar"
-        className={`fixed inset-y-0 left-0 z-40 w-[260px] transform bg-[#0B0B0F] border-r border-white/5 transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:w-[248px] xl:w-[260px] lg:translate-x-0 ${
+        className={`pt-5 fixed inset-y-0 left-0 z-40 transform bg-[#0B0B0F] border-r border-white/5 transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:w-[248px] xl:w-[260px] lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } ${isMobileOpen ? (isMobileCollapsed ? 'w-[80px]' : 'w-[260px]') : ''}`}
       >
-        <div className="flex h-full w-full flex-col px-6 pt-6 pb-10 lg:pt-8">
-          <div className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="Startup Ninja" className="h-10 w-auto" />
+        <div className="flex h-full w-full flex-col px-4 pt-6 pb-10 lg:pt-8 lg:px-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <img src="/images/logo.png" alt="Startup Ninja" className="h-10 w-auto" />
+            </div>
+           
           </div>
 
           <nav className="mt-10 flex-1 space-y-2 overflow-y-auto pr-1">
@@ -170,7 +173,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                     }}
                     className={({ isActive }) => {
                       const isCurrent = isActive || navActive;
-                      const baseClasses = 'group relative flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200';
+                      const baseClasses = `group relative flex items-center ${isMobileOpen && isMobileCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'} rounded-xl border text-sm font-medium transition-all duration-200`;
                       const defaultState = 'border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]';
                       const activeState = 'text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]';
 
@@ -205,8 +208,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                     <span className="flex h-9 w-9 items-center justify-center text-white">
                       {item.icon}
                     </span>
-                    <span>{item.label}</span>
-                    <span className="ml-auto flex items-center gap-2">
+                    {isMobileOpen && isMobileCollapsed ? null : <span className="truncate">{item.label}</span>}
+                    <span className={`ml-auto flex items-center gap-2 ${isMobileOpen && isMobileCollapsed ? 'hidden' : ''}` }>
   
                       {hasChildren ? (
                         <button
@@ -244,7 +247,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                           onClick={closeMobileSidebar}
                           className={({ isActive }) => {
                             const isCurrent = isActive || location.pathname.startsWith(child.to);
-                            const baseClasses = 'group flex items-center gap-2 rounded-lg border px-1 py-2 text-sm transition-all duration-200';
+                            const baseClasses = `group flex items-center gap-2 rounded-lg border px-1 py-2 text-sm transition-all duration-200`;
                             const defaultState = 'border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]';
                             const activeState = 'text-white shadow-[0_10px_24px_rgba(229,0,0,0.12)]';
                             return `${baseClasses} ${isCurrent ? activeState : defaultState}`.trim();
