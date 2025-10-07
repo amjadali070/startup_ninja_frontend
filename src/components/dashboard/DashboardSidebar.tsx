@@ -50,7 +50,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
     <aside className="hidden lg:flex w-[248px] xl:w-[260px] bg-[#0B0B0F] border-r border-white/5">
       <div className="flex flex-col w-full h-screen px-6 pt-8 pb-10">
         <div className="flex items-center gap-3">
-          <img src="/images/logo.png" alt="Startup Ninja" className="h-9 w-auto" />
+          <img src="/images/logo.png" alt="Startup Ninja" className="w-auto" />
         </div>
 
         <nav className="mt-12 flex-1 space-y-2">

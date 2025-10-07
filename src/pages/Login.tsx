@@ -110,7 +110,11 @@ const Login: React.FC = () => {
               showDivider={false}
             />
 
-            <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200"
+            >
               <HiOutlineMail className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
               Continue with Email
             </button>
@@ -215,10 +219,10 @@ const Login: React.FC = () => {
         <img 
           src="/images/login-bg.png" 
           alt="Samurai silhouette" 
-          className="absolute inset-0 w-[88%] h-full ml-[12%]"
+          className="absolute inset-0 w-[100%] h-full object-cover object-center"
         />
         
-        <div className="absolute inset-0 bg-gradient-login ml-[10%]"></div>
+        <div className="absolute inset-0 bg-gradient-login"></div>
 
         {/* Top blend gradient to create visual padding with black mix */}
         {/* <div className="absolute top-0 left-0 right-0 h-40 sm:h-48 lg:h-56 bg-gradient-to-b from-black via-black/85 to-transparent pointer-events-none"></div> */}
