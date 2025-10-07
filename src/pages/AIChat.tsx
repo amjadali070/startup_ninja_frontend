@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEdit3, FiFileText, FiHelpCircle } from 'react-icons/fi';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
@@ -19,16 +19,21 @@ const quickActions = [
     title: 'Summarize Text',
     description: 'Turn long articles into easy summaries.',
     icon: <FiFileText className="h-6 w-6" />,
+    prompt:
+      "Summarize the following text into bullet points highlighting key takeaways and action items:\n\n[Paste your text here]",
   },
   {
     title: 'Creative Writing',
     description: 'Generate stories, blog posts, or fresh content ideas in seconds.',
     icon: <FiEdit3 className="h-6 w-6" />,
+    prompt:
+      "Write a creative short story about a tenacious startup founder who overcomes an unexpected challenge using AI. Focus on emotion and vivid details.",
   },
   {
     title: 'Answer Questions',
     description: 'Ask me anything—from facts to advice—and get instant answers.',
     icon: <FiHelpCircle className="h-6 w-6" />,
+    prompt: 'Answer the question: How can early-stage startups validate their product idea quickly with limited resources?',
   },
 ];
 
@@ -38,6 +43,10 @@ const AIChat: FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState(0);
+  const usageLimit = 2000;
 
   const resolvedProfilePicture = useMemo(() => {
     const fallbackUser = authService.getUser?.() ?? null;
@@ -89,6 +98,35 @@ const AIChat: FC = () => {
     navigate('/settings');
   };
 
+  const handleComposerSubmit = useCallback(async () => {
+    const trimmedPrompt = prompt.trim();
+
+    if (!trimmedPrompt) {
+      return false;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      const estimatedTokens = Math.max(18, Math.round(trimmedPrompt.length / 4));
+
+      setTokenUsage((previous) => Math.min(previous + estimatedTokens, usageLimit));
+      setPrompt('');
+      return true;
+    } catch (submissionError) {
+      console.error('AI chat prompt submission failed:', submissionError);
+      return false;
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [prompt, usageLimit]);
+
+  const handleQuickAction = useCallback((template: string) => {
+    setPrompt(template);
+  }, []);
+
   if (loading) {
     return <LoadingSpinner fullscreen variant="dark" />;
   }
@@ -135,11 +173,24 @@ const AIChat: FC = () => {
           <div className="mx-auto w-full max-w-6xl">
             <AIChatUpgradeBanner />
             <AIChatHeroTitle />
-            <AIChatComposer />
+            <AIChatComposer
+              prompt={prompt}
+              onPromptChange={(value) => setPrompt(value)}
+              onSubmit={handleComposerSubmit}
+              isGenerating={isGenerating}
+              tokenUsage={tokenUsage}
+              usageLimit={usageLimit}
+            />
 
             <section className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {quickActions.map((action) => (
-                <AIChatQuickActionCard key={action.title} {...action} />
+                <AIChatQuickActionCard
+                  key={action.title}
+                  title={action.title}
+                  description={action.description}
+                  icon={action.icon}
+                  onClick={() => handleQuickAction(action.prompt)}
+                />
               ))}
             </section>
 

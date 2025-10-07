@@ -7,7 +7,6 @@ const AIChatHeroTitle: FC = () => {
         Let’s start a ninja conversation
       </h2>
       <p className="mt-4 text-base text-white/50">
-        Ask anything and unleash imaginative, razor-sharp responses tailored for your startup.
       </p>
     </div>
   );
