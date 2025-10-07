@@ -81,7 +81,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
           className="min-h-[90px] w-full flex-1 resize-none border-none bg-transparent text-lg leading-8 text-white/70 placeholder:text-white/25 focus:outline-none sm:min-h-[150px] sm:text-xl"
         />
 
-        <div className="flex flex-col gap-4 border-t border-white/5 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-1">
             <button
               type="button"

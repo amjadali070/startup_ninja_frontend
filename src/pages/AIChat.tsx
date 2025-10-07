@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEdit3, FiFileText, FiHelpCircle } from 'react-icons/fi';
+import { FiEdit3 } from 'react-icons/fi';
+import { ImFileText } from 'react-icons/im';
+import { PiBrainLight } from "react-icons/pi";
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import DashboardTopbar from '../components/dashboard/DashboardTopbar';
 import AIChatUpgradeBanner from '../components/ai-chat/AIChatUpgradeBanner';
@@ -18,7 +20,7 @@ const quickActions = [
   {
     title: 'Summarize Text',
     description: 'Turn long articles into easy summaries.',
-    icon: <FiFileText className="h-6 w-6" />,
+    icon: <ImFileText className="h-6 w-6" />,
     prompt:
       "Summarize the following text into bullet points highlighting key takeaways and action items:\n\n[Paste your text here]",
   },
@@ -32,7 +34,7 @@ const quickActions = [
   {
     title: 'Answer Questions',
     description: 'Ask me anything—from facts to advice—and get instant answers.',
-    icon: <FiHelpCircle className="h-6 w-6" />,
+    icon: <PiBrainLight className="h-6 w-6" />,
     prompt: 'Answer the question: How can early-stage startups validate their product idea quickly with limited resources?',
   },
 ];
