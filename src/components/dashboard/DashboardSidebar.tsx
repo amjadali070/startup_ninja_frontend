@@ -144,15 +144,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isMobileOpen ? (isMobileCollapsed ? 'w-[80px]' : 'w-[260px]') : ''}`}
       >
-        <div className="flex h-full w-full flex-col px-4 pt-6 pb-10 lg:pt-8 lg:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <img src="/images/logo.png" alt="Startup Ninja" className="h-10 w-auto" />
-            </div>
-           
+        <div className="flex h-full w-full flex-col px-4 pt-2 lg:pt-4 lg:px-4">
+          <div className="flex items-center justify-center">
+            <img src="/images/logo.png" alt="Startup Ninja" className="h-16 w-auto" />
           </div>
 
-          <nav className="mt-10 flex-1 space-y-2 overflow-y-auto pr-1">
+          <nav className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1">
             {navItems.map((item) => {
               const children = item.children ?? [];
               const hasChildren = children.length > 0;
