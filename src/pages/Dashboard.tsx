@@ -13,6 +13,7 @@ import ProjectCard from '../components/dashboard/ProjectCard';
 import TokenUsageCard from '../components/dashboard/TokenUsageCard';
 import { authService } from '../services/auth';
 import { userService, UserProfile } from '../services/user';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface QuickActionConfig {
   title: string;
@@ -171,12 +172,7 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#07070C] text-white">
-        <div className="flex items-center gap-3 rounded-full border border-white/10 px-5 py-3 text-sm text-white/70">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[#FF4D4D]" />
-          Preparing your workspace…
-        </div>
-      </div>
+      <LoadingSpinner fullscreen variant="dark" />
     );
   }
 
