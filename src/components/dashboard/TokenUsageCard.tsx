@@ -39,7 +39,7 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
               cy="120"
               r={radius}
               stroke="#1F2026"
-              strokeWidth="36"
+              strokeWidth="20"
               fill="none"
             />
             <circle
@@ -47,7 +47,7 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
               cy="120"
               r={radius}
               stroke={`url(#${gradientId})`}
-              strokeWidth="36"
+              strokeWidth="20"
               strokeLinecap="square"
               fill="none"
               strokeDasharray={circumference}

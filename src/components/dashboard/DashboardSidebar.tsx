@@ -1,17 +1,18 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { PiMagicWandBold } from 'react-icons/pi';
+import { PiMagicWandBold, PiImageSquareBold } from 'react-icons/pi';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
 import { FaRegFolder } from "react-icons/fa6";
 import { PiCirclesThreeBold } from "react-icons/pi";
 import { FaRss } from "react-icons/fa";
-import { FiMenu, FiX } from 'react-icons/fi';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiX, FiChevronDown, FiMessageSquare, FiGlobe } from 'react-icons/fi';
+import { RiOrganizationChart } from 'react-icons/ri';
 
 interface SidebarSubNavItem {
   label: string;
   to: string;
+  icon: ReactNode;
 }
 
 interface SidebarNavItem {
@@ -36,10 +37,10 @@ const navItems: SidebarNavItem[] = [
     to: '/ai-tools',
     icon: <PiMagicWandBold className="w-5 h-5" />,
     children: [
-      { label: 'AI Chat', to: '/ai-tools/chat' },
-      { label: 'AI Image', to: '/ai-tools/image' },
-      { label: 'Web Builder', to: '/ai-tools/web-builder' },
-      { label: 'Social Pro', to: '/ai-tools/social-pro' },
+      { label: 'AI Chat', to: '/ai-tools/chat', icon: <FiMessageSquare className="h-4 w-4" /> },
+      { label: 'AI Image', to: '/ai-tools/image', icon: <PiImageSquareBold className="h-4 w-4" /> },
+      { label: 'Web Builder', to: '/ai-tools/web-builder', icon: <FiGlobe className="h-4 w-4" /> },
+      { label: 'Social Pro', to: '/ai-tools/social-pro', icon: <RiOrganizationChart className="h-4 w-4" /> },
     ],
   },
   {
@@ -201,7 +202,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                       clearHoverGradient(element);
                     }}
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-white">
+                    <span className="flex h-9 w-9 items-center justify-center text-white">
                       {item.icon}
                     </span>
                     <span>{item.label}</span>
@@ -243,7 +244,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                           onClick={closeMobileSidebar}
                           className={({ isActive }) => {
                             const isCurrent = isActive || location.pathname.startsWith(child.to);
-                            const baseClasses = 'group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all duration-200';
+                            const baseClasses = 'group flex items-center gap-2 rounded-lg border px-1 py-2 text-sm transition-all duration-200';
                             const defaultState = 'border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]';
                             const activeState = 'text-white shadow-[0_10px_24px_rgba(229,0,0,0.12)]';
                             return `${baseClasses} ${isCurrent ? activeState : defaultState}`.trim();
@@ -274,7 +275,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                             clearHoverGradient(element);
                           }}
                         >
-                          <span className="h-2 w-2 rounded-full bg-white/30" aria-hidden />
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white" aria-hidden>
+                            {child.icon}
+                          </span>
                           <span>{child.label}</span>
                         </NavLink>
                       ))}

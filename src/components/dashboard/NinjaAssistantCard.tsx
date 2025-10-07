@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { MdAssistant } from "react-icons/md";
 
 interface NinjaAssistantCardProps {
   suggestions?: string[];
@@ -15,26 +16,8 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   return (
   <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
       <div className="mb-6 flex items-center gap-3 sm:mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-md bg-red-600 sm:h-14 sm:w-14">
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className="ninja-star-icon"
-          >
-            <path 
-              d="M12 2L15.09 8.26L22 9L17 14.74L18.18 21.02L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
-              fill="white"
-            />
-            <path 
-              d="M12 2L12 8L16 12L12 16L12 22L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
-              fill="white"
-              fillOpacity="0.8"
-            />
-            <circle cx="12" cy="12" r="2" fill="#DC2626"/>
-          </svg>
+        <div className="flex items-center justify-center">
+          <MdAssistant className="w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] text-red-600" />
         </div>
         <h2 className="font-plus-jakarta text-lg font-semibold text-white sm:text-xl lg:text-[22px]">Ninja Assistant</h2>
       </div>
