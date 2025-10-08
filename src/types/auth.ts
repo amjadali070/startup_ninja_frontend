@@ -19,6 +19,9 @@ export interface AuthResponse {
   user?: User;
   token?: string;
   isNewUser?: boolean;
+  requiresEmailVerification?: boolean;
+  userId?: string;
+  email?: string;
   errors?: Array<{
     msg: string;
     param: string;

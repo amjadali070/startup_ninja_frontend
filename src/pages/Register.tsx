@@ -6,6 +6,8 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
 import type { RegisterRequest } from '../types/auth';
 import { COUNTRY_OPTIONS } from '../data/countries';
+import EmailVerificationModal from '../components/EmailVerificationModal';
+import toast from 'react-hot-toast';
 
 const getFlagUrl = (iso2: string, size: number = 32) => {
   const width = size;
@@ -90,6 +92,12 @@ const Register: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<{
+    userId: string;
+    email: string;
+  } | null>(null);
+  const [verificationLoading, setVerificationLoading] = useState(false);
   const countryDropdownRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -279,7 +287,14 @@ const Register: React.FC = () => {
       };
 
       const response = await authService.register(payload);
-      if (response.success && response.token && response.user) {
+      if (response.success && response.requiresEmailVerification && response.userId) {
+        // Show email verification modal
+        setVerificationData({
+          userId: response.userId,
+          email: formData.email
+        });
+        setShowEmailVerification(true);
+      } else if (response.success && response.token && response.user) {
         login(response.user, response.token);
         navigate('/dashboard');
       } else if (response.success) {
@@ -297,6 +312,53 @@ const Register: React.FC = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEmailVerification = async (otp: string) => {
+    if (!verificationData) return;
+    
+    setVerificationLoading(true);
+    try {
+      const response = await authService.verifyEmail(verificationData.userId, otp);
+      if (response.success && response.token && response.user) {
+        login(response.user, response.token);
+        setShowEmailVerification(false);
+        toast.success('Email verified successfully! Welcome to Startup Ninja!');
+        navigate('/dashboard');
+      } else {
+        throw new Error(response.message || 'Verification failed');
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Verification failed');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (!verificationData) return;
+    
+    try {
+      const response = await authService.resendOTP(verificationData.userId);
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to resend OTP');
+      }
+      toast.success('New OTP has been sent to your email address.');
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to resend OTP');
+    }
+  };
+
+  const handleCloseVerificationModal = () => {
+    // Show alert when user cancels verification
+    if (window.confirm('Are you sure you want to cancel email verification? You can verify your email later when you try to login again.')) {
+      setShowEmailVerification(false);
+      setVerificationData(null);
+      toast('You can verify your email later by trying to login again.', {
+        icon: 'ℹ️',
+        duration: 4000,
+      });
     }
   };
 
@@ -603,6 +665,16 @@ const Register: React.FC = () => {
           className="w-full h-full aspect-[2/1]"
         />
       </div>
+
+      {/* Email Verification Modal */}
+      <EmailVerificationModal
+        isOpen={showEmailVerification}
+        onClose={handleCloseVerificationModal}
+        onVerify={handleEmailVerification}
+        onResendCode={handleResendOTP}
+        email={verificationData?.email || ''}
+        loading={verificationLoading}
+      />
     </div>
   );
 };

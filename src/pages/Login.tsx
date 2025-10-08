@@ -7,6 +7,8 @@ import { FaApple } from 'react-icons/fa';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { HiOutlineMail } from 'react-icons/hi';
 import SocialAuth from '../components/SocialAuth';
+import EmailVerificationModal from '../components/EmailVerificationModal';
+import toast from 'react-hot-toast';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +21,12 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<{
+    userId: string;
+    email: string;
+  } | null>(null);
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -57,7 +65,15 @@ const Login: React.FC = () => {
 
     try {
       const response = await authService.login(formData);
-      if (response.success && response.token) {
+      if (response.success && response.requiresEmailVerification && response.userId) {
+        // Show email verification modal
+        setVerificationData({
+          userId: response.userId,
+          email: formData.email
+        });
+        setShowEmailVerification(true);
+        setError('');
+      } else if (response.success && response.token) {
         setError('');
         login(response.user, response.token); // update context
         navigate('/dashboard');
@@ -68,6 +84,68 @@ const Login: React.FC = () => {
       setError(err.response?.data?.message || 'An error occurred during login');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEmailVerification = async (otp: string) => {
+    if (!verificationData) return;
+    
+    console.log('🔍 Frontend OTP Verification Debug:', {
+      userId: verificationData.userId,
+      providedOTP: otp,
+      email: verificationData.email,
+      timestamp: new Date().toISOString()
+    });
+    
+    setVerificationLoading(true);
+    try {
+      const response = await authService.verifyEmail(verificationData.userId, otp);
+      console.log('📧 Verification Response:', response);
+      
+      if (response.success && response.token && response.user) {
+        login(response.user, response.token);
+        setShowEmailVerification(false);
+        // Show success toast
+        toast.success('Email verified successfully! Welcome to Startup Ninja!');
+        navigate('/dashboard');
+      } else {
+        throw new Error(response.message || 'Verification failed');
+      }
+    } catch (error: any) {
+      console.error('❌ Verification Error:', error);
+      throw new Error(error.message || 'Verification failed');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (!verificationData) return;
+    
+    console.log('🔄 Resending OTP for user:', verificationData.userId);
+    
+    try {
+      const response = await authService.resendOTP(verificationData.userId);
+      console.log('📤 Resend OTP Response:', response);
+      
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to resend OTP');
+      }
+      // Show success message
+      toast.success('New OTP has been sent to your email address.');
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to resend OTP');
+    }
+  };
+
+  const handleCloseVerificationModal = () => {
+    // Show alert when user cancels verification
+    if (window.confirm('Are you sure you want to cancel email verification? You can verify your email later when you try to login again.')) {
+      setShowEmailVerification(false);
+      setVerificationData(null);
+      // Reset to email step
+      setShowPasswordStep(false);
+      setFormData({ email: formData.email, password: '' });
     }
   };
 
@@ -240,6 +318,17 @@ const Login: React.FC = () => {
           </div>
         </div> */}
       </div>
+
+      {/* Email Verification Modal */}
+      <EmailVerificationModal
+        isOpen={showEmailVerification}
+        onClose={handleCloseVerificationModal}
+        onVerify={handleEmailVerification}
+        onResendCode={handleResendOTP}
+        email={verificationData?.email || ''}
+        loading={verificationLoading}
+        isLoginVerification={true}
+      />
     </div>
   );
 };
