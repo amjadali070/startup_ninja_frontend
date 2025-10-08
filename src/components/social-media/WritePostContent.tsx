@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
+import { usePost } from './PostContext';
 
 const WritePostContent: React.FC = () => {
-  const [content, setContent] = useState('');
+  const { postData, updateContent } = usePost();
   const maxCharacters = 280;
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     if (value.length <= maxCharacters) {
-      setContent(value);
+      updateContent(value);
     }
   };
 
@@ -28,7 +29,7 @@ const WritePostContent: React.FC = () => {
 
       <div className="mb-3 md:mb-4">
         <textarea
-          value={content}
+          value={postData.content}
           onChange={handleContentChange}
           placeholder="What's on your mind? Let AI help you craft the perfect post..."
           className="w-full h-24 md:h-20 bg-transparent border-none outline-none resize-none 
@@ -76,7 +77,7 @@ const WritePostContent: React.FC = () => {
         </div>
 
         <div className="text-gray-400 text-xs md:text-sm font-medium">
-          {content.length} / {maxCharacters} characters
+          {postData.content.length}/{maxCharacters} characters
         </div>
       </div>
     </div>
