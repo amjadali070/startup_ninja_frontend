@@ -144,12 +144,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isMobileOpen ? (isMobileCollapsed ? 'w-[80px]' : 'w-[260px]') : ''}`}
       >
-        <div className="flex h-full w-full flex-col px-4 pt-2 lg:pt-4 lg:px-4">
+        <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
           <div className="flex items-center justify-center">
-            <img src="/images/logo.png" alt="Startup Ninja" className="h-16 w-auto" />
+            <img src="/images/logo.png" alt="Startup Ninja" className="h-12 w-auto" />
           </div>
 
-          <nav className="mt-4 flex-1 space-y-2 overflow-y-auto pr-1">
+          <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">
             {navItems.map((item) => {
               const children = item.children ?? [];
               const hasChildren = children.length > 0;
@@ -159,7 +159,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
               const dataIsActiveValue = navActive.toString();
 
               return (
-                <div key={item.label} className="space-y-1">
+                <div key={item.label} className="space-y-0.5">
                   <NavLink
                     to={item.to}
                     onClick={() => {
@@ -170,7 +170,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                     }}
                     className={({ isActive }) => {
                       const isCurrent = isActive || navActive;
-                      const baseClasses = `group relative flex items-center ${isMobileOpen && isMobileCollapsed ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'} rounded-xl border text-sm font-medium transition-all duration-200`;
+                      const baseClasses = `group relative flex items-center ${isMobileOpen && isMobileCollapsed ? 'justify-center px-2 py-2' : 'gap-2 px-3 py-2'} rounded-xl border text-xs font-medium transition-all duration-200`;
                       const defaultState = 'border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]';
                       const activeState = 'text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]';
 
@@ -202,7 +202,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
                       clearHoverGradient(element);
                     }}
                   >
-                    <span className="flex h-9 w-9 items-center justify-center text-white">
+                    <span className="flex h-7 w-7 items-center justify-center text-white">
                       {item.icon}
                     </span>
                     {isMobileOpen && isMobileCollapsed ? null : <span className="truncate">{item.label}</span>}
@@ -288,7 +288,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
             })}
           </nav>
 
-          <div className="mt-8 hidden lg:block text-xs text-white/30">
+          <div className="mt-6 hidden lg:block text-[10px] text-white/30">
             © {new Date().getFullYear()} Startup Ninja
           </div>
         </div>

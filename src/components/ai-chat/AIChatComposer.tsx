@@ -65,11 +65,11 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
 
   return (
     <div
-      className={`w-full rounded-2xl border border-[#242424] bg-[#151515] p-3 shadow-[0_24px_120px_rgba(5,5,10,0.65)] backdrop-blur-lg sm:p-4 md:p-5 ${
+      className={`w-full rounded-2xl border border-[#242424] bg-[#151515] p-2 shadow-[0_24px_120px_rgba(5,5,10,0.65)] backdrop-blur-lg sm:p-4 md:p-5 ${
         className ?? ''
       }`}
     >
-      <div className="flex h-full flex-col gap-1">
+      <div className="flex h-full flex-col">
         <textarea
           value={prompt}
           onChange={handleChange}

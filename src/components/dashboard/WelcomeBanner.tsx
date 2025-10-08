@@ -11,21 +11,21 @@ const WelcomeBanner: FC<WelcomeBannerProps> = ({ name }) => {
       className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat"
     >
       <div className="absolute inset-0" />
-      <div className="relative z-10 flex h-full flex-col justify-between gap-4 px-4 py-6 sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-8 md:px-8 md:py-10 xl:px-10 xl:py-12">
+      <div className="relative z-10 flex h-full flex-col justify-between gap-3 px-3 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-5 md:px-6 md:py-6 xl:px-8 xl:py-8">
         <div className="flex-1 min-w-0">
-          <h2 className="font-plus-jakarta w-full text-2xl font-bold leading-8 text-white sm:text-3xl sm:leading-[44px] md:text-[34px] md:leading-[48px]">
+          <h2 className="font-plus-jakarta w-full text-xl font-bold leading-7 text-white sm:text-2xl sm:leading-[32px] md:text-[26px] md:leading-[36px]">
             {`Welcome back${name ? `, ${name}` : ''}`}
           </h2>
-          <p className="font-plus-jakarta mt-2 text-sm leading-6 text-gray-300 sm:mt-3 sm:text-base sm:leading-7 md:text-[21px] md:leading-[34px]">
+          <p className="font-plus-jakarta mt-1 text-xs leading-5 text-gray-300 sm:mt-2 sm:text-sm sm:leading-6 md:text-[16px] md:leading-[24px]">
             What do you want to create today?
           </p>
         </div>
         <div className="flex-shrink-0">
           <button
             type="button"
-            className="font-plus-jakarta inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-3 sm:text-base"
+            className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-4 sm:py-2.5 sm:text-sm"
           >
-            <span className="text-base font-bold sm:text-lg">+</span>
+            <span className="text-sm font-bold sm:text-base">+</span>
             <span className="hidden xs:inline">Start New Project</span>
             <span className="xs:hidden">New Project</span>
           </button>

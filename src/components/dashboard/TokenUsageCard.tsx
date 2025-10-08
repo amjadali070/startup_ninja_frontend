@@ -16,11 +16,11 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
   const gradientId = useId();
 
   return (
-  <div className="flex h-full w-full flex-col rounded-[12px] border-[1.33px] border-[#191919] px-6 pb-8 pt-7 text-center shadow-[0px_10px_35px_rgba(0,0,0,0.35)] sm:px-8 sm:pb-10 sm:pt-9">
-      <h3 className="font-plus-jakarta text-xl font-semibold leading-[28px] text-white sm:text-[24px] sm:leading-[30px]">Tokens Usage</h3>
+  <div className="flex h-full w-full flex-col rounded-[12px] border-[1.33px] border-[#191919] px-4 pb-6 pt-5 text-center shadow-[0px_10px_35px_rgba(0,0,0,0.35)] sm:px-6 sm:pb-8 sm:pt-7">
+      <h3 className="font-plus-jakarta text-lg font-semibold leading-[24px] text-white sm:text-[20px] sm:leading-[26px]">Tokens Usage</h3>
 
-      <div className="mt-8 flex justify-center sm:mt-10">
-        <div className="relative w-full max-w-[210px] sm:max-w-[236px] lg:max-w-[260px]">
+      <div className="mt-6 flex justify-center sm:mt-8">
+        <div className="relative w-full max-w-[180px] sm:max-w-[200px] lg:max-w-[220px]">
           <div className="relative aspect-square">
             <svg
               className="absolute inset-0 h-full w-full -rotate-90"
@@ -56,28 +56,28 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
           </svg>
 
             <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-md">
-              <span className="font-plus-jakarta text-[32px] font-semibold leading-[36px] text-white sm:text-[40px] sm:leading-[44px]">
+              <span className="font-plus-jakarta text-[24px] font-semibold leading-[28px] text-white sm:text-[30px] sm:leading-[34px]">
                 {used.toLocaleString()}
               </span>
-              <span className="mt-1 font-plus-jakarta text-sm text-[#A7ADB7] sm:text-base">Tokens Used</span>
+              <span className="mt-1 font-plus-jakarta text-xs text-[#A7ADB7] sm:text-sm">Tokens Used</span>
             </div>
           </div>
         </div>
       </div>
 
       <div
-        className="mt-8 space-y-5 text-left sm:mt-10"
+        className="mt-6 space-y-3 text-left sm:mt-8"
         aria-label={`You have used ${used.toLocaleString()} tokens out of ${safeLimit.toLocaleString()} tokens. ${resetInHours} hours until reset.`}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-plus-jakarta text-sm text-[#9CA3AF] sm:text-lg">Daily Limit</span>
-          <span className="font-plus-jakarta text-sm font-semibold text-white sm:text-lg">
+          <span className="font-plus-jakarta text-xs text-[#9CA3AF] sm:text-sm">Daily Limit</span>
+          <span className="font-plus-jakarta text-xs font-semibold text-white sm:text-sm">
             {safeLimit.toLocaleString()} Tokens
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-plus-jakarta text-sm text-[#9CA3AF] sm:text-lg">Reset In</span>
-          <span className="font-plus-jakarta text-sm font-semibold text-white sm:text-lg">{resetInHours} Hours</span>
+          <span className="font-plus-jakarta text-xs text-[#9CA3AF] sm:text-sm">Reset In</span>
+          <span className="font-plus-jakarta text-xs font-semibold text-white sm:text-sm">{resetInHours} Hours</span>
         </div>
       </div>
     </div>
