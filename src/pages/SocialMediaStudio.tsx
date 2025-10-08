@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
 import { userService, type UserProfile } from '../services/user';
 import { resolveProfilePictureUrl } from '../utils/profile';
+import SocialMediaHeading from '../components/social-media/SocialMediaHeading.tsx';
 
 const SocialMediaStudio: FC = () => {
   const navigate = useNavigate();
@@ -114,19 +115,23 @@ const SocialMediaStudio: FC = () => {
         />
 
         <main className="flex-1 overflow-y-auto">
+            
           <div className="p-3 sm:p-4 lg:p-6">
+            <div className="mb-6">
+                <SocialMediaHeading/>
+            </div>
             <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-start">
-              <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6">
+              <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6 border rounded-lg border-white/10 p-6 lg:p-6">
                 <div>
-                  <h1 className="text-white text-2xl md:text-3xl font-bold mb-4 md:mb-6 font-plus-jakarta">
+                  <h1 className="text-white text-xl md:text-2xl font-bold mb-4 md:mb-6 font-plus-jakarta">
                     Create Post
                   </h1>
                 </div>
 
                 <div>
-                  <h2 className="text-white text-lg md:text-xl font-bold mb-3 md:mb-4 font-plus-jakarta">
+                    <h3 className="text-white text-base md:text-lg font-bold mb-3 md:mb-4 font-plus-jakarta">
                     Select Platforms
-                  </h2>
+                  </h3>
                   <PlatformTags />
                 </div>
 
