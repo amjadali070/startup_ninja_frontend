@@ -127,7 +127,7 @@ const Dashboard: React.FC = () => {
         description: 'Create stunning visuals from text prompts.',
         buttonLabel: 'Generate Visual',
         icon: <PiImageSquareBold className="h-12 w-12" />,
-        to: '/ai-tools/image',
+        to: '/ai-tools/image-gen',
       },
       {
         title: 'Website Builder',
