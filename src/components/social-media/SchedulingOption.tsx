@@ -76,7 +76,7 @@ const SchedulingOption: React.FC = () => {
   const availablePlatforms = allPlatforms.filter(p => !scheduledPlatformIds.has(p.id));
 
   return (
-    <div className="w-full bg-[#121212] rounded-2xl p-4 lg:p-6 border border-gray-800">
+    <div className="w-full rounded-2xl p-4 lg:p-6 border border-gray-800">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
         <h2 className="text-white text-lg md:text-xl font-bold font-plus-jakarta">
           Scheduling Options
@@ -151,33 +151,34 @@ const SchedulingOption: React.FC = () => {
         })}
       </div>
 
-      <div className="relative mb-8">
-        <button
-          onClick={() => setIsPlatformSelectorOpen(!isPlatformSelectorOpen)}
-          disabled={availablePlatforms.length === 0}
-          className="flex items-center justify-center w-full gap-2 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 border border-dashed rounded-lg border-gray-600 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaPlus />
-          Add Platform
-        </button>
+      {availablePlatforms.length > 0 && (
+        <div className="relative mb-8">
+          <button
+            onClick={() => setIsPlatformSelectorOpen(!isPlatformSelectorOpen)}
+            className="flex items-center justify-center w-full gap-2 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 border border-dashed rounded-lg border-gray-600 hover:bg-gray-800"
+          >
+            <FaPlus />
+            Add Platform
+          </button>
 
-        {isPlatformSelectorOpen && availablePlatforms.length > 0 && (
-          <div className="absolute z-10 w-full mt-2 bg-[#1E1E1E] border border-gray-700 rounded-lg shadow-lg">
-            <ul className="p-1">
-              {availablePlatforms.map(platform => (
-                <li
-                  key={platform.id}
-                  onClick={() => addPlatform(platform)}
-                  className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-gray-700"
-                >
-                  <platform.IconComponent className="w-5 h-5" style={{ color: platform.color }} />
-                  <span className="text-white text-sm">{platform.name}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+          {isPlatformSelectorOpen && (
+            <div className="absolute z-10 w-full mt-2 bg-[#1E1E1E] border border-gray-700 rounded-lg shadow-lg">
+              <ul className="p-1">
+                {availablePlatforms.map(platform => (
+                  <li
+                    key={platform.id}
+                    onClick={() => addPlatform(platform)}
+                    className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-gray-700"
+                  >
+                    <platform.IconComponent className="w-5 h-5" style={{ color: platform.color }} />
+                    <span className="text-white text-sm">{platform.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-3">
         <button
