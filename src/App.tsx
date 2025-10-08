@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AIChat from './pages/AIChat';
 import AIImageGen from './pages/AIImageGen';
+import SocialMediaStudio from './pages/SocialMediaStudio';
 import AITools from './pages/AITools';
 import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
@@ -53,6 +54,11 @@ function App() {
           <Route path="/ai-tools/image-gen" element={
             <ProtectedRoute>
               <AIImageGen />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/social-pro" element={
+            <ProtectedRoute>
+              <SocialMediaStudio />
             </ProtectedRoute>
           } />
         </Routes>

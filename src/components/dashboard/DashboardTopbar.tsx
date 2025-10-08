@@ -99,13 +99,14 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   };
 
   return (
-    <div className="px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 pt-4 sm:pt-6 lg:pt-8 pb-3 sm:pb-4 border-b border-white/10">
+    <div className="px-3 bg-[#0B0B0F] sm:px-4 md:px-6 lg:px-8 xl:px-12 pt-4 sm:pt-6 lg:pt-8 pb-3 sm:pb-4 border-b border-white/10">
         <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
         <div className="flex-1 min-w-0">
           <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-semibold tracking-tight text-white truncate">
             {title}
           </h1>
-        </div>        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
+        </div>        
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
           <div className="hidden sm:flex items-center rounded-md bg-white/5 border border-white/10 px-2 sm:px-3 py-1.5 sm:py-2 w-[180px] sm:w-[220px] lg:w-[280px]">
             <FiSearch className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
             <input
