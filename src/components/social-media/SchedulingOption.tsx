@@ -1,39 +1,89 @@
 import React, { useState } from 'react';
-import { FaCalendarAlt, FaFacebook, FaInstagram } from 'react-icons/fa';
+import {
+  FaCalendarAlt,
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaLinkedin,
+  FaPlus,
+  FaTrash
+} from 'react-icons/fa';
+
+type Platform = {
+  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  name: string;
+  IconComponent: React.ElementType;
+  color: string;
+};
+
+const allPlatforms: Platform[] = [
+  { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
+  { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
+  { id: 'twitter', name: 'Twitter', IconComponent: FaTwitter, color: '#1DA1F2' },
+  { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
+];
+
+type ScheduledPlatform = {
+  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  date: string;
+  time: string;
+};
 
 const SchedulingOption: React.FC = () => {
   const [isSchedulingEnabled, setIsSchedulingEnabled] = useState(true);
-  const [facebookDate, setFacebookDate] = useState('2025-10-03');
-  const [facebookTime, setFacebookTime] = useState('13:35');
-  const [instagramDate, setInstagramDate] = useState('2025-10-12');
-  const [instagramTime, setInstagramTime] = useState('13:35');
+  const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
+
+  const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
+    { id: 'facebook', date: '2025-10-03', time: '13:35' },
+    { id: 'instagram', date: '2025-10-12', time: '13:35' },
+  ]);
+
+  const handleScheduleChange = (platformId: string, field: 'date' | 'time', value: string) => {
+    setScheduledPlatforms(currentPlatforms =>
+      currentPlatforms.map(p =>
+        p.id === platformId ? { ...p, [field]: value } : p
+      )
+    );
+  };
+
+  const addPlatform = (platformToAdd: Platform) => {
+    const now = new Date();
+    const defaultDate = now.toISOString().split('T')[0];
+    const defaultTime = now.toTimeString().split(' ')[0].substring(0, 5); 
+
+    setScheduledPlatforms(current => [
+      ...current,
+      { id: platformToAdd.id, date: defaultDate, time: defaultTime }
+    ]);
+    setIsPlatformSelectorOpen(false);
+  };
+  
+  const removePlatform = (platformIdToRemove: string) => {
+    setScheduledPlatforms(current =>
+      current.filter(p => p.id !== platformIdToRemove)
+    );
+  };
 
   const handleSchedule = () => {
-    console.log('Schedule posts');
+    console.log('Scheduling posts for:', scheduledPlatforms);
   };
 
   const handleSaveAsDraft = () => {
-    console.log('Save as draft');
+    console.log('Saving as draft:', scheduledPlatforms);
   };
 
-  const formatDateForDisplay = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+  const scheduledPlatformIds = new Set(scheduledPlatforms.map(p => p.id));
+  const availablePlatforms = allPlatforms.filter(p => !scheduledPlatformIds.has(p.id));
 
   return (
     <div className="w-full bg-[#121212] rounded-2xl p-4 lg:p-6 border border-gray-800">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-6 gap-3 md:gap-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
         <h2 className="text-white text-lg md:text-xl font-bold font-plus-jakarta">
-          Scheduling Option
+          Scheduling Options
         </h2>
         
         <div className="flex items-center gap-3">
-          <span className="text-white text-sm font-medium">Set date and time</span>
+          <span className="text-white text-sm font-medium">Enable scheduling</span>
           <button
             onClick={() => setIsSchedulingEnabled(!isSchedulingEnabled)}
             aria-label="Toggle scheduling"
@@ -51,98 +101,96 @@ const SchedulingOption: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FaFacebook className="w-5 h-5 text-[#1877F2]" />
-          <span className="text-white text-sm font-medium">Facebook</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-          <div className="relative">
-            <input
-              type="date"
-              value={facebookDate}
-              onChange={(e) => setFacebookDate(e.target.value)}
-              disabled={!isSchedulingEnabled}
-              className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg px-3 py-3 md:py-2.5 text-white text-sm md:text-base
-                         focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
-                         [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert
-                         min-h-[44px]"
-            />
-            <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-          
-          <div className="relative">
-            <input
-              type="time"
-              value={facebookTime}
-              onChange={(e) => setFacebookTime(e.target.value)}
-              disabled={!isSchedulingEnabled}
-              className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg px-3 py-3 md:py-2.5 text-white text-sm md:text-base
-                         focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
-                         [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert
-                         min-h-[44px]"
-            />
-            <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+      <div className="flex flex-col gap-6 mb-6">
+        {scheduledPlatforms.map(platformSchedule => {
+          const platformDetails = allPlatforms.find(p => p.id === platformSchedule.id);
+          if (!platformDetails) return null;
+
+          const { IconComponent, name, color } = platformDetails;
+
+          return (
+            <div key={platformSchedule.id}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <IconComponent className="w-5 h-5" style={{ color }} />
+                  <span className="text-white text-sm font-medium">{name}</span>
+                </div>
+                <button
+                  onClick={() => removePlatform(platformSchedule.id)}
+                  className="text-gray-500 hover:text-white transition-colors"
+                  aria-label={`Remove ${name} schedule`}
+                  title={`Remove ${name}`}
+                >
+                  <FaTrash className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={platformSchedule.date}
+                    onChange={(e) => handleScheduleChange(platformSchedule.id, 'date', e.target.value)}
+                    disabled={!isSchedulingEnabled}
+                    className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
+                  />
+                </div>
+                
+                <div className="relative">
+                  <input
+                    type="time"
+                    value={platformSchedule.time}
+                    onChange={(e) => handleScheduleChange(platformSchedule.id, 'time', e.target.value)}
+                    disabled={!isSchedulingEnabled}
+                    className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <FaInstagram className="w-5 h-5 text-[#E4405F]" />
-          <span className="text-white text-sm font-medium">Instagram</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-          <div className="relative">
-            <input
-              type="date"
-              value={instagramDate}
-              onChange={(e) => setInstagramDate(e.target.value)}
-              disabled={!isSchedulingEnabled}
-              className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg px-3 py-3 md:py-2.5 text-white text-sm md:text-base
-                         focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
-                         [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert
-                         min-h-[44px]"
-            />
-            <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+      <div className="relative mb-8">
+        <button
+          onClick={() => setIsPlatformSelectorOpen(!isPlatformSelectorOpen)}
+          disabled={availablePlatforms.length === 0}
+          className="flex items-center justify-center w-full gap-2 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 border border-dashed rounded-lg border-gray-600 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <FaPlus />
+          Add Platform
+        </button>
+
+        {isPlatformSelectorOpen && availablePlatforms.length > 0 && (
+          <div className="absolute z-10 w-full mt-2 bg-[#1E1E1E] border border-gray-700 rounded-lg shadow-lg">
+            <ul className="p-1">
+              {availablePlatforms.map(platform => (
+                <li
+                  key={platform.id}
+                  onClick={() => addPlatform(platform)}
+                  className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-gray-700"
+                >
+                  <platform.IconComponent className="w-5 h-5" style={{ color: platform.color }} />
+                  <span className="text-white text-sm">{platform.name}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          
-          <div className="relative">
-            <input
-              type="time"
-              value={instagramTime}
-              onChange={(e) => setInstagramTime(e.target.value)}
-              disabled={!isSchedulingEnabled}
-              className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg px-3 py-3 md:py-2.5 text-white text-sm md:text-base
-                         focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
-                         [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert
-                         min-h-[44px]"
-            />
-            <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-3">
         <button
           onClick={handleSchedule}
-          disabled={!isSchedulingEnabled}
-          className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 
-                     disabled:bg-gray-600 disabled:cursor-not-allowed
-                     text-white px-4 py-3 md:px-5 md:py-2.5 rounded-lg text-sm md:text-base font-medium 
-                     transition-colors duration-200 min-h-[44px] w-full md:w-auto"
+          disabled={!isSchedulingEnabled || scheduledPlatforms.length === 0}
+          className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
         >
           <FaCalendarAlt className="w-4 h-4" />
           <span>Schedule</span>
         </button>
-
         <button
           onClick={handleSaveAsDraft}
-          className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 
-                     hover:bg-gray-800 text-white px-4 py-3 md:px-5 md:py-2.5 rounded-lg text-sm md:text-base font-medium 
-                     transition-colors duration-200 min-h-[44px] w-full md:w-auto"
+          className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
         >
           <span>Save as draft</span>
         </button>
