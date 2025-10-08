@@ -26,7 +26,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const sanitizePhone = (value: string) => value.replace(/[^0-9]/g, '');
 
 const getFieldInputClasses = (hasError: boolean) =>
-  `w-full h-[44px] sm:h-[48px] bg-[#333333] rounded-[8px] px-4 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none transition-colors duration-200 border ${
+  `w-full h-[38px] sm:h-[42px] bg-[#333333] rounded-[8px] px-3 text-white text-[11px] sm:text-[12px] placeholder-[#888888] focus:outline-none transition-colors duration-200 border ${
     hasError
       ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
       : 'border-[#404040] focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000]'
@@ -302,19 +302,19 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
-      <div className="w-full lg:w-[460px] xl:w-[480px] 2xl:w-[500px] bg-black px-6 sm:mx-0 md:mx-0 lg:mx-32 sm:px-8 md:px-12 lg:px-16 flex flex-col justify-center relative z-10 min-h-screen pt-4 sm:pt-12 lg:pt-6">
+      <div className="w-full lg:w-[420px] xl:w-[440px] 2xl:w-[460px] bg-black px-4 sm:mx-0 md:mx-0 lg:mx-24 sm:px-6 md:px-8 lg:px-12 flex flex-col justify-center relative z-10 min-h-screen pt-3 sm:pt-8 lg:pt-4">
         <img
           src="/images/logo.png"
           alt="Startup Ninja"
-          className="h-20 sm:h-24 lg:h-28 w-auto mx-auto"
+          className="h-16 sm:h-18 lg:h-20 w-auto mx-auto"
         />
 
-        <div className="w-full max-w-full mx-auto lg:mx-0 pt-10 sm:pt-24 lg:pt-4">
+        <div className="w-full max-w-full mx-auto lg:mx-0 pt-6 sm:pt-16 lg:pt-3">
         
-          <form className="space-y-3 sm:space-y-6" onSubmit={handleSubmit} noValidate>
-            <div className="space-y-3">
+          <form className="space-y-2.5 sm:space-y-4" onSubmit={handleSubmit} noValidate>
+            <div className="space-y-2.5">
               <div>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Full Name
                 </label>
                 <input
@@ -328,14 +328,14 @@ const Register: React.FC = () => {
                   required
                 />
                 {fieldErrors.fullName && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.fullName}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Username
                 </label>
                 <input
@@ -350,14 +350,14 @@ const Register: React.FC = () => {
                   required
                 />
                 {fieldErrors.username && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.username}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Email
                 </label>
                 <input
@@ -373,18 +373,18 @@ const Register: React.FC = () => {
                   required
                 />
                 {fieldErrors.email && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.email}
                   </p>
                 )}
               </div>
 
               <div className="relative" ref={countryDropdownRef}>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Phone Number
                 </label>
                 <div
-                  className={`flex h-[44px] sm:h-[48px] overflow-hidden rounded-[8px] border ${
+                  className={`flex h-[38px] sm:h-[42px] overflow-hidden rounded-[8px] border ${
                     fieldErrors.phoneNumber
                       ? 'border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500'
                       : isCountryOpen
@@ -395,14 +395,14 @@ const Register: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCountryOpen((prev) => !prev)}
-                    className={`flex items-center gap-2 px-3 sm:px-4 h-full border-r border-[#2C2C2C] ${
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 h-full border-r border-[#2C2C2C] ${
                       isCountryOpen ? 'bg-[#2B2B2B]' : 'bg-[#333333]'
-                    } text-white text-[13px] sm:text-[14px] transition-colors duration-200`}
+                    } text-white text-[11px] sm:text-[12px] transition-colors duration-200`}
                     aria-label="Select country code"
                   >
-                    <span className="flex items-center justify-center w-7 h-5 rounded-[4px] bg-[#1F1F23]">
+                    <span className="flex items-center justify-center w-6 h-4 rounded-[3px] bg-[#1F1F23]">
                       <img
-                        src={getFlagUrl(selectedCountry.iso2, 48)}
+                        src={getFlagUrl(selectedCountry.iso2, 32)}
                         alt={`${selectedCountry.name} flag`}
                         className="h-full w-full object-cover"
                         loading="lazy"
@@ -410,7 +410,7 @@ const Register: React.FC = () => {
                     </span>
                     <span>{selectedCountry.dialCode}</span>
                     <FiChevronDown
-                      className={`ml-1 text-[#888888] transition-transform duration-200 ${
+                      className={`ml-0.5 text-[#888888] transition-transform duration-200 ${
                         isCountryOpen ? 'rotate-180 text-white' : ''
                       }`}
                     />
@@ -420,7 +420,7 @@ const Register: React.FC = () => {
                     value={phoneNumber}
                     onChange={(event) => handlePhoneChange(event.target.value)}
                     placeholder="300 1234567"
-                    className="flex-1 h-full bg-transparent px-4 text-white text-[13px] sm:text-[14px] placeholder-[#888888] focus:outline-none"
+                    className="flex-1 h-full bg-transparent px-3 text-white text-[11px] sm:text-[12px] placeholder-[#888888] focus:outline-none"
                     aria-invalid={fieldErrors.phoneNumber ? 'true' : 'false'}
                     onBlur={() => runFieldValidation('phoneNumber')}
                     inputMode="tel"
@@ -430,29 +430,29 @@ const Register: React.FC = () => {
                 </div>
 
                 {fieldErrors.phoneNumber && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.phoneNumber}
                   </p>
                 )}
 
                 {isCountryOpen && (
                   <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-[10px] border border-[#2C2C2C] bg-[#1B1B1F] shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
-                    <div className="border-b border-[#2C2C2C] p-3">
-                      <div className="flex items-center gap-2 rounded-[8px] border border-[#2C2C2C] bg-[#121216] px-3 py-2">
-                        <FiSearch className="h-4 w-4 text-[#888888]" />
+                    <div className="border-b border-[#2C2C2C] p-2.5">
+                      <div className="flex items-center gap-1.5 rounded-[8px] border border-[#2C2C2C] bg-[#121216] px-2.5 py-1.5">
+                        <FiSearch className="h-3.5 w-3.5 text-[#888888]" />
                         <input
                           ref={searchInputRef}
                           type="text"
                           value={countrySearch}
                           onChange={(event) => setCountrySearch(event.target.value)}
                           placeholder="Search country or code"
-                          className="flex-1 bg-transparent text-white text-[13px] sm:text-[14px] placeholder-[#666666] focus:outline-none"
+                          className="flex-1 bg-transparent text-white text-[11px] sm:text-[12px] placeholder-[#666666] focus:outline-none"
                         />
                       </div>
                     </div>
-                    <ul className="max-h-60 overflow-y-auto py-2">
+                    <ul className="max-h-52 overflow-y-auto py-1.5">
                       {filteredCountries.length === 0 && (
-                        <li className="px-4 py-3 text-center text-[13px] text-[#888888]">
+                        <li className="px-3 py-2.5 text-center text-[11px] text-[#888888]">
                           No countries found
                         </li>
                       )}
@@ -469,14 +469,14 @@ const Register: React.FC = () => {
                                 updateFieldError('phoneNumber', validateField('phoneNumber', phoneNumber));
                               }
                             }}
-                            className={`flex w-full items-center justify-between gap-3 px-4 py-2 text-left text-white text-[13px] sm:text-[14px] transition-colors duration-150 hover:bg-[#26262C] ${
+                            className={`flex w-full items-center justify-between gap-2.5 px-3 py-1.5 text-left text-white text-[11px] sm:text-[12px] transition-colors duration-150 hover:bg-[#26262C] ${
                               country.iso2 === selectedCountry.iso2 ? 'bg-[#26262C]' : ''
                             }`}
                           >
-                            <span className="flex items-center gap-3">
-                              <span className="flex items-center justify-center w-7 h-5 rounded-[4px] bg-[#1F1F23]">
+                            <span className="flex items-center gap-2.5">
+                              <span className="flex items-center justify-center w-6 h-4 rounded-[3px] bg-[#1F1F23]">
                                 <img
-                                  src={getFlagUrl(country.iso2, 32)}
+                                  src={getFlagUrl(country.iso2, 24)}
                                   alt={`${country.name} flag`}
                                   className="h-full w-full object-cover"
                                   loading="lazy"
@@ -484,7 +484,7 @@ const Register: React.FC = () => {
                               </span>
                               <span>{country.name}</span>
                             </span>
-                            <span className="text-[#888888] text-[12px]">{country.dialCode}</span>
+                            <span className="text-[#888888] text-[10px]">{country.dialCode}</span>
                           </button>
                         </li>
                       ))}
@@ -494,7 +494,7 @@ const Register: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -504,7 +504,7 @@ const Register: React.FC = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Create your password"
-                    className={`${getFieldInputClasses(!!fieldErrors.password)} pr-12`}
+                    className={`${getFieldInputClasses(!!fieldErrors.password)} pr-10`}
                     aria-invalid={fieldErrors.password ? 'true' : 'false'}
                     onBlur={() => runFieldValidation('password')}
                     autoComplete="new-password"
@@ -513,21 +513,21 @@ const Register: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-0 flex items-center px-4 text-[#888888] hover:text-white transition-colors duration-200"
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-[#888888] hover:text-white transition-colors duration-200"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                    {showPassword ? <FaEyeSlash className="w-3.5 h-3.5" /> : <FaEye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.password}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-white text-[13px] sm:text-[14px] font-medium mb-3">
+                <label className="block text-white text-[11px] sm:text-[12px] font-medium mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -536,7 +536,7 @@ const Register: React.FC = () => {
                     value={confirmPassword}
                     onChange={(event) => handleConfirmPasswordChange(event.target.value)}
                     placeholder="Re-enter your password"
-                    className={`${getFieldInputClasses(!!fieldErrors.confirmPassword)} pr-12`}
+                    className={`${getFieldInputClasses(!!fieldErrors.confirmPassword)} pr-10`}
                     aria-invalid={fieldErrors.confirmPassword ? 'true' : 'false'}
                     onBlur={() => runFieldValidation('confirmPassword')}
                     autoComplete="new-password"
@@ -545,14 +545,14 @@ const Register: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-0 flex items-center px-4 text-[#888888] hover:text-white transition-colors duration-200"
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-[#888888] hover:text-white transition-colors duration-200"
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showConfirmPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                    {showConfirmPassword ? <FaEyeSlash className="w-3.5 h-3.5" /> : <FaEye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && (
-                  <p className="mt-2 text-[12px] text-red-400">
+                  <p className="mt-1.5 text-[10px] text-red-400">
                     {fieldErrors.confirmPassword}
                   </p>
                 )}
@@ -563,31 +563,31 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-[44px] sm:h-[48px] 
+              className="w-full h-[38px] sm:h-[42px] 
                 [background:linear-gradient(90deg,#DC2626_0%,#B91C1C_100%)] 
                 hover:[background:linear-gradient(90deg,#B91C1C_0%,#7F1D1D_100%)] 
                 disabled:opacity-50 
-                rounded-[8px] text-white text-[13px] sm:text-[14px] 
+                rounded-[8px] text-white text-[11px] sm:text-[12px] 
                 font-semibold tracking-wide transition-colors duration-200" >
               {loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
             </button>
 
             {serverError && (
-              <p className="text-center text-[13px] sm:text-[14px] text-red-400">
+              <p className="text-center text-[11px] sm:text-[12px] text-red-400">
                 {serverError}
               </p>
             )}
           </form>
 
-          <div className="text-center mt-6 pb-8 sm:pb-0 flex flex-col items-center gap-2">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <span className="text-[#9CA3AF] text-[13px] sm:text-[14px] leading-tight">
+          <div className="text-center mt-4 pb-6 sm:pb-0 flex flex-col items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <span className="text-[#9CA3AF] text-[11px] sm:text-[12px] leading-tight">
                 Already have an account?
               </span>
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="text-[13px] sm:text-[14px] font-semibold leading-tight bg-gradient-to-r from-[#DC2626] via-[#E50000] to-[#B91C1C] text-transparent bg-clip-text hover:from-[#FF5A5A] hover:via-[#FF1A1A] hover:to-[#B80000] transition-colors duration-200"
+                className="text-[11px] sm:text-[12px] font-semibold leading-tight bg-gradient-to-r from-[#DC2626] via-[#E50000] to-[#B91C1C] text-transparent bg-clip-text hover:from-[#FF5A5A] hover:via-[#FF1A1A] hover:to-[#B80000] transition-colors duration-200"
               >
                 Login to Startup Ninja
               </button>

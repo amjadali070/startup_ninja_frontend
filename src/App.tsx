@@ -12,7 +12,7 @@ import { AuthProvider } from './hooks/useAuth.tsx';
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-primary-black">
+      <div className="min-h-screen bg-[#0D0D0D] font-sans">
         <Routes>
           <Route path="/" element={
             <PublicRoute>
