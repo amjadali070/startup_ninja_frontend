@@ -16,7 +16,6 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
   onResendCode,
   email,
   loading,
-  isLoginVerification = false
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [resendLoading, setResendLoading] = useState(false);
