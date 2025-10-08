@@ -225,7 +225,7 @@ const Dashboard: React.FC = () => {
               </div>
 
               <div className="flex h-full w-full">
-                <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
+                <TokenUsageCard used={3000} limit={5000} resetInHours={12} />
               </div>
             </section>
           </div>

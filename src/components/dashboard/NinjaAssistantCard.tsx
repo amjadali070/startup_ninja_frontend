@@ -14,10 +14,10 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   ]
 }) => {
   return (
-  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-3 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-4">
+  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-4 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
       <div className="mb-4 flex items-center gap-2 sm:mb-6">
         <div className="flex items-center justify-center">
-          <MdAssistant className="w-6 h-6 sm:w-8 sm:h-8 lg:w-[32px] lg:h-[32px] text-[#B91C1C]" />
+          <MdAssistant className="w-6 h-6 sm:w-9 sm:h-9 lg:w-[32px] lg:h-[32px] text-[#B91C1C]" />
         </div>
         <h2 className="font-plus-jakarta text-base font-semibold text-white sm:text-lg lg:text-[18px]">Ninja Assistant</h2>
       </div>
