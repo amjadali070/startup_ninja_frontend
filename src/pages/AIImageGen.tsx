@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import DashboardTopbar from '../components/dashboard/DashboardTopbar';
 import CreateImages from '../components/ai-image-gen/CreateImages';
+import RecentImages from '../components/ai-image-gen/RecentImages';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
@@ -109,8 +110,16 @@ const AIImageGen: FC = () => {
         />
 
         <main className="flex-1 overflow-y-auto px-4 pb-14 pt-8 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          <div className="mx-auto flex w-full max-w-[1600px] flex-col items-center justify-center min-h-[600px] py-8">
-            <CreateImages />
+          <div className="mx-auto flex w-full max-w-[1600px] flex-col space-y-12 py-8">
+            {/* Create Images Section */}
+            <div className="flex justify-center">
+              <CreateImages />
+            </div>
+            
+            {/* Recent Images Section */}
+            <div className="w-full">
+              <RecentImages />
+            </div>
           </div>
         </main>
       </div>

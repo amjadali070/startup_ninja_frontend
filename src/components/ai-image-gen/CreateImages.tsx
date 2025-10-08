@@ -24,41 +24,40 @@ const CreateImages: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Main Container - Compact like AIChatComposer */}
+    <div className="w-full max-w-auto mx-auto">
+      {/* Main Container - Consistent with project patterns */}
       <div className="relative w-full 
         rounded-2xl border border-[#242424] bg-[#151515] 
-        p-2 sm:p-4 md:p-5 
+        p-2.5 sm:p-3 lg:p-4 xl:p-5 
         shadow-[0_24px_120px_rgba(5,5,10,0.65)] backdrop-blur-lg">
         
         {/* Title */}
         <h1 className="text-white 
-          text-lg sm:text-xl md:text-2xl 
-          font-semibold 
-          mb-3 sm:mb-4 md:mb-5 
+          text-base sm:text-lg md:text-xl lg:text-[20px] 
+          font-bold 
+          mb-2 sm:mb-3 lg:mb-3 
           leading-tight font-plus-jakarta">
           Create Images
         </h1>
 
         {/* Text Area Container */}
-        <div className="relative mb-3 sm:mb-4">
+        <div className="relative mb-2 sm:mb-3">
           <textarea
             value={prompt}
             onChange={handleInputChange}
             placeholder="What's on your mind? Let AI help you craft the perfect image..."
             className="w-full 
-              min-h-[70px] sm:min-h-[100px] md:min-h-[120px] 
+              min-h-[70px] sm:min-h-[100px] 
               bg-transparent 
               border border-[#242424] 
               rounded-xl 
               p-3 sm:p-4 
               text-white/70 
-              text-base sm:text-lg 
+              text-base leading-6 
               placeholder:text-white/25 
               resize-none 
               focus:outline-none focus:border-[#DC2626] 
-              transition-colors duration-200 
-              leading-6"
+              transition-colors duration-200"
             rows={3}
           />
           
@@ -66,33 +65,30 @@ const CreateImages: React.FC = () => {
           <div className="absolute 
             bottom-3 right-3 
             text-white/45 
-            text-xs sm:text-sm 
+            text-xs 
             font-medium">
             {prompt.length} / {maxCharacters} characters
           </div>
         </div>
 
-        {/* Generate Button - Compact like AIChatComposer */}
+        {/* Generate Button - Consistent with project patterns */}
         <div className="flex justify-start">
           <button
             onClick={handleGenerate}
             disabled={!prompt.trim() || isGenerating}
             className="inline-flex items-center justify-center 
-              gap-2 
-              px-4 py-2.5 sm:px-5 sm:py-3 
+              gap-1.5 
+              px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5 
               bg-[#DE0500] 
-              hover:bg-[#B91C1C]
+              hover:bg-gradient-to-r hover:from-[#DC2626] hover:to-[#B91C1C]
               disabled:bg-[#666666] disabled:cursor-not-allowed 
               text-white 
-              text-sm sm:text-base 
-              font-semibold 
+              text-[10px] sm:text-xs lg:text-[12px] 
+              font-medium 
               rounded-lg
-              shadow-[0_20px_40px_rgba(222,5,0,0.45)]
-              hover:scale-105
-              disabled:hover:scale-100
               transition-all duration-200"
           >
-            <FaWandMagicSparkles className="w-4 h-4 flex-shrink-0" />
+            <FaWandMagicSparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
             <span className="whitespace-nowrap">
               {isGenerating ? 'Generating...' : 'Generate Image'}
             </span>
