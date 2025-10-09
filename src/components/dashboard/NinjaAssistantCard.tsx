@@ -14,22 +14,22 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   ]
 }) => {
   return (
-  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-5 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
-      <div className="mb-6 flex items-center gap-3 sm:mb-8">
+  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-4 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
+      <div className="mb-4 flex items-center gap-2 sm:mb-6">
         <div className="flex items-center justify-center">
-          <MdAssistant className="w-8 h-8 sm:w-10 sm:h-10 lg:w-[42.67px] lg:h-[42.67px] text-red-600" />
+          <MdAssistant className="w-6 h-6 sm:w-9 sm:h-9 lg:w-[32px] lg:h-[32px] text-[#B91C1C]" />
         </div>
-        <h2 className="font-plus-jakarta text-lg font-semibold text-white sm:text-xl lg:text-[22px]">Ninja Assistant</h2>
+        <h2 className="font-plus-jakarta text-base font-semibold text-white sm:text-lg lg:text-[18px]">Ninja Assistant</h2>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 sm:gap-4">
+      <div className="flex flex-1 flex-col gap-2 sm:gap-3">
         {suggestions.map((suggestion, index) => (
           <div
             key={index}
             tabIndex={0}
-            className="ninja-suggestion-item cursor-pointer rounded-2xl bg-white/[0.04] p-4 transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 sm:p-5"
+            className="ninja-suggestion-item cursor-pointer rounded-2xl bg-white/[0.04] p-3 transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 sm:p-4"
           >
-            <p className="text-sm leading-relaxed text-white sm:text-[15px]">
+            <p className="text-xs leading-relaxed text-white sm:text-[13px]">
               {suggestion}
             </p>
           </div>

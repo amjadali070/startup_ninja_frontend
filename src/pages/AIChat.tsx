@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEdit3, FiFileText, FiHelpCircle } from 'react-icons/fi';
+import { FiEdit3 } from 'react-icons/fi';
+import { ImFileText } from 'react-icons/im';
+import { PiBrainLight } from "react-icons/pi";
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import DashboardTopbar from '../components/dashboard/DashboardTopbar';
 import AIChatUpgradeBanner from '../components/ai-chat/AIChatUpgradeBanner';
@@ -18,17 +20,22 @@ const quickActions = [
   {
     title: 'Summarize Text',
     description: 'Turn long articles into easy summaries.',
-    icon: <FiFileText className="h-6 w-6" />,
+    icon: <ImFileText className="h-6 w-6" />,
+    prompt:
+      "Summarize the following text into bullet points highlighting key takeaways and action items:\n\n[Paste your text here]",
   },
   {
     title: 'Creative Writing',
     description: 'Generate stories, blog posts, or fresh content ideas in seconds.',
     icon: <FiEdit3 className="h-6 w-6" />,
+    prompt:
+      "Write a creative short story about a tenacious startup founder who overcomes an unexpected challenge using AI. Focus on emotion and vivid details.",
   },
   {
     title: 'Answer Questions',
     description: 'Ask me anything—from facts to advice—and get instant answers.',
-    icon: <FiHelpCircle className="h-6 w-6" />,
+    icon: <PiBrainLight className="h-6 w-6" />,
+    prompt: 'Answer the question: How can early-stage startups validate their product idea quickly with limited resources?',
   },
 ];
 
@@ -38,6 +45,10 @@ const AIChat: FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState(0);
+  const usageLimit = 2000;
 
   const resolvedProfilePicture = useMemo(() => {
     const fallbackUser = authService.getUser?.() ?? null;
@@ -89,6 +100,35 @@ const AIChat: FC = () => {
     navigate('/settings');
   };
 
+  const handleComposerSubmit = useCallback(async () => {
+    const trimmedPrompt = prompt.trim();
+
+    if (!trimmedPrompt) {
+      return false;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      const estimatedTokens = Math.max(18, Math.round(trimmedPrompt.length / 4));
+
+      setTokenUsage((previous) => Math.min(previous + estimatedTokens, usageLimit));
+      setPrompt('');
+      return true;
+    } catch (submissionError) {
+      console.error('AI chat prompt submission failed:', submissionError);
+      return false;
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [prompt, usageLimit]);
+
+  const handleQuickAction = useCallback((template: string) => {
+    setPrompt(template);
+  }, []);
+
   if (loading) {
     return <LoadingSpinner fullscreen variant="dark" />;
   }
@@ -131,19 +171,37 @@ const AIChat: FC = () => {
           onSettings={handleOpenSettings}
         />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-16 md:px-10 xl:px-14">
-          <div className="mx-auto w-full max-w-6xl">
-            <AIChatUpgradeBanner />
+        <main className="flex-1 overflow-y-auto px-4 pb-14 pt-8 sm:px-6 md:px-10 xl:px-14 xl:pb-16">
+          <div className="mx-auto flex w-full max-w-[1035.667px] flex-col gap-[32px] sm:gap-[36px] min-h-[648.667px]">
+            <div className="w-full">
+              <AIChatUpgradeBanner />
+            </div>
             <AIChatHeroTitle />
-            <AIChatComposer />
+            <AIChatComposer
+              prompt={prompt}
+              onPromptChange={(value) => setPrompt(value)}
+              onSubmit={handleComposerSubmit}
+              isGenerating={isGenerating}
+              tokenUsage={tokenUsage}
+              usageLimit={usageLimit}
+              className="w-full"
+            />
 
-            <section className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <section className="grid w-full gap-[24px] md:grid-cols-2 lg:grid-cols-3">
               {quickActions.map((action) => (
-                <AIChatQuickActionCard key={action.title} {...action} />
+                <AIChatQuickActionCard
+                  key={action.title}
+                  title={action.title}
+                  description={action.description}
+                  icon={action.icon}
+                  onClick={() => handleQuickAction(action.prompt)}
+                />
               ))}
             </section>
 
-            <AIChatFooterNotice />
+            <div className="w-full">
+              <AIChatFooterNotice />
+            </div>
           </div>
         </main>
       </div>

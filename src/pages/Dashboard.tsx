@@ -127,18 +127,21 @@ const Dashboard: React.FC = () => {
         description: 'Create stunning visuals from text prompts.',
         buttonLabel: 'Generate Visual',
         icon: <PiImageSquareBold className="h-12 w-12" />,
+        to: '/ai-tools/image-gen',
       },
       {
         title: 'Website Builder',
         description: 'Build professional websites with AI assistance.',
         buttonLabel: 'Build Website',
-      icon: <FiGlobe className="h-12 w-12" />,
+        icon: <FiGlobe className="h-12 w-12" />,
+        to: '/ai-tools/web-builder',
       },
       {
         title: 'Social Pro',
         description: 'Automate and manage your social presence.',
         buttonLabel: 'Schedule Content',
         icon: <RiOrganizationChart className="h-12 w-12" />,
+        to: '/ai-tools/social-pro',
       },
     ],
     []
@@ -222,7 +225,7 @@ const Dashboard: React.FC = () => {
               </div>
 
               <div className="flex h-full w-full">
-                <TokenUsageCard used={1524} limit={5000} resetInHours={12} />
+                <TokenUsageCard used={3000} limit={5000} resetInHours={12} />
               </div>
             </section>
           </div>

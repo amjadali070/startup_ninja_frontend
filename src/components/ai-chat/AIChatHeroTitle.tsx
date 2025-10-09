@@ -2,13 +2,10 @@ import type { FC } from 'react';
 
 const AIChatHeroTitle: FC = () => {
   return (
-    <div className="mt-10 text-center">
-      <h2 className="font-plus-jakarta text-[34px] font-semibold leading-tight text-white md:text-[42px]">
+    <div className="flex flex-col items-center text-center">
+      <h2 className="font-plus-jakarta text-[26px] font-semibold leading-tight text-white md:text-[32px]">
         Let’s start a ninja conversation
       </h2>
-      <p className="mt-4 text-base text-white/50">
-        Ask anything and unleash imaginative, razor-sharp responses tailored for your startup.
-      </p>
     </div>
   );
 };

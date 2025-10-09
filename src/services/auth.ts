@@ -110,6 +110,46 @@ export const authService = {
     }
   },
 
+  async verifyEmail(userId: string, otp: string): Promise<AuthResponse> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/verify-email', {
+        userId,
+        otp
+      });
+      
+      // Store token and user data if verification successful
+      if (response.success && response.token) {
+        apiClient.setAuthToken(response.token);
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+      }
+      
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Email verification failed',
+        errors: error.response?.data?.errors
+      };
+    }
+  },
+
+  async resendOTP(userId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/auth/resend-otp', {
+        userId
+      });
+      
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to resend OTP'
+      };
+    }
+  },
+
   getUser() {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;

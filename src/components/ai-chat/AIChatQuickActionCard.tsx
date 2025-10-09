@@ -1,27 +1,37 @@
+import { cloneElement, isValidElement } from 'react';
 import type { FC, ReactNode } from 'react';
-import { FiArrowRight } from 'react-icons/fi';
 
 interface AIChatQuickActionCardProps {
   title: string;
   description: string;
   icon: ReactNode;
+  onClick?: () => void;
 }
 
-const AIChatQuickActionCard: FC<AIChatQuickActionCardProps> = ({ title, description, icon }) => {
+const AIChatQuickActionCard: FC<AIChatQuickActionCardProps> = ({ title, description, icon, onClick }) => {
+  const Component = onClick ? 'button' : 'div';
+  const renderedIcon = isValidElement(icon)
+    ? cloneElement(icon, {
+        className: `${icon.props.className ?? ''} h-[22px] w-[22px] text-[#B91C1C]`.trim(),
+      })
+    : icon;
+
   return (
-    <div className="group flex h-full flex-col rounded-2xl border border-white/5 bg-[#0A0A11] p-6 transition-all duration-300 hover:border-[#FF4D4D]/60 hover:shadow-[0_24px_80px_rgba(12,12,18,0.55)]">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF4D4D]/15 text-[#FF4D4D] shadow-[0_10px_30px_rgba(255,77,77,0.25)]">
-        {icon}
+    <Component
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+  className="group relative flex h-full min-h-[130px] w-full flex-col justify-between rounded-[8px] border-[1.33px] border-white/10 bg-[#08080B] px-4 py-4 text-left transition-all duration-300 hover:-translate-y-1 hover:bg-[linear-gradient(143.82deg,_rgba(129,_0,_0,_0.5)_-18.07%,_rgba(58,_0,_0,_0.5)_4.29%,_rgba(29,_0,_0,_0.25)_56.47%,_rgba(13,_12,_13,_0.5)_101.2%)] hover:shadow-[0_24px_70px_rgba(255,56,56,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3838]/80"
+    >
+      <div className="flex h-8 w-8 items-center justify-center">
+        <span className="flex h-7 w-7 items-center justify-center text-[#B91C1C]">
+          {renderedIcon}
+        </span>
       </div>
-      <h3 className="mt-6 font-plus-jakarta text-xl font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-white/55">{description}</p>
-      <div className="mt-auto pt-6">
-        <div className="inline-flex items-center gap-2 text-sm font-medium text-[#FF4D4D] transition-transform duration-300 group-hover:translate-x-1">
-          Explore
-          <FiArrowRight className="h-4 w-4" />
-        </div>
+      <div className="flex flex-col gap-2">
+        <h3 className="font-plus-jakarta text-lg font-semibold leading-snug text-white">{title}</h3>
+        <p className="text-xs leading-relaxed text-white/55">{description}</p>
       </div>
-    </div>
+    </Component>
   );
 };
 
