@@ -19,6 +19,9 @@ export interface AuthResponse {
   user?: User;
   token?: string;
   isNewUser?: boolean;
+  requiresEmailVerification?: boolean;
+  userId?: string;
+  email?: string;
   errors?: Array<{
     msg: string;
     param: string;
@@ -46,7 +49,6 @@ export interface RegisterRequest {
   password: string;
   fullName?: string;
   phoneNumber?: string;
-  countryCode?: string;
   country?: string;
 }
 

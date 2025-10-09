@@ -69,7 +69,7 @@ src/
 ├── services/            # API service calls
 │   └── auth.ts          # Authentication API calls
 ├── hooks/               # Custom React hooks
-│   └── useAuth.ts       # Authentication hook
+│   └── useAuth.tsx      # Authentication provider + hook
 ├── types/               # TypeScript type definitions
 │   └── auth.ts          # Authentication types
 ├── App.tsx              # Main app component

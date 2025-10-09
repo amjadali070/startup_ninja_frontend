@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { MdAssistant } from "react-icons/md";
 
 interface NinjaAssistantCardProps {
   suggestions?: string[];
@@ -13,40 +14,22 @@ const NinjaAssistantCard: FC<NinjaAssistantCardProps> = ({
   ]
 }) => {
   return (
-    <div className="ninja-assistant-card w-full max-w-[368px] max-h-[526.67px] rounded-2xl p-6 bg-[#0D0D0D]">
-      {/* Header with Logo and Title */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-red-600">
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className="ninja-star-icon"
-          >
-            <path 
-              d="M12 2L15.09 8.26L22 9L17 14.74L18.18 21.02L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
-              fill="white"
-            />
-            <path 
-              d="M12 2L12 8L16 12L12 16L12 22L12 17.77L5.82 21.02L7 14.74L2 9L8.91 8.26L12 2Z" 
-              fill="white"
-              fillOpacity="0.8"
-            />
-            <circle cx="12" cy="12" r="2" fill="#DC2626"/>
-          </svg>
+  <div className="ninja-assistant-card flex h-full w-full flex-col rounded-md bg-[#0D0D0D] p-4 shadow-[0px_5px_20px_rgba(0,0,0,0.35)] sm:p-6">
+      <div className="mb-4 flex items-center gap-2 sm:mb-6">
+        <div className="flex items-center justify-center">
+          <MdAssistant className="w-6 h-6 sm:w-9 sm:h-9 lg:w-[32px] lg:h-[32px] text-[#B91C1C]" />
         </div>
-        <h2 className="text-white text-xl font-semibold">Ninja Assistant</h2>
+        <h2 className="font-plus-jakarta text-base font-semibold text-white sm:text-lg lg:text-[18px]">Ninja Assistant</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-1 flex-col gap-2 sm:gap-3">
         {suggestions.map((suggestion, index) => (
           <div
             key={index}
-            className="ninja-suggestion-item rounded-2xl p-4 cursor-pointer transition-all duration-200 hover:bg-white/5 bg-white/[0.03]"
+            tabIndex={0}
+            className="ninja-suggestion-item cursor-pointer rounded-2xl bg-white/[0.04] p-3 transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 sm:p-4"
           >
-            <p className="text-white text-sm leading-relaxed">
+            <p className="text-xs leading-relaxed text-white sm:text-[13px]">
               {suggestion}
             </p>
           </div>
