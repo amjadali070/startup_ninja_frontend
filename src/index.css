@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -14,4 +14,58 @@ body {
 /* Ninja Assistant Card Custom Styles */
 .ninja-assistant-card {
   box-shadow: 0px 4px 40px 0px #7F1D1D80;
+}
+
+.animate-zoomIn {
+  animation: zoomIn 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(150px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFull {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+.animate-slideUpFull {
+  animation: slideUpFull 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slideUp {
+  animation: slideUp 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-bg {
+  background: linear-gradient(135.17deg, rgba(55,65,81,0.5) -94.55%, rgba(18,16,16,0.5) 95.54%);
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 2rem;
 }
