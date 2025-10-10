@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 import AIChat from './pages/AIChat';
 import AIImageGen from './pages/AIImageGen';
 import SocialMediaStudio from './pages/SocialMediaStudio';
@@ -31,6 +32,11 @@ function App() {
           <Route path="/register" element={
             <PublicRoute>
               <Register />
+            </PublicRoute>
+          } />
+          <Route path="/admin/login" element={
+            <PublicRoute>
+              <AdminLogin />
             </PublicRoute>
           } />
           <Route path="/dashboard" element={
