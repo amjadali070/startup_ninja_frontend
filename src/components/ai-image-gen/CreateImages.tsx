@@ -27,7 +27,7 @@ const CreateImages: React.FC = () => {
     <div className="w-full max-w-auto mx-auto">
       {/* Main Container - Consistent with project patterns */}
       <div className="relative w-full 
-        rounded-2xl border border-[#242424] bg-[#151515] 
+        rounded-xl border border-[#242424] bg-[#151515] 
         p-2.5 sm:p-3 lg:p-4 xl:p-5 
         shadow-[0_24px_120px_rgba(5,5,10,0.65)] backdrop-blur-lg">
         
@@ -41,7 +41,7 @@ const CreateImages: React.FC = () => {
         </h1>
 
         {/* Text Area Container */}
-        <div className="relative mb-2 sm:mb-3">
+        <div className="relative bg-[#0D0D0D] rounded-xl">
           <textarea
             value={prompt}
             onChange={handleInputChange}
@@ -51,14 +51,14 @@ const CreateImages: React.FC = () => {
               bg-transparent 
               border border-[#242424] 
               rounded-xl 
-              p-3 sm:p-4 
-              text-white/70 
+              p-4 sm:p-4
+              text-white/70
               text-base leading-6 
               placeholder:text-white/25 
               resize-none 
               focus:outline-none focus:border-[#DC2626] 
               transition-colors duration-200"
-            rows={3}
+            rows={4}
           />
           
           {/* Character Count */}
@@ -72,7 +72,7 @@ const CreateImages: React.FC = () => {
         </div>
 
         {/* Generate Button - Consistent with project patterns */}
-        <div className="flex justify-start">
+        <div className="flex justify-start mt-3">
           <button
             onClick={handleGenerate}
             disabled={!prompt.trim() || isGenerating}
