@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import FrontLayout from '../layouts/FrontLayout';
-import HeroSection from '../components/Front/HeroSection';
-import ChatFeatureSection from '../components/Front/ChatFeatureSection';
-import ImageWebFeatureSection from '../components/Front/ImageWebFeatureSection';
-import Navbar from '../components/Front/Navbar';
-import SocialMediaFeature from '../components/Front/SocialMediaFeature';
-import PricingSection from '../components/Front/PricingSection';
-import LatestNewsSection from '../components/Front/LatestNewsSection';
-import BusinessSection from '../components/Front/BusinessSection';
+import HeroSection from '../components/landing-page/HeroSection';
+import ChatFeatureSection from '../components/landing-page/ChatFeatureSection';
+import ImageWebFeatureSection from '../components/landing-page/ImageWebFeatureSection';
+import Navbar from '../components/landing-page/Navbar';
+import SocialMediaFeature from '../components/landing-page/SocialMediaFeature';
+import PricingSection from '../components/landing-page/PricingSection';
+import LatestNewsSection from '../components/landing-page/LatestNewsSection';
+import BusinessSection from '../components/landing-page/BusinessSection';
 
 const HomePage: React.FC = () => {
   const chatBubbles = [

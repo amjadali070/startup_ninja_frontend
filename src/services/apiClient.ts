@@ -129,20 +129,6 @@ class ApiClient {
     );
   }
 
-  private handleUnauthorized(): void {
-    // Clear stored authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Dispatch custom event for app-wide logout handling
-    window.dispatchEvent(new CustomEvent('auth:logout'));
-    
-    // Redirect to login page if not already there
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
-  }
-
   private getToken(): string | null {
     return localStorage.getItem('token');
   }

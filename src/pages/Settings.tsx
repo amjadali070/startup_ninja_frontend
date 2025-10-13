@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FC, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
+import DashboardLayout from '../layouts/DashboardLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ProfileIdentityForm, { ProfileFormState } from '../components/settings/ProfileIdentityForm';
 import IntegrationsList, { IntegrationOption } from '../components/settings/IntegrationsList';
@@ -300,59 +299,51 @@ const Settings: FC = () => {
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/settings" />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <DashboardTopbar
-          title="Settings"
-          userName={profile?.username ?? 'Ninja'}
-          profilePicture={resolvedProfilePicture ?? undefined}
-          email={profile?.email}
-          username={profile?.username}
-          onLogout={handleLogout}
-          onSettings={handleOpenSettings}
-        />
+    <DashboardLayout 
+      activePath="/settings" 
+      title="Settings"
+      onLogout={handleLogout}
+      onSettings={handleOpenSettings}
+    >
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-full px-4 py-6 sm:px-6 lg:px-10">
+          <div className="space-y-8">
+            <SettingsHeader planSummary={planSummary} onUpgradePlan={handleUpgradePlan} />
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-full px-4 py-6 sm:px-6 lg:px-10">
-            <div className="space-y-8">
-              <SettingsHeader planSummary={planSummary} onUpgradePlan={handleUpgradePlan} />
-
-              {error ? (
-                <div className="rounded-3xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm text-red-200">
-                  {error}
-                </div>
-              ) : null}
-
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                <div className="space-y-8">
-                  <ProfileIdentityForm
-                    displayName={profile?.username || profileForm.username || 'Startup Ninja'}
-                    createdAt={createdAtDisplay}
-                    profileForm={profileForm}
-                    isSaving={isSavingProfile}
-                    onChange={handleProfileChange}
-                    onSubmit={handleProfileSubmit}
-                    onReset={handleProfileReset}
-                    profileImageUrl={resolvedProfilePicture ?? undefined}
-                    isUpdatingImage={isUpdatingAvatar}
-                    onProfileImageSelect={handleProfileImageSelect}
-                    onProfileImageRemove={resolvedProfilePicture ? handleProfileImageRemove : undefined}
-                  />
-                  <IntegrationsList integrations={integrations} onAction={handleIntegrationAction} />
-
-                </div>
-
-                <aside className="space-y-8">
-                  <PlanSummaryCard plan={planSummary} onViewBillingHistory={handleViewBillingHistory} />
-                  <SupportCard onContactSupport={handleContactSupport} />
-                </aside>
+            {error ? (
+              <div className="rounded-3xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm text-red-200">
+                {error}
               </div>
+            ) : null}
+
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+              <div className="space-y-8">
+                <ProfileIdentityForm
+                  displayName={profile?.username || profileForm.username || 'Startup Ninja'}
+                  createdAt={createdAtDisplay}
+                  profileForm={profileForm}
+                  isSaving={isSavingProfile}
+                  onChange={handleProfileChange}
+                  onSubmit={handleProfileSubmit}
+                  onReset={handleProfileReset}
+                  profileImageUrl={resolvedProfilePicture ?? undefined}
+                  isUpdatingImage={isUpdatingAvatar}
+                  onProfileImageSelect={handleProfileImageSelect}
+                  onProfileImageRemove={resolvedProfilePicture ? handleProfileImageRemove : undefined}
+                />
+                <IntegrationsList integrations={integrations} onAction={handleIntegrationAction} />
+
+              </div>
+
+              <aside className="space-y-8">
+                <PlanSummaryCard plan={planSummary} onViewBillingHistory={handleViewBillingHistory} />
+                <SupportCard onContactSupport={handleContactSupport} />
+              </aside>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
+      </main>
+    </DashboardLayout>
   );
 };
 

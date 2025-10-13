@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { PiMagicWandBold, PiImageSquareBold } from 'react-icons/pi';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";

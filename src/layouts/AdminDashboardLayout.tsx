@@ -1,9 +1,9 @@
 import React from 'react';
 import { FaUser, FaDollarSign, FaLightbulb, FaFlag } from 'react-icons/fa';
-import MetricCard from './MetricCard';
-import RealtimeUsageCard from './RealtimeUsageCard';
-import AIUsageCard from './AIUsageCard';
-import SystemAlertsCard from './SystemAlertsCard';
+import MetricCard from '../components/admin-dashboard/MetricCard';
+import RealtimeUsageCard from '../components/admin-dashboard/RealtimeUsageCard';
+import AIUsageCard from '../components/admin-dashboard/AIUsageCard';
+import SystemAlertsCard from '../components/admin-dashboard/SystemAlertsCard';
 
 const AdminDashboardLayout: React.FC = () => {
   // Sample data for MetricCards
