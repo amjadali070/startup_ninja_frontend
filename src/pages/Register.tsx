@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiSearch } from 'react-icons/fi';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
 import type { RegisterRequest } from '../types/auth';
@@ -28,10 +28,9 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const sanitizePhone = (value: string) => value.replace(/[^0-9]/g, '');
 
 const getFieldInputClasses = (hasError: boolean) =>
-  `w-full h-[38px] sm:h-[42px] bg-[#333333] rounded-[8px] px-3 text-white text-[11px] sm:text-[12px] placeholder-[#888888] focus:outline-none transition-colors duration-200 border ${
-    hasError
-      ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-      : 'border-[#404040] focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000]'
+  `w-full h-[38px] sm:h-[42px] bg-[#333333] rounded-[8px] px-3 text-white text-[11px] sm:text-[12px] placeholder-[#888888] focus:outline-none transition-colors duration-200 border ${hasError
+    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+    : 'border-[#404040] focus:border-[#E50000] focus:ring-1 focus:ring-[#E50000]'
   }`;
 
 const validateField = (field: FieldName, value: string, context?: { password?: string }): string => {
@@ -317,7 +316,7 @@ const Register: React.FC = () => {
 
   const handleEmailVerification = async (otp: string) => {
     if (!verificationData) return;
-    
+
     setVerificationLoading(true);
     try {
       const response = await authService.verifyEmail(verificationData.userId, otp);
@@ -338,7 +337,7 @@ const Register: React.FC = () => {
 
   const handleResendOTP = async () => {
     if (!verificationData) return;
-    
+
     try {
       const response = await authService.resendOTP(verificationData.userId);
       if (!response.success) {
@@ -365,14 +364,17 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
       <div className="w-full lg:w-[420px] xl:w-[440px] 2xl:w-[460px] bg-black px-4 sm:mx-0 md:mx-0 lg:mx-24 sm:px-6 md:px-8 lg:px-12 flex flex-col justify-center relative z-10 min-h-screen pt-3 sm:pt-8 lg:pt-4">
-        <img
-          src="/images/logo.png"
-          alt="Startup Ninja"
-          className="h-16 sm:h-18 lg:h-20 w-auto mx-auto"
-        />
+
+        <Link to="/">
+          <img
+            src="/images/logo.png"
+            alt="Startup Ninja"
+            className="h-16 sm:h-18 lg:h-20 w-auto mx-auto"
+          />
+        </Link>
 
         <div className="w-full max-w-full mx-auto lg:mx-0 pt-6 sm:pt-16 lg:pt-3">
-        
+
           <form className="space-y-2.5 sm:space-y-4" onSubmit={handleSubmit} noValidate>
             <div className="space-y-2.5">
               <div>
@@ -446,20 +448,18 @@ const Register: React.FC = () => {
                   Phone Number
                 </label>
                 <div
-                  className={`flex h-[38px] sm:h-[42px] overflow-hidden rounded-[8px] border ${
-                    fieldErrors.phoneNumber
+                  className={`flex h-[38px] sm:h-[42px] overflow-hidden rounded-[8px] border ${fieldErrors.phoneNumber
                       ? 'border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500'
                       : isCountryOpen
                         ? 'border-[#E50000] focus-within:border-[#E50000] focus-within:ring-1 focus-within:ring-[#E50000]'
                         : 'border-[#404040] focus-within:border-[#E50000] focus-within:ring-1 focus-within:ring-[#E50000]'
-                  } bg-[#333333] transition-colors duration-200`}
+                    } bg-[#333333] transition-colors duration-200`}
                 >
                   <button
                     type="button"
                     onClick={() => setIsCountryOpen((prev) => !prev)}
-                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 h-full border-r border-[#2C2C2C] ${
-                      isCountryOpen ? 'bg-[#2B2B2B]' : 'bg-[#333333]'
-                    } text-white text-[11px] sm:text-[12px] transition-colors duration-200`}
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 h-full border-r border-[#2C2C2C] ${isCountryOpen ? 'bg-[#2B2B2B]' : 'bg-[#333333]'
+                      } text-white text-[11px] sm:text-[12px] transition-colors duration-200`}
                     aria-label="Select country code"
                   >
                     <span className="flex items-center justify-center w-6 h-4 rounded-[3px] bg-[#1F1F23]">
@@ -472,14 +472,14 @@ const Register: React.FC = () => {
                     </span>
                     <span>{selectedCountry.dialCode}</span>
                     <FiChevronDown
-                      className={`ml-0.5 text-[#888888] transition-transform duration-200 ${
-                        isCountryOpen ? 'rotate-180 text-white' : ''
-                      }`}
+                      className={`ml-0.5 text-[#888888] transition-transform duration-200 ${isCountryOpen ? 'rotate-180 text-white' : ''
+                        }`}
                     />
                   </button>
                   <input
                     type="tel"
                     value={phoneNumber}
+                    maxLength={10}
                     onChange={(event) => handlePhoneChange(event.target.value)}
                     placeholder="300 1234567"
                     className="flex-1 h-full bg-transparent px-3 text-white text-[11px] sm:text-[12px] placeholder-[#888888] focus:outline-none"
@@ -531,9 +531,8 @@ const Register: React.FC = () => {
                                 updateFieldError('phoneNumber', validateField('phoneNumber', phoneNumber));
                               }
                             }}
-                            className={`flex w-full items-center justify-between gap-2.5 px-3 py-1.5 text-left text-white text-[11px] sm:text-[12px] transition-colors duration-150 hover:bg-[#26262C] ${
-                              country.iso2 === selectedCountry.iso2 ? 'bg-[#26262C]' : ''
-                            }`}
+                            className={`flex w-full items-center justify-between gap-2.5 px-3 py-1.5 text-left text-white text-[11px] sm:text-[12px] transition-colors duration-150 hover:bg-[#26262C] ${country.iso2 === selectedCountry.iso2 ? 'bg-[#26262C]' : ''
+                              }`}
                           >
                             <span className="flex items-center gap-2.5">
                               <span className="flex items-center justify-center w-6 h-4 rounded-[3px] bg-[#1F1F23]">
@@ -662,7 +661,7 @@ const Register: React.FC = () => {
         <img
           src="/images/register-bg.png"
           alt="Samurai silhouette"
-          className="w-full h-full aspect-[2/1]"
+          className="object- w-full h-full aspect-[2/1]"
         />
       </div>
 
