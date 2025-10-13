@@ -37,6 +37,7 @@ body {
     transform: translateY(150px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -48,6 +49,7 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -64,8 +66,50 @@ body {
 }
 
 .feature-bg {
-  background: linear-gradient(135.17deg, rgba(55,65,81,0.5) -94.55%, rgba(18,16,16,0.5) 95.54%);
+  background: linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%);
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 2rem;
+}
+
+
+/* Footer Logo Animation */
+.footer-logo-container {
+  position: relative;
+  display: inline-block;
+}
+
+.footer-logo-base {
+  display: block;
+}
+.white-path {
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+
+.footer-logo-container:hover .white-path {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+.footer-logo-container:hover .red-path {
+  filter: drop-shadow(0 0 3px rgba(222, 5, 0, 0.6)) drop-shadow(0 0 6px rgba(222, 5, 0, 0.4));
+}
+
+.footer-logo-container:hover .footer-logo-overlay {
+  opacity: 0.9;
+}
+
+.footer-logo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  background: radial-gradient(circle 150px at var(--mouse-x, -20%) var(--mouse-y, 0%), transparent 0%, rgba(0, 0, 0, 0.95) 100%);
+  /* background: radial-gradient(circle 150px at var(--mouse-x, 70%) var(--mouse-y, 50%), transparent 0%, rgba(0, 0, 0, 0.95) 100%); */
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  /* mask: radial-gradient(circle 120px at 70% 50%, transparent 0%, black 100%);
+  -webkit-mask: radial-gradient(circle 120px at 70% 50%, transparent 0%, black 100%); */
 }

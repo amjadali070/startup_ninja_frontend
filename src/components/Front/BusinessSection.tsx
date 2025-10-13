@@ -24,26 +24,15 @@ export default function BusinessSection() {
         <h2 className="text-3xl md:text-4xl font-semibold">
           Startup Ninja for business
         </h2>
-        <a
-          href="#"
-          className="text-sm text-gray-300 hover:text-red-500 transition-colors"
-        >
+        <a href="#" className="text-sm text-gray-300 hover:text-red-500 transition-colors">
           View all
         </a>
       </div>
-
       {/* Card Row */}
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6">
         {cards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-[#141010] rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-          >
-            <img
-              src={card.image}
-              alt={card.title}
-              className="w-full object-cover aspect-[1/1]"
-            />
+          <div key={index} className="bg-[#141010] rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300">
+            <img src={card.image} alt={card.title} className="w-full object-cover aspect-[1/1]" />
             <div className="p-5">
               <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
               <p className="text-sm text-gray-400">{card.feature}</p>
