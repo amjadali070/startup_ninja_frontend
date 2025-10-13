@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.tsx';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { LoginRequest, AuthResponse } from '../types/auth';
 import { FaApple } from 'react-icons/fa';
@@ -164,12 +164,14 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-black overflow-hidden">
       <div className="w-full lg:w-[420px] xl:w-[440px] 2xl:w-[460px] bg-black px-4 sm:mx-0 md:mx-0 lg:mx-24 sm:px-6 md:px-8 lg:px-12 flex flex-col justify-center relative z-10 min-h-screen pt-6 sm:pt-8 lg:pt-12">
-          <img
-            src="/images/logo.png"
-            alt="Startup Ninja"
-            className="h-16 sm:h-18 lg:h-20 w-auto mx-auto"
-          />
-
+          <Link to="/">
+            <img
+              src="/images/logo.png"
+              alt="Startup Ninja"
+              className="h-16 sm:h-18 lg:h-20 w-auto mx-auto"
+            />
+          </Link>
+          
         <div className="w-full max-w-full mx-auto lg:mx-0 pt-12 sm:pt-16 lg:pt-6">
           <h1 className="text-white text-[13px] sm:text-[14px] font-normal mb-4 sm:mb-6 leading-relaxed font-plus-jakarta">
             Sign up or Login with

@@ -102,7 +102,7 @@ const AITools: FC = () => {
         description: 'Collaborate with a smart AI assistant trained on startup best practices and industry insights.',
         icon: <FiMessageSquare className="h-8 w-8" />,
         ctaLabel: 'Start Chatting',
-        ctaTo: '/ai-chat',
+        ctaTo: '/ai-tools/chat',
       },
       {
         title: 'AI Image Generator',

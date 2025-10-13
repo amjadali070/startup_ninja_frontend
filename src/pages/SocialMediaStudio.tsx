@@ -101,7 +101,7 @@ const SocialMediaStudio: FC = () => {
   const displayName = profile.username || profile.email || 'Ninja';
 
   return (
-    <div className="flex min-h-screen bg-[#151515] text-white">
+    <div className="flex min-h-screen text-white">
       <DashboardSidebar activePath="/ai-tools/social-pro" />
 
       <div className="flex flex-1 flex-col">
@@ -122,7 +122,7 @@ const SocialMediaStudio: FC = () => {
                   <SocialMediaHeading/>
               </div>
               <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-start">
-                <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6 border rounded-lg border-white/10 p-6 lg:p-6">
+                <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6 border rounded-lg border-white/10 p-6 lg:p-6 bg-[#151515]">
                   <div>
                     <h1 className="text-white text-xl md:text-2xl font-bold mb-4 md:mb-6 font-plus-jakarta">
                       Create Post

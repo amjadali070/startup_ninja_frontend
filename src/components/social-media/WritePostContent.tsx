@@ -22,7 +22,7 @@ const WritePostContent: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#1E1E1E] border border-gray-600 rounded-xl p-3 md:p-4">
+    <div className="bg-[#0d0d0d] border border-[#222222] rounded-xl p-3 md:p-4">
       <h3 className="text-white text-base md:text-lg font-bold mb-3 md:mb-4 font-plus-jakarta">
         Write Post Content
       </h3>

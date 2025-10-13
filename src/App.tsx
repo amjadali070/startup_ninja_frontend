@@ -10,16 +10,17 @@ import AITools from './pages/AITools';
 import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import { Toaster } from 'react-hot-toast';
+import HomePage from './pages/HomePage.tsx';
 
 
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-[#0D0D0D] font-sans">
+      <div className="min-h-screen bg-[#0D0D0D]">
         <Routes>
           <Route path="/" element={
             <PublicRoute>
-              <Login />
+              <HomePage />
             </PublicRoute>
           } />
           <Route path="/login" element={

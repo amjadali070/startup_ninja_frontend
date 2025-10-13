@@ -154,7 +154,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             relative w-full 
             bg-[#1E1E1E] 
             border-2 border-dashed 
-            ${isDragOver ? 'border-white bg-[#2a2a2a]' : 'border-gray-400'} 
+            ${isDragOver ? 'border-white bg-[#2a2a2a]' : 'border-[#454545]'} 
             rounded-lg 
             py-6 md:py-8 
             px-3 md:px-4 
@@ -186,7 +186,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             type="button"
             onClick={handleButtonClick}
             className="inline-flex items-center justify-center 
-                       bg-[#1E1E1E] border border-gray-400 
+                       bg-[#1E1E1E] border border-[#5a5858] 
                        hover:bg-[#2a2a2a] hover:border-white 
                        text-white 
                        px-3 py-2 md:px-4 md:py-2.5
