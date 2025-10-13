@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { PiMagicWandBold, PiImageSquareBold } from 'react-icons/pi';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
@@ -50,7 +50,7 @@ const navItems: SidebarNavItem[] = [
     icon: <PiMagicWandBold className="w-5 h-5" />,
     children: [
       { label: 'AI Chat', to: '/ai-tools/chat', icon: <FiMessageSquare className="h-4 w-4" /> },
-      { label: 'AI Image', to: '/ai-tools/image', icon: <PiImageSquareBold className="h-4 w-4" /> },
+      { label: 'AI Image', to: '/ai-tools/image-gen', icon: <PiImageSquareBold className="h-4 w-4" /> },
       { label: 'Web Builder', to: '/ai-tools/web-builder', icon: <FiGlobe className="h-4 w-4" /> },
       { label: 'Social Pro', to: '/ai-tools/social-pro', icon: <RiOrganizationChart className="h-4 w-4" /> },
     ],
@@ -165,9 +165,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
       >
         <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
           <div className="flex items-center justify-center">
-            <Link to={userData?.role === 'admin' ? '/admin-dashboard' : '/dashboard'}>
-              <img src="/images/logo.png" alt="Startup Ninja" className="h-12 w-auto" />
-            </Link>
+            <img src="/images/logo.png" alt="Startup Ninja" className="h-16 w-auto" />
           </div>
 
           <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">

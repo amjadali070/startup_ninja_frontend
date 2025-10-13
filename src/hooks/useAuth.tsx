@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { authService } from '../services/auth';
 
 // Replace 'any' with your actual user type if available
 export type User = any;

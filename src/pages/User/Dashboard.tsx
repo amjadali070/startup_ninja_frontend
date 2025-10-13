@@ -4,17 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { PiImageSquareBold } from "react-icons/pi";
 import { FiGlobe, FiMessageSquare } from "react-icons/fi";
 import { RiOrganizationChart } from "react-icons/ri";
-import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
-import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import DashboardLayout from '../../layouts/DashboardLayout';
 import WelcomeBanner from '../../components/dashboard/WelcomeBanner.tsx';
 import QuickActionCard from '../../components/dashboard/QuickActionCard.tsx';
 import NinjaAssistantCard from '../../components/dashboard/NinjaAssistantCard.tsx';
 import ProjectCard from '../../components/dashboard/ProjectCard.tsx';
 import TokenUsageCard from '../../components/dashboard/TokenUsageCard.tsx';
-import { authService } from '../../services/auth.ts';
-import { userService, UserProfile } from '../../services/user.ts';
-import LoadingSpinner from '../../components/LoadingSpinner.tsx';
-import { resolveProfilePictureUrl } from '../../utils/profile.ts';
+import { userService } from '../../services/user.ts';
 
 interface QuickActionConfig {
   title: string;
@@ -59,45 +55,22 @@ const projectShowcase: ProjectConfig[] = [
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const resolvedProfilePicture = useMemo(() => {
-    const fallbackUser = authService.getUser?.() ?? null;
-    const fallbackPicture = fallbackUser?.profilePicture ?? fallbackUser?.picture ?? null;
-    return resolveProfilePictureUrl(profile?.profilePicture ?? fallbackPicture);
-  }, [profile?.profilePicture]);
+  const [displayName, setDisplayName] = useState('Ninja');
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      setLoading(false);
-      navigate('/login', { replace: true });
-      return;
-    }
-
-    const fetchProfile = async () => {
+    const fetchDisplayName = async () => {
       try {
         const response = await userService.getProfile();
         if (response.success && response.user) {
-          setProfile(response.user);
-        } else {
-          if (response.message === 'User not found') {
-            await logout();
-            navigate('/login', { replace: true });
-          }
-          setError(response.message || 'Unable to load profile.');
+          setDisplayName(response.user.username || response.user.email || 'Ninja');
         }
       } catch (err) {
-        console.error('Dashboard profile fetch failed:', err);
-        setError('Unable to load profile.');
-      } finally {
-        setLoading(false);
+        console.error('Dashboard display name fetch failed:', err);
       }
     };
 
-    fetchProfile();
-  }, [logout, navigate]);
+    fetchDisplayName();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -147,91 +120,53 @@ const Dashboard: React.FC = () => {
     []
   );
 
-  if (loading) {
-    return (
-      <LoadingSpinner fullscreen variant="dark" />
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#07070C] text-white">
-        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0D0D15] p-8 text-center shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
-          <h1 className="text-2xl font-semibold">Something went wrong</h1>
-          <p className="mt-3 text-sm text-white/60">{error}</p>
-          <button
-            onClick={() => navigate('/login', { replace: true })}
-            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] text-sm font-semibold text-white shadow-[0_12px_32px_rgba(229,0,0,0.35)]"
-          >
-            Back to login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return null;
-  }
-
-  const displayName = profile.username || profile.email || 'Ninja';
-
   return (
-    <div className="flex min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/dashboard" userData={profile} />
+    <DashboardLayout 
+      activePath="/dashboard" 
+      title="Dashboard"
+      onLogout={handleLogout}
+      onSettings={handleOpenSettings}
+    >
+      <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
+        <div className="space-y-6">
+          <WelcomeBanner name={displayName} />
 
-      <div className="flex-1">
-        <DashboardTopbar
-          title="Dashboard"
-          userName={displayName}
-          profilePicture={resolvedProfilePicture}
-          email={profile.email}
-          username={profile.username}
-          onLogout={handleLogout}
-          onSettings={handleOpenSettings}
-        />
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {quickActions.map((action) => (
+              <QuickActionCard key={action.title} {...action} />
+            ))}
+          </section>
 
-        <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
-          <div className="space-y-6">
-            <WelcomeBanner name={displayName} />
+          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[360px_minmax(0,1fr)_360px] xl:items-stretch xl:pb-2">
+            <div className="flex h-full w-full">
+              <NinjaAssistantCard suggestions={assistantSuggestions} />
+            </div>
 
-            <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              {quickActions.map((action) => (
-                <QuickActionCard key={action.title} {...action} />
-              ))}
-            </section>
-
-            <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[360px_minmax(0,1fr)_360px] xl:items-stretch xl:pb-2">
-              <div className="flex h-full w-full">
-                <NinjaAssistantCard suggestions={assistantSuggestions} />
-              </div>
-
-              <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
-                <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
-                <div className="relative z-10 flex h-full flex-col">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">Ongoing Projects</h3>
-                      <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">Keep track of your workspace progress in real time.</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex flex-1 flex-col justify-start gap-6">
-                    {projectShowcase.slice(0, 3).map((project) => (
-                      <ProjectCard key={project.title} {...project} />
-                    ))}
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
+              <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
+              <div className="relative z-10 flex h-full flex-col">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">Ongoing Projects</h3>
+                    <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">Keep track of your workspace progress in real time.</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex h-full w-full">
-                <TokenUsageCard used={3000} limit={5000} resetInHours={12} />
+                <div className="mt-8 flex flex-1 flex-col justify-start gap-6">
+                  {projectShowcase.slice(0, 3).map((project) => (
+                    <ProjectCard key={project.title} {...project} />
+                  ))}
+                </div>
               </div>
-            </section>
-          </div>
-        </main>
-      </div>
-    </div>
+            </div>
+
+            <div className="flex h-full w-full">
+              <TokenUsageCard used={3000} limit={5000} resetInHours={12} />
+            </div>
+          </section>
+        </div>
+      </main>
+    </DashboardLayout>
   );
 };
 

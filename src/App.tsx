@@ -2,16 +2,17 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Auth/Login.tsx';
 import Register from './pages/Auth/Register.tsx';
 import Dashboard from './pages/User/Dashboard.tsx';
-import AdminDashboard from './pages/Admin/AdminDashboard.tsx';
 import AdminLogin from './pages/Auth/AdminLogin.tsx';
 import AIChat from './pages/User/AIChat.tsx';
 import AIImageGen from './pages/User/AIImageGen.tsx';
 import SocialMediaStudio from './pages/User/SocialMediaStudio.tsx';
 import AITools from './pages/User/AITools.tsx';
-import { AdminRoute, ProtectedRoute, PublicRoute } from './components/RouteGuards';
+import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage.tsx';
+import Settings from './pages/Settings';
+
 
 function App() {
   return (
@@ -71,12 +72,10 @@ function App() {
               <SocialMediaStudio />
             </ProtectedRoute>
           } />
-
-          {/* Admin Routes */}
-          <Route path="/admin-dashboard" element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
           } />
         </Routes>
 

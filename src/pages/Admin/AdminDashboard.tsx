@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useNavigate } from 'react-router-dom';
-import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
-import AdminDashboardLayout from '../../components/admin-dashboard/AdminDashboardLayout.tsx';
+import DashboardLayout from '../../layouts/DashboardLayout';
+import AdminDashboardLayout from '../../layouts/AdminDashboardLayout.tsx';
 import LoadingSpinner from '../../components/LoadingSpinner.tsx';
 import { authService } from '../../services/auth.ts';
 import { userService, UserProfile } from '../../services/user.ts';
@@ -104,27 +104,27 @@ const AdminDashboard: React.FC = () => {
   const displayName = profile.username || profile.email || 'Admin';
 
   return (
-    <div className="flex min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/admin-dashboard" userData={profile} />
+    <DashboardLayout 
+      activePath="/admin-dashboard" 
+      title="Admin Dashboard"
+      onLogout={handleLogout}
+      onSettings={handleOpenSettings}
+    >
+      <TopBarAdminDashboard
+        title="Admin Dashboard"
+        userName={displayName}
+        profilePicture={resolvedProfilePicture}
+        email={profile.email}
+        username={profile.username}
+        onLogout={handleLogout}
+        onSettings={handleOpenSettings}
+        statusBadges={adminBadges}
+      />
 
-      <div className="flex-1">
-        <TopBarAdminDashboard
-          title="Admin Dashboard"
-          userName={displayName}
-          profilePicture={resolvedProfilePicture}
-          email={profile.email}
-          username={profile.username}
-          onLogout={handleLogout}
-          onSettings={handleOpenSettings}
-          statusBadges={adminBadges}
-
-        />
-
-        <main className="flex-1">
-          <AdminDashboardLayout />
-        </main>
-      </div>
-    </div>
+      <main className="flex-1">
+        <AdminDashboardLayout />
+      </main>
+    </DashboardLayout>
   );
 };
 
