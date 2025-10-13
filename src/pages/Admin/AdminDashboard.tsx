@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { useNavigate } from 'react-router-dom';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import AdminDashboardLayout from '../components/admin-dashboard/AdminDashboardLayout';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { authService } from '../services/auth';
-import { userService, UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
-import TopBarAdminDashboard from '../components/admin-dashboard/TopBarAdminDashboard.tsx';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import AdminDashboardLayout from '../../components/admin-dashboard/AdminDashboardLayout.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, UserProfile } from '../../services/user.ts';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
+import TopBarAdminDashboard from '../../components/admin-dashboard/TopBarAdminDashboard.tsx';
 
 const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -25,13 +25,18 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
+      const userData = {
+        user: {
+          userId: profile?.id || '',
+        }
+      }
+      await authService.logout(userData);
       logout();
-      navigate('/login', { replace: true });
+      // navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
       logout();
-      navigate('/login', { replace: true });
+      // navigate('/login', { replace: true });
     }
   };
 
@@ -100,7 +105,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/admin-dashboard" />
+      <DashboardSidebar activePath="/admin-dashboard" userData={profile} />
 
       <div className="flex-1">
         <TopBarAdminDashboard

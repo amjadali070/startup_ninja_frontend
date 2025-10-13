@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import PlatformTags from '../components/social-media/PlatformTags';
-import WritePostContent from '../components/social-media/WritePostContent';
-import FileUpload from '../components/social-media/FileUpload';
-import SchedulingOption from '../components/social-media/SchedulingOption';
-import PostPreview from '../components/social-media/PostPreview';
-import ConnectedAccounts from '../components/social-media/ConnectedAccounts';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import { userService, type UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
-import SocialMediaHeading from '../components/social-media/SocialMediaHeading.tsx';
-import { PostProvider } from '../components/social-media/PostContext';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import PlatformTags from '../../components/social-media/PlatformTags.tsx';
+import WritePostContent from '../../components/social-media/WritePostContent.tsx';
+import FileUpload from '../../components/social-media/FileUpload.tsx';
+import SchedulingOption from '../../components/social-media/SchedulingOption.tsx';
+import PostPreview from '../../components/social-media/PostPreview.tsx';
+import ConnectedAccounts from '../../components/social-media/ConnectedAccounts.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, type UserProfile } from '../../services/user.ts';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
+import SocialMediaHeading from '../../components/social-media/SocialMediaHeading.tsx';
+import { PostProvider } from '../../components/social-media/PostContext.tsx';
 
 const SocialMediaStudio: FC = () => {
   const navigate = useNavigate();

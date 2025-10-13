@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { useAuth } from '../hooks/useAuth.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { useNavigate } from 'react-router-dom';
 import { PiImageSquareBold } from "react-icons/pi";
 import { FiGlobe, FiMessageSquare } from "react-icons/fi";
 import { RiOrganizationChart } from "react-icons/ri";
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import WelcomeBanner from '../components/dashboard/WelcomeBanner';
-import QuickActionCard from '../components/dashboard/QuickActionCard';
-import NinjaAssistantCard from '../components/dashboard/NinjaAssistantCard';
-import ProjectCard from '../components/dashboard/ProjectCard';
-import TokenUsageCard from '../components/dashboard/TokenUsageCard';
-import { authService } from '../services/auth';
-import { userService, UserProfile } from '../services/user';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { resolveProfilePictureUrl } from '../utils/profile';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import WelcomeBanner from '../../components/dashboard/WelcomeBanner.tsx';
+import QuickActionCard from '../../components/dashboard/QuickActionCard.tsx';
+import NinjaAssistantCard from '../../components/dashboard/NinjaAssistantCard.tsx';
+import ProjectCard from '../../components/dashboard/ProjectCard.tsx';
+import TokenUsageCard from '../../components/dashboard/TokenUsageCard.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, UserProfile } from '../../services/user.ts';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
 
 interface QuickActionConfig {
   title: string;
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/dashboard" />
+      <DashboardSidebar activePath="/dashboard" userData={profile} />
 
       <div className="flex-1">
         <DashboardTopbar

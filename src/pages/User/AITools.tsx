@@ -3,14 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FiGlobe, FiMessageSquare } from 'react-icons/fi';
 import { RiShareBoxLine } from 'react-icons/ri';
 import { PiImageSquareBold } from 'react-icons/pi';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import LoadingSpinner from '../components/LoadingSpinner';
-import AIToolCard from '../components/ai-tools/AIToolCard';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import { userService, type UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import AIToolCard from '../../components/ai-tools/AIToolCard.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, type UserProfile } from '../../services/user.ts';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
 
 // Social types/utilities removed for simplified grid
 
