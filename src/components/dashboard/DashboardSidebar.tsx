@@ -43,7 +43,7 @@ const navItems: SidebarNavItem[] = [
     icon: <PiMagicWandBold className="w-5 h-5" />,
     children: [
       { label: 'AI Chat', to: '/ai-tools/chat', icon: <FiMessageSquare className="h-4 w-4" /> },
-      { label: 'AI Image', to: '/ai-tools/image', icon: <PiImageSquareBold className="h-4 w-4" /> },
+      { label: 'AI Image', to: '/ai-tools/image-gen', icon: <PiImageSquareBold className="h-4 w-4" /> },
       { label: 'Web Builder', to: '/ai-tools/web-builder', icon: <FiGlobe className="h-4 w-4" /> },
       { label: 'Social Pro', to: '/ai-tools/social-pro', icon: <RiOrganizationChart className="h-4 w-4" /> },
     ],
