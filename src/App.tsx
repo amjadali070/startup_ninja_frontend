@@ -13,6 +13,7 @@ import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage.tsx';
+import Settings from './pages/Settings';
 
 
 function App() {
@@ -73,6 +74,11 @@ function App() {
           <Route path="/ai-tools/social-pro" element={
             <ProtectedRoute>
               <SocialMediaStudio />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
         </Routes>
