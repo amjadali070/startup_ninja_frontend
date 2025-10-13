@@ -151,7 +151,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
       >
         <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
           <div className="flex items-center justify-center">
-            <img src="/images/logo.png" alt="Startup Ninja" className="h-12 w-auto" />
+            <img src="/images/logo.png" alt="Startup Ninja" className="h-16 w-auto" />
           </div>
 
           <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">
