@@ -69,9 +69,9 @@ export const authService = {
     }
   },
 
-  async logout(): Promise<LogoutResponse> {
+  async logout(userData: { user: { userId: string } }): Promise<LogoutResponse> {
     try {
-      const response = await apiClient.post<LogoutResponse>('/auth/logout', {});
+      const response = await apiClient.post<LogoutResponse>('/auth/logout', userData);
       return response;
     } catch (error: any) {
       const message = error?.response?.data?.message || 'Logout failed';

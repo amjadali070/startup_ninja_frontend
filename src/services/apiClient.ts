@@ -95,7 +95,7 @@ class ApiClient {
           switch (error.response.status) {
             case 401:
               // Unauthorized - clear token and redirect to login
-              this.handleUnauthorized();
+              // this.handleUnauthorized();
               break;
             case 403:
               // Forbidden

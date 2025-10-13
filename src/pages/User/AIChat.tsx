@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { FiEdit3 } from 'react-icons/fi';
 import { ImFileText } from 'react-icons/im';
 import { PiBrainLight } from "react-icons/pi";
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import AIChatUpgradeBanner from '../components/ai-chat/AIChatUpgradeBanner';
-import AIChatHeroTitle from '../components/ai-chat/AIChatHeroTitle';
-import AIChatComposer from '../components/ai-chat/AIChatComposer';
-import AIChatQuickActionCard from '../components/ai-chat/AIChatQuickActionCard';
-import AIChatFooterNotice from '../components/ai-chat/AIChatFooterNotice';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import { userService, type UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import AIChatUpgradeBanner from '../../components/ai-chat/AIChatUpgradeBanner.tsx';
+import AIChatHeroTitle from '../../components/ai-chat/AIChatHeroTitle.tsx';
+import AIChatComposer from '../../components/ai-chat/AIChatComposer.tsx';
+import AIChatQuickActionCard from '../../components/ai-chat/AIChatQuickActionCard.tsx';
+import AIChatFooterNotice from '../../components/ai-chat/AIChatFooterNotice.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, type UserProfile } from '../../services/user.ts';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
 
 const quickActions = [
   {

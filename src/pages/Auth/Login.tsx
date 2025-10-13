@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth';
-import { LoginRequest, AuthResponse } from '../types/auth';
+import { authService } from '../../services/auth.ts';
+import { LoginRequest, AuthResponse } from '../../types/auth.ts';
 import { FaApple } from 'react-icons/fa';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { HiOutlineMail } from 'react-icons/hi';
-import SocialAuth from '../components/SocialAuth';
-import EmailVerificationModal from '../components/EmailVerificationModal';
+import SocialAuth from '../../components/SocialAuth.tsx';
+import EmailVerificationModal from '../../components/EmailVerificationModal.tsx';
 import toast from 'react-hot-toast';
 
 const Login: React.FC = () => {
@@ -76,7 +76,11 @@ const Login: React.FC = () => {
       } else if (response.success && response.token) {
         setError('');
         login(response.user, response.token); // update context
-        navigate('/dashboard');
+        if(response?.user?.role == 'admin'){
+          navigate('/admin-dashboard');
+        } else{
+          navigate('/dashboard');
+        }
       } else {
         setError(response.message || 'Login failed');
       }

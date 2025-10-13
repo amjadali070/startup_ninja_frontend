@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiSearch } from 'react-icons/fi';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import type { RegisterRequest } from '../types/auth';
-import { COUNTRY_OPTIONS } from '../data/countries';
-import EmailVerificationModal from '../components/EmailVerificationModal';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { authService } from '../../services/auth.ts';
+import type { RegisterRequest } from '../../types/auth.ts';
+import { COUNTRY_OPTIONS } from '../../data/countries.ts';
+import EmailVerificationModal from '../../components/EmailVerificationModal.tsx';
 import toast from 'react-hot-toast';
 
 const getFlagUrl = (iso2: string, size: number = 32) => {

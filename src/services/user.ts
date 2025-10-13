@@ -4,6 +4,7 @@ export interface UserProfile {
   id: string;
   username: string;
   email: string;
+  role: 'user' | 'admin';
   profilePicture?: string | null;
   createdAt: string;
   updatedAt: string;

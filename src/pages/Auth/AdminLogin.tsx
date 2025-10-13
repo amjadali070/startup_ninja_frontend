@@ -1,53 +1,92 @@
 import React, { useState } from 'react';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/auth';
+import { useAuth } from '../../hooks/useAuth';
 
 const AdminLoginPage: React.FC = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Admin login attempt:', { email, password, rememberMe });
-    // TODO: Implement admin login logic
+    setError('');
+
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Please enter your password.');
+      return;
+    }
+
+
+    setLoading(true);
+
+    try {
+      const formData = { email, password };
+      const response = await authService.login(formData);
+
+      if (response.success && response?.token) {
+        setError('');
+        login(response.user, response.token);
+        if(response?.user?.role == 'admin'){
+          navigate('/admin-dashboard');
+        } else{
+          navigate('/dashboard');
+        }
+      } else {
+        setError(response.message || 'Login failed');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleForgotPassword = () => {
     console.log('Forgot password clicked');
-    // TODO: Implement forgot password logic
   };
 
   const handleCreateAccount = () => {
     console.log('Create account clicked');
-    // TODO: Navigate to admin registration or contact form
   };
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
       {/* Ninja Silhouette Background */}
       <div className="absolute right-0 bottom-0 opacity-100 pointer-events-none">
-        <img 
-          src="/images/adminLogin-bg.png" 
-          alt="Ninja Silhouette" 
-          className="h-screen object-cover"
-          onError={(e) => {
-            // Fallback: Hide the image if it doesn't exist
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
+          <img
+            src="/images/adminLogin-bg.png"
+            alt="Ninja Silhouette"
+            className="h-screen object-cover"
+            onError={(e) => {
+              // Fallback: Hide the image if it doesn't exist
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
       </div>
 
       {/* Login Card */}
       <div className="bg-[#00000073] rounded-xl border border-[#242424] p-8 max-w-md w-full mx-4 relative z-10 backdrop-blur-[24px]" style={{ boxShadow: '0px 10px 30px 0px #00000073' }}>
         {/* Logo */}
         <div className="text-center mb-6">
-          <img 
-            src="/images/logo.png" 
-            alt="Startup Ninja Logo" 
-            className="h-16 mx-auto"
-          />
+          <Link to="/">
+            <img
+              src="/images/logo.png"
+              alt="Startup Ninja Logo"
+              className="h-16 mx-auto"
+            />
+          </Link>
         </div>
 
         {/* Welcome Text */}
@@ -56,7 +95,7 @@ const AdminLoginPage: React.FC = () => {
         </h1>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           {/* Email Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -68,7 +107,6 @@ const AdminLoginPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#2A2A2A] border border-gray-700 rounded-lg text-white pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              required
             />
           </div>
 
@@ -83,7 +121,6 @@ const AdminLoginPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-[#2A2A2A] border border-gray-700 rounded-lg text-white pl-10 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              required
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
               <button
@@ -95,6 +132,11 @@ const AdminLoginPage: React.FC = () => {
               </button>
             </div>
           </div>
+          {error && (
+            <div className="p-2.5 bg-red-900/20 border border-red-500 rounded-[8px] text-red-400 text-[11px] sm:text-[12px]">
+              {error}
+            </div>
+          )}
 
           {/* Remember Me and Forgot Password */}
           <div className="flex justify-between items-center">
@@ -122,13 +164,14 @@ const AdminLoginPage: React.FC = () => {
           {/* Login Button */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full text-white font-bold py-3 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#1A1A1A] mt-6 border border-[#FFFFFF40]"
-            style={{ 
+            style={{
               background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)',
               boxShadow: '0px 12px 25px 0px #7F1D1D80'
             }}
           >
-            LOGIN
+            {loading ? 'Logging in...' : 'LOGIN'}
           </button>
         </form>
 
@@ -147,8 +190,8 @@ const AdminLoginPage: React.FC = () => {
 
         {/* Back to User Login */}
         <div className="text-center mt-4 pt-4 border-t border-gray-700">
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="text-gray-400 text-sm hover:text-gray-300 focus:outline-none"
           >
             ← Back to User Login

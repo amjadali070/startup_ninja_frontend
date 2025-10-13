@@ -39,7 +39,9 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 
   const logout = useCallback(async () => {
     try {
-      await authService.logout();
+      // console.log('AuthProvider logout called' , user);
+      // const userData = { user: { userId: user?.id } };
+      // await authService.logout(userData);
     } catch (error) {
       console.error('AuthProvider logout failed:', error);
     } finally {

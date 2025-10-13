@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { PiMagicWandBold, PiImageSquareBold } from 'react-icons/pi';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
@@ -8,6 +8,7 @@ import { PiCirclesThreeBold } from "react-icons/pi";
 import { FaRss, FaUserShield } from "react-icons/fa";
 import { FiMenu, FiX, FiChevronDown, FiMessageSquare, FiGlobe } from 'react-icons/fi';
 import { RiOrganizationChart } from 'react-icons/ri';
+import { UserProfile } from '../../services/user';
 
 interface SidebarSubNavItem {
   label: string;
@@ -20,22 +21,28 @@ interface SidebarNavItem {
   to: string;
   icon: ReactNode;
   children?: SidebarSubNavItem[];
+  admin: boolean;
 }
 
 interface DashboardSidebarProps {
   activePath?: string;
+  userData: UserProfile | null;
 }
+
+// i want role based sidebar items here for admin i need only admin dashboard for now and for user i need all other items except admin dashboard
 
 const navItems: SidebarNavItem[] = [
   {
     label: 'Dashboard',
     to: '/dashboard',
     icon: <CgHome className="w-5 h-5" />,
+    admin : false
   },
   {
     label: 'Admin Dashboard',
     to: '/admin-dashboard',
     icon: <FaUserShield className="w-5 h-5" />,
+    admin : true
   },
   {
     label: 'AI Tools',
@@ -47,34 +54,41 @@ const navItems: SidebarNavItem[] = [
       { label: 'Web Builder', to: '/ai-tools/web-builder', icon: <FiGlobe className="h-4 w-4" /> },
       { label: 'Social Pro', to: '/ai-tools/social-pro', icon: <RiOrganizationChart className="h-4 w-4" /> },
     ],
+    admin : false
   },
   {
     label: 'Projects',
     to: '/projects',
     icon: <FaRegFolder className="w-5 h-5" />,
+    admin : false
   },
   {
     label: 'Templates',
     to: '/templates',
     icon: <PiCirclesThreeBold className="w-5 h-5" />,
+    admin : false
   },
   {
     label: 'Community Feed',
     to: '/community',
     icon: <FaRss className="w-5 h-5" />,
+    admin : false
   },
   {
     label: 'Settings',
     to: '/settings',
     icon: <HiOutlineCog6Tooth className="w-5 h-5" />,
+    admin : false
   }
 ];
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dashboard' }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dashboard' , userData }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobileCollapsed, _setIsMobileCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const location = useLocation();
+  const filteredNavItems = userData?.role === 'admin' ? navItems.filter(item => item.admin) : navItems.filter(item => !item.admin);
+
 
   useEffect(() => {
     setIsMobileOpen(false);
@@ -155,7 +169,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
           </div>
 
           <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const children = item.children ?? [];
               const hasChildren = children.length > 0;
               const childActive = children.some((child) => location.pathname.startsWith(child.to));

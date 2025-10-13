@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import CreateImages from '../components/ai-image-gen/CreateImages';
-import RecentImages from '../components/ai-image-gen/RecentImages';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import { userService, type UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar.tsx';
+import DashboardTopbar from '../../components/dashboard/DashboardTopbar.tsx';
+import CreateImages from '../../components/ai-image-gen/CreateImages.tsx';
+import RecentImages from '../../components/ai-image-gen/RecentImages.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import { useAuth } from '../../hooks/useAuth.tsx';
+import { authService } from '../../services/auth.ts';
+import { userService, type UserProfile } from '../../services/user.ts';
+import { resolveProfilePictureUrl } from '../../utils/profile.ts';
 
 const AIImageGen: FC = () => {
   const navigate = useNavigate();
