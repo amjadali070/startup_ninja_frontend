@@ -135,9 +135,9 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
               type="text"
               name="username"
               value={profileForm.username}
-              onChange={onChange}
+              disabled
               placeholder="e.g. Amjad Khan"
-              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.18rem] text-white/55">
@@ -146,9 +146,9 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
               type="email"
               name="email"
               value={profileForm.email}
-              onChange={onChange}
+              disabled
               placeholder="name@startupninja.ai"
-              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none"
+              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
         </div>

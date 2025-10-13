@@ -18,13 +18,9 @@ interface PlanSummaryCardProps {
   onViewBillingHistory?: () => void;
 }
 
-
-
 const PlanSummaryCard: FC<PlanSummaryCardProps> = ({ plan, onViewBillingHistory }) => {
   const tokenUsagePercent = Math.min(100, Math.round((plan.tokensUsed / Math.max(plan.tokensLimit, 1)) * 100));
   const creditUsagePercent = Math.min(100, Math.round((plan.creditsUsed / Math.max(plan.creditsLimit, 1)) * 100));
-
-
 
   return (
     <section className={`${panelCardClass} border-white/15 bg-gradient-to-br from-[#161626] via-[#0E0E18] to-[#0D0D15]`}>
