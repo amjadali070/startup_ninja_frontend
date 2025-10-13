@@ -5,7 +5,7 @@ import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
 import { FaRegFolder } from "react-icons/fa6";
 import { PiCirclesThreeBold } from "react-icons/pi";
-import { FaRss } from "react-icons/fa";
+import { FaRss, FaUserShield } from "react-icons/fa";
 import { FiMenu, FiX, FiChevronDown, FiMessageSquare, FiGlobe } from 'react-icons/fi';
 import { RiOrganizationChart } from 'react-icons/ri';
 
@@ -31,6 +31,11 @@ const navItems: SidebarNavItem[] = [
     label: 'Dashboard',
     to: '/dashboard',
     icon: <CgHome className="w-5 h-5" />,
+  },
+  {
+    label: 'Admin Dashboard',
+    to: '/admin-dashboard',
+    icon: <FaUserShield className="w-5 h-5" />,
   },
   {
     label: 'AI Tools',
