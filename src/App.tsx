@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 import AIChat from './pages/AIChat';
 import AIImageGen from './pages/AIImageGen';
 import SocialMediaStudio from './pages/SocialMediaStudio';
@@ -33,9 +35,19 @@ function App() {
               <Register />
             </PublicRoute>
           } />
+          <Route path="/admin/login" element={
+            <PublicRoute>
+              <AdminLogin />
+            </PublicRoute>
+          } />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard" element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/ai-tools" element={
@@ -93,5 +105,3 @@ function App() {
 }
 
 export default App
-
-

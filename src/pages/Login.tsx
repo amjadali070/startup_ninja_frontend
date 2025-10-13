@@ -291,6 +291,20 @@ const Login: React.FC = () => {
               </button>
             </div>
             
+            {/* Admin Login Link */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 pt-3 border-t border-gray-800">
+              <span className="text-[#9CA3AF] text-[11px] sm:text-[12px] leading-tight">
+                Administrator?
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/login')}
+                className="text-[11px] sm:text-[12px] font-semibold leading-tight text-orange-500 hover:text-orange-400 transition-colors duration-200"
+              >
+                Admin Portal →
+              </button>
+            </div>
+            
           </div>
         </div>
       </div>
