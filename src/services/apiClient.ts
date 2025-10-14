@@ -95,7 +95,7 @@ class ApiClient {
           switch (error.response.status) {
             case 401:
               // Unauthorized - clear token and redirect to login
-              this.handleUnauthorized();
+              // this.handleUnauthorized();
               break;
             case 403:
               // Forbidden
@@ -127,20 +127,6 @@ class ApiClient {
         return Promise.reject(error);
       }
     );
-  }
-
-  private handleUnauthorized(): void {
-    // Clear stored authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Dispatch custom event for app-wide logout handling
-    window.dispatchEvent(new CustomEvent('auth:logout'));
-    
-    // Redirect to login page if not already there
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
   }
 
   private getToken(): string | null {

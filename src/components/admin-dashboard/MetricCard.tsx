@@ -41,7 +41,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const trendStyling = getTrendStyling();
 
   return (
-    <div className="w-full max-w-xs mx-auto bg-[#151515] border-[1.96px] border-[#242424] rounded-[9.76px] p-3 sm:p-4 opacity-100 min-h-[160px] sm:min-h-[180px] flex flex-col justify-between">
+    <div className="w-full max-w-auto mx-auto bg-[#151515] border-[1.96px] border-[#242424] rounded-[9.76px] p-3 sm:p-4 opacity-100 min-h-[160px] sm:min-h-[180px] flex flex-col justify-between">
       {/* Icon at top-left */}
       <div className="m-2 sm:m-3">
         <Icon 

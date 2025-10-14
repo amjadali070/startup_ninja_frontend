@@ -1,16 +1,27 @@
-import { useEffect, useMemo, useState, type FC } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import CreateImages from '../components/ai-image-gen/CreateImages';
-import RecentImages from '../components/ai-image-gen/RecentImages';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
+import { useAuth } from '../hooks/useAuth';
 import { userService, type UserProfile } from '../services/user';
 import { resolveProfilePictureUrl } from '../utils/profile';
+import LoadingSpinner from '../components/LoadingSpinner';
 
-const AIImageGen: FC = () => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  activePath?: string;
+  title?: string;
+  onLogout: () => Promise<void> | void;
+  onSettings?: () => void;
+}
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ 
+  children, 
+  activePath, 
+  title = 'Dashboard',
+  onLogout,
+  onSettings 
+}) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -18,20 +29,13 @@ const AIImageGen: FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const resolvedProfilePicture = useMemo(() => {
-    const fallbackUser = authService.getUser?.() ?? null;
-    const fallbackPicture = fallbackUser?.profilePicture ?? fallbackUser?.picture ?? null;
-    return resolveProfilePictureUrl(profile?.profilePicture ?? fallbackPicture);
+    return resolveProfilePictureUrl(profile?.profilePicture ?? null);
   }, [profile?.profilePicture]);
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      setLoading(false);
-      navigate('/login', { replace: true });
-      return;
-    }
-
     const fetchProfile = async () => {
       try {
+        console.log('Fetching user profile in DashboardLayout...'); 
         const response = await userService.getProfile();
         if (response.success && response.user) {
           setProfile(response.user);
@@ -43,7 +47,7 @@ const AIImageGen: FC = () => {
           setError(response.message || 'Unable to load profile.');
         }
       } catch (err) {
-        console.error('AI Image Gen profile fetch failed:', err);
+        console.error('Dashboard layout profile fetch failed:', err);
         setError('Unable to load profile.');
       } finally {
         setLoading(false);
@@ -52,20 +56,6 @@ const AIImageGen: FC = () => {
 
     fetchProfile();
   }, [logout, navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error('AI Image Gen logout failed:', err);
-    } finally {
-      navigate('/login', { replace: true });
-    }
-  };
-
-  const handleOpenSettings = () => {
-    navigate('/settings');
-  };
 
   if (loading) {
     return <LoadingSpinner fullscreen variant="dark" />;
@@ -96,35 +86,21 @@ const AIImageGen: FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#07070C] text-white">
-      <DashboardSidebar activePath="/ai-tools/image-gen" />
-
-      <div className="flex flex-1 flex-col">
+      <DashboardSidebar activePath={activePath} userData={profile} />
+      <div className="flex-1">
         <DashboardTopbar
-          title="AI Image Generator"
+          title={title}
           userName={displayName}
           profilePicture={resolvedProfilePicture}
           email={profile.email}
           username={profile.username}
-          onLogout={handleLogout}
-          onSettings={handleOpenSettings}
+          onLogout={onLogout}
+          onSettings={onSettings}
         />
-
-        <main className="flex-1 overflow-y-auto px-4 pb-14 pt-8 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          <div className="mx-auto flex w-full max-w-[1600px] flex-col space-y-12 py-8">
-            {/* Create Images Section */}
-            <div className="flex justify-center">
-              <CreateImages />
-            </div>
-            
-            {/* Recent Images Section */}
-            <div className="w-full">
-              <RecentImages />
-            </div>
-          </div>
-        </main>
+        {children}
       </div>
     </div>
   );
 };
 
-export default AIImageGen;
+export default DashboardLayout;

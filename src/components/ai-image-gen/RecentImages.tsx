@@ -1,80 +1,106 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-const RecentImages: React.FC = () => {
-  // Dummy images data - matching the ninja theme from the attached image
-  const recentImages = [
-    {
-      id: 1,
-      src: '/images/ninja-1.jpg', // We'll use placeholder for now
-      alt: 'Startup Ninja Logo',
-      prompt: 'Modern startup ninja logo design'
-    },
-    {
-      id: 2,
-      src: '/images/ninja-2.jpg',
-      alt: 'Red Ninja Warrior',
-      prompt: 'Red ninja warrior with glowing eyes'
-    },
-    {
-      id: 3,
-      src: '/images/ninja-3.jpg',
-      alt: 'Ninja in Moonlight',
-      prompt: 'Ninja silhouette against red moon'
-    },
-    {
-      id: 4,
-      src: '/images/ninja-4.jpg',
-      alt: 'Samurai on Mountain',
-      prompt: 'Samurai warrior standing on mountain peak'
-    },
-    {
-      id: 5,
-      src: '/images/ninja-5.jpg',
-      alt: 'Ninja in Red Storm',
-      prompt: 'Ninja warrior in red storm scene'
-    },
-    {
-      id: 6,
-      src: '/images/ninja-6.jpg',
-      alt: 'Dark Ninja Silhouette',
-      prompt: 'Dark ninja silhouette with red background'
-    },
-    {
-      id: 7,
-      src: '/images/ninja-7.jpg',
-      alt: 'Ninja Fuel Energy Drink',
-      prompt: 'Ninja fuel energy drink product design'
-    },
-    {
-      id: 8,
-      src: '/images/ninja-8.jpg',
-      alt: 'Ninja Figurines',
-      prompt: 'Cute ninja figurines on desk setup'
-    }
-  ];
+type RawImageItem = {
+  id?: string | number;
+  url?: string;
+  imageId?: string;
+  alt?: string;
+  prompt?: string;
+};
 
-  // Create placeholder colors for dummy images
-  const placeholderColors = [
-    'bg-gradient-to-br from-gray-700 to-gray-800',
-    'bg-gradient-to-br from-red-900 to-black',
-    'bg-gradient-to-br from-red-800 to-red-900',
-    'bg-gradient-to-br from-red-700 to-red-800',
-    'bg-gradient-to-br from-red-900 to-red-950',
-    'bg-gradient-to-br from-black to-red-900',
-    'bg-gradient-to-br from-orange-700 to-red-800',
-    'bg-gradient-to-br from-gray-800 to-black'
-  ];
+type RecentImagesProps = {
+  images?: RawImageItem[];
+};
+
+type PreparedImageItem = {
+  id: string | number;
+  src: string;
+  alt: string;
+  prompt: string;
+};
+
+const FALLBACK_IMAGES: PreparedImageItem[] = [
+  { imageId: 'photo-1555448248-2571daf6344b', alt: 'Artistic Creation', prompt: 'Creative artwork showcasing innovative design techniques and visual effects.' },
+  { imageId: 'photo-1507003211169-0a1dd7228f2d', alt: 'Abstract Shapes', prompt: 'Contemporary abstract art featuring bold shapes and color gradients.' },
+  { imageId: 'photo-1502134249126-9f3755a50d78', alt: 'Digital Design', prompt: 'Modern digital design with clean lines and minimalist composition.' },
+  { imageId: 'photo-1545670723-196ed0954986', alt: 'Creative Portrait', prompt: 'Artistic portrait with dramatic lighting and creative composition.' },
+  { imageId: 'photo-1517077304055-6e89abbf09b0', alt: 'Urban Art', prompt: 'Contemporary urban art piece with bold colors and dynamic composition.' },
+  { imageId: 'photo-1506905925346-21bda4d32df4', alt: 'Creative Design', prompt: 'Innovative design concept featuring abstract elements and artistic flair.' },
+  { imageId: 'photo-1501594907352-04cda38ebc29', alt: 'Digital Graphics', prompt: 'Professional digital graphics with sleek design and visual impact.' },
+  { imageId: 'photo-1500462918059-b1a0cb512f1d', alt: 'Artistic Vision', prompt: 'Unique artistic vision combining traditional and digital art techniques.' },
+  { imageId: 'photo-1519681393784-d120267933ba', alt: 'Creative Concept', prompt: 'Original creative concept showcasing artistic innovation and style.' },
+  { imageId: 'photo-1500462918059-b1a0cb512f1d', alt: 'Visual Art', prompt: 'Striking visual art piece with contemporary design elements.' },
+  { imageId: 'photo-1493246507139-91e8fad9978e', alt: 'Digital Creation', prompt: 'Digital art creation featuring modern aesthetics and creative expression.' },
+  { imageId: 'photo-1558618666-fcd25c85cd64', alt: 'Startup Ninja Logo', prompt: 'Modern logo design concept in a sharp, dark aesthetic.' },
+
+].map((item, index) => ({
+  id: index + 1,
+  src: `https://images.unsplash.com/${item.imageId}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`,
+  alt: item.alt,
+  prompt: item.prompt,
+}));
+
+const resolveImageData = (
+  rawImages: RawImageItem[] | undefined,
+): PreparedImageItem[] => {
+  if (!rawImages || rawImages.length === 0) {
+    return FALLBACK_IMAGES;
+  }
+
+  return rawImages.map((item, index) => {
+    const fallback = FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+    const fallbackId = typeof fallback.id === 'number' ? fallback.id : index + 1;
+
+    const src =
+      item.url ??
+      (item.imageId
+        ? `https://images.unsplash.com/${item.imageId}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`
+        : fallback.src);
+
+    return {
+      id: item.id ?? item.imageId ?? fallbackId,
+      src,
+      alt: item.alt ?? fallback.alt,
+      prompt: item.prompt ?? fallback.prompt,
+    };
+  });
+};
+
+const RecentImages: React.FC<RecentImagesProps> = ({ images }) => {
+  const preparedImages = useMemo(() => resolveImageData(images), [images]);
+
+  const ImageCard = ({ image }: { image: PreparedImageItem; index: number }) => (
+    <article
+      className="group relative mb-4 break-inside-avoid overflow-hidden rounded-xl border border-[#242424] bg-[#151515] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-red-600/50 hover:shadow-xl"
+    >
+      <div className="relative w-full">
+        <img
+          src={image.src}
+          alt={image.alt}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="text-center">
+            <p className="text-xs font-medium text-white sm:text-sm">{image.alt}</p>
+            <p className="mt-1 line-clamp-3 text-[10px] leading-tight text-white/80 sm:text-xs">{image.prompt}</p>
+          </div>
+        </div>
+        <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#DC2626] opacity-90 shadow-lg" />
+      </div>
+    </article>
+  );
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="mb-3 sm:mb-4 lg:mb-5">
         <h2 className="text-white 
           text-base sm:text-lg md:text-xl lg:text-[20px] 
           font-bold 
           mb-1 sm:mb-2 
           leading-tight font-plus-jakarta">
-          Recent Images
+          Your Recent Images
         </h2>
         <p className="text-[#9CA3AF] 
           text-xs sm:text-sm md:text-base lg:text-[14px] 
@@ -84,59 +110,9 @@ const RecentImages: React.FC = () => {
         </p>
       </div>
 
-      {/* Images Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-        {recentImages.map((image, index) => (
-          <div
-            key={image.id}
-            className="group relative aspect-square 
-              rounded-md overflow-hidden 
-              bg-[#151515] border border-[#242424] 
-              hover:border-[#DC2626]/50 
-              hover:-translate-y-1 
-              hover:shadow-[0_20px_40px_rgba(12,11,12,0.45)]
-              transition-all duration-300 cursor-pointer
-              shadow-[0_0_0_1px_rgba(13,12,13,0.15)]"
-          >
-            {/* Placeholder background with gradient */}
-            <div className={`absolute inset-0 ${placeholderColors[index]} opacity-80`} />
-            
-            {/* Placeholder content */}
-            <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3">
-              <div className="text-center">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 mx-auto mb-1 sm:mb-2 rounded-full bg-white/10 flex items-center justify-center">
-                  <span className="text-white/60 text-xs sm:text-sm lg:text-base font-bold">🥷</span>
-                </div>
-                <p className="text-white/40 
-                  text-[10px] sm:text-xs lg:text-sm 
-                  font-medium px-1 
-                  line-clamp-2 leading-tight">
-                  {image.alt}
-                </p>
-              </div>
-            </div>
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3">
-                <div className="text-center">
-                  <p className="text-white 
-                    text-[10px] sm:text-xs 
-                    font-medium mb-1 sm:mb-2">
-                    View Image
-                  </p>
-                  <p className="text-white/70 
-                    text-[9px] sm:text-[10px] 
-                    line-clamp-3 leading-tight">
-                    {image.prompt}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Corner indicator */}
-            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#DC2626] rounded-full opacity-60" />
-          </div>
+      <div className="columns-2 gap-3 md:columns-3 lg:columns-4">
+        {preparedImages.map((image, index) => (
+          <ImageCard key={image.id} image={image} index={index} />
         ))}
       </div>
     </div>

@@ -1,18 +1,18 @@
-
 import { Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminLogin from './pages/AdminLogin';
-import AIChat from './pages/AIChat';
-import AIImageGen from './pages/AIImageGen';
-import SocialMediaStudio from './pages/SocialMediaStudio';
-import AITools from './pages/AITools';
-import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
+import Login from './pages/Auth/Login.tsx';
+import Register from './pages/Auth/Register.tsx';
+import Dashboard from './pages/User/Dashboard.tsx';
+import AdminLogin from './pages/Auth/AdminLogin.tsx';
+import AIChat from './pages/User/AIChat.tsx';
+import AIImageGen from './pages/User/AIImageGen.tsx';
+import SocialMediaStudio from './pages/User/SocialMediaStudio.tsx';
+import AITools from './pages/User/AITools.tsx';
+import { AdminRoute, ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage.tsx';
+import Settings from './pages/Settings';
+import AdminDashboard from './pages/Admin/AdminDashboard.tsx';
 
 
 function App() {
@@ -20,6 +20,7 @@ function App() {
     <AuthProvider>
       <div className="min-h-screen bg-[#0D0D0D]">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={
             <PublicRoute>
               <HomePage />
@@ -40,14 +41,11 @@ function App() {
               <AdminLogin />
             </PublicRoute>
           } />
+          
+          {/* Protected User Routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin-dashboard" element={
-            <ProtectedRoute>
-              <AdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/ai-tools" element={
@@ -75,7 +73,21 @@ function App() {
               <SocialMediaStudio />
             </ProtectedRoute>
           } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+
+          
+          {/* Admin Routes */}
+          <Route path="/admin-dashboard" element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } />
         </Routes>
+
         <Toaster
           position="top-center"
           toastOptions={{
@@ -104,4 +116,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
