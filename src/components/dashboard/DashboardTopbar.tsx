@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FC } from 'react';
 import { FiSearch, FiSettings } from 'react-icons/fi';
 import { HiMiniBellAlert } from 'react-icons/hi2';
 import { TbLogout2 } from 'react-icons/tb';
+import NotificationModal from '../NotificationModal';
 
 interface DashboardTopbarProps {
   userName: string;
@@ -33,6 +34,34 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   const userHandle = username?.trim() ?? '';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+
+  const [notifications] = useState([
+    {
+      id: '1',
+      type: 'info' as const,
+      title: 'Welcome to Startup Ninja!',
+      message: 'Your account has been successfully set up. Explore our AI tools to boost your productivity.',
+      timestamp: '2 hours ago',
+      read: false,
+    },
+    {
+      id: '2',
+      type: 'success' as const,
+      title: 'Profile Updated',
+      message: 'Your profile information has been updated successfully.',
+      timestamp: '1 day ago',
+      read: true,
+    },
+    {
+      id: '3',
+      type: 'warning' as const,
+      title: 'Subscription Reminder',
+      message: 'Your free trial expires in 3 days. Upgrade now to continue using premium features.',
+      timestamp: '2 days ago',
+      read: false,
+    },
+  ]);
   const menuRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
   const menuId = useId();
@@ -126,6 +155,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
 
           <button
             type="button"
+            onClick={() => setIsNotificationModalOpen(true)}
             className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center"
             aria-label="Notifications"
           >
@@ -217,6 +247,16 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
           </div>
         </div>
       </div>
+
+      <NotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notifications={notifications}
+        onMarkAsRead={(id) => {
+          // In a real app, this would update the backend
+          console.log('Mark as read:', id);
+        }}
+      />
     </div>
   );
 };

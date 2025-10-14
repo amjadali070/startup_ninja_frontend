@@ -24,7 +24,7 @@ const SOCIAL_INTEGRATIONS: Array<IntegrationOption & { icon: JSX.Element }> = [
   {
     id: 'facebook',
     name: 'Facebook',
-    description: 'Connect your Facebook page to publish posts and sync analytics.',
+    description: 'Connect your Facebook page to publish posts.',
     category: 'Social',
     connected: false,
     icon: <FaFacebookF className="h-6 w-6 text-[#1877F2]" />,
@@ -32,7 +32,7 @@ const SOCIAL_INTEGRATIONS: Array<IntegrationOption & { icon: JSX.Element }> = [
   {
     id: 'instagram',
     name: 'Instagram',
-    description: 'Share images and stories, and manage your Instagram business account.',
+    description: 'Connect your Instagram business account and share images and videos.',
     category: 'Social',
     connected: false,
     icon: <FaInstagram className="h-6 w-6 text-[#E4405F]" />,
@@ -40,7 +40,7 @@ const SOCIAL_INTEGRATIONS: Array<IntegrationOption & { icon: JSX.Element }> = [
   {
     id: 'twitter',
     name: 'X/Twitter',
-    description: 'Post tweets, threads, and monitor engagement on X/Twitter.',
+    description: 'Connect your X/Twitter account and share updates.',
     category: 'Social',
     connected: false,
     icon: <FaTwitter className="h-6 w-6 text-[#1DA1F2]" />,
@@ -48,7 +48,7 @@ const SOCIAL_INTEGRATIONS: Array<IntegrationOption & { icon: JSX.Element }> = [
   {
     id: 'linkedin',
     name: 'LinkedIn',
-    description: 'Publish articles, updates, and connect with your professional network.',
+    description: 'Connect your LinkedIn account and share professional updates.',
     category: 'Social',
     connected: false,
     icon: <FaLinkedinIn className="h-6 w-6 text-[#0A66C2]" />,
