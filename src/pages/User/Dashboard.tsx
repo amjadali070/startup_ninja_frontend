@@ -54,24 +54,7 @@ const projectShowcase: ProjectConfig[] = [
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const [displayName, setDisplayName] = useState('Ninja');
-
-  useEffect(() => {
-    const fetchDisplayName = async () => {
-      try {
-        const response = await userService.getProfile();
-        if (response.success && response.user) {
-          setDisplayName(response.user.username || response.user.email || 'Ninja');
-        }
-      } catch (err) {
-        console.error('Dashboard display name fetch failed:', err);
-      }
-    };
-
-    fetchDisplayName();
-  }, []);
-
+  const { logout , user } = useAuth();
   const handleLogout = async () => {
     try {
       await logout();
@@ -129,7 +112,7 @@ const Dashboard: React.FC = () => {
     >
       <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
         <div className="space-y-6">
-          <WelcomeBanner name={displayName} />
+          <WelcomeBanner name={user.username || user.email || 'Ninja'} />
 
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {quickActions.map((action) => (

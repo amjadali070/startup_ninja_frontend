@@ -7,11 +7,12 @@ import AIChat from './pages/User/AIChat.tsx';
 import AIImageGen from './pages/User/AIImageGen.tsx';
 import SocialMediaStudio from './pages/User/SocialMediaStudio.tsx';
 import AITools from './pages/User/AITools.tsx';
-import { ProtectedRoute, PublicRoute } from './components/RouteGuards';
+import { AdminRoute, ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
 import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage.tsx';
 import Settings from './pages/Settings';
+import AdminDashboard from './pages/Admin/AdminDashboard.tsx';
 
 
 function App() {
@@ -76,6 +77,14 @@ function App() {
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
+          } />
+
+          
+          {/* Admin Routes */}
+          <Route path="/admin-dashboard" element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           } />
         </Routes>
 
