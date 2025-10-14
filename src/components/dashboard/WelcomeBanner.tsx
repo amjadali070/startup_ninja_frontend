@@ -8,9 +8,9 @@ const WelcomeBanner: FC<WelcomeBannerProps> = ({ name }) => {
 
   return (
     <section
-      className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat"
+      className="relative w-full overflow-hidden rounded-[16px] border bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat border-[#ff3b3b47]"
     >
-      <div className="absolute inset-0" />
+      <div className="absolute inset-0 bg-[#f5212e0d]" />
       <div className="relative z-10 flex h-full flex-col justify-between gap-3 px-3 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-5 md:px-6 md:py-6 xl:px-8 xl:py-8">
         <div className="flex-1 min-w-0">
           <h2 className="font-plus-jakarta w-full text-xl font-bold leading-7 text-white sm:text-2xl sm:leading-[32px] md:text-[26px] md:leading-[36px]">
@@ -20,7 +20,7 @@ const WelcomeBanner: FC<WelcomeBannerProps> = ({ name }) => {
             What do you want to create today?
           </p>
         </div>
-        <div className="flex-shrink-0">
+        {/* <div className="flex-shrink-0">
           <button
             type="button"
             className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-4 sm:py-2.5 sm:text-sm"
@@ -29,7 +29,7 @@ const WelcomeBanner: FC<WelcomeBannerProps> = ({ name }) => {
             <span className="hidden xs:inline">Start New Project</span>
             <span className="xs:hidden">New Project</span>
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

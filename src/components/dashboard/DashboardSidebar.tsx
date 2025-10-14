@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { PiMagicWandBold, PiImageSquareBold } from 'react-icons/pi';
 import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
@@ -39,9 +39,9 @@ const navItems: SidebarNavItem[] = [
     admin : false
   },
   {
-    label: 'Admin Dashboard',
+    label: 'Dashboard',
     to: '/admin-dashboard',
-    icon: <FaUserShield className="w-5 h-5" />,
+    icon: <CgHome className="w-5 h-5" />,
     admin : true
   },
   {
@@ -165,7 +165,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activePath = '/dash
       >
         <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
           <div className="flex items-center justify-center">
+            <Link to={userData?.role === 'admin' ? "/admin-dashboard" : "/dashboard"}>
             <img src="/images/logo.png" alt="Startup Ninja" className="h-16 w-auto" />
+            </Link>
           </div>
 
           <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">
