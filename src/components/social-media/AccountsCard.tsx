@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 
-const ConnectedAccounts: React.FC = () => {
+const AccountsCard: React.FC = () => {
   const [accounts, setAccounts] = useState([
     {
       id: 'facebook',
@@ -119,4 +119,4 @@ const ConnectedAccounts: React.FC = () => {
   );
 };
 
-export default ConnectedAccounts;
+export default AccountsCard;

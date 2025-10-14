@@ -5,7 +5,7 @@ import { HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { CgHome } from "react-icons/cg";
 import { FaRegFolder } from "react-icons/fa6";
 import { PiCirclesThreeBold } from "react-icons/pi";
-import { FaRss, FaUserShield } from "react-icons/fa";
+import { FaRss } from "react-icons/fa";
 import { FiMenu, FiX, FiChevronDown, FiMessageSquare, FiGlobe } from 'react-icons/fi';
 import { RiOrganizationChart } from 'react-icons/ri';
 import { UserProfile } from '../../services/user';

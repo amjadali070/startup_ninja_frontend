@@ -6,7 +6,7 @@ import WritePostContent from '../../components/social-media/WritePostContent.tsx
 import FileUpload from '../../components/social-media/FileUpload.tsx';
 import SchedulingOption from '../../components/social-media/SchedulingOption.tsx';
 import PostPreview from '../../components/social-media/PostPreview.tsx';
-import ConnectedAccounts from '../../components/social-media/ConnectedAccounts.tsx';
+import AccountsCard from '../../components/social-media/AccountsCard.tsx';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { authService } from '../../services/auth.ts';
 import SocialMediaHeading from '../../components/social-media/SocialMediaHeading.tsx';
@@ -75,7 +75,7 @@ const SocialMediaStudio: FC = () => {
               <div className="flex-1 lg:flex-[1] space-y-4 md:space-y-6 lg:h-full">
                 <PostPreview />
 
-                <ConnectedAccounts />
+                <AccountsCard />
               </div>
             </div>
           </div>
