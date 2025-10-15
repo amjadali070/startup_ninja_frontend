@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
+import twitterService, { TwitterConnectionStatus } from '../../services/twitter';
 import AlertModal from '../AlertModal';
 
 const AccountsCard: React.FC = () => {
@@ -30,12 +31,12 @@ const AccountsCard: React.FC = () => {
     {
       id: 'twitter',
       name: 'X (Twitter)',
-      username: '@exampleuser',
+      username: 'Not Connected',
       icon: FaTwitter,
       iconColor: 'text-white',
-      status: 'Coming Soon',
+      status: 'Not Connected',
       isConnected: false,
-      isPlaceholder: true,
+      isPlaceholder: false,
     },
     {
       id: 'linkedin',
@@ -50,6 +51,7 @@ const AccountsCard: React.FC = () => {
   ]);
 
   const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
+  const [twitterStatus, setTwitterStatus] = useState<TwitterConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState<{
     isOpen: boolean;
@@ -63,12 +65,15 @@ const AccountsCard: React.FC = () => {
     type: 'success',
   });
 
-  // Check LinkedIn connection status on component mount
+  // Check connection status on component mount
   useEffect(() => {
     checkLinkedInStatus(false); // Always check on mount
+    checkTwitterStatus(false); // Always check on mount
     
-    // Check for LinkedIn OAuth callback parameters
+    // Check for OAuth callback parameters
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // LinkedIn callback handling
     if (urlParams.get('linkedin_connected') === 'true') {
       const name = urlParams.get('name');
       showNotification(
@@ -89,6 +94,34 @@ const AccountsCard: React.FC = () => {
       showNotification(
         'Connection Failed',
         message || 'Failed to connect LinkedIn account',
+        'error'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    // Twitter callback handling
+    if (urlParams.get('twitter_connected') === 'true') {
+      const name = urlParams.get('name');
+      const screenName = urlParams.get('screen_name');
+      showNotification(
+        'Success!',
+        `Twitter account connected successfully! Welcome @${decodeURIComponent(screenName || name || 'TwitterUser')}`,
+        'success'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh connection status
+      setTimeout(() => {
+        checkTwitterStatus();
+        // Emit event to notify other components
+        window.dispatchEvent(new CustomEvent('twitterStatusChanged'));
+      }, 1000);
+    } else if (urlParams.get('twitter_error') === 'true') {
+      const message = urlParams.get('message');
+      showNotification(
+        'Connection Failed',
+        message || 'Failed to connect Twitter account',
         'error'
       );
       // Clean up URL parameters
@@ -139,6 +172,49 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  const checkTwitterStatus = async (skipIfAlreadyConnected = false) => {
+    // Only check status if user is authenticated
+    if (!user?.id) {
+      return;
+    }
+
+    // Skip check if already connected (to avoid overriding successful popup connections)
+    if (skipIfAlreadyConnected && twitterStatus?.connected) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const status = await twitterService.getConnectionStatus(user.id);
+      
+      // Only update state if the status actually changed
+      if (twitterStatus?.connected !== status.connected) {
+        setTwitterStatus(status);
+        
+        // Update Twitter account in the accounts array
+        setAccounts(prevAccounts => {
+          const updatedAccounts = prevAccounts.map(account =>
+            account.id === 'twitter'
+              ? {
+                  ...account,
+                  isConnected: status.connected,
+                  status: status.connected ? 'Connected' : 'Not Connected',
+                  username: status.connected && status.profile 
+                    ? `@${status.profile.screen_name}` 
+                    : 'Not Connected'
+                }
+              : account
+          );
+          return updatedAccounts;
+        });
+      }
+    } catch (error) {
+      // Status check failed - user will see current state
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const showNotification = (title: string, message: string, type: 'success' | 'error') => {
     setNotification({
       isOpen: true,
@@ -155,6 +231,8 @@ const AccountsCard: React.FC = () => {
   const handleToggleConnection = async (accountId: string) => {
     if (accountId === 'linkedin') {
       await handleLinkedInConnection();
+    } else if (accountId === 'twitter') {
+      await handleTwitterConnection();
     } else {
       // For other platforms, show coming soon message
       showNotification(
@@ -273,6 +351,115 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  const handleTwitterConnection = async () => {
+    if (!user?.id) {
+      showNotification(
+        'Authentication Required', 
+        'Please log into your Startup Ninja account first, then try connecting Twitter again.', 
+        'error'
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      if (twitterStatus?.connected) {
+        // Disconnect Twitter
+        const result = await twitterService.disconnectAccount();
+        if (result.success) {
+          showNotification('Success', 'Twitter account disconnected successfully', 'success');
+          
+          // Update UI immediately
+          setTwitterStatus({
+            connected: false,
+            profile: undefined,
+            message: 'Disconnected'
+          });
+          
+          // Update accounts array immediately
+          setAccounts(prevAccounts => {
+            const updatedAccounts = prevAccounts.map(account =>
+              account.id === 'twitter'
+                ? {
+                    ...account,
+                    isConnected: false,
+                    status: 'Not Connected',
+                    username: 'Not Connected'
+                  }
+                : account
+            );
+            return updatedAccounts;
+          });
+
+          // Emit event to notify other components
+          window.dispatchEvent(new CustomEvent('twitterStatusChanged'));
+          
+          // Confirm with backend status check
+          setTimeout(async () => {
+            await checkTwitterStatus();
+          }, 500);
+        } else {
+          showNotification('Error', result.message, 'error');
+        }
+      } else {
+        // Connect Twitter using popup approach
+        try {
+          const result = await twitterService.initiateConnectionPopup(user.id);
+          
+          if (result) {
+            // Connection successful via popup
+            const userName = result.user?.name || 'Twitter User';
+            const screenName = result.user?.screen_name || '';
+            showNotification(
+              'Success!', 
+              `Twitter account connected successfully! Welcome @${screenName || userName}`,
+              'success'
+            );
+            
+            // Force immediate UI update with connected status
+            const newTwitterStatus = {
+              connected: true,
+              profile: result.user,
+              message: 'Connected successfully'
+            };
+            setTwitterStatus(newTwitterStatus);
+            
+            // Update accounts array immediately
+            setAccounts(prevAccounts => {
+              const updatedAccounts = prevAccounts.map(account =>
+                account.id === 'twitter'
+                  ? {
+                      ...account,
+                      isConnected: true,
+                      status: 'Connected',
+                      username: `@${screenName || userName}`
+                    }
+                  : account
+              );
+              return updatedAccounts;
+            });
+
+            // Emit event to notify other components
+            window.dispatchEvent(new CustomEvent('twitterStatusChanged'));
+          }
+        } catch (popupError) {
+          // Fallback to redirect method if popup fails
+          await twitterService.initiateConnection(user.id);
+          // Note: After successful auth, user will be redirected back with success params
+        }
+      }
+    } catch (error: any) {
+      showNotification(
+        'Error', 
+        error.message || 'Failed to connect Twitter account', 
+        'error'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
     <div className="w-full rounded-xl p-3 md:p-4 border border-gray-800">
@@ -327,17 +514,17 @@ const AccountsCard: React.FC = () => {
                 
                 <button
                   onClick={() => handleToggleConnection(account.id)}
-                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin')}
+                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter')}
                     className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     account.isConnected
                       ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
-                        : account.isPlaceholder && account.id !== 'linkedin'
+                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter'
                         ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
                 >
                     {account.isConnected ? 'Remove' : 
-                     account.isPlaceholder && account.id !== 'linkedin' ? 'Soon' : 'Connect'}
+                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' ? 'Soon' : 'Connect'}
                 </button>
                 </div>
             </div>

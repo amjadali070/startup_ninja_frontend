@@ -12,11 +12,11 @@ import {
 import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService from '../../services/linkedin';
-import LoadingSpinner from '../LoadingSpinner';
+import twitterService from '../../services/twitter';
 import AlertModal from '../AlertModal';
 
 type Platform = {
-  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  id: 'facebook' | 'instagram' | 'x' | 'linkedin';
   name: string;
   IconComponent: React.ElementType;
   color: string;
@@ -25,12 +25,12 @@ type Platform = {
 const allPlatforms: Platform[] = [
   { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
   { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
-  { id: 'twitter', name: 'Twitter', IconComponent: FaTwitter, color: '#1DA1F2' },
+  { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
   { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
 ];
 
 type ScheduledPlatform = {
-  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  id: 'facebook' | 'instagram' | 'x' | 'linkedin';
   date: string;
   time: string;
 };
@@ -111,8 +111,14 @@ const SchedulingOption: React.FC = () => {
       return;
     }
 
-    if (!postData.selectedPlatforms.includes('linkedin')) {
-      showNotification('Error', 'Please select LinkedIn as a platform to publish', 'error');
+    // Check if at least one supported platform is selected
+    const supportedPlatforms = ['linkedin', 'x'];
+    const selectedSupportedPlatforms = postData.selectedPlatforms.filter(platform => 
+      supportedPlatforms.includes(platform)
+    );
+
+    if (selectedSupportedPlatforms.length === 0) {
+      showNotification('Error', 'Please select at least one platform (LinkedIn or Twitter) to publish', 'error');
       return;
     }
 
@@ -136,34 +142,76 @@ const SchedulingOption: React.FC = () => {
         }
       }
 
-      // Post to LinkedIn
-      const result = await linkedinService.postToLinkedIn(formData);
+      const results = [];
+      const errors = [];
 
-      if (result.success) {
-        showNotification(
-          'Success!', 
-          'Your post has been published to LinkedIn successfully!', 
-          'success'
-        );
-        
-        // Clear the post data after successful posting
-        // You might want to implement a clear function in PostContext
-      } else {
-        if (result.requiresReconnection) {
-          showNotification(
-            'Reconnection Required',
-            result.message + ' Please reconnect your LinkedIn account.',
-            'error'
-          );
-        } else {
-          showNotification('Error', result.message, 'error');
+      // Post to LinkedIn if selected
+      if (postData.selectedPlatforms.includes('linkedin')) {
+        try {
+          const linkedinResult = await linkedinService.postToLinkedIn(formData);
+          if (linkedinResult.success) {
+            results.push('LinkedIn');
+          } else {
+            errors.push(`LinkedIn: ${linkedinResult.message}`);
+            if (linkedinResult.requiresReconnection) {
+              errors[errors.length - 1] += ' Please reconnect your LinkedIn account.';
+            }
+          }
+        } catch (error: any) {
+          errors.push(`LinkedIn: ${error.message || 'Failed to publish'}`);
         }
       }
+
+      // Post to Twitter if selected
+      if (postData.selectedPlatforms.includes('x')) {
+        try {
+          const twitterResult = await twitterService.postToTwitter(formData);
+          if (twitterResult.success) {
+            results.push('Twitter');
+          } else {
+            errors.push(`Twitter: ${twitterResult.message}`);
+          }
+        } catch (error: any) {
+          errors.push(`Twitter: ${error.message || 'Failed to publish'}`);
+        }
+      }
+
+      // Show appropriate notification based on results
+      if (results.length > 0 && errors.length === 0) {
+        // All platforms succeeded
+        const platformList = results.join(' and ');
+        showNotification(
+          'Success!', 
+          `Your post has been published to ${platformList} successfully!`, 
+          'success'
+        );
+      } else if (results.length > 0 && errors.length > 0) {
+        // Some platforms succeeded, some failed
+        const successPlatforms = results.join(' and ');
+        const errorMessages = errors.join('\n');
+        showNotification(
+          'Partial Success', 
+          `Published to ${successPlatforms} successfully. Errors:\n${errorMessages}`, 
+          'error'
+        );
+      } else {
+        // All platforms failed
+        const errorMessages = errors.join('\n');
+        showNotification(
+          'Publishing Failed', 
+          `Failed to publish to any platform:\n${errorMessages}`, 
+          'error'
+        );
+      }
+      
+      // Clear the post data after successful posting (if at least one succeeded)
+      // You might want to implement a clear function in PostContext
+      
     } catch (error: any) {
       console.error('Publishing error:', error);
       showNotification(
         'Error',
-        error.message || 'Failed to publish to LinkedIn',
+        error.message || 'Failed to publish posts',
         'error'
       );
     } finally {
