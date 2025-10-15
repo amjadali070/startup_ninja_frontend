@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn OAuth Callback</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #0077b5, #00a0dc);
+            color: white;
+        }
+        .callback-container {
+            text-align: center;
+            padding: 2rem;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .linkedin-icon {
+            width: 48px;
+            height: 48px;
+            fill: white;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+        .success-message {
+            color: #90EE90;
+            margin-top: 1rem;
+        }
+        .error-message {
+            color: #FFB6C1;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <svg class="linkedin-icon" viewBox="0 0 24 24">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+        <div class="loading-spinner"></div>
+        <h2>Processing LinkedIn Authentication...</h2>
+        <p>Please wait while we complete your login.</p>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function showSuccess() {
+            document.querySelector('.loading-spinner').style.display = 'none';
+            document.getElementById('status').innerHTML = '<div class="success-message">✅ Authentication successful! Closing window...</div>';
+        }
+
+        function showError(message) {
+            document.querySelector('.loading-spinner').style.display = 'none';
+            document.getElementById('status').innerHTML = `<div class="error-message">❌ Authentication failed: ${message}</div>`;
+        }
+
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        // Handle OAuth response
+        if (error) {
+            showError(errorDescription || error);
+            
+            // Send error message to parent window
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'LINKEDIN_AUTH_ERROR',
+                    error: errorDescription || error
+                }, window.location.origin);
+            }
+            
+            // Close window after a delay
+            setTimeout(() => {
+                window.close();
+            }, 3000);
+            
+        } else if (code && state) {
+            // Process the callback immediately if we're in a popup
+            if (window.opener) {
+                showSuccess();
+                
+                // Send success message with authorization code to parent window
+                window.opener.postMessage({
+                    type: 'LINKEDIN_AUTH_SUCCESS',
+                    code: code,
+                    state: state
+                }, window.location.origin);
+                
+                // Close window after a short delay
+                setTimeout(() => {
+                    window.close();
+                }, 1500);
+            } else {
+                // If not in popup, redirect to main app with params
+                const mainAppUrl = `${window.location.origin}/ai-tools/social-pro?linkedin_connected=true&code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+                window.location.href = mainAppUrl;
+            }
+            
+        } else {
+            showError('No authorization code received');
+            
+            // Close window after a delay
+            setTimeout(() => {
+                window.close();
+            }, 3000);
+        }
+
+        // Handle cases where popup blockers prevent window.close()
+        window.addEventListener('beforeunload', () => {
+            if (window.opener) {
+                window.opener.focus();
+            }
+        });
+    </script>
+</body>
+</html>

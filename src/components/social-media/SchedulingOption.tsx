@@ -6,8 +6,14 @@ import {
   FaTwitter,
   FaLinkedin,
   FaPlus,
-  FaTrash
+  FaTrash,
+  FaPaperPlane
 } from 'react-icons/fa';
+import { usePost } from './PostContext';
+import { useAuth } from '../../hooks/useAuth';
+import linkedinService from '../../services/linkedin';
+import LoadingSpinner from '../LoadingSpinner';
+import AlertModal from '../AlertModal';
 
 type Platform = {
   id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
@@ -30,13 +36,40 @@ type ScheduledPlatform = {
 };
 
 const SchedulingOption: React.FC = () => {
+  const { postData } = usePost();
+  const { user } = useAuth();
   const [isSchedulingEnabled, setIsSchedulingEnabled] = useState(true);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'success',
+  });
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
     { id: 'facebook', date: '2025-10-03', time: '13:35' },
     { id: 'instagram', date: '2025-10-12', time: '13:35' },
   ]);
+
+  const showNotification = (title: string, message: string, type: 'success' | 'error') => {
+    setNotification({
+      isOpen: true,
+      title,
+      message,
+      type,
+    });
+  };
+
+  const closeNotification = () => {
+    setNotification(prev => ({ ...prev, isOpen: false }));
+  };
 
   const handleScheduleChange = (platformId: string, field: 'date' | 'time', value: string) => {
     setScheduledPlatforms(currentPlatforms =>
@@ -70,6 +103,72 @@ const SchedulingOption: React.FC = () => {
 
   const handleSaveAsDraft = () => {
     console.log('Saving as draft:', scheduledPlatforms);
+  };
+
+  const handlePublishNow = async () => {
+    if (!postData.content && postData.files.length === 0) {
+      showNotification('Error', 'Please add content or an image to your post', 'error');
+      return;
+    }
+
+    if (!postData.selectedPlatforms.includes('linkedin')) {
+      showNotification('Error', 'Please select LinkedIn as a platform to publish', 'error');
+      return;
+    }
+
+    if (!user?.id) {
+      showNotification('Error', 'User not authenticated', 'error');
+      return;
+    }
+
+    try {
+      setIsPublishing(true);
+
+      // Create FormData for the API request
+      const formData = new FormData();
+      formData.append('caption', postData.content);
+
+      // Add the first image file if available
+      if (postData.files.length > 0) {
+        const imageFile = postData.files.find(file => file.type === 'image');
+        if (imageFile) {
+          formData.append('image', imageFile.file);
+        }
+      }
+
+      // Post to LinkedIn
+      const result = await linkedinService.postToLinkedIn(formData);
+
+      if (result.success) {
+        showNotification(
+          'Success!', 
+          'Your post has been published to LinkedIn successfully!', 
+          'success'
+        );
+        
+        // Clear the post data after successful posting
+        // You might want to implement a clear function in PostContext
+      } else {
+        if (result.requiresReconnection) {
+          showNotification(
+            'Reconnection Required',
+            result.message + ' Please reconnect your LinkedIn account.',
+            'error'
+          );
+        } else {
+          showNotification('Error', result.message, 'error');
+        }
+      }
+    } catch (error: any) {
+      console.error('Publishing error:', error);
+      showNotification(
+        'Error',
+        error.message || 'Failed to publish to LinkedIn',
+        'error'
+      );
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const scheduledPlatformIds = new Set(scheduledPlatforms.map(p => p.id));
@@ -181,6 +280,25 @@ const SchedulingOption: React.FC = () => {
       )}
 
       <div className="flex flex-col md:flex-row gap-3">
+        {/* Publish Now Button */}
+        <button
+          onClick={handlePublishNow}
+          disabled={isPublishing || (!postData.content && postData.files.length === 0)}
+          className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
+        >
+          {isPublishing ? (
+            <>
+              <LoadingSpinner />
+              <span>Publishing...</span>
+            </>
+          ) : (
+            <>
+              <FaPaperPlane className="w-4 h-4" />
+              <span>Publish Now</span>
+            </>
+          )}
+        </button>
+
         <button
           onClick={handleSchedule}
           disabled={!isSchedulingEnabled || scheduledPlatforms.length === 0}
@@ -196,6 +314,14 @@ const SchedulingOption: React.FC = () => {
           <span>Save as draft</span>
         </button>
       </div>
+
+      <AlertModal
+        isOpen={notification.isOpen}
+        onClose={closeNotification}
+        title={notification.title}
+        message={notification.message}
+        type={notification.type}
+      />
     </div>
   );
 };
