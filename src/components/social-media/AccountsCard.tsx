@@ -3,6 +3,7 @@ import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
 import twitterService, { TwitterConnectionStatus } from '../../services/twitter';
+import instagramService, { InstagramConnectionStatus } from '../../services/instagram';
 import AlertModal from '../AlertModal';
 
 const AccountsCard: React.FC = () => {
@@ -21,12 +22,12 @@ const AccountsCard: React.FC = () => {
     {
       id: 'instagram',
       name: 'Instagram',
-      username: '@exampleuser',
+      username: 'Not Connected',
       icon: FaInstagram,
       iconColor: 'text-[#E4405F]',
-      status: 'Coming Soon',
+      status: 'Not Connected',
       isConnected: false,
-      isPlaceholder: true,
+      isPlaceholder: false,
     },
     {
       id: 'twitter',
@@ -52,6 +53,7 @@ const AccountsCard: React.FC = () => {
 
   const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
   const [twitterStatus, setTwitterStatus] = useState<TwitterConnectionStatus | null>(null);
+  const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState<{
     isOpen: boolean;
@@ -69,6 +71,7 @@ const AccountsCard: React.FC = () => {
   useEffect(() => {
     checkLinkedInStatus(false); // Always check on mount
     checkTwitterStatus(false); // Always check on mount
+    checkInstagramStatus(false); // Always check on mount
     
     // Check for OAuth callback parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -122,6 +125,34 @@ const AccountsCard: React.FC = () => {
       showNotification(
         'Connection Failed',
         message || 'Failed to connect Twitter account',
+        'error'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Instagram callback handling
+    if (urlParams.get('instagram_connected') === 'true') {
+      const username = urlParams.get('username');
+      const accountType = urlParams.get('account_type');
+      showNotification(
+        'Success!',
+        `Instagram account connected successfully! Welcome @${decodeURIComponent(username || 'InstagramUser')} (${decodeURIComponent(accountType || 'Personal')})`,
+        'success'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh connection status
+      setTimeout(() => {
+        checkInstagramStatus();
+        // Emit event to notify other components
+        window.dispatchEvent(new CustomEvent('instagramStatusChanged'));
+      }, 1000);
+    } else if (urlParams.get('instagram_error') === 'true') {
+      const message = urlParams.get('message');
+      showNotification(
+        'Connection Failed',
+        message || 'Failed to connect Instagram account',
         'error'
       );
       // Clean up URL parameters
@@ -215,6 +246,49 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  const checkInstagramStatus = async (skipIfAlreadyConnected = false) => {
+    // Only check status if user is authenticated
+    if (!user?.id) {
+      return;
+    }
+
+    // Skip check if already connected (to avoid overriding successful popup connections)
+    if (skipIfAlreadyConnected && instagramStatus?.connected) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const status = await instagramService.getConnectionStatus(user.id);
+      
+      // Only update state if the status actually changed
+      if (instagramStatus?.connected !== status.connected) {
+        setInstagramStatus(status);
+        
+        // Update Instagram account in the accounts array
+        setAccounts(prevAccounts => {
+          const updatedAccounts = prevAccounts.map(account =>
+            account.id === 'instagram'
+              ? {
+                  ...account,
+                  isConnected: status.connected,
+                  status: status.connected ? 'Connected' : 'Not Connected',
+                  username: status.connected && status.profile 
+                    ? `@${status.profile.username}` 
+                    : 'Not Connected'
+                }
+              : account
+          );
+          return updatedAccounts;
+        });
+      }
+    } catch (error) {
+      // Status check failed - user will see current state
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const showNotification = (title: string, message: string, type: 'success' | 'error') => {
     setNotification({
       isOpen: true,
@@ -233,6 +307,8 @@ const AccountsCard: React.FC = () => {
       await handleLinkedInConnection();
     } else if (accountId === 'twitter') {
       await handleTwitterConnection();
+    } else if (accountId === 'instagram') {
+      await handleInstagramConnection();
     } else {
       // For other platforms, show coming soon message
       showNotification(
@@ -429,13 +505,13 @@ const AccountsCard: React.FC = () => {
             setAccounts(prevAccounts => {
               const updatedAccounts = prevAccounts.map(account =>
                 account.id === 'twitter'
-                  ? {
-                      ...account,
+          ? {
+              ...account,
                       isConnected: true,
                       status: 'Connected',
                       username: `@${screenName || userName}`
-                    }
-                  : account
+            }
+          : account
               );
               return updatedAccounts;
             });
@@ -453,6 +529,115 @@ const AccountsCard: React.FC = () => {
       showNotification(
         'Error', 
         error.message || 'Failed to connect Twitter account', 
+        'error'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInstagramConnection = async () => {
+    if (!user?.id) {
+      showNotification(
+        'Authentication Required', 
+        'Please log into your Startup Ninja account first, then try connecting Instagram again.', 
+        'error'
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      if (instagramStatus?.connected) {
+        // Disconnect Instagram
+        const result = await instagramService.disconnectAccount();
+        if (result.success) {
+          showNotification('Success', 'Instagram account disconnected successfully', 'success');
+          
+          // Update UI immediately
+          setInstagramStatus({
+            connected: false,
+            profile: undefined,
+            message: 'Disconnected'
+          });
+          
+          // Update accounts array immediately
+          setAccounts(prevAccounts => {
+            const updatedAccounts = prevAccounts.map(account =>
+              account.id === 'instagram'
+                ? {
+                    ...account,
+                    isConnected: false,
+                    status: 'Not Connected',
+                    username: 'Not Connected'
+                  }
+                : account
+            );
+            return updatedAccounts;
+          });
+
+          // Emit event to notify other components
+          window.dispatchEvent(new CustomEvent('instagramStatusChanged'));
+          
+          // Confirm with backend status check
+          setTimeout(async () => {
+            await checkInstagramStatus();
+          }, 500);
+        } else {
+          showNotification('Error', result.message, 'error');
+        }
+      } else {
+        // Connect Instagram using popup approach
+        try {
+          const result = await instagramService.initiateConnectionPopup(user.id);
+          
+          if (result) {
+            // Connection successful via popup
+            const userName = result.user?.username || 'InstagramUser';
+            const accountType = result.user?.account_type || 'Personal';
+            showNotification(
+              'Success!', 
+              `Instagram account connected successfully! Welcome @${userName} (${accountType})`,
+              'success'
+            );
+            
+            // Force immediate UI update with connected status
+            const newInstagramStatus = {
+              connected: true,
+              profile: result.user,
+              message: 'Connected successfully'
+            };
+            setInstagramStatus(newInstagramStatus);
+            
+            // Update accounts array immediately
+            setAccounts(prevAccounts => {
+              const updatedAccounts = prevAccounts.map(account =>
+                account.id === 'instagram'
+                  ? {
+                      ...account,
+                      isConnected: true,
+                      status: 'Connected',
+                      username: `@${userName}`
+                    }
+                  : account
+              );
+              return updatedAccounts;
+            });
+
+            // Emit event to notify other components
+            window.dispatchEvent(new CustomEvent('instagramStatusChanged'));
+          }
+        } catch (popupError) {
+          // Fallback to redirect method if popup fails
+          await instagramService.initiateConnection();
+          // Note: After successful auth, user will be redirected back with success params
+        }
+      }
+    } catch (error: any) {
+      showNotification(
+        'Error', 
+        error.message || 'Failed to connect Instagram account', 
         'error'
       );
     } finally {
@@ -514,19 +699,19 @@ const AccountsCard: React.FC = () => {
                 
                 <button
                   onClick={() => handleToggleConnection(account.id)}
-                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter')}
+                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram')}
                     className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     account.isConnected
                       ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
-                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter'
+                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram'
                         ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
                 >
                     {account.isConnected ? 'Remove' : 
-                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' ? 'Soon' : 'Connect'}
+                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' ? 'Soon' : 'Connect'}
                 </button>
-                </div>
+              </div>
             </div>
           </div>
         ))}
