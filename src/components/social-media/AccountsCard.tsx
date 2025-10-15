@@ -79,7 +79,11 @@ const AccountsCard: React.FC = () => {
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       // Refresh connection status
-      setTimeout(checkLinkedInStatus, 1000);
+      setTimeout(() => {
+        checkLinkedInStatus();
+        // Emit event to notify other components
+        window.dispatchEvent(new CustomEvent('linkedinStatusChanged'));
+      }, 1000);
     } else if (urlParams.get('linkedin_error') === 'true') {
       const message = urlParams.get('message');
       showNotification(
@@ -201,6 +205,9 @@ const AccountsCard: React.FC = () => {
             );
             return updatedAccounts;
           });
+
+          // Emit event to notify other components
+          window.dispatchEvent(new CustomEvent('linkedinStatusChanged'));
           
           // Confirm with backend status check
           setTimeout(async () => {
@@ -245,6 +252,9 @@ const AccountsCard: React.FC = () => {
               );
               return updatedAccounts;
             });
+
+            // Emit event to notify other components
+            window.dispatchEvent(new CustomEvent('linkedinStatusChanged'));
           }
         } catch (popupError) {
           // Fallback to redirect method if popup fails

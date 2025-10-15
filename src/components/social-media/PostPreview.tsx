@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FaRegHeart, 
   FaRegComment, 
@@ -17,14 +17,19 @@ import {
 } from 'react-icons/fa';
 import { FiMoreHorizontal, FiSend } from 'react-icons/fi';
 import { usePost } from './PostContext';
+import { useAuth } from '../../hooks/useAuth';
+import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
 
 type Platform = 'instagram' | 'facebook' | 'twitter' | 'linkedin' | 'x';
 type DeviceType = 'desktop' | 'mobile';
 
-const PostPreview: React.FC = () => {
+const PostPreview: React.FC = (): React.ReactElement => {
   const { postData } = usePost();
+  const { user } = useAuth();
   const [selectedDevice, setSelectedDevice] = useState<DeviceType>('mobile');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
+  const [isLoadingLinkedIn, setIsLoadingLinkedIn] = useState(false);
 
   const allPlatforms = [
     { id: 'instagram' as Platform, name: 'Instagram Feed Preview', icon: FaInstagram },
@@ -49,6 +54,40 @@ const PostPreview: React.FC = () => {
       setSelectedPlatform(availablePlatforms[0].id);
     }
   }, [postData.selectedPlatforms, availablePlatforms, selectedPlatform]);
+
+  // Fetch LinkedIn connection status when component mounts or user changes
+  useEffect(() => {
+    const fetchLinkedInStatus = async () => {
+      if (!user?.id) {
+        setLinkedinStatus(null);
+        return;
+      }
+
+      setIsLoadingLinkedIn(true);
+      try {
+        const status = await linkedinService.getConnectionStatus(user.id);
+        setLinkedinStatus(status);
+      } catch (error) {
+        setLinkedinStatus(null);
+      } finally {
+        setIsLoadingLinkedIn(false);
+      }
+    };
+
+    fetchLinkedInStatus();
+
+    // Listen for LinkedIn connection changes (custom event)
+    const handleLinkedInChange = () => {
+      fetchLinkedInStatus();
+    };
+
+    window.addEventListener('linkedinStatusChanged', handleLinkedInChange);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('linkedinStatusChanged', handleLinkedInChange);
+    };
+  }, [user?.id]);
 
   const currentPlatform = allPlatforms.find(p => p.id === selectedPlatform);
 
@@ -261,84 +300,134 @@ const PostPreview: React.FC = () => {
     </div>
   );
 
-  const LinkedInPreview = () => (
-    <div className={`w-full mx-auto bg-[#1B1F23] border border-gray-700 rounded-lg overflow-hidden ${
-      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
-    }`}>
-      <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
-        <div className="flex items-center gap-3">
-          <div className={`rounded-full bg-gray-600 border border-gray-500 flex items-center justify-center ${
-            selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
-          }`}>
-            <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
-          </div>
-          <div>
-            <div className={`text-white font-semibold ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>Startup Ninja</div>
-            <div className={`text-gray-400 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>Founder at Startup Ninja</div>
-            <div className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1h • 🌐</div>
-          </div>
-        </div>
-        <button aria-label="More options" title="More options">
-          <FiMoreHorizontal className={`text-gray-400 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
-        </button>
-      </div>
-
-      <div className={`pb-3 ${selectedDevice === 'mobile' ? 'px-3' : 'px-4'}`}>
-        <div className={`text-white leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
-          {postData.content || (
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 bg-gray-700 rounded animate-pulse w-4/5"></div>
-              <div className="h-4 bg-gray-700 rounded animate-pulse w-2/3"></div>
+  const LinkedInPreview = () => {
+    // Get LinkedIn user profile info if connected
+    const linkedinUser = linkedinStatus?.connected ? linkedinStatus.profile : null;
+    
+    const displayName = linkedinUser?.name || 'Connect LinkedIn Account';
+    const displayTitle = linkedinUser?.name ? 'Professional' : 'Connect your account to see preview';
+    const displayAvatar = linkedinUser?.profilePicture || null;
+    
+    return (
+      <div className={`w-full mx-auto bg-[#1B1F23] border border-gray-700 rounded-lg overflow-hidden ${
+        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
+      }`}>
+        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+          <div className="flex items-center gap-3">
+            {displayAvatar ? (
+              <img
+                src={displayAvatar}
+                alt={displayName}
+                className={`rounded-full object-cover border border-gray-500 ${
+                  selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
+                }`}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+            ) : null}
+            <div className={`rounded-full bg-gray-600 border border-gray-500 flex items-center justify-center ${
+              selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
+            } ${displayAvatar ? 'hidden' : ''}`}>
+              {linkedinStatus?.connected ? (
+                <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              ) : (
+                <FaLinkedin className={`text-blue-500 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
+              )}
             </div>
-          )}
+            <div>
+              <div className={`font-semibold ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
+                linkedinStatus?.connected ? 'text-white' : 'text-gray-400'
+              }`}>
+                {isLoadingLinkedIn ? 'Loading...' : displayName}
+              </div>
+              <div className={`${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'} ${
+                linkedinStatus?.connected ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                {isLoadingLinkedIn ? 'Checking connection...' : displayTitle}
+              </div>
+              {linkedinStatus?.connected && (
+                <div className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1h • 🌐</div>
+              )}
+            </div>
+          </div>
+          <button aria-label="More options" title="More options">
+            <FiMoreHorizontal className={`text-gray-400 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
+          </button>
         </div>
-      </div>
 
-      {/* LinkedIn image - aspect ratio 1200x627 (similar to Facebook) */}
-      {postData.files.length > 0 ? (
-        <div className="w-full bg-gray-800 flex items-center justify-center">
-          <img 
-            src={postData.files[0].url} 
-            alt="Post media" 
-            className="w-full h-auto max-h-80 object-cover"
-          />
+        <div className={`pb-3 ${selectedDevice === 'mobile' ? 'px-3' : 'px-4'}`}>
+          <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
+            linkedinStatus?.connected ? 'text-white' : 'text-gray-500'
+          }`}>
+            {linkedinStatus?.connected ? (
+              postData.content || (
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-700 rounded animate-pulse w-4/5"></div>
+                  <div className="h-4 bg-gray-700 rounded animate-pulse w-2/3"></div>
+                </div>
+              )
+            ) : (
+              <div className="text-center py-4">
+                <div className="text-gray-400 mb-2">Connect your LinkedIn account to see preview</div>
+                <div className="text-gray-500 text-sm">Go to Connected Accounts to link your LinkedIn profile</div>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <div className="w-full bg-gray-800 h-64"></div>
-      )}
 
-      {/* LinkedIn engagement section */}
-      <div className={`border-t border-gray-700 ${selectedDevice === 'mobile' ? 'px-2 py-2' : 'px-4 py-3'}`}>
-        <div className="flex items-center justify-around text-gray-300">
-          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-          }`}>
-            <FaThumbsUp className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Like</span>
-          </button>
-          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-          }`}>
-            <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Comment</span>
-          </button>
-          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-          }`}>
-            <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Repost</span>
-          </button>
-          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-          }`}>
-            <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Send</span>
-          </button>
-        </div>
+        {/* LinkedIn image - aspect ratio 1200x627 (similar to Facebook) */}
+        {linkedinStatus?.connected && postData.files.length > 0 ? (
+          <div className="w-full bg-gray-800 flex items-center justify-center">
+            <img 
+              src={postData.files[0].url} 
+              alt="Post media" 
+              className="w-full h-auto max-h-80 object-cover"
+            />
+          </div>
+        ) : linkedinStatus?.connected ? (
+          <div className="w-full bg-gray-800 h-64"></div>
+        ) : null}
+
+        {/* LinkedIn engagement section */}
+        {linkedinStatus?.connected && (
+          <div className={`border-t border-gray-700 ${selectedDevice === 'mobile' ? 'px-2 py-2' : 'px-4 py-3'}`}>
+            <div className="flex items-center justify-around text-gray-300">
+              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+              }`}>
+                <FaThumbsUp className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Like</span>
+              </button>
+              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+              }`}>
+                <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Comment</span>
+              </button>
+              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+              }`}>
+                <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Repost</span>
+              </button>
+              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+              }`}>
+                <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Send</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderPreview = () => {
     switch (selectedPlatform) {
@@ -364,7 +453,7 @@ const PostPreview: React.FC = () => {
             className="flex items-center gap-3 bg-[#1E1E1E] border border-gray-600 rounded-lg px-4 py-2.5 text-white text-sm font-medium hover:bg-[#2A2A2A] transition-colors"
           >
             {currentPlatform && <currentPlatform.icon className="w-4 h-4" />}
-            <span>{currentPlatform?.name}</span>
+            <span>{currentPlatform?.name || 'Select Platform'}</span>
             <FaChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 

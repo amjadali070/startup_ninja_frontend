@@ -288,7 +288,6 @@ const SchedulingOption: React.FC = () => {
         >
           {isPublishing ? (
             <>
-              <LoadingSpinner />
               <span>Publishing...</span>
             </>
           ) : (
