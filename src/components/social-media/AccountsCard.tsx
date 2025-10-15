@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
 import twitterService, { TwitterConnectionStatus } from '../../services/twitter';
 import instagramService, { InstagramConnectionStatus } from '../../services/instagram';
+import facebookService, { FacebookConnectionStatus } from '../../services/facebook';
 import AlertModal from '../AlertModal';
 
 const AccountsCard: React.FC = () => {
@@ -12,12 +13,12 @@ const AccountsCard: React.FC = () => {
     {
       id: 'facebook',
       name: 'Facebook',
-      username: '@exampleuser',
+      username: 'Not Connected',
       icon: FaFacebook,
       iconColor: 'text-[#1877F2]',
-      status: 'Coming Soon',
+      status: 'Not Connected',
       isConnected: false,
-      isPlaceholder: true,
+      isPlaceholder: false,
     },
     {
       id: 'instagram',
@@ -54,6 +55,7 @@ const AccountsCard: React.FC = () => {
   const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
   const [twitterStatus, setTwitterStatus] = useState<TwitterConnectionStatus | null>(null);
   const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
+  const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState<{
     isOpen: boolean;
@@ -72,6 +74,7 @@ const AccountsCard: React.FC = () => {
     checkLinkedInStatus(false); // Always check on mount
     checkTwitterStatus(false); // Always check on mount
     checkInstagramStatus(false); // Always check on mount
+    checkFacebookStatus(false); // Always check on mount
     
     // Check for OAuth callback parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -153,6 +156,34 @@ const AccountsCard: React.FC = () => {
       showNotification(
         'Connection Failed',
         message || 'Failed to connect Instagram account',
+        'error'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Facebook callback handling
+    if (urlParams.get('facebook_connected') === 'true') {
+      const name = urlParams.get('name');
+      const pages = urlParams.get('pages');
+      showNotification(
+        'Success!',
+        `Facebook account connected successfully! Welcome ${decodeURIComponent(name || 'Facebook User')} (${pages || '0'} pages)`,
+        'success'
+      );
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh connection status
+      setTimeout(() => {
+        checkFacebookStatus();
+        // Emit event to notify other components
+        window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
+      }, 1000);
+    } else if (urlParams.get('facebook_error') === 'true') {
+      const message = urlParams.get('message');
+      showNotification(
+        'Connection Failed',
+        message || 'Failed to connect Facebook account',
         'error'
       );
       // Clean up URL parameters
@@ -289,6 +320,49 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  const checkFacebookStatus = async (skipIfAlreadyConnected = false) => {
+    // Only check status if user is authenticated
+    if (!user?.id) {
+      return;
+    }
+
+    // Skip check if already connected (to avoid overriding successful popup connections)
+    if (skipIfAlreadyConnected && facebookStatus?.connected) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const status = await facebookService.getConnectionStatus(user.id);
+      
+      // Only update state if the status actually changed
+      if (facebookStatus?.connected !== status.connected) {
+        setFacebookStatus(status);
+        
+        // Update Facebook account in the accounts array
+        setAccounts(prevAccounts => {
+          const updatedAccounts = prevAccounts.map(account =>
+            account.id === 'facebook'
+              ? {
+                  ...account,
+                  isConnected: status.connected,
+                  status: status.connected ? 'Connected' : 'Not Connected',
+                  username: status.connected && status.profile 
+                    ? status.profile.name 
+                    : 'Not Connected'
+                }
+              : account
+          );
+          return updatedAccounts;
+        });
+      }
+    } catch (error) {
+      // Status check failed - user will see current state
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const showNotification = (title: string, message: string, type: 'success' | 'error') => {
     setNotification({
       isOpen: true,
@@ -309,6 +383,8 @@ const AccountsCard: React.FC = () => {
       await handleTwitterConnection();
     } else if (accountId === 'instagram') {
       await handleInstagramConnection();
+    } else if (accountId === 'facebook') {
+      await handleFacebookConnection();
     } else {
       // For other platforms, show coming soon message
       showNotification(
@@ -614,13 +690,13 @@ const AccountsCard: React.FC = () => {
             setAccounts(prevAccounts => {
               const updatedAccounts = prevAccounts.map(account =>
                 account.id === 'instagram'
-                  ? {
-                      ...account,
+          ? {
+              ...account,
                       isConnected: true,
                       status: 'Connected',
                       username: `@${userName}`
-                    }
-                  : account
+            }
+          : account
               );
               return updatedAccounts;
             });
@@ -638,6 +714,117 @@ const AccountsCard: React.FC = () => {
       showNotification(
         'Error', 
         error.message || 'Failed to connect Instagram account', 
+        'error'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFacebookConnection = async () => {
+    if (!user?.id) {
+      showNotification(
+        'Authentication Required', 
+        'Please log into your Startup Ninja account first, then try connecting Facebook again.', 
+        'error'
+      );
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      if (facebookStatus?.connected) {
+        // Disconnect Facebook
+        const result = await facebookService.disconnectAccount();
+        if (result.success) {
+          showNotification('Success', 'Facebook account disconnected successfully', 'success');
+          
+          // Update UI immediately
+          setFacebookStatus({
+            connected: false,
+            profile: undefined,
+            pages: undefined,
+            message: 'Disconnected'
+          });
+          
+          // Update accounts array immediately
+          setAccounts(prevAccounts => {
+            const updatedAccounts = prevAccounts.map(account =>
+              account.id === 'facebook'
+                ? {
+                    ...account,
+                    isConnected: false,
+                    status: 'Not Connected',
+                    username: 'Not Connected'
+                  }
+                : account
+            );
+            return updatedAccounts;
+          });
+
+          // Emit event to notify other components
+          window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
+          
+          // Confirm with backend status check
+          setTimeout(async () => {
+            await checkFacebookStatus();
+          }, 500);
+        } else {
+          showNotification('Error', result.message, 'error');
+        }
+      } else {
+        // Connect Facebook using popup approach
+        try {
+          const result = await facebookService.initiateConnectionPopup(user.id);
+          
+          if (result) {
+            // Connection successful via popup
+            const userName = result.user?.name || 'Facebook User';
+            const pageCount = result.pages?.length || 0;
+            showNotification(
+              'Success!', 
+              `Facebook account connected successfully! Welcome ${userName} (${pageCount} pages)`,
+              'success'
+            );
+            
+            // Force immediate UI update with connected status
+            const newFacebookStatus = {
+              connected: true,
+              profile: result.user,
+              pages: result.pages,
+              message: 'Connected successfully'
+            };
+            setFacebookStatus(newFacebookStatus);
+            
+            // Update accounts array immediately
+            setAccounts(prevAccounts => {
+              const updatedAccounts = prevAccounts.map(account =>
+                account.id === 'facebook'
+          ? {
+              ...account,
+                      isConnected: true,
+                      status: 'Connected',
+                      username: userName
+            }
+          : account
+              );
+              return updatedAccounts;
+            });
+
+            // Emit event to notify other components
+            window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
+          }
+        } catch (popupError) {
+          // Fallback to redirect method if popup fails
+          await facebookService.initiateConnection();
+          // Note: After successful auth, user will be redirected back with success params
+        }
+      }
+    } catch (error: any) {
+      showNotification(
+        'Error', 
+        error.message || 'Failed to connect Facebook account', 
         'error'
       );
     } finally {
@@ -699,17 +886,17 @@ const AccountsCard: React.FC = () => {
                 
                 <button
                   onClick={() => handleToggleConnection(account.id)}
-                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram')}
+                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook')}
                     className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     account.isConnected
                       ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
-                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram'
+                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook'
                         ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
                 >
                     {account.isConnected ? 'Remove' : 
-                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' ? 'Soon' : 'Connect'}
+                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook' ? 'Soon' : 'Connect'}
                 </button>
               </div>
             </div>

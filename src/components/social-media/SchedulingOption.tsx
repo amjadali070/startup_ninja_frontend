@@ -14,6 +14,7 @@ import { useAuth } from '../../hooks/useAuth';
 import linkedinService from '../../services/linkedin';
 import twitterService from '../../services/twitter';
 import instagramService from '../../services/instagram';
+import facebookService from '../../services/facebook';
 import AlertModal from '../AlertModal';
 
 type Platform = {
@@ -113,13 +114,13 @@ const SchedulingOption: React.FC = () => {
     }
 
     // Check if at least one supported platform is selected
-    const supportedPlatforms = ['linkedin', 'x', 'instagram'];
+    const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'];
     const selectedSupportedPlatforms = postData.selectedPlatforms.filter(platform => 
       supportedPlatforms.includes(platform)
     );
 
     if (selectedSupportedPlatforms.length === 0) {
-      showNotification('Error', 'Please select at least one platform (LinkedIn, Twitter, or Instagram) to publish', 'error');
+      showNotification('Error', 'Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish', 'error');
       return;
     }
 
@@ -188,6 +189,20 @@ const SchedulingOption: React.FC = () => {
           }
         } catch (error: any) {
           errors.push(`Instagram: ${error.message || 'Failed to publish'}`);
+        }
+      }
+
+      // Post to Facebook if selected
+      if (postData.selectedPlatforms.includes('facebook')) {
+        try {
+          const facebookResult = await facebookService.postToFacebook(formData);
+          if (facebookResult.success) {
+            results.push('Facebook');
+          } else {
+            errors.push(`Facebook: ${facebookResult.message}`);
+          }
+        } catch (error: any) {
+          errors.push(`Facebook: ${error.message || 'Failed to publish'}`);
         }
       }
 

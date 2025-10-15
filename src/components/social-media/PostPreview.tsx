@@ -21,6 +21,7 @@ import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
 import twitterService, { TwitterConnectionStatus } from '../../services/twitter';
 import instagramService, { InstagramConnectionStatus } from '../../services/instagram';
+import facebookService, { FacebookConnectionStatus } from '../../services/facebook';
 
 type Platform = 'instagram' | 'facebook' | 'twitter' | 'linkedin' | 'x';
 type DeviceType = 'desktop' | 'mobile';
@@ -36,6 +37,8 @@ const PostPreview: React.FC = (): React.ReactElement => {
   const [isLoadingTwitter, setIsLoadingTwitter] = useState(false);
   const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
   const [isLoadingInstagram, setIsLoadingInstagram] = useState(false);
+  const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
+  const [isLoadingFacebook, setIsLoadingFacebook] = useState(false);
 
   const allPlatforms = [
     { id: 'instagram' as Platform, name: 'Instagram Feed Preview', icon: FaInstagram },
@@ -114,9 +117,27 @@ const PostPreview: React.FC = (): React.ReactElement => {
       }
     };
 
+    const fetchFacebookStatus = async () => {
+      if (!user?.id) {
+        setFacebookStatus(null);
+        return;
+      }
+
+      setIsLoadingFacebook(true);
+      try {
+        const status = await facebookService.getConnectionStatus(user.id);
+        setFacebookStatus(status);
+      } catch (error) {
+        setFacebookStatus(null);
+      } finally {
+        setIsLoadingFacebook(false);
+      }
+    };
+
     fetchLinkedInStatus();
     fetchTwitterStatus();
     fetchInstagramStatus();
+    fetchFacebookStatus();
 
     // Listen for connection changes (custom events)
     const handleLinkedInChange = () => {
@@ -131,15 +152,21 @@ const PostPreview: React.FC = (): React.ReactElement => {
       fetchInstagramStatus();
     };
 
+    const handleFacebookChange = () => {
+      fetchFacebookStatus();
+    };
+
     window.addEventListener('linkedinStatusChanged', handleLinkedInChange);
     window.addEventListener('twitterStatusChanged', handleTwitterChange);
     window.addEventListener('instagramStatusChanged', handleInstagramChange);
+    window.addEventListener('facebookStatusChanged', handleFacebookChange);
 
     // Cleanup event listeners
     return () => {
       window.removeEventListener('linkedinStatusChanged', handleLinkedInChange);
       window.removeEventListener('twitterStatusChanged', handleTwitterChange);
       window.removeEventListener('instagramStatusChanged', handleInstagramChange);
+      window.removeEventListener('facebookStatusChanged', handleFacebookChange);
     };
   }, [user?.id]);
 
@@ -275,26 +302,55 @@ const PostPreview: React.FC = (): React.ReactElement => {
     );
   };
 
-  const FacebookPreview = () => (
-    <div className={`w-full mx-auto bg-[#242526] border border-gray-700 rounded-lg overflow-hidden ${
-      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
-    }`}>
-      <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
-        <div className="flex items-center gap-3">
-          <div className={`rounded-full bg-gray-600 border border-gray-500 flex items-center justify-center ${
-            selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
-          }`}>
-            <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
+  const FacebookPreview = () => {
+    // Get Facebook pages from connection status (posts are published to pages, not personal profiles)
+    const facebookPages = facebookStatus?.pages;
+    const primaryPage = facebookPages && facebookPages.length > 0 ? facebookPages[0] : null;
+    
+    // Use Facebook Page data for the preview since posts are published to pages
+    const displayName = primaryPage?.name || 'Startup Ninja Page';
+    const displayAvatar = primaryPage?.picture || null; // Facebook Page profile picture
+    const displayCategory = primaryPage?.category || 'Business';
+
+    return (
+      <div className={`w-full mx-auto bg-[#242526] border border-gray-700 rounded-lg overflow-hidden ${
+        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
+      }`}>
+        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+          <div className="flex items-center gap-3">
+            <div className={`rounded-full bg-blue-600 border border-blue-500 flex items-center justify-center overflow-hidden ${
+              selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
+            }`}>
+              {displayAvatar ? (
+                <img 
+                  src={displayAvatar} 
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : facebookStatus?.connected ? (
+                <FaFacebook className={`text-white ${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              ) : (
+                <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div>
+              <div className="text-white text-sm font-semibold">
+                {facebookStatus?.connected ? displayName : 'Startup Ninja Page'}
+              </div>
+              <div className="text-gray-400 text-xs">
+                {facebookStatus?.connected ? 
+                  `just now • ${displayCategory} Page` : 
+                  '⚠️ Not Connected'
+                }
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="text-white text-sm font-semibold">Startup Ninja</div>
-            <div className="text-gray-400 text-xs">just now • 🌐</div>
-          </div>
+          <button aria-label="More options" title="More options">
+            <FiMoreHorizontal className="text-gray-400 w-5 h-5" />
+          </button>
         </div>
-        <button aria-label="More options" title="More options">
-          <FiMoreHorizontal className="text-gray-400 w-5 h-5" />
-        </button>
-      </div>
 
       <div className={`${selectedDevice === 'mobile' ? 'px-3' : 'px-4'} pb-3`}>
         <div className={`text-white leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
@@ -342,7 +398,8 @@ const PostPreview: React.FC = (): React.ReactElement => {
       </div>
 
     </div>
-  );
+    );
+  };
 
   const TwitterPreview = () => {
     // Get connected Twitter user details
