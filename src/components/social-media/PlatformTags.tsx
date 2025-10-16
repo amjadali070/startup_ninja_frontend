@@ -1,7 +1,9 @@
 import React from 'react';
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaCheck } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaCheck } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { usePost } from './PostContext';
+import { FiLinkedin } from "react-icons/fi";
+
 
 const PlatformTags: React.FC = () => {
   const { postData, updateSelectedPlatforms } = usePost();
@@ -43,7 +45,7 @@ const PlatformTags: React.FC = () => {
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: FaLinkedinIn,
+      icon: FiLinkedin,
       unselectedBg: 'bg-[#0A66C2]/10',
       selectedBg: 'bg-[#0A66C2]/20',
       unselectedBorder: 'border-[#0A66C2]/30',

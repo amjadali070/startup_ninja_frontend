@@ -16,6 +16,7 @@ import twitterService from '../../services/twitter';
 import instagramService from '../../services/instagram';
 import facebookService from '../../services/facebook';
 import AlertModal from '../AlertModal';
+import schedulerService from '../../services/scheduler';
 
 type Platform = {
   id: 'facebook' | 'instagram' | 'x' | 'linkedin';
@@ -56,8 +57,7 @@ const SchedulingOption: React.FC = () => {
   });
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
-    { id: 'facebook', date: '2025-10-03', time: '13:35' },
-    { id: 'instagram', date: '2025-10-12', time: '13:35' },
+    // Default: empty list; user can add platforms
   ]);
 
   const showNotification = (title: string, message: string, type: 'success' | 'error') => {
@@ -99,8 +99,52 @@ const SchedulingOption: React.FC = () => {
     );
   };
 
-  const handleSchedule = () => {
-    console.log('Scheduling posts for:', scheduledPlatforms);
+  const handleSchedule = async () => {
+    if (!postData.content && postData.files.length === 0) {
+      showNotification('Error', 'Please add content or an image to your post', 'error');
+      return;
+    }
+
+    const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'];
+    const selectedSupportedPlatforms = postData.selectedPlatforms.filter(platform => 
+      supportedPlatforms.includes(platform)
+    ) as Array<'linkedin' | 'x' | 'instagram' | 'facebook'>;
+
+    if (selectedSupportedPlatforms.length === 0) {
+      showNotification('Error', 'Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to schedule', 'error');
+      return;
+    }
+
+    // Use the first scheduled date/time entry as a single schedule time
+    const first = scheduledPlatforms[0];
+    if (!first?.date || !first?.time) {
+      showNotification('Error', 'Please select a valid date and time', 'error');
+      return;
+    }
+
+    try {
+      setIsPublishing(true);
+
+      const imageFile = postData.files.find(f => f.type === 'image')?.file || null;
+
+      const resp = await schedulerService.schedulePost({
+        caption: postData.content,
+        platforms: selectedSupportedPlatforms,
+        scheduledDate: first.date,
+        scheduledTime: first.time,
+        imageFile,
+      });
+
+      if (resp.success) {
+        showNotification('Scheduled', `Scheduled for ${first.date} at ${first.time}.`, 'success');
+      } else {
+        showNotification('Error', resp.message || 'Failed to schedule post', 'error');
+      }
+    } catch (e: any) {
+      showNotification('Error', e.message || 'Failed to schedule post', 'error');
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handleSaveAsDraft = () => {
@@ -384,6 +428,13 @@ const SchedulingOption: React.FC = () => {
           <FaCalendarAlt className="w-4 h-4" />
           <span>Schedule</span>
         </button>
+
+        {/* Show planned schedule time summary if present */}
+        {isSchedulingEnabled && scheduledPlatforms.length > 0 && (
+          <div className="mt-2 text-xs text-gray-300">
+            Scheduled for {scheduledPlatforms[0].date} at {scheduledPlatforms[0].time}
+          </div>
+        )}
         <button
           onClick={handleSaveAsDraft}
           className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
