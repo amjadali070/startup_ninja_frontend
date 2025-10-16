@@ -38,7 +38,7 @@ const PostPreview: React.FC = (): React.ReactElement => {
   const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
   const [isLoadingInstagram, setIsLoadingInstagram] = useState(false);
   const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
-  const [isLoadingFacebook, setIsLoadingFacebook] = useState(false);
+  const [, setIsLoadingFacebook] = useState(false);
 
   const allPlatforms = [
     { id: 'instagram' as Platform, name: 'Instagram Feed Preview', icon: FaInstagram },

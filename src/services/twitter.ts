@@ -51,7 +51,7 @@ class TwitterService {
         throw new Error(requestTokenResponse.message || 'Failed to get Twitter request token');
       }
 
-      const { oauth_token, oauth_token_secret, authorize_url } = requestTokenResponse;
+  const { oauth_token_secret, authorize_url } = requestTokenResponse;
 
       // Step 2: Open popup for user authorization
       const popup = window.open(
@@ -150,8 +150,10 @@ class TwitterService {
         throw new Error(requestTokenResponse.message || 'Failed to get Twitter request token');
       }
 
-      // Redirect to Twitter authorization URL
-      window.location.href = requestTokenResponse.authorize_url;
+  // Redirect to Twitter authorization URL. Include userId as a query param so callers' userId is used.
+  const authUrl = requestTokenResponse.authorize_url;
+  const separator = authUrl.includes('?') ? '&' : '?';
+  window.location.href = `${authUrl}${separator}userId=${encodeURIComponent(userId)}`;
     } catch (error: any) {
       throw new Error(`Failed to initiate Twitter connection: ${error.message}`);
     }
