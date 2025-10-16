@@ -40,6 +40,45 @@ const PostPreview: React.FC = (): React.ReactElement => {
   const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
   const [, setIsLoadingFacebook] = useState(false);
 
+  const renderRichText = (text: string, keyPrefix = 'rt') => {
+    const parts: React.ReactNode[] = [];
+    if (!text) return parts;
+    const regex = /(https?:\/\/[^\s]+)|(^|\s)(#[A-Za-z0-9_]+)|(^|\s)(@[A-Za-z0-9_\.]+)|\n/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let i = 0;
+    // Use global regex exec to preserve order
+    while ((match = regex.exec(text)) !== null) {
+      const index = match.index;
+      if (index > lastIndex) {
+        parts.push(<span key={`${keyPrefix}-t-${i++}`}>{text.slice(lastIndex, index)}</span>);
+      }
+      const [full, url, hashSpace, hash, atSpace, mention] = match as any;
+      if (url) {
+        parts.push(
+          <a key={`${keyPrefix}-u-${i++}`} href={url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline break-all">
+            {url}
+          </a>
+        );
+      } else if (hash) {
+        const space = hashSpace || '';
+        parts.push(<span key={`${keyPrefix}-hs-${i++}`}>{space}</span>);
+        parts.push(<span key={`${keyPrefix}-h-${i++}`} className="text-red-400">{hash}</span>);
+      } else if (mention) {
+        const space = atSpace || '';
+        parts.push(<span key={`${keyPrefix}-ms-${i++}`}>{space}</span>);
+        parts.push(<span key={`${keyPrefix}-m-${i++}`} className="text-green-400">{mention}</span>);
+      } else if (full === '\n') {
+        parts.push(<br key={`${keyPrefix}-br-${i++}`} />);
+      }
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      parts.push(<span key={`${keyPrefix}-t-${i++}`}>{text.slice(lastIndex)}</span>);
+    }
+    return parts;
+  };
+
   const allPlatforms = [
     { id: 'instagram' as Platform, name: 'Instagram Feed Preview', icon: FaInstagram },
     { id: 'facebook' as Platform, name: 'Facebook Post Preview', icon: FaFacebook },
@@ -278,9 +317,11 @@ const PostPreview: React.FC = (): React.ReactElement => {
           234 likes
         </div>
         
-        <div className={`text-white leading-relaxed ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
+        <div className={`text-white leading-relaxed ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} whitespace-pre-wrap break-words`}>
                 <span className="font-semibold">{displayName}</span>{' '}
-          {postData.content || (
+          {postData.content ? (
+            <span>{renderRichText(postData.content, 'ig')}</span>
+          ) : (
             <span className="text-gray-400">Write your post content...</span>
           )}
         </div>
@@ -353,8 +394,10 @@ const PostPreview: React.FC = (): React.ReactElement => {
       </div>
 
       <div className={`${selectedDevice === 'mobile' ? 'px-3' : 'px-4'} pb-3`}>
-        <div className={`text-white leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
-          {postData.content || (
+        <div className={`text-white leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} whitespace-pre-wrap break-words`}>
+          {postData.content ? (
+            <span>{renderRichText(postData.content, 'fb')}</span>
+          ) : (
             <span className="text-gray-400">What's on your mind?</span>
           )}
         </div>
@@ -454,11 +497,13 @@ const PostPreview: React.FC = (): React.ReactElement => {
             <span className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1m</span>
           </div>
           
-            <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
+            <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} whitespace-pre-wrap break-words ${
               twitterStatus?.connected ? 'text-white' : 'text-gray-500'
             }`}>
               {twitterStatus?.connected ? (
-                postData.content || (
+                postData.content ? (
+                  <span>{renderRichText(postData.content, 'tw')}</span>
+                ) : (
               <div className="space-y-2">
                 <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
                 <div className="h-4 bg-gray-700 rounded animate-pulse w-3/4"></div>
@@ -580,11 +625,13 @@ const PostPreview: React.FC = (): React.ReactElement => {
       </div>
 
       <div className={`pb-3 ${selectedDevice === 'mobile' ? 'px-3' : 'px-4'}`}>
-          <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
+          <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} whitespace-pre-wrap break-words ${
             linkedinStatus?.connected ? 'text-white' : 'text-gray-500'
           }`}>
             {linkedinStatus?.connected ? (
-              postData.content || (
+              postData.content ? (
+                <span>{renderRichText(postData.content, 'li')}</span>
+              ) : (
             <div className="space-y-2">
               <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
               <div className="h-4 bg-gray-700 rounded animate-pulse w-4/5"></div>

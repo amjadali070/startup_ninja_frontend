@@ -1,0 +1,216 @@
+import React, { useMemo } from 'react';
+import {  FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt } from 'react-icons/fa';
+import { FiX } from 'react-icons/fi';
+
+// Reusing existing types and utilities
+export type ModalPost = {
+  _id: string;
+  caption: string;
+  platforms: string[];
+  scheduledAt?: string;
+  publishedAt?: string;
+  status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+  results?: Record<string, any>;
+  image?: { originalname?: string; mimetype?: string; buffer?: string } | null;
+  accounts?: Array<{
+    platform: string;
+    name?: string;
+    username?: string;
+    profileImage?: string;
+  }>;
+};
+
+type Props = {
+  post: ModalPost | null;
+  onClose: () => void;
+  onCancel?: (id: string) => void;
+};
+
+// Utilities (kept clean and functional)
+const formatDate = (iso?: string) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const formatTime = (iso?: string) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+};
+
+// --- Modern Status Mapping ---
+const STATUS_META = {
+  published: { icon: FaCheckCircle, color: 'text-emerald-400', name: 'Published', ring: 'ring-emerald-500/30', bg: 'bg-emerald-500/10' },
+  scheduled: { icon: FaClock, color: 'text-cyan-400', name: 'Scheduled', ring: 'ring-cyan-500/30', bg: 'bg-cyan-500/10' },
+  failed: { icon: FaTimesCircle, color: 'text-rose-400', name: 'Failed', ring: 'ring-rose-500/30', bg: 'bg-rose-500/10' },
+  cancelled: { icon: FaBan, color: 'text-gray-400', name: 'Cancelled', ring: 'ring-gray-500/30', bg: 'bg-gray-500/10' },
+};
+
+// --- Platform Icon Mapping ---
+const PLATFORM_META: Record<string, { icon: React.ElementType; color: string; name: string }> = {
+  facebook: { icon: FaFacebook, color: '#1877F2', name: 'Facebook' },
+  instagram: { icon: FaInstagram, color: '#E4405F', name: 'Instagram' },
+  x: { icon: FaTwitter, color: '#1DA1F2', name: 'X (Twitter)' },
+  twitter: { icon: FaTwitter, color: '#1DA1F2', name: 'Twitter' },
+  linkedin: { icon: FaLinkedin, color: '#0A66C2', name: 'LinkedIn' },
+};
+
+// Component for Status Badge
+const PostStatusBadge: React.FC<{ status: ModalPost['status'] }> = ({ status }) => {
+  const meta = STATUS_META[status];
+  const Icon = meta.icon;
+
+  return (
+    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${meta.bg} ${meta.color} font-semibold text-xs ring-1 ${meta.ring} transition-all`}>
+      <Icon className="w-3 h-3" />
+      <span className="uppercase tracking-widest">{meta.name}</span>
+    </div>
+  );
+};
+
+// Reserved for future detail rows
+
+const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
+
+  const imageSrc = useMemo(() => {
+    // ... (logic remains the same)
+    if (!post) return null;
+    const ig = (post.results as any)?.instagram?.response?.data;
+    if (ig?.imageUrl) return ig.imageUrl as string;
+    const fb = (post.results as any)?.facebook?.response?.imageUrl;
+    if (fb) return fb as string;
+    if (post.image?.buffer) {
+      const mime = post.image.mimetype || 'image/jpeg';
+      return `data:${mime};base64,${post.image.buffer}`;
+    }
+    return null;
+  }, [post]);
+
+  if (!post) return null;
+
+  const dateToUse = post.publishedAt || post.scheduledAt;
+  const isScheduled = post.status === 'scheduled';
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop - Deep, immersive blur */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-xs" onClick={onClose} />
+
+      {/* Modal Container - Sleek Charcoal, high contrast border, soft rounding */}
+      <div className="relative w-full max-w-5xl mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
+        
+        {/* Header - Simple, aligned top-bar */}
+        <div className="flex items-center justify-between p-4 border-b border-[#2c2c34]">
+          <h2 className="text-xl font-bold tracking-wider uppercase text-gray-200">Post Insight</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-[#1a1a1f]" aria-label="Close">
+            <FiX className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Main Content: Asymmetric Split (60/40) */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34]">
+
+          {/* Column 1: Post Preview (3/5 width) */}
+          <div className="lg:col-span-3 p-6 space-y-6">
+            
+            {/* Metadata Bar (Top Alignment) */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-700/50">
+                <PostStatusBadge status={post.status} />
+                <div className="text-sm font-light text-gray-300 flex items-center gap-2">
+                    <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-gray-400">{isScheduled ? 'Scheduled:' : 'Published:'}</span>
+                    <span className="font-semibold text-white">{formatDate(dateToUse)} at {formatTime(dateToUse)}</span>
+                </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-200">Post Content</h3>
+            
+            {/* Social Media Card Simulation */}
+            <div className="bg-[#1a1a1f] p-4 rounded-lg shadow-xl border border-[#2c2c34] space-y-4">
+                
+                {/* Image/Media */}
+                {imageSrc ? (
+                  <div className="relative w-full rounded-md overflow-hidden border border-gray-700">
+                    <img
+                      src={imageSrc}
+                      alt={post.caption ? post.caption.slice(0, 60) : 'Post media'}
+                      className="w-full max-h-72 object-cover" 
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-40 bg-black/50 flex items-center justify-center rounded-md border border-dashed border-gray-600">
+                    <span className="text-gray-500 text-sm">No visual media attached</span>
+                  </div>
+                )}
+                
+                {/* Caption */}
+                <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-[40px] pt-2">
+                 {post.caption || <span className="text-gray-500 italic">No caption added.</span>}
+                </div>
+            </div>
+          </div>
+
+          {/* Column 2: Details & Actions (2/5 width) */}
+          <div className="lg:col-span-2 p-6 space-y-6">
+            
+            {/* Platforms */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-200 mb-3">Target Platforms</h3>
+              <div className="flex flex-wrap gap-2">
+                {post.platforms?.map((p) => {
+                  const meta = PLATFORM_META[p] || { icon: FaTwitter, color: '#9CA3AF', name: p };
+                  const Icon = meta.icon;
+                  return (
+                    <div key={p} className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1f] rounded-full border border-[#2c2c34]">
+                      <Icon size={14} style={{ color: meta.color }} />
+                      <span className="text-gray-300 text-xs font-medium uppercase tracking-wider">{meta.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Accounts */}
+            {Array.isArray(post.accounts) && post.accounts.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-200 mb-3">Accounts</h3>
+                <div className="space-y-3">
+                  {post.accounts.map((acc, idx) => {
+                    const meta = PLATFORM_META[acc.platform] || { icon: FaTwitter, color: '#9CA3AF', name: acc.platform };
+                    const Icon = meta.icon;
+                    const initials = (acc.name || acc.username || meta.name || '?').trim().charAt(0).toUpperCase();
+                    return (
+                      <div key={`${acc.platform}-${idx}`} className="flex items-center justify-between bg-[#1a1a1f] border border-[#2c2c34] rounded-lg p-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex items-center justify-center w-9 h-9 rounded-full border border-[#2c2c34] overflow-hidden bg-[#0f0f13] flex-shrink-0">
+                            {acc.profileImage ? (
+                              <img src={acc.profileImage} alt={acc.username || acc.name || 'Account'} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            ) : (
+                              <span className="text-gray-300 text-sm font-semibold">{initials}</span>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-white text-sm truncate">{acc.name || acc.username || 'Unknown account'}</div>
+                            <div className="text-gray-400 text-xs truncate">{acc.username ? `@${acc.username.replace(/^@/, '')}` : meta.name}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Icon size={14} style={{ color: meta.color }} />
+                          <span className="text-gray-400 text-xs uppercase tracking-wider">{meta.name}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SchedulePostModal;

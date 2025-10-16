@@ -35,6 +35,11 @@ class SchedulerService {
     const resp = await apiClient.get(`${this.baseURL}/schedule`);
     return resp.data || [];
   }
+
+  async cancelScheduled(id: string): Promise<{ success: boolean; message: string }> {
+    const resp = await apiClient.delete(`${this.baseURL}/schedule/${id}`);
+    return resp;
+  }
 }
 
 export default new SchedulerService();

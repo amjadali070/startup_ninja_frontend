@@ -137,6 +137,13 @@ const SchedulingOption: React.FC = () => {
 
       if (resp.success) {
         showNotification('Scheduled', `Scheduled for ${first.date} at ${first.time}.`, 'success');
+        // Notify scheduled posts list to refresh immediately
+        try {
+          window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
+            scheduledAt: `${first.date}T${first.time}:00`,
+            platforms: selectedSupportedPlatforms,
+          }}));
+        } catch (_) {}
       } else {
         showNotification('Error', resp.message || 'Failed to schedule post', 'error');
       }
@@ -429,12 +436,6 @@ const SchedulingOption: React.FC = () => {
           <span>Schedule</span>
         </button>
 
-        {/* Show planned schedule time summary if present */}
-        {isSchedulingEnabled && scheduledPlatforms.length > 0 && (
-          <div className="mt-2 text-xs text-gray-300">
-            Scheduled for {scheduledPlatforms[0].date} at {scheduledPlatforms[0].time}
-          </div>
-        )}
         <button
           onClick={handleSaveAsDraft}
           className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"

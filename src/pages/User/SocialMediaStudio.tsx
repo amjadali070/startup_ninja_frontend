@@ -5,6 +5,7 @@ import PlatformTags from '../../components/social-media/PlatformTags.tsx';
 import WritePostContent from '../../components/social-media/WritePostContent.tsx';
 import FileUpload from '../../components/social-media/FileUpload.tsx';
 import SchedulingOption from '../../components/social-media/SchedulingOption.tsx';
+import ScheduledPostsList from '../../components/social-media/ScheduledPostsList.tsx';
 import PostPreview from '../../components/social-media/PostPreview.tsx';
 import AccountsCard from '../../components/social-media/AccountsCard.tsx';
 import { useAuth } from '../../hooks/useAuth.tsx';
@@ -60,7 +61,7 @@ const SocialMediaStudio: FC = () => {
 
                 <div>
                     <h3 className="text-white text-base md:text-lg font-bold mb-3 md:mb-4 font-plus-jakarta">
-                    Select Platforms
+                    Select Platforms to publish or schedule the posts.
                   </h3>
                   <PlatformTags />
                 </div>
@@ -70,6 +71,7 @@ const SocialMediaStudio: FC = () => {
                 <FileUpload />
 
                 <SchedulingOption />
+                <ScheduledPostsList />
               </div>
 
               <div className="flex-1 lg:flex-[1] space-y-4 md:space-y-6 lg:h-full">

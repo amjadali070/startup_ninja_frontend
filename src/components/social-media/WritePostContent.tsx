@@ -1,17 +1,46 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { usePost } from './PostContext';
 
 const WritePostContent: React.FC = () => {
   const { postData, updateContent } = usePost();
-  const maxCharacters = 280;
+  const maxCharacters = 1000;
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const autoResize = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     if (value.length <= maxCharacters) {
       updateContent(value);
     }
+    autoResize(e.currentTarget);
   };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pasted = e.clipboardData.getData('text');
+    if (!pasted) return; // let default handle if empty
+    e.preventDefault();
+    const target = e.currentTarget;
+    const selStart = target.selectionStart ?? postData.content.length;
+    const selEnd = target.selectionEnd ?? selStart;
+    const before = postData.content.slice(0, selStart);
+    const after = postData.content.slice(selEnd);
+    const available = Math.max(0, maxCharacters - (before.length + after.length));
+    if (available === 0) return; // no room left
+    const toInsert = pasted.slice(0, available);
+    updateContent(before + toInsert + after);
+    // schedule resize after state update renders
+    requestAnimationFrame(() => autoResize(textareaRef.current));
+  };
+
+  useEffect(() => {
+    autoResize(textareaRef.current);
+  }, [postData.content]);
 
   const handleEnhanceWithAI = () => {
     console.log('Enhance with AI clicked');
@@ -29,10 +58,12 @@ const WritePostContent: React.FC = () => {
 
       <div className="mb-3 md:mb-4">
         <textarea
+          ref={textareaRef}
           value={postData.content}
           onChange={handleContentChange}
+          onPaste={handlePaste}
           placeholder="What's on your mind? Let AI help you craft the perfect post..."
-          className="w-full h-24 md:h-20 bg-transparent border-none outline-none resize-none 
+          className="w-full min-h-[96px] md:min-h-[80px] bg-transparent border-none outline-none resize-none overflow-hidden 
                      text-white placeholder-gray-400 text-sm md:text-base leading-relaxed
                      focus:outline-none"
           rows={4}
