@@ -179,11 +179,11 @@ const PostPreview: React.FC = (): React.ReactElement => {
     const displayAvatar = instagramUser?.profilePicture;
 
     return (
-      <div className={`w-full mx-auto bg-black border border-gray-800 rounded-lg overflow-hidden ${
-        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-md'
-      }`}>
-        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
-          <div className="flex items-center gap-3">
+    <div className={`w-full mx-auto bg-black border border-gray-800 rounded-lg overflow-hidden ${
+      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-md'
+    }`}>
+      <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+        <div className="flex items-center gap-3">
             {displayAvatar ? (
               <img
                 src={displayAvatar}
@@ -199,17 +199,17 @@ const PostPreview: React.FC = (): React.ReactElement => {
               />
             ) : null}
             <div className={`rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center flex-shrink-0 ${
-              selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
+            selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
             } ${displayAvatar ? 'hidden' : ''}`}>
               {instagramStatus?.connected ? (
                 <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               ) : (
-                <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
+            <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
               )}
-            </div>
-            <div>
+          </div>
+          <div>
               <div className={`text-white font-semibold ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
                 instagramStatus?.connected ? '' : 'text-gray-400'
               }`}>
@@ -219,24 +219,24 @@ const PostPreview: React.FC = (): React.ReactElement => {
                 {isLoadingInstagram ? 'Checking...' : 
                  instagramStatus?.connected ? `${displayAccountType} Account` : 'Karachi, Pakistan'}
               </div>
-            </div>
           </div>
-          <button aria-label="More options" title="More options">
-            <FiMoreHorizontal className={`text-white ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
-          </button>
         </div>
+        <button aria-label="More options" title="More options">
+          <FiMoreHorizontal className={`text-white ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
+        </button>
+      </div>
 
-        {/* Instagram image - can be square (1080x1080), portrait (1080x1350), or landscape (1080x566) */}
+      {/* Instagram image - can be square (1080x1080), portrait (1080x1350), or landscape (1080x566) */}
         {instagramStatus?.connected ? (
           postData.files.length > 0 ? (
-            <div className="w-full bg-black flex items-center justify-center">
-              <img 
-                src={postData.files[0].url} 
-                alt="Post media" 
-                className="w-full h-auto object-cover max-h-[600px]"
-              />
-            </div>
-          ) : (
+        <div className="w-full bg-black flex items-center justify-center">
+          <img 
+            src={postData.files[0].url} 
+            alt="Post media" 
+            className="w-full h-auto object-cover max-h-[600px]"
+          />
+        </div>
+      ) : (
             <div className="w-full aspect-square bg-gray-900 flex items-center justify-center">
               <div className="text-gray-500 text-center">
                 <FaInstagram className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -251,43 +251,43 @@ const PostPreview: React.FC = (): React.ReactElement => {
               <div className="text-gray-500 text-sm">Go to Connected Accounts to link your Instagram profile</div>
             </div>
           </div>
-        )}
+      )}
 
-        <div className={selectedDevice === 'mobile' ? 'p-3' : 'p-4'}>
-          <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'mb-2' : 'mb-3'}`}>
-            <div className={`flex items-center ${selectedDevice === 'mobile' ? 'gap-4' : 'gap-6'}`}>
-              {/* Instagram-specific icons */}
-              <button aria-label="Like post" title="Like post">
-                <FaRegHeart className={`text-white hover:text-red-500 ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
-              </button>
-              <button aria-label="Comment on post" title="Comment on post">
-                <FaRegComment className={`text-white transform scale-x-[-1] ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
-              </button>
-              <button aria-label="Share post" title="Share post">
-                <FaRegPaperPlane className={`text-white ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
-              </button>
-            </div>
-            <button aria-label="Save post" title="Save post">
-              <FaRegBookmark className={`text-white ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
+      <div className={selectedDevice === 'mobile' ? 'p-3' : 'p-4'}>
+        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'mb-2' : 'mb-3'}`}>
+          <div className={`flex items-center ${selectedDevice === 'mobile' ? 'gap-4' : 'gap-6'}`}>
+            {/* Instagram-specific icons */}
+            <button aria-label="Like post" title="Like post">
+              <FaRegHeart className={`text-white hover:text-red-500 ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
+            </button>
+            <button aria-label="Comment on post" title="Comment on post">
+              <FaRegComment className={`text-white transform scale-x-[-1] ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
+            </button>
+            <button aria-label="Share post" title="Share post">
+              <FaRegPaperPlane className={`text-white ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
             </button>
           </div>
+          <button aria-label="Save post" title="Save post">
+            <FaRegBookmark className={`text-white ${selectedDevice === 'mobile' ? 'w-6 h-6' : 'w-7 h-7'}`} />
+          </button>
+        </div>
 
           {instagramStatus?.connected && (
             <>
-              <div className={`text-white ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'} font-semibold mb-1`}>
-                234 likes
-              </div>
-              
-              <div className={`text-white leading-relaxed ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
+        <div className={`text-white ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'} font-semibold mb-1`}>
+          234 likes
+        </div>
+        
+        <div className={`text-white leading-relaxed ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
                 <span className="font-semibold">{displayName}</span>{' '}
-                {postData.content || (
-                  <span className="text-gray-400">Write your post content...</span>
-                )}
-              </div>
+          {postData.content || (
+            <span className="text-gray-400">Write your post content...</span>
+          )}
+        </div>
 
-              <div className={`text-gray-400 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'} mt-1`}>
-                2 hours ago
-              </div>
+        <div className={`text-gray-400 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'} mt-1`}>
+          2 hours ago
+        </div>
             </>
           )}
 
@@ -297,9 +297,9 @@ const PostPreview: React.FC = (): React.ReactElement => {
               <div className="text-gray-500 text-sm">Your post will appear here once connected</div>
             </div>
           )}
-        </div>
       </div>
-    );
+    </div>
+  );
   };
 
   const FacebookPreview = () => {
@@ -313,14 +313,14 @@ const PostPreview: React.FC = (): React.ReactElement => {
     const displayCategory = primaryPage?.category || 'Business';
 
     return (
-      <div className={`w-full mx-auto bg-[#242526] border border-gray-700 rounded-lg overflow-hidden ${
-        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
-      }`}>
-        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
-          <div className="flex items-center gap-3">
+    <div className={`w-full mx-auto bg-[#242526] border border-gray-700 rounded-lg overflow-hidden ${
+      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
+    }`}>
+      <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+        <div className="flex items-center gap-3">
             <div className={`rounded-full bg-blue-600 border border-blue-500 flex items-center justify-center overflow-hidden ${
-              selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
-            }`}>
+            selectedDevice === 'mobile' ? 'w-8 h-8' : 'w-10 h-10'
+          }`}>
               {displayAvatar ? (
                 <img 
                   src={displayAvatar} 
@@ -334,8 +334,8 @@ const PostPreview: React.FC = (): React.ReactElement => {
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               )}
-            </div>
-            <div>
+          </div>
+          <div>
               <div className="text-white text-sm font-semibold">
                 {facebookStatus?.connected ? displayName : 'Startup Ninja Page'}
               </div>
@@ -345,12 +345,12 @@ const PostPreview: React.FC = (): React.ReactElement => {
                   '⚠️ Not Connected'
                 }
               </div>
-            </div>
           </div>
-          <button aria-label="More options" title="More options">
-            <FiMoreHorizontal className="text-gray-400 w-5 h-5" />
-          </button>
         </div>
+        <button aria-label="More options" title="More options">
+          <FiMoreHorizontal className="text-gray-400 w-5 h-5" />
+        </button>
+      </div>
 
       <div className={`${selectedDevice === 'mobile' ? 'px-3' : 'px-4'} pb-3`}>
         <div className={`text-white leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}`}>
@@ -398,7 +398,7 @@ const PostPreview: React.FC = (): React.ReactElement => {
       </div>
 
     </div>
-    );
+  );
   };
 
   const TwitterPreview = () => {
@@ -409,10 +409,10 @@ const PostPreview: React.FC = (): React.ReactElement => {
     const displayAvatar = twitterUser?.profilePicture;
 
     return (
-      <div className={`w-full mx-auto bg-black border border-gray-800 rounded-lg overflow-hidden ${
-        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
-      }`}>
-        <div className={`flex items-start gap-3 ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+    <div className={`w-full mx-auto bg-black border border-gray-800 rounded-lg overflow-hidden ${
+      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
+    }`}>
+      <div className={`flex items-start gap-3 ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
           {displayAvatar ? (
             <img
               src={displayAvatar}
@@ -427,19 +427,19 @@ const PostPreview: React.FC = (): React.ReactElement => {
               }}
             />
           ) : null}
-          <div className={`rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0 ${
-            selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
+        <div className={`rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0 ${
+          selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
           } ${displayAvatar ? 'hidden' : ''}`}>
             {twitterStatus?.connected ? (
               <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>
                 {displayName.charAt(0).toUpperCase()}
               </span>
             ) : (
-              <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
+          <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>#</span>
             )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className={`flex items-center gap-2 ${selectedDevice === 'mobile' ? 'mb-1' : 'mb-2'}`}>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className={`flex items-center gap-2 ${selectedDevice === 'mobile' ? 'mb-1' : 'mb-2'}`}>
               <span className={`font-bold ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
                 twitterStatus?.connected ? 'text-white' : 'text-gray-400'
               }`}>
@@ -450,73 +450,73 @@ const PostPreview: React.FC = (): React.ReactElement => {
               }`}>
                 {isLoadingTwitter ? 'Checking...' : `@${displayScreenName}`}
               </span>
-              <span className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>·</span>
-              <span className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1m</span>
-            </div>
-            
+            <span className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>·</span>
+            <span className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1m</span>
+          </div>
+          
             <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
               twitterStatus?.connected ? 'text-white' : 'text-gray-500'
             }`}>
               {twitterStatus?.connected ? (
                 postData.content || (
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
-                    <div className="h-4 bg-gray-700 rounded animate-pulse w-3/4"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-700 rounded animate-pulse w-3/4"></div>
                   </div>
                 )
               ) : (
                 <div className="text-center py-4">
                   <div className="text-gray-400 mb-2">Connect your Twitter account to see preview</div>
                   <div className="text-gray-500 text-sm">Go to Connected Accounts to link your Twitter profile</div>
-                </div>
-              )}
-            </div>
-            
-            {/* X (Twitter) image - aspect ratio 1200x675 (16:9) */}
-            {twitterStatus?.connected && postData.files.length > 0 ? (
-              <div className="mb-3 rounded-2xl overflow-hidden border border-gray-700">
-                <img 
-                  src={postData.files[0].url} 
-                  alt="Post media" 
-                  className="w-full h-auto max-h-80 object-cover"
-                />
               </div>
+            )}
+          </div>
+          
+          {/* X (Twitter) image - aspect ratio 1200x675 (16:9) */}
+            {twitterStatus?.connected && postData.files.length > 0 ? (
+            <div className="mb-3 rounded-2xl overflow-hidden border border-gray-700">
+              <img 
+                src={postData.files[0].url} 
+                alt="Post media" 
+                className="w-full h-auto max-h-80 object-cover"
+              />
+            </div>
             ) : twitterStatus?.connected ? (
               <div className="mb-3 rounded-2xl bg-gray-800 h-48 border border-gray-700"></div>
             ) : null}
 
             {twitterStatus?.connected && (
-              <div className="flex items-center justify-between text-gray-500 max-w-md">
-                {/* X (Twitter) specific icons */}
-                <button className="flex items-center gap-2 hover:text-blue-400 group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-400/10">
-                    <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </div>
-                  <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-green-400 group">
-                  <div className="p-2 rounded-full group-hover:bg-green-400/10">
-                    <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </div>
-                  <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-red-400 group">
-                  <div className="p-2 rounded-full group-hover:bg-red-400/10">
-                    <FaRegHeart className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </div>
-                  <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
-                </button>
-                <button className="hover:text-blue-400 group" aria-label="Share tweet" title="Share tweet">
-                  <div className="p-2 rounded-full group-hover:bg-blue-400/10">
-                    <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </div>
-                </button>
+          <div className="flex items-center justify-between text-gray-500 max-w-md">
+            {/* X (Twitter) specific icons */}
+            <button className="flex items-center gap-2 hover:text-blue-400 group">
+              <div className="p-2 rounded-full group-hover:bg-blue-400/10">
+                <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
               </div>
-            )}
+              <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
+            </button>
+            <button className="flex items-center gap-2 hover:text-green-400 group">
+              <div className="p-2 rounded-full group-hover:bg-green-400/10">
+                <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              </div>
+              <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
+            </button>
+            <button className="flex items-center gap-2 hover:text-red-400 group">
+              <div className="p-2 rounded-full group-hover:bg-red-400/10">
+                <FaRegHeart className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              </div>
+              <span className={selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}>0</span>
+            </button>
+            <button className="hover:text-blue-400 group" aria-label="Share tweet" title="Share tweet">
+              <div className="p-2 rounded-full group-hover:bg-blue-400/10">
+                <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              </div>
+            </button>
           </div>
+            )}
         </div>
       </div>
-    );
+    </div>
+  );
   };
 
   const LinkedInPreview = () => {
@@ -528,11 +528,11 @@ const PostPreview: React.FC = (): React.ReactElement => {
     const displayAvatar = linkedinUser?.profilePicture || null;
     
     return (
-      <div className={`w-full mx-auto bg-[#1B1F23] border border-gray-700 rounded-lg overflow-hidden ${
-        selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
-      }`}>
-        <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
-          <div className="flex items-center gap-3">
+    <div className={`w-full mx-auto bg-[#1B1F23] border border-gray-700 rounded-lg overflow-hidden ${
+      selectedDevice === 'mobile' ? 'max-w-sm' : 'max-w-lg'
+    }`}>
+      <div className={`flex items-center justify-between ${selectedDevice === 'mobile' ? 'p-3' : 'p-4'}`}>
+        <div className="flex items-center gap-3">
             {displayAvatar ? (
               <img
                 src={displayAvatar}
@@ -547,8 +547,8 @@ const PostPreview: React.FC = (): React.ReactElement => {
                 }}
               />
             ) : null}
-            <div className={`rounded-full bg-gray-600 border border-gray-500 flex items-center justify-center ${
-              selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
+          <div className={`rounded-full bg-gray-600 border border-gray-500 flex items-center justify-center ${
+            selectedDevice === 'mobile' ? 'w-10 h-10' : 'w-12 h-12'
             } ${displayAvatar ? 'hidden' : ''}`}>
               {linkedinStatus?.connected ? (
                 <span className={`text-white font-bold ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>
@@ -557,8 +557,8 @@ const PostPreview: React.FC = (): React.ReactElement => {
               ) : (
                 <FaLinkedin className={`text-blue-500 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
               )}
-            </div>
-            <div>
+          </div>
+          <div>
               <div className={`font-semibold ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
                 linkedinStatus?.connected ? 'text-white' : 'text-gray-400'
               }`}>
@@ -570,82 +570,82 @@ const PostPreview: React.FC = (): React.ReactElement => {
                 {isLoadingLinkedIn ? 'Checking connection...' : displayTitle}
               </div>
               {linkedinStatus?.connected && (
-                <div className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1h • 🌐</div>
+            <div className={`text-gray-500 ${selectedDevice === 'mobile' ? 'text-xs' : 'text-sm'}`}>1h • 🌐</div>
               )}
-            </div>
           </div>
-          <button aria-label="More options" title="More options">
-            <FiMoreHorizontal className={`text-gray-400 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
-          </button>
         </div>
+        <button aria-label="More options" title="More options">
+          <FiMoreHorizontal className={`text-gray-400 ${selectedDevice === 'mobile' ? 'w-5 h-5' : 'w-6 h-6'}`} />
+        </button>
+      </div>
 
-        <div className={`pb-3 ${selectedDevice === 'mobile' ? 'px-3' : 'px-4'}`}>
+      <div className={`pb-3 ${selectedDevice === 'mobile' ? 'px-3' : 'px-4'}`}>
           <div className={`leading-relaxed mb-3 ${selectedDevice === 'mobile' ? 'text-sm' : 'text-base'} ${
             linkedinStatus?.connected ? 'text-white' : 'text-gray-500'
           }`}>
             {linkedinStatus?.connected ? (
               postData.content || (
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
-                  <div className="h-4 bg-gray-700 rounded animate-pulse w-4/5"></div>
-                  <div className="h-4 bg-gray-700 rounded animate-pulse w-2/3"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-700 rounded animate-pulse w-4/5"></div>
+              <div className="h-4 bg-gray-700 rounded animate-pulse w-2/3"></div>
                 </div>
               )
             ) : (
               <div className="text-center py-4">
                 <div className="text-gray-400 mb-2">Connect your LinkedIn account to see preview</div>
                 <div className="text-gray-500 text-sm">Go to Connected Accounts to link your LinkedIn profile</div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* LinkedIn image - aspect ratio 1200x627 (similar to Facebook) */}
+      {/* LinkedIn image - aspect ratio 1200x627 (similar to Facebook) */}
         {linkedinStatus?.connected && postData.files.length > 0 ? (
-          <div className="w-full bg-gray-800 flex items-center justify-center">
-            <img 
-              src={postData.files[0].url} 
-              alt="Post media" 
-              className="w-full h-auto max-h-80 object-cover"
-            />
-          </div>
+        <div className="w-full bg-gray-800 flex items-center justify-center">
+          <img 
+            src={postData.files[0].url} 
+            alt="Post media" 
+            className="w-full h-auto max-h-80 object-cover"
+          />
+        </div>
         ) : linkedinStatus?.connected ? (
-          <div className="w-full bg-gray-800 h-64"></div>
+        <div className="w-full bg-gray-800 h-64"></div>
         ) : null}
 
-        {/* LinkedIn engagement section */}
+      {/* LinkedIn engagement section */}
         {linkedinStatus?.connected && (
-          <div className={`border-t border-gray-700 ${selectedDevice === 'mobile' ? 'px-2 py-2' : 'px-4 py-3'}`}>
-            <div className="flex items-center justify-around text-gray-300">
-              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-              }`}>
-                <FaThumbsUp className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Like</span>
-              </button>
-              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-              }`}>
-                <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Comment</span>
-              </button>
-              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-              }`}>
-                <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Repost</span>
-              </button>
-              <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
-                selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
-              }`}>
-                <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Send</span>
-              </button>
-            </div>
-          </div>
-        )}
+      <div className={`border-t border-gray-700 ${selectedDevice === 'mobile' ? 'px-2 py-2' : 'px-4 py-3'}`}>
+        <div className="flex items-center justify-around text-gray-300">
+          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+          }`}>
+            <FaThumbsUp className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Like</span>
+          </button>
+          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+          }`}>
+            <FaRegComment className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Comment</span>
+          </button>
+          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+          }`}>
+            <FaRetweet className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Repost</span>
+          </button>
+          <button className={`flex items-center gap-2 hover:bg-gray-700 rounded transition-colors ${
+            selectedDevice === 'mobile' ? 'px-2 py-1.5' : 'px-3 py-2'
+          }`}>
+            <FiSend className={`${selectedDevice === 'mobile' ? 'w-4 h-4' : 'w-5 h-5'}`} />
+            <span className={selectedDevice === 'mobile' ? 'text-sm' : 'text-base'}>Send</span>
+          </button>
+        </div>
       </div>
-    );
+        )}
+    </div>
+  );
   };
 
   const renderPreview = () => {

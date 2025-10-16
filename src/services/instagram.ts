@@ -189,7 +189,8 @@ class InstagramService {
       const response = await apiClient.post(`${this.baseURL}/post`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 180000 // 3 minutes timeout specifically for Instagram posts
       });
 
       if (response.success) {
