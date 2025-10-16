@@ -134,8 +134,9 @@ const SchedulingOption: React.FC = () => {
       const resp = await schedulerService.schedulePost({
         caption: postData.content,
         platforms: platformsFromSchedule,
-        scheduledDate: first.date,
-        scheduledTime: first.time,
+        schedules: scheduledPlatforms
+          .filter(p => platformsFromSchedule.includes(p.id as any))
+          .map(p => ({ platform: p.id as any, date: p.date, time: p.time })),
         imageFile,
       });
 

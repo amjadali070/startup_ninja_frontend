@@ -131,21 +131,17 @@ const ScheduledPostsList: React.FC = () => {
 			</div>
 
 			<div>
-				{history.length === 0 ? (
-					<div className="text-gray-400 text-sm">No history yet.</div>
-				) : (
-					<PostsTable
-						title="History"
-						rows={history as unknown as TablePost[]}
-						onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-						page={pageHistory}
-						pageSize={pageSizeHistory}
-						total={history.length}
-						onPageChange={setPageHistory}
-						onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
-						loading={loading}
-					/>
-				)}
+				<PostsTable
+					title="History"
+					rows={history as unknown as TablePost[]}
+					onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
+					page={pageHistory}
+					pageSize={pageSizeHistory}
+					total={history.length}
+					onPageChange={setPageHistory}
+					onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
+					loading={loading}
+				/>
 			</div>
 
 			{/* Details Modal */}
