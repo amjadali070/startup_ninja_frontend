@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { TbGhostOff } from 'react-icons/tb';
+import LoadingSpinner from '../LoadingSpinner';
 
 export type TablePost = {
   _id: string;
@@ -22,6 +23,7 @@ type Props = {
   total: number;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
+  loading?: boolean;
 };
 
 const formatDate = (iso?: string) => {
@@ -57,7 +59,7 @@ const PlatformBadge: React.FC<{ id: string }> = ({ id }) => {
   );
 };
 
-const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, pageSize, total, onPageChange, onPageSizeChange }) => {
+const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, pageSize, total, onPageChange, onPageSizeChange, loading }) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
@@ -72,7 +74,11 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
       <div className="w-full border-b border-white/10 mb-3">
         <h3 className="text-white font-semibold py-2">{title}</h3>
       </div>
-      {pageRows.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-10">
+          <LoadingSpinner variant="dark" size="small" />
+        </div>
+      ) : pageRows.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <div className="text-center text-gray-400">
             <TbGhostOff className="w-6 h-6 mx-auto mb-2 opacity-70" />
@@ -119,7 +125,7 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
           </table>
         </div>
       )}
-      {total > 0 && (
+      {!loading && total > 0 && (
       <div className="flex items-center justify-between mt-4 text-sm text-gray-300">
         <div className="flex items-center gap-2">
           <span>Rows per page:</span>

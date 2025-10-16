@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import schedulerService from '../../services/scheduler';
 import PostsTable, { TablePost } from './PostsTable';
 import SchedulePostModal from './SchedulePostModal';
-import LoadingSpinner from '../LoadingSpinner';
 
 type ScheduledPost = {
 	_id: string;
@@ -113,11 +112,7 @@ const ScheduledPostsList: React.FC = () => {
 				</div>
 			</div>
 
-			{loading && (
-				<div className="py-10">
-					<LoadingSpinner fullscreen={false} variant="dark" size='small' />
-				</div>
-			)}
+			{/* When loading, let the tables show the spinner within their own area */}
 			{error && <div className="text-red-400 text-sm mb-3">{error}</div>}
 
 			<div className="mb-6">
@@ -131,6 +126,7 @@ const ScheduledPostsList: React.FC = () => {
 					total={upcoming.length}
 					onPageChange={setPageUpcoming}
 					onPageSizeChange={(s) => { setPageUpcoming(1); setPageSizeUpcoming(s); }}
+					loading={loading}
 				/>
 			</div>
 
@@ -147,6 +143,7 @@ const ScheduledPostsList: React.FC = () => {
 						total={history.length}
 						onPageChange={setPageHistory}
 						onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
+						loading={loading}
 					/>
 				)}
 			</div>

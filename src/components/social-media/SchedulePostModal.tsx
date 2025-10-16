@@ -97,7 +97,7 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-xs" onClick={onClose} />
 
       {/* Modal Container - Sleek Charcoal, high contrast border, soft rounding */}
-      <div className="relative w-full max-w-5xl mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
+      <div className="relative w-full max-w-5xl max-h-[85vh] mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
         
         {/* Header - Simple, aligned top-bar */}
         <div className="flex items-center justify-between p-4 border-b border-[#2c2c34]">
@@ -108,29 +108,19 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
         </div>
 
         {/* Main Content: Asymmetric Split (60/40) */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34]">
+        <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34] max-h-[75vh] overflow-hiddern">
 
           {/* Column 1: Post Preview (3/5 width) */}
-          <div className="lg:col-span-3 p-6 space-y-6">
-            
-            {/* Metadata Bar (Top Alignment) */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-700/50">
-                <PostStatusBadge status={post.status} />
-                <div className="text-sm font-light text-gray-300 flex items-center gap-2">
-                    <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="text-gray-400">{isScheduled ? 'Scheduled:' : 'Published:'}</span>
-                    <span className="font-semibold text-white">{formatDate(dateToUse)} at {formatTime(dateToUse)}</span>
-                </div>
-            </div>
+          <div className="lg:col-span-3 p-3 space-y-3">
 
             <h3 className="text-lg font-semibold text-gray-200">Post Content</h3>
             
             {/* Social Media Card Simulation */}
-            <div className="bg-[#1a1a1f] p-4 rounded-lg shadow-xl border border-[#2c2c34] space-y-4">
+            <div className="p-2 space-y-4">
                 
                 {/* Image/Media */}
                 {imageSrc ? (
-                  <div className="relative w-full rounded-md overflow-hidden border border-gray-700">
+                  <div className="relative w-full rounded-md overflow-hidden">
                     <img
                       src={imageSrc}
                       alt={post.caption ? post.caption.slice(0, 60) : 'Post media'}
@@ -145,17 +135,28 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
                 )}
                 
                 {/* Caption */}
-                <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-[40px] pt-2">
+                <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-[40px] max-h-40 md:max-h-56 overflow-y-auto pr-1 pt-2">
                  {post.caption || <span className="text-gray-500 italic">No caption added.</span>}
                 </div>
             </div>
           </div>
 
           {/* Column 2: Details & Actions (2/5 width) */}
-          <div className="lg:col-span-2 p-6 space-y-6">
+          <div className="lg:col-span-2 p-6 space-y-4">
             
-            {/* Platforms */}
-            <div>
+            <div className="space-y-4 border-b border-gray-700/50 pb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2">
+                <PostStatusBadge status={post.status} />
+                
+            </div>
+            <div className="text-sm font-light text-gray-300 flex items-center gap-2">
+                    <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-gray-400">{isScheduled ? 'Scheduled at:' : 'Published at:'}</span>
+                    <span className="font-semibold text-white">{formatDate(dateToUse)} at {formatTime(dateToUse)}</span>
+                </div>
+            </div>
+            
+            <div className='border-b border-gray-700/50 pb-4'>
               <h3 className="text-lg font-semibold text-gray-200 mb-3">Target Platforms</h3>
               <div className="flex flex-wrap gap-2">
                 {post.platforms?.map((p) => {
