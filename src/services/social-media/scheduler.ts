@@ -37,7 +37,7 @@ class SchedulerService {
   }
 
   async listScheduled(): Promise<any[]> {
-    const resp = await apiClient.get(`${this.baseURL}/schedule`);
+    const resp = await apiClient.get(`${this.baseURL}/schedule?includeImage=true`);
     return resp.data || [];
   }
 
