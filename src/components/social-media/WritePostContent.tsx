@@ -1,17 +1,12 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { usePost } from './PostContext';
+import { CAPTION_LIMITS } from '../../constants/platforms';
 
 const WritePostContent: React.FC = () => {
   const { postData, updateContent } = usePost();
   // Platform caption limits (soft enforcement in editor; hard checks happen before publish/schedule)
-  const platformCaptionLimits: Record<string, number> = useMemo(() => ({
-    x: 280,
-    twitter: 280,
-    facebook: 63206,
-    instagram: 2200,
-    linkedin: 3000,
-  }), []);
+  const platformCaptionLimits: Record<string, number> = useMemo(() => CAPTION_LIMITS, []);
   const effectiveMax = useMemo(() => {
     const selected = postData.selectedPlatforms;
     if (!selected || selected.length === 0) return 3000; // default upper bound

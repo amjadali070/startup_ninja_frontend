@@ -11,12 +11,15 @@ import {
 } from 'react-icons/fa';
 import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
-import linkedinService from '../../services/linkedin';
-import twitterService from '../../services/twitter';
-import instagramService from '../../services/instagram';
-import facebookService from '../../services/facebook';
+import linkedinService from '../../services/social-media/oauth/linkedin';
+import twitterService from '../../services/social-media/oauth/twitter';
+import instagramService from '../../services/social-media/oauth/instagram';
+import facebookService from '../../services/social-media/oauth/facebook';
 import AlertModal from '../AlertModal';
-import schedulerService from '../../services/scheduler';
+import schedulerService from '../../services/social-media/scheduler';
+import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
+import { buildLocalDate } from '../../utils/date';
+import PublishingOverlay from './PublishingOverlay';
 
 type Platform = {
   id: 'facebook' | 'instagram' | 'x' | 'linkedin';
@@ -61,13 +64,7 @@ const SchedulingOption: React.FC = () => {
     // Default: empty list; user can add platforms
   ]);
 
-  const buildLocalDate = (dateStr: string, timeStr: string) => {
-    if (!dateStr || !timeStr) return new Date('');
-    const [y, m, d] = String(dateStr).split('-').map(Number);
-    const [hh, mm] = String(timeStr).split(':').map(Number);
-    if (!y || !m || !d || Number.isNaN(hh) || Number.isNaN(mm)) return new Date('');
-    return new Date(y, m - 1, d, hh, mm, 0, 0);
-  };
+  // use shared date util
 
   const now = new Date();
   const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -162,10 +159,10 @@ const SchedulingOption: React.FC = () => {
 
     // Per-platform content/media constraints
     const constraints: Record<'linkedin' | 'x' | 'instagram' | 'facebook', { maxCaption: number; imageRequired: boolean; maxImageMB: number }> = {
-      x: { maxCaption: 280, imageRequired: false, maxImageMB: 5 },
-      facebook: { maxCaption: 63206, imageRequired: false, maxImageMB: 8 },
-      instagram: { maxCaption: 2200, imageRequired: true, maxImageMB: 8 },
-      linkedin: { maxCaption: 3000, imageRequired: false, maxImageMB: 5 },
+      x: { maxCaption: CAPTION_LIMITS.x, imageRequired: !!IMAGE_REQUIRED.x, maxImageMB: IMAGE_SIZE_LIMIT_MB.x },
+      facebook: { maxCaption: CAPTION_LIMITS.facebook, imageRequired: !!IMAGE_REQUIRED.facebook, maxImageMB: IMAGE_SIZE_LIMIT_MB.facebook },
+      instagram: { maxCaption: CAPTION_LIMITS.instagram, imageRequired: !!IMAGE_REQUIRED.instagram, maxImageMB: IMAGE_SIZE_LIMIT_MB.instagram },
+      linkedin: { maxCaption: CAPTION_LIMITS.linkedin, imageRequired: !!IMAGE_REQUIRED.linkedin, maxImageMB: IMAGE_SIZE_LIMIT_MB.linkedin },
     } as const;
 
     const imageFileObj = postData.files.find(f => f.type === 'image')?.file || null;
@@ -537,6 +534,9 @@ const SchedulingOption: React.FC = () => {
         message={notification.message}
         type={notification.type}
       />
+
+      {/* Publishing Overlay */}
+      <PublishingOverlay open={isPublishing} />
     </div>
   );
 };

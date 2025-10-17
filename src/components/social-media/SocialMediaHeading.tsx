@@ -1,12 +1,14 @@
 import type { FC } from 'react';
+import { THEME_COLORS } from '../../constants/platforms';
 
 
 const SocialMediaHeading: FC = () => {
 
   return (
     <section
-      className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat
-      border-[#ff3b3b47]"
+      className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-no-repeat bg-center md:bg-center bg-cover
+      border-[#ff3b3b47] min-h-[120px] sm:min-h-[140px] md:min-h-[160px]"
+      style={{ borderColor: THEME_COLORS.red || '#DE05001A', backgroundSize: 'cover' }}
     >
       <div className="absolute inset-0 bg-[#f5212e0d]" />
       <div className="relative z-10 flex h-full flex-col justify-between gap-3 px-3 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-5 md:px-6 md:py-6 xl:px-8 xl:py-8">

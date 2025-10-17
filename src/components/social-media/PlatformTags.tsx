@@ -1,59 +1,13 @@
 import React from 'react';
-import { FaFacebookF, FaInstagram, FaCheck } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaCheck } from 'react-icons/fa';
 import { usePost } from './PostContext';
-import { FiLinkedin } from "react-icons/fi";
+import { PLATFORM_LIST } from '../../constants/platforms';
 
 
 const PlatformTags: React.FC = () => {
   const { postData, updateSelectedPlatforms } = usePost();
 
-  const platforms = [
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      icon: FaFacebookF,
-      unselectedBg: 'bg-[#1877F2]/10',
-      selectedBg: 'bg-gradient-to-r from-[#1877F2] to-[#0b5bd3] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-[#1877F2]/30',
-      selectedBorder: 'border-[#0b5bd3]/80',
-      iconColor: 'text-white',
-      textColor: 'text-white'
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      icon: FaInstagram,
-      unselectedBg: 'bg-gradient-to-br from-[#E4405F]/10 to-[#F77737]/10',
-      selectedBg: 'bg-gradient-to-r from-[#E4405F] via-[#F77737] to-[#7B2CBF] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-[#E4405F]/30',
-      selectedBorder: 'border-white/30',
-      iconColor: 'text-white',
-      textColor: 'text-white'
-    },
-    {
-      id: 'x',
-      name: 'X (Twitter)',
-      icon: FaXTwitter,
-      unselectedBg: 'bg-white/10',
-      selectedBg: 'bg-[#1DA1F2] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-white/30',
-      selectedBorder: 'border-[#1590d8]/80',
-      iconColor: 'text-white',
-      textColor: 'text-white'
-    },
-    {
-      id: 'linkedin',
-      name: 'LinkedIn',
-      icon: FiLinkedin,
-      unselectedBg: 'bg-[#0A66C2]/10',
-      selectedBg: 'bg-gradient-to-r from-[#0A66C2] to-[#004182] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-[#0A66C2]/30',
-      selectedBorder: 'border-[#004182]/80',
-      iconColor: 'text-white',
-      textColor: 'text-white'
-    }
-  ];
+  const platforms = PLATFORM_LIST;
 
   const togglePlatform = (platformId: string) => {
     const currentPlatforms = postData.selectedPlatforms;
@@ -74,10 +28,10 @@ const PlatformTags: React.FC = () => {
           <button
             key={platform.id}
             onClick={() => togglePlatform(platform.id)}
-            className={`relative flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-full border transition-all duration-200 min-h-[40px] ${
+            className={`relative flex items-center gap-2 px-2.5 py-2 sm:px-3 sm:py-2 md:px-4 md:py-2.5 rounded-xl border transition-all duration-200 min-h-[36px] sm:min-h-[40px] ${
               isSelected
-                ? `${platform.selectedBg} ${platform.selectedBorder} ${platform.textColor}`
-                : `${platform.unselectedBg} ${platform.unselectedBorder} ${platform.textColor}/70 hover:${platform.textColor} hover:${platform.selectedBorder}`
+                ? `${platform.colors.selectedBg} ${platform.colors.selectedBorder} ${platform.colors.textColor}`
+                : `${platform.colors.unselectedBg} ${platform.colors.unselectedBorder} ${platform.colors.textColor}/70 hover:${platform.colors.textColor} hover:${platform.colors.selectedBorder}`
             }`}
           >
             {/* Checkmark icon for selected platforms */}
@@ -87,8 +41,8 @@ const PlatformTags: React.FC = () => {
               </div>
             )}
             
-            <IconComponent className={`w-4 h-4 ${platform.iconColor} ${isSelected ? 'opacity-100' : 'opacity-70'}`} />
-            <span className="text-sm md:text-base font-medium">{platform.name}</span>
+            <IconComponent className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${platform.colors.iconColor} ${isSelected ? 'opacity-100' : 'opacity-70'}`} />
+            <span className="text-xs sm:text-sm md:text-base font-medium">{platform.name}</span>
           </button>
         );
       })}

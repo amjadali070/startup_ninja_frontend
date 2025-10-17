@@ -1,8 +1,9 @@
 import React from 'react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { TbGhostOff } from 'react-icons/tb';
 import LoadingSpinner from '../LoadingSpinner';
+import PlatformBadge from './PlatformBadge';
+import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
 
 export type TablePost = {
   _id: string;
@@ -26,38 +27,7 @@ type Props = {
   loading?: boolean;
 };
 
-const formatDate = (iso?: string) => {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  const day = String(d.getDate()).padStart(2, '0');
-  const mon = d.toLocaleString('en-US', { month: 'short' });
-  const year = d.getFullYear();
-  return `${day}-${mon}-${year}`;
-};
-
-const formatTime = (iso?: string) => {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
-
-const PlatformBadge: React.FC<{ id: string }> = ({ id }) => {
-  const map: Record<string, { icon: React.ElementType; name: string; color: string }> = {
-    facebook: { icon: FaFacebook, name: 'Facebook', color: '#1877F2' },
-    instagram: { icon: FaInstagram, name: 'Instagram', color: '#E4405F' },
-    x: { icon: FaTwitter, name: 'X (Twitter)', color: '#1DA1F2' },
-    twitter: { icon: FaTwitter, name: 'Twitter', color: '#1DA1F2' },
-    linkedin: { icon: FaLinkedin, name: 'LinkedIn', color: '#0A66C2' },
-  };
-  const meta = map[id] || { icon: FaTwitter, name: id, color: '#9CA3AF' };
-  const Icon = meta.icon;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800 text-gray-200 text-xs" title={meta.name}>
-      <Icon size={12} style={{ color: meta.color }} />
-      <span className="capitalize">{meta.name}</span>
-    </span>
-  );
-};
+// date/time and platform badge now imported from shared utils/components
 
 const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, pageSize, total, onPageChange, onPageSizeChange, loading }) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -87,33 +57,33 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-800">
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-xs sm:text-sm">
             <thead className="bg-[#101010] text-gray-300">
               <tr>
-                <th className="text-left px-4 py-3">Date</th>
-                <th className="text-left px-4 py-3">Time</th>
-                <th className="text-left px-4 py-3">Caption</th>
-                <th className="text-left px-4 py-3">Platforms</th>
-                <th className="text-left px-4 py-3">Status</th>
-                {onCancel && <th className="text-right px-4 py-3">Actions</th>}
+                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Date</th>
+                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Time</th>
+                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Caption</th>
+                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Platforms</th>
+                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Status</th>
+                {onCancel && <th className="text-right px-3 sm:px-4 py-2 sm:py-3">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {pageRows.map(row => (
                 <tr key={row._id} className="border-t border-gray-800 hover:bg-[#141414] cursor-pointer" onClick={() => onRowClick(row)}>
-                  <td className="px-4 py-3 text-gray-200">{formatDate(row.publishedAt || row.scheduledAt)}</td>
-                  <td className="px-4 py-3 text-gray-200">{formatTime(row.publishedAt || row.scheduledAt)}</td>
-                  <td className="px-4 py-3 text-gray-300 max-w-[360px] truncate" title={row.caption || 'No caption'}>{truncateCaption(row.caption || '')}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-200">{formatDateDDMonYYYY(row.publishedAt || row.scheduledAt)}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-200">{formatTimeHHmm(row.publishedAt || row.scheduledAt)}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-300 max-w-[220px] sm:max-w-[360px] truncate" title={row.caption || 'No caption'}>{truncateCaption(row.caption || '')}</td>
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
                     <div className="flex flex-wrap gap-1">
                       {row.platforms.map(p => <PlatformBadge key={p} id={p} />)}
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 sm:px-4 py-2 sm:py-3">
                     <span className={`px-2 py-0.5 rounded text-xs ${row.status === 'published' ? 'bg-green-900 text-green-200' : row.status === 'scheduled' ? 'bg-yellow-900 text-yellow-200' : row.status === 'failed' ? 'bg-red-900 text-red-200' : 'bg-gray-700 text-gray-200'}`}>{row.status}</span>
                   </td>
                   {onCancel && (
-                    <td className="px-4 py-3">
+                    <td className="px-3 sm:px-4 py-2 sm:py-3">
                       <div className="flex items-center justify-end">
                         <button onClick={(e) => { e.stopPropagation(); onCancel(row._id); }} className="text-xs px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-white">Cancel</button>
                       </div>

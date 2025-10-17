@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import schedulerService from '../../services/scheduler';
+import schedulerService from '../../services/social-media/scheduler';
 import PostsTable, { TablePost } from './PostsTable';
 import SchedulePostModal from './SchedulePostModal';
 
@@ -52,7 +52,6 @@ const ScheduledPostsList: React.FC = () => {
 		return () => window.removeEventListener('scheduledPosts:refresh', handler as EventListener);
 	}, []);
 
-	const now = Date.now();
 	const filtered = useMemo(() => {
 		const q = query.trim().toLowerCase();
 		const byQuery = q
@@ -68,7 +67,7 @@ const ScheduledPostsList: React.FC = () => {
 			return sortBy === 'date_asc' ? da - db : db - da;
 		});
 		return sorted;
-	}, [items, query, sortBy, now]);
+	}, [items, query, sortBy]);
 
 	const { upcoming, history } = useMemo(() => {
 		const upcoming = filtered.filter(i => i.status === 'scheduled');
@@ -86,7 +85,7 @@ const ScheduledPostsList: React.FC = () => {
 	};
 
 	return (
-		<div className="w-full rounded-2xl p-4 lg:p-6 border border-gray-800">
+		<div className="w-full rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-800">
 			<div className="flex items-center justify-between mb-4">
 				<h2 className="text-white text-lg md:text-xl font-bold">Scheduled Posts</h2>
 				<div className="flex items-center gap-2 w-full max-w-xl ml-auto">
@@ -95,13 +94,13 @@ const ScheduledPostsList: React.FC = () => {
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Search posts..."
-							className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-gray-500"
+							className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-gray-200 focus:outline-none focus:border-gray-500"
 						/>
 					</div>
 					<select
 						value={sortBy}
 						onChange={(e) => setSortBy(e.target.value as any)}
-						className="bg-[#1E1E1E] border border-gray-700 rounded-lg px-2 py-2 text-sm text-gray-200"
+						className="bg-[#1E1E1E] border border-gray-700 rounded-lg px-2 py-2 text-xs sm:text-sm text-gray-200"
 						aria-label="Sort by"
 					>
 						<option value="date_desc">Sort by: Date (newest)</option>

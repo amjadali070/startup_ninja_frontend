@@ -1,51 +1,45 @@
-import { apiClient } from './apiClient';
+import { apiClient } from '../../apiClient';
 
-export interface FacebookUser {
+export interface InstagramUser {
   id: string;
-  name: string;
-  email?: string;
+  username: string;
+  account_type: 'BUSINESS' | 'CREATOR' | 'PERSONAL';
   profilePicture?: string;
+  name?: string;
+  media_count?: number;
+  connectedAt?: string;
 }
 
-export interface FacebookPage {
-  id: string;
-  name: string;
-  category: string;
-  picture?: string;
-}
-
-export interface FacebookConnectionStatus {
+export interface InstagramConnectionStatus {
   connected: boolean;
-  profile?: FacebookUser;
-  pages?: FacebookPage[];
+  profile?: InstagramUser;
   message: string;
 }
 
-export interface FacebookPostResponse {
+export interface InstagramPostResponse {
   success: boolean;
   message: string;
   data?: {
-    postId: string;
-    pageId: string;
-    pageName: string;
+    mediaId: string;
+    url: string;
   };
 }
 
-export interface FacebookDisconnectResponse {
+export interface InstagramDisconnectResponse {
   success: boolean;
   message: string;
 }
 
-class FacebookService {
-  private readonly baseURL = '/social-media/facebook';
+class InstagramService {
+  private readonly baseURL = '/social-media/instagram';
   private isProcessingCallback = false;
 
   /**
-   * Initiate Facebook connection using popup OAuth flow
+   * Initiate Instagram connection using popup OAuth flow
    */
-  async initiateConnectionPopup(userId: string): Promise<{ user: FacebookUser; pages: FacebookPage[] } | null> {
+  async initiateConnectionPopup(userId: string): Promise<{ user: InstagramUser } | null> {
     if (this.isProcessingCallback) {
-      throw new Error('Facebook authentication already in progress');
+      throw new Error('Instagram authentication already in progress');
     }
 
     try {
@@ -55,9 +49,9 @@ class FacebookService {
       const authResponse = await apiClient.get(`${this.baseURL}/auth`, {
         params: { popup: 'true' }
       });
-
+      
       if (!authResponse.success) {
-        throw new Error(authResponse.message || 'Failed to get Facebook authorization URL');
+        throw new Error(authResponse.message || 'Failed to get Instagram authorization URL');
       }
 
       const authUrl = authResponse.authUrl;
@@ -65,7 +59,7 @@ class FacebookService {
       // Step 2: Open popup for user authorization
       const popup = window.open(
         authUrl, 
-        'facebook-auth',
+        'instagram-auth',
         'width=600,height=700,scrollbars=yes,resizable=yes'
       );
       
@@ -102,7 +96,7 @@ class FacebookService {
             error?: string;
           };
 
-          if (data.type === 'FACEBOOK_OAUTH_SUCCESS') {
+          if (data.type === 'INSTAGRAM_OAUTH_SUCCESS') {
             cleanup();
             popup.close();
 
@@ -118,22 +112,22 @@ class FacebookService {
                 resolve({ 
                   user: {
                     id: callbackResponse.profile?.id || '',
-                    name: callbackResponse.profile?.name || '',
-                    email: callbackResponse.profile?.email || '',
-                    profilePicture: callbackResponse.profile?.profilePicture || null
-                  },
-                  pages: callbackResponse.pages || []
+                    username: callbackResponse.profile?.username || '',
+                    account_type: callbackResponse.profile?.account_type || 'PERSONAL',
+                    profilePicture: callbackResponse.profile?.profilePicture || null,
+                    name: callbackResponse.profile?.name || null
+                  }
                 });
               } else {
-                reject(new Error(callbackResponse.message || 'Failed to connect Facebook account'));
+                reject(new Error(callbackResponse.message || 'Failed to connect Instagram account'));
               }
             } catch (error: any) {
-              reject(new Error(error.message || 'Failed to complete Facebook authentication'));
+              reject(new Error(error.message || 'Failed to complete Instagram authentication'));
             }
-          } else if (data.type === 'FACEBOOK_OAUTH_ERROR') {
+          } else if (data.type === 'INSTAGRAM_OAUTH_ERROR') {
             cleanup();
             popup.close();
-            reject(new Error(data.error || 'Facebook authorization failed'));
+            reject(new Error(data.error || 'Instagram authorization failed'));
           }
         };
 
@@ -146,7 +140,7 @@ class FacebookService {
   }
 
   /**
-   * Initiate Facebook connection using redirect OAuth flow (fallback)
+   * Initiate Instagram connection using redirect OAuth flow (fallback)
    */
   async initiateConnection(): Promise<void> {
     try {
@@ -156,20 +150,20 @@ class FacebookService {
       });
       
       if (!authResponse.success) {
-        throw new Error(authResponse.message || 'Failed to get Facebook authorization URL');
+        throw new Error(authResponse.message || 'Failed to get Instagram authorization URL');
       }
 
-      // Redirect to Facebook authorization URL
+      // Redirect to Instagram authorization URL
       window.location.href = authResponse.authUrl;
     } catch (error: any) {
-      throw new Error(`Failed to initiate Facebook connection: ${error.message}`);
+      throw new Error(`Failed to initiate Instagram connection: ${error.message}`);
     }
   }
 
   /**
-   * Get Facebook connection status for a user
+   * Get Instagram connection status for a user
    */
-  async getConnectionStatus(userId: string): Promise<FacebookConnectionStatus> {
+  async getConnectionStatus(userId: string): Promise<InstagramConnectionStatus> {
     try {
       const response = await apiClient.get(`${this.baseURL}/status?userId=${userId}`);
       
@@ -177,74 +171,74 @@ class FacebookService {
         return {
           connected: response.connected,
           profile: response.profile,
-          pages: response.pages,
           message: response.message
         };
       } else {
         throw new Error(response.message);
       }
     } catch (error: any) {
-      throw new Error(`Failed to get Facebook connection status: ${error.message}`);
+      throw new Error(`Failed to get Instagram connection status: ${error.message}`);
     }
   }
 
   /**
-   * Post content to Facebook
+   * Post content to Instagram
    */
-  async postToFacebook(formData: FormData): Promise<FacebookPostResponse> {
+  async postToInstagram(formData: FormData): Promise<InstagramPostResponse> {
     try {
       const response = await apiClient.post(`${this.baseURL}/post`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 180000 // 3 minutes timeout specifically for Instagram posts
       });
 
       if (response.success) {
         return {
           success: true,
-          message: response.message || 'Content posted successfully to Facebook',
+          message: response.message || 'Content posted successfully to Instagram',
           data: response.data
         };
       } else {
         return {
           success: false,
-          message: response.message || 'Failed to post to Facebook'
+          message: response.message || 'Failed to post to Instagram'
         };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to post to Facebook'
+        message: error.message || 'Failed to post to Instagram'
       };
     }
   }
 
   /**
-   * Disconnect Facebook account
+   * Disconnect Instagram account
    */
-  async disconnectAccount(): Promise<FacebookDisconnectResponse> {
+  async disconnectAccount(): Promise<InstagramDisconnectResponse> {
     try {
       const response = await apiClient.delete(`${this.baseURL}/disconnect`);
       
       if (response.success) {
         return {
           success: true,
-          message: response.message || 'Facebook account disconnected successfully'
+          message: response.message || 'Instagram account disconnected successfully'
         };
       } else {
         return {
           success: false,
-          message: response.message || 'Failed to disconnect Facebook account'
+          message: response.message || 'Failed to disconnect Instagram account'
         };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to disconnect Facebook account'
+        message: error.message || 'Failed to disconnect Instagram account'
       };
     }
   }
 }
 
-const facebookService = new FacebookService();
-export default facebookService;
+const instagramService = new InstagramService();
+export default instagramService;

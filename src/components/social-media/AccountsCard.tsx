@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
-import linkedinService, { LinkedInConnectionStatus } from '../../services/linkedin';
-import twitterService, { TwitterConnectionStatus } from '../../services/twitter';
-import instagramService, { InstagramConnectionStatus } from '../../services/instagram';
-import facebookService, { FacebookConnectionStatus } from '../../services/facebook';
+import linkedinService, { LinkedInConnectionStatus } from '../../services/social-media/oauth/linkedin';
+import twitterService, { TwitterConnectionStatus} from '../../services/social-media/oauth/twitter';
+import instagramService, { InstagramConnectionStatus } from '../../services/social-media/oauth/instagram';
+import facebookService, { FacebookConnectionStatus } from '../../services/social-media/oauth/facebook';
 import AlertModal from '../AlertModal';
+import { PLATFORM_BY_ID } from '../../constants/platforms';
 
 const AccountsCard: React.FC = () => {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState([
     {
       id: 'facebook',
-      name: 'Facebook',
+      name: PLATFORM_BY_ID.facebook?.name || 'Facebook',
       username: 'Not Connected',
       icon: FaFacebook,
       iconColor: 'text-[#1877F2]',
@@ -22,7 +23,7 @@ const AccountsCard: React.FC = () => {
     },
     {
       id: 'instagram',
-      name: 'Instagram',
+      name: PLATFORM_BY_ID.instagram?.name || 'Instagram',
       username: 'Not Connected',
       icon: FaInstagram,
       iconColor: 'text-[#E4405F]',
@@ -32,7 +33,7 @@ const AccountsCard: React.FC = () => {
     },
     {
       id: 'twitter',
-      name: 'X (Twitter)',
+      name: PLATFORM_BY_ID.x?.name || 'X (Twitter)',
       username: 'Not Connected',
       icon: FaTwitter,
       iconColor: 'text-white',
@@ -42,7 +43,7 @@ const AccountsCard: React.FC = () => {
     },
     {
       id: 'linkedin',
-      name: 'LinkedIn',
+      name: PLATFORM_BY_ID.linkedin?.name || 'LinkedIn',
       username: 'Not Connected',
       icon: FaLinkedin,
       iconColor: 'text-[#0A66C2]',
@@ -834,7 +835,7 @@ const AccountsCard: React.FC = () => {
 
   return (
     <>
-    <div className="w-full rounded-xl p-3 md:p-4 border border-gray-800">
+    <div className="w-full rounded-xl p-3 sm:p-4 border border-gray-800">
       <h2 className="text-white text-base md:text-lg font-bold font-plus-jakarta mb-3 md:mb-4">
         Connected Accounts
       </h2>
@@ -844,7 +845,7 @@ const AccountsCard: React.FC = () => {
         {accounts.map((account) => (
           <div
             key={account.id}
-              className={`border border-gray-700 rounded-xl p-4 transition-colors duration-200 ${
+              className={`border border-gray-700 rounded-xl p-3 sm:p-4 transition-colors duration-200 ${
                 !account.isPlaceholder ? 'hover:bg-[#252525]' : 'opacity-60'
               }`}
           >
@@ -852,13 +853,13 @@ const AccountsCard: React.FC = () => {
               {/* Left side - Platform info */}
               <div className="flex items-center gap-3">
                 <account.icon 
-                  className={`w-6 h-6 ${account.iconColor}`} 
+                  className={`w-5 h-5 sm:w-6 sm:h-6 ${account.iconColor}`} 
                 />
                 <div className="flex flex-col">
-                  <span className="text-white text-base font-semibold font-plus-jakarta">
+                  <span className="text-white text-sm sm:text-base font-semibold font-plus-jakarta">
                     {account.name}
                   </span>
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-gray-400 text-xs sm:text-sm">
                     {account.username}
                   </span>
                 </div>
@@ -872,7 +873,7 @@ const AccountsCard: React.FC = () => {
                       account.isPlaceholder ? 'bg-gray-500' : 'bg-[#DE0500]'
                   }`} />
                   <span 
-                    className={`text-sm font-medium ${
+                    className={`text-xs sm:text-sm font-medium ${
                       account.isConnected 
                         ? 'text-green-500' 
                           : account.isPlaceholder 
@@ -887,7 +888,7 @@ const AccountsCard: React.FC = () => {
                 <button
                   onClick={() => handleToggleConnection(account.id)}
                     disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook')}
-                    className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     account.isConnected
                       ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
                         : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook'

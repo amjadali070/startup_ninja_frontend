@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import {  FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt } from 'react-icons/fa';
 import { FiX } from 'react-icons/fi';
+import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
+import { PLATFORM_BY_ID } from '../../constants/platforms';
 
 // Reusing existing types and utilities
 export type ModalPost = {
@@ -27,17 +29,7 @@ type Props = {
 };
 
 // Utilities (kept clean and functional)
-const formatDate = (iso?: string) => {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
-
-const formatTime = (iso?: string) => {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-};
+// use shared formatters
 
 // --- Modern Status Mapping ---
 const STATUS_META = {
@@ -92,12 +84,12 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
   const dateToUse = post.publishedAt || post.scheduledAt;
   const isScheduled = post.status === 'scheduled';
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop - Deep, immersive blur */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-xs" onClick={onClose} />
 
       {/* Modal Container - Sleek Charcoal, high contrast border, soft rounding */}
-      <div className="relative w-full max-w-5xl max-h-[85vh] mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
+      <div className="relative w-full max-w-5xl max-h-[90vh] sm:max-h-[85vh] mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
         
         {/* Header - Simple, aligned top-bar */}
         <div className="flex items-center justify-between p-4 border-b border-[#2c2c34]">
@@ -108,7 +100,7 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
         </div>
 
         {/* Main Content: Asymmetric Split (60/40) */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34] max-h-[75vh] overflow-hiddern">
+        <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34] max-h-[78vh] sm:max-h-[75vh] overflow-y-auto lg:overflow-hidden">
 
           {/* Column 1: Post Preview (3/5 width) */}
           <div className="lg:col-span-3 p-3 space-y-3">
@@ -151,8 +143,8 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
             </div>
             <div className="text-sm font-light text-gray-300 flex items-center gap-2">
                     <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="text-gray-400">{isScheduled ? 'Scheduled at:' : 'Published at:'}</span>
-                    <span className="font-semibold text-white">{formatDate(dateToUse)} at {formatTime(dateToUse)}</span>
+                  <span className="text-gray-400">{isScheduled ? 'Scheduled at:' : 'Published at:'}</span>
+                    <span className="font-semibold text-white">{formatDateDDMonYYYY(dateToUse)} at {formatTimeHHmm(dateToUse)}</span>
                 </div>
             </div>
             
@@ -160,7 +152,7 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
               <h3 className="text-lg font-semibold text-gray-200 mb-3">Target Platforms</h3>
               <div className="flex flex-wrap gap-2">
                 {post.platforms?.map((p) => {
-                  const meta = PLATFORM_META[p] || { icon: FaTwitter, color: '#9CA3AF', name: p };
+                  const meta = PLATFORM_BY_ID[p] ? { icon: PLATFORM_BY_ID[p].icon, color: PLATFORM_BY_ID[p].colors.brand, name: PLATFORM_BY_ID[p].name } : { icon: FaTwitter, color: '#9CA3AF', name: p };
                   const Icon = meta.icon;
                   return (
                     <div key={p} className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1f] rounded-full border border-[#2c2c34]">

@@ -47,12 +47,13 @@ const SocialMediaStudio: FC = () => {
     >
       <main className="flex-1 overflow-y-auto">
         <PostProvider>
-          <div className="p-3 sm:p-4 lg:p-6">
+          <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10 py-3 sm:py-4">
+            <div className="w-full max-w-7xl mx-auto">
             <div className="mb-6">
                 <SocialMediaHeading/>
             </div>
-            <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-start">
-              <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6 border rounded-lg border-white/10 p-6 lg:p-6 bg-[#151515]">
+            <div className="flex flex-col xl:flex-row gap-3 sm:gap-4 md:gap-6 xl:gap-8 xl:items-start">
+              <div className="flex-1 xl:flex-[2] min-w-0 space-y-4 md:space-y-6 border rounded-lg border-white/10 p-4 md:p-5 lg:p-6 bg-[#151515]">
                 <div>
                   <h1 className="text-white text-xl md:text-2xl font-bold mb-4 md:mb-6 font-plus-jakarta">
                     Create Post
@@ -74,11 +75,12 @@ const SocialMediaStudio: FC = () => {
                 <ScheduledPostsList />
               </div>
 
-              <div className="flex-1 lg:flex-[1] space-y-4 md:space-y-6 lg:h-full">
+              <div className="flex-1 xl:flex-[1] min-w-0 space-y-4 md:space-y-6 xl:h-full xl:sticky xl:top-6">
                 <PostPreview />
 
                 <AccountsCard />
               </div>
+            </div>
             </div>
           </div>
         </PostProvider>

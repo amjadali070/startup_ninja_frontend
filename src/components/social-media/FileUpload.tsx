@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { FiUploadCloud, FiX, FiEdit2 } from 'react-icons/fi';
 import { usePost } from './PostContext';
+import { IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
 
 interface FileUploadProps {
   maxSizeMB?: number;
@@ -14,13 +15,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Platform image limits
-  const imageLimits: Record<string, number> = useMemo(() => ({
-    x: 5,
-    twitter: 5,
-    facebook: 8,
-    instagram: 8,
-    linkedin: 5,
-  }), []);
+  const imageLimits: Record<string, number> = useMemo(() => IMAGE_SIZE_LIMIT_MB, []);
   const requiredImage = useMemo(() => postData.selectedPlatforms.includes('instagram'), [postData.selectedPlatforms]);
   const effectiveMaxMB = useMemo(() => {
     const limits = postData.selectedPlatforms.map(p => imageLimits[p]).filter(Boolean) as number[];
@@ -190,14 +185,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
           onClick={handleBrowseClick}
         >
           <div className="mb-3 md:mb-4">
-            <FiUploadCloud className="w-8 h-8 md:w-10 md:h-10 text-white mx-auto" />
+            <FiUploadCloud className="w-7 h-7 md:w-10 md:h-10 text-white mx-auto" />
           </div>
 
           <h3 className="text-white text-sm md:text-base font-bold mb-2 md:mb-3">
             Choose a file or drag & drop it here
           </h3>
 
-          <p className="text-gray-300 text-xs md:text-sm mb-3 md:mb-4">
+          <p className="text-gray-300 text-[11px] sm:text-xs md:text-sm mb-3 md:mb-4">
             Images only (JPG/PNG). Max size: {effectiveMaxMB}MB{requiredImage ? ' • Instagram requires an image' : ''}
           </p>
 
