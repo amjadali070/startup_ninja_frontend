@@ -311,14 +311,14 @@ const SchedulingOption: React.FC = () => {
         if (!imageExists) {
           errors.push('Instagram: Instagram requires an image for posts. Please upload an image.');
         } else {
-          try {
-            const instagramResult = await instagramService.postToInstagram(formData);
-            if (instagramResult.success) {
-              results.push('Instagram');
-            } else {
-              errors.push(`Instagram: ${instagramResult.message}`);
-            }
-          } catch (error: any) {
+        try {
+          const instagramResult = await instagramService.postToInstagram(formData);
+          if (instagramResult.success) {
+            results.push('Instagram');
+          } else {
+            errors.push(`Instagram: ${instagramResult.message}`);
+          }
+        } catch (error: any) {
             const msg = error?.response?.data?.message || error?.data?.message || error?.message || 'Failed to publish';
             errors.push(`Instagram: ${msg}`);
           }
