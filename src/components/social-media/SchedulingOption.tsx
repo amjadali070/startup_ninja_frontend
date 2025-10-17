@@ -160,33 +160,70 @@ const SchedulingOption: React.FC = () => {
       return;
     }
 
+    // Per-platform content/media constraints
+    const constraints: Record<'linkedin' | 'x' | 'instagram' | 'facebook', { maxCaption: number; imageRequired: boolean; maxImageMB: number }> = {
+      x: { maxCaption: 280, imageRequired: false, maxImageMB: 5 },
+      facebook: { maxCaption: 63206, imageRequired: false, maxImageMB: 8 },
+      instagram: { maxCaption: 2200, imageRequired: true, maxImageMB: 8 },
+      linkedin: { maxCaption: 3000, imageRequired: false, maxImageMB: 5 },
+    } as const;
+
+    const imageFileObj = postData.files.find(f => f.type === 'image')?.file || null;
+    const imageSizeMB = imageFileObj ? imageFileObj.size / (1024 * 1024) : 0;
+    const failures: Array<{ platform: string; reason: string }> = [];
+    const validPlatforms = platformsFromSchedule.filter((p) => {
+      const c = constraints[p];
+      if (postData.content.length > c.maxCaption) {
+        failures.push({ platform: p, reason: `Caption exceeds ${c.maxCaption} characters` });
+        return false;
+      }
+      if (c.imageRequired && !imageFileObj) {
+        failures.push({ platform: p, reason: 'Image is required' });
+        return false;
+      }
+      if (imageFileObj && imageSizeMB > c.maxImageMB) {
+        failures.push({ platform: p, reason: `Image exceeds ${c.maxImageMB} MB` });
+        return false;
+      }
+      return true;
+    });
+
+    if (validPlatforms.length === 0) {
+      showNotification('Validation failed', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+      return;
+    }
+
     try {
       setIsScheduling(true);
 
-      const imageFile = postData.files.find(f => f.type === 'image')?.file || null;
+      const imageFile = imageFileObj;
 
       const resp = await schedulerService.schedulePost({
         caption: postData.content,
-        platforms: platformsFromSchedule,
+        platforms: validPlatforms,
         schedules: scheduledPlatforms
-          .filter(p => platformsFromSchedule.includes(p.id as any))
+          .filter(p => validPlatforms.includes(p.id as any))
           .map(p => ({ platform: p.id as any, date: p.date, time: p.time })),
         imageFile,
       });
 
       if (resp.success) {
         showNotification('Scheduled', 'Your post has been scheduled for selected platforms.', 'success');
+        if (failures.length > 0) {
+          showNotification('Some platforms skipped', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+        }
         try {
           window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
             scheduledAt: `${first.date}T${first.time}:00`,
-            platforms: platformsFromSchedule,
+            platforms: validPlatforms,
           }}));
         } catch (_) {}
       } else {
         showNotification('Error', resp.message || 'Failed to schedule post', 'error');
       }
     } catch (e: any) {
-      showNotification('Error', e.message || 'Failed to schedule post', 'error');
+      const backendMsg = e?.response?.data?.message;
+      showNotification('Error', backendMsg || e?.message || 'Failed to schedule post', 'error');
     } finally {
       setIsScheduling(false);
     }
@@ -248,7 +285,8 @@ const SchedulingOption: React.FC = () => {
             }
           }
         } catch (error: any) {
-          errors.push(`LinkedIn: ${error.message || 'Failed to publish'}`);
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`LinkedIn: ${msg}`);
         }
       }
 
@@ -262,21 +300,28 @@ const SchedulingOption: React.FC = () => {
             errors.push(`Twitter: ${twitterResult.message}`);
           }
         } catch (error: any) {
-          errors.push(`Twitter: ${error.message || 'Failed to publish'}`);
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`Twitter: ${msg}`);
         }
       }
 
-      // Post to Instagram if selected
+      // Post to Instagram if selected (pre-validate image required)
       if (postData.selectedPlatforms.includes('instagram')) {
-        try {
-          const instagramResult = await instagramService.postToInstagram(formData);
-          if (instagramResult.success) {
-            results.push('Instagram');
-          } else {
-            errors.push(`Instagram: ${instagramResult.message}`);
+        const imageExists = postData.files.find(f => f.type === 'image');
+        if (!imageExists) {
+          errors.push('Instagram: Instagram requires an image for posts. Please upload an image.');
+        } else {
+          try {
+            const instagramResult = await instagramService.postToInstagram(formData);
+            if (instagramResult.success) {
+              results.push('Instagram');
+            } else {
+              errors.push(`Instagram: ${instagramResult.message}`);
+            }
+          } catch (error: any) {
+            const msg = error?.response?.data?.message || error?.data?.message || error?.message || 'Failed to publish';
+            errors.push(`Instagram: ${msg}`);
           }
-        } catch (error: any) {
-          errors.push(`Instagram: ${error.message || 'Failed to publish'}`);
         }
       }
 
@@ -290,7 +335,8 @@ const SchedulingOption: React.FC = () => {
             errors.push(`Facebook: ${facebookResult.message}`);
           }
         } catch (error: any) {
-          errors.push(`Facebook: ${error.message || 'Failed to publish'}`);
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`Facebook: ${msg}`);
         }
       }
 
@@ -306,18 +352,15 @@ const SchedulingOption: React.FC = () => {
       } else if (results.length > 0 && errors.length > 0) {
         // Some platforms succeeded, some failed
         const successPlatforms = results.join(' and ');
-        const errorMessages = errors.join('\n');
-        showNotification(
-          'Partial Success', 
-          `Published to ${successPlatforms} successfully. Errors:\n${errorMessages}`, 
-          'error'
-        );
+        const formattedErrors = errors.map(e => `- ${e}`).join('\n');
+        const message = `Published to ${successPlatforms} successfully.\n\nErrors:\n${formattedErrors}`;
+        showNotification('Partial Success', message, 'error');
       } else {
         // All platforms failed
         const errorMessages = errors.join('\n');
         showNotification(
           'Publishing Failed', 
-          `Failed to publish to any platform:\n${errorMessages}`, 
+          errorMessages, 
           'error'
         );
       }
@@ -329,7 +372,7 @@ const SchedulingOption: React.FC = () => {
       console.error('Publishing error:', error);
       showNotification(
         'Error',
-        error.message || 'Failed to publish posts',
+        (error?.response?.data?.message as string) || error?.message || 'Failed to publish posts',
         'error'
       );
     } finally {

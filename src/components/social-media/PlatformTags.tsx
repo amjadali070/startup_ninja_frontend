@@ -14,31 +14,31 @@ const PlatformTags: React.FC = () => {
       name: 'Facebook',
       icon: FaFacebookF,
       unselectedBg: 'bg-[#1877F2]/10',
-      selectedBg: 'bg-[#1877F2]/20',
+      selectedBg: 'bg-gradient-to-r from-[#1877F2] to-[#0b5bd3] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
       unselectedBorder: 'border-[#1877F2]/30',
-      selectedBorder: 'border-[#1877F2]/60',
-      iconColor: 'text-[#1877F2]',
-      textColor: 'text-[#1877F2]'
+      selectedBorder: 'border-[#0b5bd3]/80',
+      iconColor: 'text-white',
+      textColor: 'text-white'
     },
     {
       id: 'instagram',
       name: 'Instagram',
       icon: FaInstagram,
       unselectedBg: 'bg-gradient-to-br from-[#E4405F]/10 to-[#F77737]/10',
-      selectedBg: 'bg-gradient-to-br from-[#E4405F]/20 to-[#F77737]/20',
+      selectedBg: 'bg-gradient-to-r from-[#E4405F] via-[#F77737] to-[#7B2CBF] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
       unselectedBorder: 'border-[#E4405F]/30',
-      selectedBorder: 'border-[#E4405F]/60',
-      iconColor: 'text-[#E4405F]',
-      textColor: 'text-[#E4405F]'
+      selectedBorder: 'border-white/30',
+      iconColor: 'text-white',
+      textColor: 'text-white'
     },
     {
       id: 'x',
-      name: 'X',
+      name: 'X (Twitter)',
       icon: FaXTwitter,
       unselectedBg: 'bg-white/10',
-      selectedBg: 'bg-white/20',
+      selectedBg: 'bg-[#1DA1F2] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
       unselectedBorder: 'border-white/30',
-      selectedBorder: 'border-white/60',
+      selectedBorder: 'border-[#1590d8]/80',
       iconColor: 'text-white',
       textColor: 'text-white'
     },
@@ -47,11 +47,11 @@ const PlatformTags: React.FC = () => {
       name: 'LinkedIn',
       icon: FiLinkedin,
       unselectedBg: 'bg-[#0A66C2]/10',
-      selectedBg: 'bg-[#0A66C2]/20',
+      selectedBg: 'bg-gradient-to-r from-[#0A66C2] to-[#004182] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
       unselectedBorder: 'border-[#0A66C2]/30',
-      selectedBorder: 'border-[#0A66C2]/60',
-      iconColor: 'text-[#0A66C2]',
-      textColor: 'text-[#0A66C2]'
+      selectedBorder: 'border-[#004182]/80',
+      iconColor: 'text-white',
+      textColor: 'text-white'
     }
   ];
 
@@ -74,7 +74,7 @@ const PlatformTags: React.FC = () => {
           <button
             key={platform.id}
             onClick={() => togglePlatform(platform.id)}
-            className={`relative flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-lg border transition-all duration-200 min-h-[40px] ${
+            className={`relative flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-full border transition-all duration-200 min-h-[40px] ${
               isSelected
                 ? `${platform.selectedBg} ${platform.selectedBorder} ${platform.textColor}`
                 : `${platform.unselectedBg} ${platform.unselectedBorder} ${platform.textColor}/70 hover:${platform.textColor} hover:${platform.selectedBorder}`

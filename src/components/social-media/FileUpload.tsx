@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { FiUploadCloud, FiX, FiEdit2 } from 'react-icons/fi';
 import { usePost } from './PostContext';
 
@@ -12,6 +12,20 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const { postData, addFiles, clearFiles } = usePost();
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Platform image limits
+  const imageLimits: Record<string, number> = useMemo(() => ({
+    x: 5,
+    twitter: 5,
+    facebook: 8,
+    instagram: 8,
+    linkedin: 5,
+  }), []);
+  const requiredImage = useMemo(() => postData.selectedPlatforms.includes('instagram'), [postData.selectedPlatforms]);
+  const effectiveMaxMB = useMemo(() => {
+    const limits = postData.selectedPlatforms.map(p => imageLimits[p]).filter(Boolean) as number[];
+    return limits.length ? Math.min(...limits) : maxSizeMB;
+  }, [postData.selectedPlatforms, imageLimits, maxSizeMB]);
 
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
@@ -37,18 +51,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      // Clear existing files first, then add new ones (replace behavior)
+      // Only allow single image
+      const first = files[0];
+      if (!first.type.startsWith('image/')) return;
       clearFiles();
-      addFiles(Array.from(files));
+      addFiles([first]);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      // Clear existing files first, then add new ones (replace behavior)
+      const first = files[0];
+      if (!first.type.startsWith('image/')) { e.target.value=''; return; }
+      // Enforce size
+      if (first.size / (1024*1024) > effectiveMaxMB) { e.target.value=''; return; }
       clearFiles();
-      addFiles(Array.from(files));
+      addFiles([first]);
       // Clear the input value to allow selecting the same file again
       e.target.value = '';
     }
@@ -109,7 +128,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               <img
                 src={uploadedFile.url}
                 alt="Uploaded file"
-                className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg border border-gray-600 mx-auto"
+                className="w-24 h-24 md:w-32 md:h-32 object-contain rounded-lg border border-gray-600 mx-auto bg-black"
               />
             ) : (
               <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-700 rounded-lg border border-gray-600 flex items-center justify-center mx-auto">
@@ -125,7 +144,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
           {/* File details */}
           <p className="text-gray-300 text-xs md:text-sm mb-3 md:mb-4">
-            {uploadedFile.file.type} • {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
+            {uploadedFile.file.type} • {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB (max {effectiveMaxMB} MB)
           </p>
 
           {/* Change file button */}
@@ -179,7 +198,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </h3>
 
           <p className="text-gray-300 text-xs md:text-sm mb-3 md:mb-4">
-            JPEG, PNG, PDG, and MP4 formats, up to {maxSizeMB}MB
+            Images only (JPG/PNG). Max size: {effectiveMaxMB}MB{requiredImage ? ' • Instagram requires an image' : ''}
           </p>
 
           <button
@@ -205,7 +224,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ref={fileInputRef}
         type="file"
         className="hidden"
-        accept=".jpeg,.jpg,.png,.pdf,.mp4"
+        accept="image/jpeg,image/png"
+        multiple={false}
         onChange={handleFileSelect}
       />
     </div>

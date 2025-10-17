@@ -1,10 +1,23 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { usePost } from './PostContext';
 
 const WritePostContent: React.FC = () => {
   const { postData, updateContent } = usePost();
-  const maxCharacters = 1000;
+  // Platform caption limits (soft enforcement in editor; hard checks happen before publish/schedule)
+  const platformCaptionLimits: Record<string, number> = useMemo(() => ({
+    x: 280,
+    twitter: 280,
+    facebook: 63206,
+    instagram: 2200,
+    linkedin: 3000,
+  }), []);
+  const effectiveMax = useMemo(() => {
+    const selected = postData.selectedPlatforms;
+    if (!selected || selected.length === 0) return 3000; // default upper bound
+    const limits = selected.map(p => platformCaptionLimits[p] ?? 3000);
+    return Math.min(...limits);
+  }, [postData.selectedPlatforms, platformCaptionLimits]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const autoResize = (el: HTMLTextAreaElement | null) => {
@@ -15,7 +28,7 @@ const WritePostContent: React.FC = () => {
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    if (value.length <= maxCharacters) {
+    if (value.length <= effectiveMax) {
       updateContent(value);
     }
     autoResize(e.currentTarget);
@@ -30,7 +43,7 @@ const WritePostContent: React.FC = () => {
     const selEnd = target.selectionEnd ?? selStart;
     const before = postData.content.slice(0, selStart);
     const after = postData.content.slice(selEnd);
-    const available = Math.max(0, maxCharacters - (before.length + after.length));
+    const available = Math.max(0, effectiveMax - (before.length + after.length));
     if (available === 0) return; // no room left
     const toInsert = pasted.slice(0, available);
     updateContent(before + toInsert + after);
@@ -68,6 +81,26 @@ const WritePostContent: React.FC = () => {
                      focus:outline-none"
           rows={4}
         />
+        {/* Guidance for limits based on selected platforms */}
+        <div className="mt-2 text-xs text-gray-400">
+          {postData.selectedPlatforms.length > 0 ? (
+            <>
+             
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                 <div>Caption limits:</div>
+                {Array.from(new Set(postData.selectedPlatforms)).map(p => (
+                  <span key={p} className="inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded px-2 py-0.5">
+                    <span className="capitalize">{p}</span>
+                    <span>· {platformCaptionLimits[p] ?? 3000} chars</span>
+                  </span>
+                ))}
+              </div>
+              <div className="mt-1">Applied limit now: {effectiveMax} characters.</div>
+            </>
+          ) : (
+            <div>Tip: Select platforms to see their caption limits.</div>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-3">
@@ -108,7 +141,7 @@ const WritePostContent: React.FC = () => {
         </div>
 
         <div className="text-gray-400 text-xs md:text-sm font-medium">
-          {postData.content.length}/{maxCharacters} characters
+          {postData.content.length}/{effectiveMax} characters
         </div>
       </div>
     </div>
