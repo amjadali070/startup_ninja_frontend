@@ -120,11 +120,11 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
                 
                 {/* Image/Media */}
                 {imageSrc ? (
-                  <div className="relative w-full rounded-md overflow-hidden">
+                  <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center">
                     <img
                       src={imageSrc}
                       alt={post.caption ? post.caption.slice(0, 60) : 'Post media'}
-                      className="w-full max-h-72 object-cover" 
+                      className="w-full max-h-72 object-contain" 
                       loading="lazy"
                     />
                   </div>

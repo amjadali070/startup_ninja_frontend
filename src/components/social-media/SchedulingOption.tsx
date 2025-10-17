@@ -176,7 +176,6 @@ const SchedulingOption: React.FC = () => {
 
       if (resp.success) {
         showNotification('Scheduled', 'Your post has been scheduled for selected platforms.', 'success');
-        // Notify scheduled posts list to refresh immediately
         try {
           window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
             scheduledAt: `${first.date}T${first.time}:00`,
@@ -203,7 +202,6 @@ const SchedulingOption: React.FC = () => {
       return;
     }
 
-    // Check if at least one supported platform is selected
     const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'];
     const selectedSupportedPlatforms = postData.selectedPlatforms.filter(platform => 
       supportedPlatforms.includes(platform)
