@@ -4,6 +4,8 @@ import { TbGhostOff } from 'react-icons/tb';
 import LoadingSpinner from '../LoadingSpinner';
 import PlatformBadge from './PlatformBadge';
 import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
+import { MdHistory } from 'react-icons/md';
+import { RiCalendarScheduleLine } from 'react-icons/ri';
 
 export type TablePost = {
   _id: string;
@@ -42,7 +44,14 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
   return (
     <div className="mb-6">
       <div className="w-full border-b border-white/10 mb-3">
-        <h3 className="text-white font-semibold py-2">{title}</h3>
+        <h3 className="text-white font-semibold py-2 flex items-center gap-2">
+          {title.toLowerCase() === 'upcoming' ? (
+            <RiCalendarScheduleLine className="w-4 h-4 text-[#DC2626]" />
+          ) : title.toLowerCase() === 'history' ? (
+            <MdHistory className="w-4 h-4 text-[#DC2626]" />
+          ) : null}
+          <span>{title}</span>
+        </h3>
       </div>
       {loading ? (
         <div className="flex items-center justify-center py-10">

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import schedulerService from '../../services/social-media/scheduler';
 import PostsTable, { TablePost } from './PostsTable';
+import LoadingSpinner from '../LoadingSpinner';
 import SchedulePostModal from './SchedulePostModal';
 
 type ScheduledPost = {
@@ -111,37 +112,44 @@ const ScheduledPostsList: React.FC = () => {
 				</div>
 			</div>
 
-			{/* When loading, let the tables show the spinner within their own area */}
+			{loading ? (
+				<div className="flex items-center justify-center py-10">
+					<LoadingSpinner variant="dark" size="small" />
+				</div>
+			) : (
+				<>
+					<div className="mb-6">
+						<PostsTable
+							title="Upcoming"
+							rows={upcoming as unknown as TablePost[]}
+							onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
+							onCancel={(id) => handleCancel(id)}
+							page={pageUpcoming}
+							pageSize={pageSizeUpcoming}
+							total={upcoming.length}
+							onPageChange={setPageUpcoming}
+							onPageSizeChange={(s) => { setPageUpcoming(1); setPageSizeUpcoming(s); }}
+							loading={false}
+						/>
+					</div>
+
+					<div>
+						<PostsTable
+							title="History"
+							rows={history as unknown as TablePost[]}
+							onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
+							page={pageHistory}
+							pageSize={pageSizeHistory}
+							total={history.length}
+							onPageChange={setPageHistory}
+							onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
+							loading={false}
+						/>
+					</div>
+				</>
+			)}
+
 			{error && <div className="text-red-400 text-sm mb-3">{error}</div>}
-
-			<div className="mb-6">
-				<PostsTable
-					title="Upcoming"
-					rows={upcoming as unknown as TablePost[]}
-					onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-					onCancel={(id) => handleCancel(id)}
-					page={pageUpcoming}
-					pageSize={pageSizeUpcoming}
-					total={upcoming.length}
-					onPageChange={setPageUpcoming}
-					onPageSizeChange={(s) => { setPageUpcoming(1); setPageSizeUpcoming(s); }}
-					loading={loading}
-				/>
-			</div>
-
-			<div>
-				<PostsTable
-					title="History"
-					rows={history as unknown as TablePost[]}
-					onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-					page={pageHistory}
-					pageSize={pageSizeHistory}
-					total={history.length}
-					onPageChange={setPageHistory}
-					onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
-					loading={loading}
-				/>
-			</div>
 
 			{/* Details Modal */}
 			<SchedulePostModal
