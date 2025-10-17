@@ -175,7 +175,7 @@ const SchedulingOption: React.FC = () => {
       });
 
       if (resp.success) {
-        showNotification('Scheduled', `Scheduled for ${first.date} at ${first.time}.`, 'success');
+        showNotification('Scheduled', 'Your post has been scheduled for selected platforms.', 'success');
         // Notify scheduled posts list to refresh immediately
         try {
           window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
