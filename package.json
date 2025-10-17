@@ -12,6 +12,8 @@
   "dependencies": {
     "@azure/msal-browser": "^4.24.1",
     "@azure/msal-react": "^3.0.20",
+    "@grapesjs/studio-sdk": "^1.0.56",
+    "@grapesjs/studio-sdk-plugins": "^1.0.29",
     "@react-oauth/google": "^0.12.2",
     "axios": "^1.6.2",
     "react": "^18.2.0",

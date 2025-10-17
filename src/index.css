@@ -82,6 +82,7 @@ body {
 .footer-logo-base {
   display: block;
 }
+
 .white-path {
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
 }
@@ -112,4 +113,118 @@ body {
   transition: opacity 0.3s ease;
   /* mask: radial-gradient(circle 120px at 70% 50%, transparent 0%, black 100%);
   -webkit-mask: radial-gradient(circle 120px at 70% 50%, transparent 0%, black 100%); */
+}
+
+.gs-studio-root {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.gs-canvas-sidebar-top>.gs-cmp-editor-topbar {
+  min-height: 55px !important;
+}
+
+.gs-devices {
+  padding: 10px 15px !important;
+}
+
+.gs-layout-panel {
+  margin-left: 60px;
+
+}
+
+.gs-layout-panel__content,
+.gs-layout-panel {
+  width: 300px !important;
+}
+
+.gs-page-settings-header {
+  display: none;
+}
+
+.sidebar-column .gs-cmp-tooltip:last-of-type {
+  margin: 0;
+}
+
+.sidebar-column .gs-cmp-tooltip:nth-last-of-type(2) {
+  margin: auto 0 0;
+}
+
+.gs-asset-manager__header {
+  display: block;
+}
+
+.gs-asset-manager__header>.gs-utl-flex:first-child {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.gs-asset-manager__header>.gs-utl-flex:nth-child(2) {
+  display: block;
+}
+
+
+.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(1) {
+  width: 100% !important;
+}
+
+.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(1)>button {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+
+.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(2) {
+  display: none;
+}
+
+.gs-input-field>.gs-input-container {
+  height: 40px;
+  border-radius: 8px;
+}
+
+.gs-devices {
+    background-color: #181818 !important;
+    border-radius: 8px;
+}
+
+.device-desktop.active{
+  background-color: #ec2222;
+  border-radius: 8px;
+}
+
+.device-tablet.active{
+  background-color: #ec2222;
+  border-radius: 8px;
+}
+
+.device-mobile.active{
+  background-color: #ec2222;
+  border-radius: 8px;
+}
+/* .gs-cmp-tabs__panels{
+  overflow: auto !important;
+} */
+
+.gs-cmp-sidebar-right > .gs-cmp-tabs__panels > .gs-cmp-tabs__panel > .gs-utl-flex{
+    overflow: auto;
+    min-height: 70%;
+    height: 50%;
+}
+
+.gs-cmp-color-field, .gs-cmp-number-field , .gs-cmp-global-style-field > .gs-select-field{
+  flex-direction: row;
+  gap:5px;
+  align-items: center;
+}
+
+.gs-cmp-color-field > .gs-input-container , .gs-cmp-number-field > .gs-input-container  , .gs-cmp-global-style-field > .gs-select-field > button > div{
+  padding: 8px;
+    border-radius: 8px;
+}
+
+.gs-label-field-container > label {
+  font-size: 13px;
+}
+.gs-cmp-tooltip button:hover{
+  background-color: #ec2222 !important;
 }

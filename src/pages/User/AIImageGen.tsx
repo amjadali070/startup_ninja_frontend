@@ -38,10 +38,9 @@ const AIImageGen: FC = () => {
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
-      <main className="flex-1 overflow-y-auto px-4 pb-14 pt-8 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="mx-auto flex w-full max-w-[1600px] flex-col space-y-12 py-8">
-          {/* Create Images Section */}
-          <div className="flex justify-center">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-3 sm:p-4 lg:p-6">
+            <div className="mb-6">
             <CreateImages />
           </div>
           
