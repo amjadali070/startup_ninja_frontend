@@ -61,6 +61,21 @@ const SchedulingOption: React.FC = () => {
     // Default: empty list; user can add platforms
   ]);
 
+  const buildLocalDate = (dateStr: string, timeStr: string) => {
+    if (!dateStr || !timeStr) return new Date('');
+    const [y, m, d] = String(dateStr).split('-').map(Number);
+    const [hh, mm] = String(timeStr).split(':').map(Number);
+    if (!y || !m || !d || Number.isNaN(hh) || Number.isNaN(mm)) return new Date('');
+    return new Date(y, m - 1, d, hh, mm, 0, 0);
+  };
+
+  const now = new Date();
+  const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    .toISOString()
+    .split('T')[0];
+  const nowHM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  // currentHM and hasPastSelection not needed presently; min on date and validation handle this
+
   const showNotification = (title: string, message: string, type: 'success' | 'error') => {
     setNotification({
       isOpen: true,
@@ -76,9 +91,21 @@ const SchedulingOption: React.FC = () => {
 
   const handleScheduleChange = (platformId: string, field: 'date' | 'time', value: string) => {
     setScheduledPlatforms(currentPlatforms =>
-      currentPlatforms.map(p =>
-        p.id === platformId ? { ...p, [field]: value } : p
-      )
+      currentPlatforms.map(p => {
+        if (p.id !== platformId) return p;
+        if (field === 'date') {
+          const newDate = value;
+          let newTime = p.time;
+          if (newDate === todayStr && newTime < nowHM) newTime = nowHM;
+          return { ...p, date: newDate, time: newTime };
+        }
+        if (field === 'time') {
+          let newTime = value;
+          if (p.date === todayStr && newTime < nowHM) newTime = nowHM;
+          return { ...p, time: newTime };
+        }
+        return p;
+      })
     );
   };
 
@@ -116,6 +143,13 @@ const SchedulingOption: React.FC = () => {
 
     if (platformsFromSchedule.length === 0) {
       showNotification('Error', 'Please add at least one platform in Scheduling Options to schedule', 'error');
+      return;
+    }
+
+    // Validate that no selection is in the past
+    const invalid = scheduledPlatforms.find(p => buildLocalDate(p.date, p.time).getTime() < Date.now());
+    if (invalid) {
+      showNotification('Error', 'Please choose a future date and time for all platforms', 'error');
       return;
     }
 
@@ -365,6 +399,7 @@ const SchedulingOption: React.FC = () => {
                     value={platformSchedule.date}
                     onChange={(e) => handleScheduleChange(platformSchedule.id, 'date', e.target.value)}
                     disabled={!isSchedulingEnabled}
+                    min={todayStr}
                     className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
                   />
                 </div>
@@ -375,8 +410,13 @@ const SchedulingOption: React.FC = () => {
                     value={platformSchedule.time}
                     onChange={(e) => handleScheduleChange(platformSchedule.id, 'time', e.target.value)}
                     disabled={!isSchedulingEnabled}
+                    min={platformSchedule.date === todayStr ? nowHM : '00:00'}
                     className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
                   />
+                  {/* Helper: warn if past */}
+                  {buildLocalDate(platformSchedule.date, platformSchedule.time).getTime() < Date.now() && (
+                    <div className="mt-1 ml-1 text-xs text-red-400">Time must be in the future</div>
+                  )}
                 </div>
               </div>
             </div>
