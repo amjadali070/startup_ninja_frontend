@@ -15,13 +15,15 @@ interface NotificationModalProps {
   onClose: () => void;
   notifications: Notification[];
   onMarkAsRead?: (id: string) => void;
+  onOpenItem?: (id: string) => void;
 }
 
 const NotificationModal: React.FC<NotificationModalProps> = ({
   isOpen,
   onClose,
   notifications,
-  onMarkAsRead
+  onMarkAsRead,
+  onOpenItem
 }) => {
   if (!isOpen) return null;
 
@@ -92,7 +94,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                     className={`p-4 hover:bg-white/5 transition-colors cursor-pointer group ${
                       !notification.read ? 'bg-[#FF3B3B]/5 border-l-2 border-[#FF3B3B]' : ''
                     }`}
-                    onClick={() => onMarkAsRead?.(notification.id)}
+                    onClick={() => { onMarkAsRead?.(notification.id); onOpenItem?.(notification.id); }}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
