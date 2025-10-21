@@ -14,6 +14,8 @@ import { Toaster } from 'react-hot-toast';
 import HomePage from './pages/HomePage.tsx';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/Admin/AdminDashboard.tsx';
+import WebBuilder from './pages/User/WebBuilder.tsx';
+import WebsiteBuilderStudio from './components/web-builder/WebsiteBuilderStudio.tsx';
 
 
 function App() {
@@ -77,6 +79,16 @@ function App() {
           <Route path="/ai-tools/social-pro/post/:id" element={
             <ProtectedRoute>
               <PostDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/web-builder" element={
+            <ProtectedRoute>
+              <WebBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/web-builder/new-website" element={
+            <ProtectedRoute>
+              <WebsiteBuilderStudio />
             </ProtectedRoute>
           } />
           <Route path="/settings" element={
