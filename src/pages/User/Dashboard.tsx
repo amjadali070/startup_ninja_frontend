@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { useNavigate } from 'react-router-dom';
 import { PiImageSquareBold } from "react-icons/pi";
@@ -10,7 +10,6 @@ import QuickActionCard from '../../components/dashboard/QuickActionCard.tsx';
 import NinjaAssistantCard from '../../components/dashboard/NinjaAssistantCard.tsx';
 import ProjectCard from '../../components/dashboard/ProjectCard.tsx';
 import TokenUsageCard from '../../components/dashboard/TokenUsageCard.tsx';
-import { userService } from '../../services/user.ts';
 
 interface QuickActionConfig {
   title: string;

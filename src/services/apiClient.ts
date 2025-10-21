@@ -37,7 +37,7 @@ class ApiClient {
     
     this.axiosInstance = axios.create({
       baseURL: this.baseURL,
-      timeout: 10000, // 10 seconds timeout
+      timeout: 150000, // 2.5 minutes timeout for social media posts
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

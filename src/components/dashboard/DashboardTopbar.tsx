@@ -2,6 +2,9 @@ import { useEffect, useId, useRef, useState, type FC } from 'react';
 import { FiSearch, FiSettings } from 'react-icons/fi';
 import { HiMiniBellAlert } from 'react-icons/hi2';
 import { TbLogout2 } from 'react-icons/tb';
+import NotificationModal from '../NotificationModal';
+import { useNavigate } from 'react-router-dom';
+import notificationsService, { type NotificationItem } from '../../services/notifications';
 
 interface DashboardTopbarProps {
   userName: string;
@@ -33,6 +36,10 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   const userHandle = username?.trim() ?? '';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unread, setUnread] = useState(0);
+  const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
   const menuId = useId();
@@ -72,6 +79,29 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMenuOpen]);
+
+  // Notifications: fetch/poll
+  useEffect(() => {
+    let isCancelled = false;
+    const load = async () => {
+      try {
+        const res = await notificationsService.list(1, 30);
+        if (!isCancelled && res?.success) {
+          setNotifications(res.data);
+          setUnread(res.data.filter(n => !n.read).length);
+        }
+      } catch (_) {}
+    };
+    load();
+    const id = setInterval(load, 15000);
+    return () => { isCancelled = true; clearInterval(id); };
+  }, []);
+
+  const handleMarkAsRead = async (id: string) => {
+    try { await notificationsService.markAsRead(id); } catch (_) {}
+    setNotifications(prev => prev.map(n => n._id === id ? { ...n, read: true } : n));
+    setUnread(prev => Math.max(0, prev - 1));
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -126,11 +156,14 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
 
           <button
             type="button"
+            onClick={() => setIsNotificationModalOpen(true)}
             className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center"
             aria-label="Notifications"
           >
             <HiMiniBellAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#FF3B3B]" />
+            {unread > 0 && (
+              <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#FF3B3B]" />
+            )}
           </button>
 
           <div className="flex items-center gap-1.5 sm:gap-2" ref={menuRef}>
@@ -217,6 +250,28 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
           </div>
         </div>
       </div>
+
+      <NotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notifications={notifications.map(n => ({
+          id: n._id,
+          type: (n.type as any) || 'info',
+          title: n.title,
+          message: n.message,
+          timestamp: new Date(n.createdAt).toLocaleString(),
+          read: n.read,
+        }))}
+        onMarkAsRead={handleMarkAsRead}
+        onOpenItem={(id) => {
+          const item = notifications.find(n => n._id === id);
+          const scheduledPostId = (item?.metadata as any)?.scheduledPostId;
+          if (scheduledPostId) {
+            setIsNotificationModalOpen(false);
+            navigate(`/ai-tools/social-pro/post/${scheduledPostId}`);
+          }
+        }}
+      />
     </div>
   );
 };

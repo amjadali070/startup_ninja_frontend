@@ -6,6 +6,7 @@ import AdminLogin from './pages/Auth/AdminLogin.tsx';
 import AIChat from './pages/User/AIChat.tsx';
 import AIImageGen from './pages/User/AIImageGen.tsx';
 import SocialMediaStudio from './pages/User/SocialMediaStudio.tsx';
+import PostDetails from './pages/User/PostDetails.tsx';
 import AITools from './pages/User/AITools.tsx';
 import { AdminRoute, ProtectedRoute, PublicRoute } from './components/RouteGuards';
 import { AuthProvider } from './hooks/useAuth.tsx';
@@ -73,6 +74,11 @@ function App() {
           <Route path="/ai-tools/social-pro" element={
             <ProtectedRoute>
               <SocialMediaStudio />
+            </ProtectedRoute>
+          } />
+          <Route path="/ai-tools/social-pro/post/:id" element={
+            <ProtectedRoute>
+              <PostDetails />
             </ProtectedRoute>
           } />
           <Route path="/ai-tools/web-builder" element={

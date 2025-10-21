@@ -6,11 +6,23 @@ import {
   FaTwitter,
   FaLinkedin,
   FaPlus,
-  FaTrash
+  FaTrash,
+  FaPaperPlane
 } from 'react-icons/fa';
+import { usePost } from './PostContext';
+import { useAuth } from '../../hooks/useAuth';
+import linkedinService from '../../services/social-media/oauth/linkedin';
+import twitterService from '../../services/social-media/oauth/twitter';
+import instagramService from '../../services/social-media/oauth/instagram';
+import facebookService from '../../services/social-media/oauth/facebook';
+import AlertModal from '../AlertModal';
+import schedulerService from '../../services/social-media/scheduler';
+import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
+import { buildLocalDate } from '../../utils/date';
+import PublishingOverlay from './PublishingOverlay';
 
 type Platform = {
-  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  id: 'facebook' | 'instagram' | 'x' | 'linkedin';
   name: string;
   IconComponent: React.ElementType;
   color: string;
@@ -19,30 +31,78 @@ type Platform = {
 const allPlatforms: Platform[] = [
   { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
   { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
-  { id: 'twitter', name: 'Twitter', IconComponent: FaTwitter, color: '#1DA1F2' },
+  { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
   { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
 ];
 
 type ScheduledPlatform = {
-  id: 'facebook' | 'instagram' | 'twitter' | 'linkedin';
+  id: 'facebook' | 'instagram' | 'x' | 'linkedin';
   date: string;
   time: string;
 };
 
 const SchedulingOption: React.FC = () => {
+  const { postData } = usePost();
+  const { user } = useAuth();
   const [isSchedulingEnabled, setIsSchedulingEnabled] = useState(true);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'success',
+  });
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
-    { id: 'facebook', date: '2025-10-03', time: '13:35' },
-    { id: 'instagram', date: '2025-10-12', time: '13:35' },
+    // Default: empty list; user can add platforms
   ]);
+
+  // use shared date util
+
+  const now = new Date();
+  const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    .toISOString()
+    .split('T')[0];
+  const nowHM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  // currentHM and hasPastSelection not needed presently; min on date and validation handle this
+
+  const showNotification = (title: string, message: string, type: 'success' | 'error') => {
+    setNotification({
+      isOpen: true,
+      title,
+      message,
+      type,
+    });
+  };
+
+  const closeNotification = () => {
+    setNotification(prev => ({ ...prev, isOpen: false }));
+  };
 
   const handleScheduleChange = (platformId: string, field: 'date' | 'time', value: string) => {
     setScheduledPlatforms(currentPlatforms =>
-      currentPlatforms.map(p =>
-        p.id === platformId ? { ...p, [field]: value } : p
-      )
+      currentPlatforms.map(p => {
+        if (p.id !== platformId) return p;
+        if (field === 'date') {
+          const newDate = value;
+          let newTime = p.time;
+          if (newDate === todayStr && newTime < nowHM) newTime = nowHM;
+          return { ...p, date: newDate, time: newTime };
+        }
+        if (field === 'time') {
+          let newTime = value;
+          if (p.date === todayStr && newTime < nowHM) newTime = nowHM;
+          return { ...p, time: newTime };
+        }
+        return p;
+      })
     );
   };
 
@@ -64,12 +124,257 @@ const SchedulingOption: React.FC = () => {
     );
   };
 
-  const handleSchedule = () => {
-    console.log('Scheduling posts for:', scheduledPlatforms);
+  const handleSchedule = async () => {
+    if (!postData.content && postData.files.length === 0) {
+      showNotification('Error', 'Please add content or an image to your post', 'error');
+      return;
+    }
+
+    // For scheduling, use platforms added in this component (not PlatformTags selection)
+    const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'] as const;
+    const platformsFromSchedule = Array.from(new Set(
+      scheduledPlatforms
+        .map(p => p.id)
+        .filter((p): p is 'linkedin' | 'x' | 'instagram' | 'facebook' => (supportedPlatforms as readonly string[]).includes(p))
+    ));
+
+    if (platformsFromSchedule.length === 0) {
+      showNotification('Error', 'Please add at least one platform in Scheduling Options to schedule', 'error');
+      return;
+    }
+
+    // Validate that no selection is in the past
+    const invalid = scheduledPlatforms.find(p => buildLocalDate(p.date, p.time).getTime() < Date.now());
+    if (invalid) {
+      showNotification('Error', 'Please choose a future date and time for all platforms', 'error');
+      return;
+    }
+
+    // Use the first scheduled date/time entry as a single schedule time
+    const first = scheduledPlatforms[0];
+    if (!first?.date || !first?.time) {
+      showNotification('Error', 'Please select a valid date and time', 'error');
+      return;
+    }
+
+    // Per-platform content/media constraints
+    const constraints: Record<'linkedin' | 'x' | 'instagram' | 'facebook', { maxCaption: number; imageRequired: boolean; maxImageMB: number }> = {
+      x: { maxCaption: CAPTION_LIMITS.x, imageRequired: !!IMAGE_REQUIRED.x, maxImageMB: IMAGE_SIZE_LIMIT_MB.x },
+      facebook: { maxCaption: CAPTION_LIMITS.facebook, imageRequired: !!IMAGE_REQUIRED.facebook, maxImageMB: IMAGE_SIZE_LIMIT_MB.facebook },
+      instagram: { maxCaption: CAPTION_LIMITS.instagram, imageRequired: !!IMAGE_REQUIRED.instagram, maxImageMB: IMAGE_SIZE_LIMIT_MB.instagram },
+      linkedin: { maxCaption: CAPTION_LIMITS.linkedin, imageRequired: !!IMAGE_REQUIRED.linkedin, maxImageMB: IMAGE_SIZE_LIMIT_MB.linkedin },
+    } as const;
+
+    const imageFileObj = postData.files.find(f => f.type === 'image')?.file || null;
+    const imageSizeMB = imageFileObj ? imageFileObj.size / (1024 * 1024) : 0;
+    const failures: Array<{ platform: string; reason: string }> = [];
+    const validPlatforms = platformsFromSchedule.filter((p) => {
+      const c = constraints[p];
+      if (postData.content.length > c.maxCaption) {
+        failures.push({ platform: p, reason: `Caption exceeds ${c.maxCaption} characters` });
+        return false;
+      }
+      if (c.imageRequired && !imageFileObj) {
+        failures.push({ platform: p, reason: 'Image is required' });
+        return false;
+      }
+      if (imageFileObj && imageSizeMB > c.maxImageMB) {
+        failures.push({ platform: p, reason: `Image exceeds ${c.maxImageMB} MB` });
+        return false;
+      }
+      return true;
+    });
+
+    if (validPlatforms.length === 0) {
+      showNotification('Validation failed', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+      return;
+    }
+
+    try {
+      setIsScheduling(true);
+
+      const imageFile = imageFileObj;
+
+      const resp = await schedulerService.schedulePost({
+        caption: postData.content,
+        platforms: validPlatforms,
+        schedules: scheduledPlatforms
+          .filter(p => validPlatforms.includes(p.id as any))
+          .map(p => ({ platform: p.id as any, date: p.date, time: p.time })),
+        imageFile,
+      });
+
+      if (resp.success) {
+        showNotification('Scheduled', 'Your post has been scheduled for selected platforms.', 'success');
+        if (failures.length > 0) {
+          showNotification('Some platforms skipped', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+        }
+        try {
+          window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
+            scheduledAt: `${first.date}T${first.time}:00`,
+            platforms: validPlatforms,
+          }}));
+        } catch (_) {}
+      } else {
+        showNotification('Error', resp.message || 'Failed to schedule post', 'error');
+      }
+    } catch (e: any) {
+      const backendMsg = e?.response?.data?.message;
+      showNotification('Error', backendMsg || e?.message || 'Failed to schedule post', 'error');
+    } finally {
+      setIsScheduling(false);
+    }
   };
 
   const handleSaveAsDraft = () => {
     console.log('Saving as draft:', scheduledPlatforms);
+  };
+
+  const handlePublishNow = async () => {
+    if (!postData.content && postData.files.length === 0) {
+      showNotification('Error', 'Please add content or an image to your post', 'error');
+      return;
+    }
+
+    const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'];
+    const selectedSupportedPlatforms = postData.selectedPlatforms.filter(platform => 
+      supportedPlatforms.includes(platform)
+    );
+
+    if (selectedSupportedPlatforms.length === 0) {
+      showNotification('Error', 'Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish', 'error');
+      return;
+    }
+
+    if (!user?.id) {
+      showNotification('Error', 'User not authenticated', 'error');
+      return;
+    }
+
+    try {
+      setIsPublishing(true);
+
+      // Create FormData for the API request
+      const formData = new FormData();
+      formData.append('caption', postData.content);
+
+      // Add the first image file if available
+      if (postData.files.length > 0) {
+        const imageFile = postData.files.find(file => file.type === 'image');
+        if (imageFile) {
+          formData.append('image', imageFile.file);
+        }
+      }
+
+      const results = [];
+      const errors = [];
+
+      // Post to LinkedIn if selected
+      if (postData.selectedPlatforms.includes('linkedin')) {
+        try {
+          const linkedinResult = await linkedinService.postToLinkedIn(formData);
+          if (linkedinResult.success) {
+            results.push('LinkedIn');
+          } else {
+            errors.push(`LinkedIn: ${linkedinResult.message}`);
+            if (linkedinResult.requiresReconnection) {
+              errors[errors.length - 1] += ' Please reconnect your LinkedIn account.';
+            }
+          }
+        } catch (error: any) {
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`LinkedIn: ${msg}`);
+        }
+      }
+
+      // Post to Twitter if selected
+      if (postData.selectedPlatforms.includes('x')) {
+        try {
+          const twitterResult = await twitterService.postToTwitter(formData);
+          if (twitterResult.success) {
+            results.push('Twitter');
+          } else {
+            errors.push(`Twitter: ${twitterResult.message}`);
+          }
+        } catch (error: any) {
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`Twitter: ${msg}`);
+        }
+      }
+
+      // Post to Instagram if selected (pre-validate image required)
+      if (postData.selectedPlatforms.includes('instagram')) {
+        const imageExists = postData.files.find(f => f.type === 'image');
+        if (!imageExists) {
+          errors.push('Instagram: Instagram requires an image for posts. Please upload an image.');
+        } else {
+        try {
+          const instagramResult = await instagramService.postToInstagram(formData);
+          if (instagramResult.success) {
+            results.push('Instagram');
+          } else {
+            errors.push(`Instagram: ${instagramResult.message}`);
+          }
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || error?.data?.message || error?.message || 'Failed to publish';
+            errors.push(`Instagram: ${msg}`);
+          }
+        }
+      }
+
+      // Post to Facebook if selected
+      if (postData.selectedPlatforms.includes('facebook')) {
+        try {
+          const facebookResult = await facebookService.postToFacebook(formData);
+          if (facebookResult.success) {
+            results.push('Facebook');
+          } else {
+            errors.push(`Facebook: ${facebookResult.message}`);
+          }
+        } catch (error: any) {
+          const msg = error?.response?.data?.message || error?.message || 'Failed to publish';
+          errors.push(`Facebook: ${msg}`);
+        }
+      }
+
+      // Show appropriate notification based on results
+      if (results.length > 0 && errors.length === 0) {
+        // All platforms succeeded
+        const platformList = results.join(' and ');
+        showNotification(
+          'Success!', 
+          `Your post has been published to ${platformList} successfully!`, 
+          'success'
+        );
+      } else if (results.length > 0 && errors.length > 0) {
+        // Some platforms succeeded, some failed
+        const successPlatforms = results.join(' and ');
+        const formattedErrors = errors.map(e => `- ${e}`).join('\n');
+        const message = `Published to ${successPlatforms} successfully.\n\nErrors:\n${formattedErrors}`;
+        showNotification('Partial Success', message, 'error');
+      } else {
+        // All platforms failed
+        const errorMessages = errors.join('\n');
+        showNotification(
+          'Publishing Failed', 
+          errorMessages, 
+          'error'
+        );
+      }
+      
+      // Clear the post data after successful posting (if at least one succeeded)
+      // You might want to implement a clear function in PostContext
+      
+    } catch (error: any) {
+      console.error('Publishing error:', error);
+      showNotification(
+        'Error',
+        (error?.response?.data?.message as string) || error?.message || 'Failed to publish posts',
+        'error'
+      );
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const scheduledPlatformIds = new Set(scheduledPlatforms.map(p => p.id));
@@ -132,6 +437,7 @@ const SchedulingOption: React.FC = () => {
                     value={platformSchedule.date}
                     onChange={(e) => handleScheduleChange(platformSchedule.id, 'date', e.target.value)}
                     disabled={!isSchedulingEnabled}
+                    min={todayStr}
                     className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
                   />
                 </div>
@@ -142,8 +448,13 @@ const SchedulingOption: React.FC = () => {
                     value={platformSchedule.time}
                     onChange={(e) => handleScheduleChange(platformSchedule.id, 'time', e.target.value)}
                     disabled={!isSchedulingEnabled}
+                    min={platformSchedule.date === todayStr ? nowHM : '00:00'}
                     className="w-full bg-[#1E1E1E] border border-gray-600 rounded-lg pl-3 pr-4 py-3 text-white text-sm focus:outline-none focus:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert min-h-[44px]"
                   />
+                  {/* Helper: warn if past */}
+                  {buildLocalDate(platformSchedule.date, platformSchedule.time).getTime() < Date.now() && (
+                    <div className="mt-1 ml-1 text-xs text-red-400">Time must be in the future</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -181,14 +492,33 @@ const SchedulingOption: React.FC = () => {
       )}
 
       <div className="flex flex-col md:flex-row gap-3">
+        {/* Publish Now Button */}
+        <button
+          onClick={handlePublishNow}
+          disabled={isPublishing || (!postData.content && postData.files.length === 0)}
+          className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
+        >
+          {isPublishing ? (
+            <>
+              <span>Publishing...</span>
+            </>
+          ) : (
+            <>
+              <FaPaperPlane className="w-4 h-4" />
+              <span>Publish Now</span>
+            </>
+          )}
+        </button>
+
         <button
           onClick={handleSchedule}
-          disabled={!isSchedulingEnabled || scheduledPlatforms.length === 0}
+          disabled={isScheduling || !isSchedulingEnabled || scheduledPlatforms.length === 0}
           className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
         >
           <FaCalendarAlt className="w-4 h-4" />
-          <span>Schedule</span>
+          <span>{isScheduling ? 'Scheduling...' : 'Schedule'}</span>
         </button>
+
         <button
           onClick={handleSaveAsDraft}
           className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
@@ -196,6 +526,17 @@ const SchedulingOption: React.FC = () => {
           <span>Save as draft</span>
         </button>
       </div>
+
+      <AlertModal
+        isOpen={notification.isOpen}
+        onClose={closeNotification}
+        title={notification.title}
+        message={notification.message}
+        type={notification.type}
+      />
+
+      {/* Publishing Overlay */}
+      <PublishingOverlay open={isPublishing} />
     </div>
   );
 };

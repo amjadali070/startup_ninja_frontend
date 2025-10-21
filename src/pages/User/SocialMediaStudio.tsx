@@ -5,8 +5,9 @@ import PlatformTags from '../../components/social-media/PlatformTags.tsx';
 import WritePostContent from '../../components/social-media/WritePostContent.tsx';
 import FileUpload from '../../components/social-media/FileUpload.tsx';
 import SchedulingOption from '../../components/social-media/SchedulingOption.tsx';
+import ScheduledPostsList from '../../components/social-media/ScheduledPostsList.tsx';
 import PostPreview from '../../components/social-media/PostPreview.tsx';
-import ConnectedAccounts from '../../components/social-media/ConnectedAccounts.tsx';
+import AccountsCard from '../../components/social-media/AccountsCard.tsx';
 import { useAuth } from '../../hooks/useAuth.tsx';
 import { authService } from '../../services/auth.ts';
 import SocialMediaHeading from '../../components/social-media/SocialMediaHeading.tsx';
@@ -44,14 +45,15 @@ const SocialMediaStudio: FC = () => {
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto bg-[#0D0D0D]">
         <PostProvider>
-          <div className="p-3 sm:p-4 lg:p-6">
+          <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10 py-3 sm:py-4">
+            <div className="w-full max-w-full mx-auto">
             <div className="mb-6">
                 <SocialMediaHeading/>
             </div>
-            <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:items-start">
-              <div className="flex-1 lg:flex-[2] space-y-4 md:space-y-6 border rounded-lg border-white/10 p-6 lg:p-6 bg-[#151515]">
+            <div className="flex flex-col xl:flex-row gap-3 sm:gap-4 md:gap-6 xl:gap-8 xl:items-start">
+              <div className="flex-1 xl:flex-[2] min-w-0 space-y-4 md:space-y-6 border rounded-lg border-white/10 p-4 md:p-5 lg:p-6 bg-[#151515]">
                 <div>
                   <h1 className="text-white text-xl md:text-2xl font-bold mb-4 md:mb-6 font-plus-jakarta">
                     Create Post
@@ -60,7 +62,7 @@ const SocialMediaStudio: FC = () => {
 
                 <div>
                     <h3 className="text-white text-base md:text-lg font-bold mb-3 md:mb-4 font-plus-jakarta">
-                    Select Platforms
+                    Select Platforms to publish or schedule the posts.
                   </h3>
                   <PlatformTags />
                 </div>
@@ -70,13 +72,15 @@ const SocialMediaStudio: FC = () => {
                 <FileUpload />
 
                 <SchedulingOption />
+                <ScheduledPostsList />
               </div>
 
-              <div className="flex-1 lg:flex-[1] space-y-4 md:space-y-6 lg:h-full">
+              <div className="flex-1 xl:flex-[1] min-w-0 space-y-4 md:space-y-6 xl:h-full xl:sticky xl:top-6">
                 <PostPreview />
 
-                <ConnectedAccounts />
+                <AccountsCard />
               </div>
+            </div>
             </div>
           </div>
         </PostProvider>
