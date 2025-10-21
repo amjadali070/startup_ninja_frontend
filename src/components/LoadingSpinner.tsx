@@ -1,5 +1,4 @@
 import type { FC } from 'react';
-import { GiNinjaStar } from 'react-icons/gi';
 
 type LoadingSpinnerVariant = 'dark' | 'light';
 type LoadingSpinnerSize = 'small' | 'medium' | 'large';
@@ -35,19 +34,19 @@ const sizeStyles: Record<LoadingSpinnerSize, {
   padding: string;
 }> = {
   small: {
-    icon: 'h-5 w-5',
+    icon: 'h-8 w-8',
     message: 'text-sm',
     gap: 'gap-2',
     padding: 'px-4 py-3',
   },
   medium: {
-    icon: 'h-9 w-9', // current default size
+    icon: 'h-12 w-12',
     message: 'text-lg',
     gap: 'gap-4',
     padding: 'px-6 py-4',
   },
   large: {
-    icon: 'h-12 w-12',
+    icon: 'h-16 w-16',
     message: 'text-xl',
     gap: 'gap-5',
     padding: 'px-8 py-6',
@@ -74,8 +73,14 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
       aria-busy="true"
     >
       <div className={`flex items-center ${sz.gap} ${sz.padding}`}>
-        <GiNinjaStar
+        <img
+          src="/svg/ninja-star.svg"
+          alt="Loading"
           className={`${sz.icon} animate-spin ${styles.icon}`}
+          style={{
+            animation: 'spin 1s linear infinite',
+            transformOrigin: 'center'
+          }}
           aria-hidden="true"
         />
         <span className={`${styles.message} ${sz.message}`}>Loading...</span>
