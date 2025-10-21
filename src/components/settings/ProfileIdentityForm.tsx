@@ -1,7 +1,4 @@
 import { useRef, type ChangeEvent, type FC, type FormEvent } from 'react';
-const panelCardClass =
-  'rounded-3xl border border-white/10 bg-[#0E0E18] p-6 sm:p-7 lg:p-8 shadow-[0_20px_45px_rgba(6,7,12,0.55)]';
-const sectionHeadingClass = 'font-plus-jakarta text-lg font-semibold text-white sm:text-xl';
 
 export type ProfileFormState = {
   username: string;
@@ -70,17 +67,16 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
   };
 
   return (
-    <section className={panelCardClass}>
-      <div className="flex flex-col gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className={sectionHeadingClass}>Profile & identity</h3>
-          <p className="mt-1 text-sm text-white/60">
-            Update your display information, avatar preferences, and how you appear to collaborators.
-          </p>
-        </div>
-        <div className="flex flex-col items-start gap-3 sm:items-end">
-          <div className="flex items-center gap-3">
-            <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/10 text-sm font-semibold text-white sm:h-16 sm:w-16">
+    <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
+      {/* Header Section */}
+      <div className="mb-4 xs:mb-5 sm:mb-6">
+        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-3 xs:mb-4">Profile & identity</h3>
+        
+        {/* Profile Picture and User Info */}
+        <div className="flex items-start gap-3 xs:gap-4 mb-3 xs:mb-4">
+          {/* Profile Picture */}
+          <div className="relative">
+            <div className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-700">
               {profileImageUrl ? (
                 <img
                   src={profileImageUrl}
@@ -90,106 +86,107 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <span>{initials || 'SN'}</span>
+                <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-red-500/20 to-red-700/20 text-white text-sm xs:text-base sm:text-lg font-bold">
+                  {initials || 'SN'}
+                </div>
               )}
             </div>
-            <div className="text-xs text-white/50">
-              <p className="uppercase tracking-[0.28rem]">Member since</p>
-              <p className="mt-1 font-plus-jakarta text-sm text-white/80">{createdAt}</p>
-            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <button
-              type="button"
-              onClick={handleFileButtonClick}
-              disabled={isUpdatingImage}
-              className="rounded-full border border-white/15 px-5 py-2 text-xs font-semibold text-white/80 transition-colors hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isUpdatingImage ? 'Updating…' : 'Upload image'}
-            </button>
-            {onProfileImageRemove ? (
+          
+          {/* User Information */}
+          <div className="flex-1">
+            <h4 className="text-white text-base xs:text-lg font-bold font-plus-jakarta mb-1">{displayName}</h4>
+            <div className="text-gray-400 text-xs xs:text-sm mb-1">Member Since</div>
+            <div className="text-white text-sm xs:text-base">{createdAt}</div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col xs:flex-row gap-2 mt-2 xs:mt-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
               <button
                 type="button"
-                onClick={handleRemoveImage}
-                className="rounded-full border border-white/15 px-5 py-2 text-xs font-semibold text-white/70 transition-colors hover:border-white/40 hover:text-white"
+                onClick={handleFileButtonClick}
+                disabled={isUpdatingImage}
+                className="px-2 xs:px-3 py-1 xs:py-1.5 text-xs font-medium text-white border border-white/10 rounded-lg bg-transparent hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Remove
+                {isUpdatingImage ? 'Updating…' : 'Upload Image'}
               </button>
-            ) : null}
+              {onProfileImageRemove && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="px-2 xs:px-3 py-1 xs:py-1.5 text-xs font-medium text-white border border-white/10 rounded-lg bg-transparent hover:bg-white/5 transition-colors"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
         </div>
+        
+        {/* Description */}
+        <p className="text-gray-400 text-xs xs:text-sm">
+          Update your details, photo, email, and/or preferences, and how you appear to collaborators.
+        </p>
       </div>
 
-      <form className="mt-6 space-y-5" onSubmit={onSubmit}>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.18rem] text-white/55">
-            Display name
+      {/* Form Section */}
+      <form onSubmit={onSubmit}>
+        {/* Form Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xs:gap-4 mb-4 xs:mb-5 sm:mb-6">
+          {/* Display Name Field */}
+          <div>
+            <label className="block text-white text-sm xs:text-base font-medium mb-2">Display Name</label>
             <input
               type="text"
               name="username"
               value={profileForm.username}
-              disabled
-              placeholder="e.g. Amjad Khan"
-              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              onChange={onChange}
+              placeholder="Enter display name"
+              className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base"
             />
-          </label>
-          <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.18rem] text-white/55">
-            Primary email
+          </div>
+          
+          {/* Primary Email Field */}
+          <div>
+            <label className="block text-white text-sm xs:text-base font-medium mb-2">Primary Email</label>
             <input
               type="email"
               name="email"
               value={profileForm.email}
-              disabled
-              placeholder="name@startupninja.ai"
-              className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-[#FF3B3B] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              onChange={onChange}
+              placeholder="Enter email address"
+              className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base"
             />
-          </label>
-        </div>
-
-        <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.18rem] text-white/55">
-          Timezone
-          <select
-            name="timezone"
-            value={profileForm.timezone}
-            onChange={onChange}
-            className="rounded-2xl border border-white/10 bg-[#0B0B13] px-4 py-3 text-sm text-white focus:border-[#FF3B3B] focus:outline-none"
-          >
-            <option value="UTC">UTC (Coordinated Universal Time)</option>
-            <option value="America/Chicago">Central Time (US & Canada)</option>
-            <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
-            <option value="Europe/London">London (GMT+1)</option>
-            <option value="Asia/Dubai">Dubai (GMT+4)</option>
-            <option value="Asia/Karachi">Karachi (GMT+5)</option>
-          </select>
-        </label>
-
-        <div className="flex flex-col gap-3 border-t border-white/5 pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-white/50">
-            Your profile details are visible to team members you invite to Startup Ninja.
-          </p>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onReset}
-              className="rounded-full border border-white/15 px-5 py-2.5 text-xs font-semibold text-white/70 transition-colors hover:border-white/40 hover:text-white"
-            >
-              Reset
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] px-6 py-2.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(229,0,0,0.35)] transition-transform hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60"
-            >
-              {isSaving ? 'Saving…' : 'Save profile'}
-            </button>
           </div>
+        </div>
+        
+        {/* Visibility Information */}
+        <p className="text-gray-400 text-xs xs:text-sm mb-4 xs:mb-5 sm:mb-6">
+          Your profile details are visible to team members who are connected to on Startup Ninja.
+        </p>
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#FF1A1A] hover:to-[#A00000] text-white text-xs xs:text-sm font-bold rounded-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg"
+          >
+            {isSaving ? 'Saving…' : 'Save profile'}
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-[#FFFFFF0D] border border-[#FFFFFF1A] text-white text-xs xs:text-sm font-medium rounded-lg hover:bg-white/5 transition-colors"
+          >
+            Reset
+          </button>
         </div>
       </form>
     </section>
