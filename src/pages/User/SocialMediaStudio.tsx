@@ -12,6 +12,7 @@ import { useAuth } from '../../hooks/useAuth.tsx';
 import { authService } from '../../services/auth.ts';
 import SocialMediaHeading from '../../components/social-media/SocialMediaHeading.tsx';
 import { PostProvider } from '../../components/social-media/PostContext.tsx';
+import '../../utils/testPostUpdates'; // Import test utilities
 
 const SocialMediaStudio: FC = () => {
   const navigate = useNavigate();
