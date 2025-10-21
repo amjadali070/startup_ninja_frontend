@@ -20,6 +20,7 @@ import schedulerService from '../../services/social-media/scheduler';
 import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
 import { buildLocalDate } from '../../utils/date';
 import PublishingOverlay from './PublishingOverlay';
+import { emitScheduledPostsRefresh } from '../../utils/postStatusEvents';
 
 type Platform = {
   id: 'facebook' | 'instagram' | 'x' | 'linkedin';
@@ -210,10 +211,10 @@ const SchedulingOption: React.FC = () => {
           showNotification('Some platforms skipped', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
         }
         try {
-          window.dispatchEvent(new CustomEvent('scheduledPosts:refresh', { detail: {
+          emitScheduledPostsRefresh({
             scheduledAt: `${first.date}T${first.time}:00`,
             platforms: validPlatforms,
-          }}));
+          });
         } catch (_) {}
       } else {
         showNotification('Error', resp.message || 'Failed to schedule post', 'error');

@@ -1,4 +1,4 @@
-import { FaFacebookF, FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { FiLinkedin } from 'react-icons/fi';
 
@@ -25,6 +25,7 @@ export interface PlatformMeta {
     unselectedBorder: string; // tailwind class
     iconColor: string; // tailwind class
     textColor: string; // tailwind class
+    background: string; // CSS background value
   };
 }
 
@@ -32,7 +33,7 @@ export const PLATFORM_LIST: PlatformMeta[] = [
   {
     id: 'facebook',
     name: 'Facebook',
-    icon: FaFacebookF,
+    icon: FaFacebook,
     colors: {
       brand: '#1877F2',
       unselectedBg: 'bg-[#1877F2]/10',
@@ -41,6 +42,7 @@ export const PLATFORM_LIST: PlatformMeta[] = [
       selectedBorder: 'border-[#0b5bd3]/80',
       iconColor: 'text-white',
       textColor: 'text-white',
+      background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #1776F0 0%, #0C5CB8 100%)',
     },
   },
   {
@@ -55,6 +57,7 @@ export const PLATFORM_LIST: PlatformMeta[] = [
       selectedBorder: 'border-white/30',
       iconColor: 'text-white',
       textColor: 'text-white',
+      background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #E04163 0%, #863CB1 100%)',
     },
   },
   {
@@ -69,6 +72,7 @@ export const PLATFORM_LIST: PlatformMeta[] = [
       selectedBorder: 'border-[#1590d8]/80',
       iconColor: 'text-white',
       textColor: 'text-white',
+      background: '#FFFFFF0D',
     },
   },
   {
@@ -83,6 +87,7 @@ export const PLATFORM_LIST: PlatformMeta[] = [
       selectedBorder: 'border-[#004182]/80',
       iconColor: 'text-white',
       textColor: 'text-white',
+      background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #0077B5 0%, #005986 100%)',
     },
   },
 ];
