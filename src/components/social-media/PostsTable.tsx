@@ -20,7 +20,7 @@ type Props = {
   title: string;
   rows: TablePost[];
   onRowClick: (row: TablePost) => void;
-  onCancel?: (id: string) => void;
+  onAction?: (row: TablePost) => void;
   page: number;
   pageSize: number;
   total: number;
@@ -31,7 +31,7 @@ type Props = {
 
 // date/time and platform badge now imported from shared utils/components
 
-const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, pageSize, total, onPageChange, onPageSizeChange, loading }) => {
+const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onAction, page, pageSize, total, onPageChange, onPageSizeChange, loading }) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
@@ -74,7 +74,7 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
                 <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Caption</th>
                 <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Platforms</th>
                 <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Status</th>
-                {onCancel && <th className="text-right px-3 sm:px-4 py-2 sm:py-3">Actions</th>}
+                {onAction && <th className="text-right px-3 sm:px-4 py-2 sm:py-3">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -89,12 +89,17 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onCancel, page, 
                     </div>
                   </td>
                   <td className="px-3 sm:px-4 py-2 sm:py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs ${row.status === 'published' ? 'bg-green-900 text-green-200' : row.status === 'scheduled' ? 'bg-yellow-900 text-yellow-200' : row.status === 'failed' ? 'bg-red-900 text-red-200' : 'bg-gray-700 text-gray-200'}`}>{row.status}</span>
+                    <span className={`px-2 py-0.5 rounded text-xs ${row.status === 'published' ? 'bg-green-900 text-green-200' : row.status === 'scheduled' ? 'bg-yellow-900 text-yellow-200' : row.status === 'failed' ? 'bg-red-900 text-red-200' : 'bg-gray-700 text-gray-200'}`}>{row.status?.toUpperCase?.() || row.status}</span>
                   </td>
-                  {onCancel && (
+                  {onAction && (
                     <td className="px-3 sm:px-4 py-2 sm:py-3">
                       <div className="flex items-center justify-end">
-                        <button onClick={(e) => { e.stopPropagation(); onCancel(row._id); }} className="text-xs px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-white">Cancel</button>
+                        {row.status === 'scheduled' && (
+                          <button onClick={(e) => { e.stopPropagation(); onAction(row); }} className="text-xs px-3 py-1.5 rounded bg-yellow-700 hover:bg-yellow-600 text-white">Cancel</button>
+                        )}
+                        {row.status === 'published' && (
+                          <button onClick={(e) => { e.stopPropagation(); onAction(row); }} className="text-xs px-3 py-1.5 rounded bg-red-700 hover:bg-red-600 text-white">Delete</button>
+                        )}
                       </div>
                     </td>
                   )}

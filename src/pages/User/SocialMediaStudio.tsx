@@ -49,7 +49,7 @@ const SocialMediaStudio: FC = () => {
         <PostProvider>
           <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10 py-3 sm:py-4">
             <div className="w-full max-w-full mx-auto">
-            <div className="mb-6,,">
+            <div className="mb-6">
                 <SocialMediaHeading/>
             </div>
             <div className="flex flex-col xl:flex-row gap-3 sm:gap-4 md:gap-6 xl:gap-8 xl:items-start">

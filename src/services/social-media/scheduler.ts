@@ -45,6 +45,16 @@ class SchedulerService {
     const resp = await apiClient.delete(`${this.baseURL}/schedule/${id}`);
     return resp;
   }
+
+  async deletePost(id: string): Promise<{ success: boolean; message?: string }> {
+    // Uses the same DELETE endpoint; backend may soft-delete or reject if not allowed
+    try {
+      const resp = await apiClient.delete(`${this.baseURL}/schedule/${id}`);
+      return resp;
+    } catch (e: any) {
+      return { success: false, message: e?.message || 'Failed to delete post' };
+    }
+  }
 }
 
 export default new SchedulerService();

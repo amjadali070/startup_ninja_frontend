@@ -24,9 +24,7 @@ const ScheduledPostsList: React.FC = () => {
 	const [query, setQuery] = useState('');
 	const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'status'>('date_desc');
 	const [selected, setSelected] = useState<ScheduledPost | null>(null);
-	const [pageUpcoming, setPageUpcoming] = useState(1);
 	const [pageHistory, setPageHistory] = useState(1);
-	const [pageSizeUpcoming, setPageSizeUpcoming] = useState(5);
 	const [pageSizeHistory, setPageSizeHistory] = useState(5);
 
 	const fetchData = async () => {
@@ -70,11 +68,16 @@ const ScheduledPostsList: React.FC = () => {
 		return sorted;
 	}, [items, query, sortBy]);
 
-	const { upcoming, history } = useMemo(() => {
-		const upcoming = filtered.filter(i => i.status === 'scheduled');
-		const history = filtered.filter(i => i.status !== 'scheduled');
-		return { upcoming, history };
-	}, [filtered]);
+  const allRows: TablePost[] = useMemo(() => {
+    return filtered.map(i => ({
+      _id: i._id,
+      caption: i.caption,
+      platforms: i.platforms,
+      scheduledAt: i.scheduledAt,
+      publishedAt: i.publishedAt,
+      status: i.status,
+    }));
+  }, [filtered]);
 
 	const handleCancel = async (id: string) => {
 		try {
@@ -84,6 +87,13 @@ const ScheduledPostsList: React.FC = () => {
 			// swallow for now, could add a toast in parent
 		}
 	};
+
+  const handleDelete = async (id: string) => {
+    try {
+      await schedulerService.deletePost?.(id);
+      await fetchData();
+    } catch (e) {}
+  };
 
 	return (
 		<div className="w-full rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-800">
@@ -117,36 +127,21 @@ const ScheduledPostsList: React.FC = () => {
 					<LoadingSpinner variant="dark" size="small" />
 				</div>
 			) : (
-				<>
-					<div className="mb-6">
-						<PostsTable
-							title="Upcoming"
-							rows={upcoming as unknown as TablePost[]}
-							onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-							onCancel={(id) => handleCancel(id)}
-							page={pageUpcoming}
-							pageSize={pageSizeUpcoming}
-							total={upcoming.length}
-							onPageChange={setPageUpcoming}
-							onPageSizeChange={(s) => { setPageUpcoming(1); setPageSizeUpcoming(s); }}
-							loading={false}
-						/>
-					</div>
-
-					<div>
-						<PostsTable
-							title="History"
-							rows={history as unknown as TablePost[]}
-							onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-							page={pageHistory}
-							pageSize={pageSizeHistory}
-							total={history.length}
-							onPageChange={setPageHistory}
-							onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
-							loading={false}
-						/>
-					</div>
-				</>
+				<PostsTable
+				  title="All Posts"
+				  rows={allRows}
+				  onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
+				  onAction={(row) => {
+				    if (row.status === 'scheduled') handleCancel(row._id);
+				    if (row.status === 'published') handleDelete(row._id);
+				  }}
+				  page={pageHistory}
+				  pageSize={pageSizeHistory}
+				  total={allRows.length}
+				  onPageChange={setPageHistory}
+				  onPageSizeChange={(s) => { setPageHistory(1); setPageSizeHistory(s); }}
+				  loading={false}
+				/>
 			)}
 
 			{error && <div className="text-red-400 text-sm mb-3">{error}</div>}
@@ -155,7 +150,6 @@ const ScheduledPostsList: React.FC = () => {
 			<SchedulePostModal
 				post={selected as any}
 				onClose={() => setSelected(null)}
-				onCancel={(id) => { setSelected(null); handleCancel(id); }}
 			/>
 		</div>
 	);
