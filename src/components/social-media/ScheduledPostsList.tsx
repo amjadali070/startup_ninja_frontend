@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FiSearch } from 'react-icons/fi';
 import schedulerService from '../../services/social-media/scheduler';
 import PostsTable, { TablePost } from './PostsTable';
 import LoadingSpinner from '../LoadingSpinner';
@@ -99,13 +100,14 @@ const ScheduledPostsList: React.FC = () => {
 		<div className="w-full rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-800">
 			<div className="flex items-center justify-between mb-4">
 				<h2 className="text-white text-lg md:text-xl font-bold">Scheduled Posts</h2>
-				<div className="flex items-center gap-2 w-full max-w-xl ml-auto">
-					<div className="flex-1">
+			<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full max-w-md sm:max-w-xl ml-auto">
+					<div className="relative flex-1">
+						<FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
 						<input
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
-							placeholder="Search posts..."
-							className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-gray-200 focus:outline-none focus:border-gray-500"
+							placeholder="Search posts by caption..."
+							className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg pr-10 pl-2.5 sm:pl-3 py-2 text-xs sm:text-sm text-gray-200 focus:outline-none focus:border-gray-500"
 						/>
 					</div>
 					<select
@@ -118,7 +120,6 @@ const ScheduledPostsList: React.FC = () => {
 						<option value="date_asc">Sort by: Date (oldest)</option>
 						<option value="status">Sort by: Status</option>
 					</select>
-					<button onClick={fetchData} className="text-sm text-gray-300 hover:text-white">Refresh</button>
 				</div>
 			</div>
 
@@ -131,8 +132,10 @@ const ScheduledPostsList: React.FC = () => {
 				  title="All Posts"
 				  rows={allRows}
 				  onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
-				  onAction={(row) => {
+				  onEdit={(row) => {
 				    if (row.status === 'scheduled') handleCancel(row._id);
+				  }}
+				  onDelete={(row) => {
 				    if (row.status === 'published') handleDelete(row._id);
 				  }}
 				  page={pageHistory}

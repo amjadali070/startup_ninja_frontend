@@ -1,11 +1,16 @@
 import React from 'react';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiTrash2,
+  FiX,
+} from 'react-icons/fi';
+import { MdCancel } from "react-icons/md";
 import { TbGhostOff } from 'react-icons/tb';
+import { RiCalendarScheduleLine } from "react-icons/ri";
+import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import LoadingSpinner from '../LoadingSpinner';
 import PlatformBadge from './PlatformBadge';
-import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
-import { MdHistory } from 'react-icons/md';
-import { RiCalendarScheduleLine } from 'react-icons/ri';
 
 export type TablePost = {
   _id: string;
@@ -20,7 +25,8 @@ type Props = {
   title: string;
   rows: TablePost[];
   onRowClick: (row: TablePost) => void;
-  onAction?: (row: TablePost) => void;
+  onEdit: (row: TablePost) => void;
+  onDelete: (row: TablePost) => void;
   page: number;
   pageSize: number;
   total: number;
@@ -29,30 +35,50 @@ type Props = {
   loading?: boolean;
 };
 
-// date/time and platform badge now imported from shared utils/components
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-GB').replace(/\//g, '-');
+};
 
-const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onAction, page, pageSize, total, onPageChange, onPageSizeChange, loading }) => {
+const formatTime = (dateString: string | undefined) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date
+    .toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .toLowerCase();
+};
+
+const PostsTable: React.FC<Props> = ({
+  title,
+  rows,
+  onRowClick,
+  onEdit,
+  onDelete,
+  page,
+  pageSize,
+  total,
+  onPageChange,
+  loading,
+}) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
 
   const truncateCaption = (text: string) => {
     const words = (text || '').trim().split(/\s+/);
-    return words.length <= 4 ? text || 'No caption' : `${words.slice(0, 4).join(' ')}...`;
+    return words.length <= 4
+      ? text || 'No caption'
+      : `${words.slice(0, 4).join(' ')}...`;
   };
 
   return (
     <div className="mb-6">
-      <div className="w-full border-b border-white/10 mb-3">
-        <h3 className="text-white font-semibold py-2 flex items-center gap-2">
-          {title.toLowerCase() === 'upcoming' ? (
-            <RiCalendarScheduleLine className="w-4 h-4 text-[#DC2626]" />
-          ) : title.toLowerCase() === 'history' ? (
-            <MdHistory className="w-4 h-4 text-[#DC2626]" />
-          ) : null}
-          <span>{title}</span>
-        </h3>
-      </div>
+      <h3 className="text-white font-semibold text-lg mb-4">{title}</h3>
+
       {loading ? (
         <div className="flex items-center justify-center py-10">
           <LoadingSpinner variant="dark" size="small" />
@@ -65,44 +91,132 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onAction, page, 
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-800">
-          <table className="min-w-full text-xs sm:text-sm">
-            <thead className="bg-[#101010] text-gray-300">
+        <div className="overflow-x-auto border border-gray-800 rounded-lg">
+          <table className="min-w-full text-sm">
+            <thead className="text-gray-400 bg-[#0D0D0D]">
               <tr>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Date</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Time</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Caption</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Platforms</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3">Status</th>
-                {onAction && <th className="text-right px-3 sm:px-4 py-2 sm:py-3">Actions</th>}
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">Date</th>
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">Time</th>
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">
+                  Caption
+                </th>
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">
+                  Platform
+                </th>
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">
+                  Status
+                </th>
+                <th className="text-left px-2 sm:px-3 md:px-4 py-3 font-medium">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
-              {pageRows.map(row => (
-                <tr key={row._id} className="border-t border-gray-800 hover:bg-[#141414] cursor-pointer" onClick={() => onRowClick(row)}>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-200">{formatDateDDMonYYYY(row.publishedAt || row.scheduledAt)}</td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-200">{formatTimeHHmm(row.publishedAt || row.scheduledAt)}</td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-gray-300 max-w-[220px] sm:max-w-[360px] truncate" title={row.caption || 'No caption'}>{truncateCaption(row.caption || '')}</td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3">
+              {pageRows.map((row) => (
+                <tr
+                  key={row._id}
+                  className="bg-[#1E1E1E] hover:bg-[#141414] cursor-pointer"
+                  onClick={() => onRowClick(row)}
+                >
+                  <td className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 whitespace-nowrap">
+                    {formatDate(row.publishedAt || row.scheduledAt)}
+                  </td>
+                  <td className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 whitespace-nowrap">
+                    {formatTime(row.publishedAt || row.scheduledAt)}
+                  </td>
+                  <td
+                    className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 max-w-[150px] sm:max-w-[220px] md:max-w-[360px] truncate"
+                    title={row.caption || 'No caption'}
+                  >
+                    {truncateCaption(row.caption || '')}
+                  </td>
+                  <td className="px-2 sm:px-3 md:px-4 py-4">
                     <div className="flex flex-wrap gap-1">
-                      {row.platforms.map(p => <PlatformBadge key={p} id={p} />)}
+                      {row.platforms.map((p) => (
+                        <PlatformBadge key={p} id={p} />
+                      ))}
                     </div>
                   </td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs ${row.status === 'published' ? 'bg-green-900 text-green-200' : row.status === 'scheduled' ? 'bg-yellow-900 text-yellow-200' : row.status === 'failed' ? 'bg-red-900 text-red-200' : 'bg-gray-700 text-gray-200'}`}>{row.status?.toUpperCase?.() || row.status}</span>
+
+                  <td className="px-2 sm:px-3 md:px-4 py-4">
+                    {row.status === 'published' ? (
+                      <span
+                        className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#22C55E]"
+                        style={{
+                          background: '#00E01A0D',
+                          border: '1.2px solid #00E01A80',
+                        }}
+                      >
+                        <HiCheckCircle className="w-3.5 h-3.5" />
+                        PUBLISHED
+                      </span>
+                    ) : row.status === 'scheduled' ? (
+                      <span
+                        className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#2563EB]"
+                        style={{
+                          background: '#2563EB0D',
+                          border: '1.2px solid #2563EB',
+                        }}
+                      >
+                        <RiCalendarScheduleLine className="w-3.5 h-3.5" />
+                        SCHEDULED
+                      </span>
+                    ) : row.status === 'failed' ? (
+                      <span
+                        className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#DC2626]"
+                        style={{
+                          background: '#2563EB0D',
+                          border: '1.2px solid #DC2626',
+                        }}
+                      >
+                        <HiXCircle className="w-3.5 h-3.5" />
+                        FAILED
+                      </span>
+                    ) : row.status === 'cancelled' ? (
+                      <span
+                        className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#6B7280]"
+                        style={{
+                          background: '#6B72800D',
+                          border: '1.2px solid #6B7280',
+                        }}
+                      >
+                        <MdCancel className="w-3.5 h-3.5" />
+                        CANCELLED
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-gray-800 text-gray-400">
+                        {(row.status as string).toUpperCase()}
+                      </span>
+                    )}
                   </td>
-                  {onAction && (
-                    <td className="px-3 sm:px-4 py-2 sm:py-3">
-                      <div className="flex items-center justify-end">
-                        {row.status === 'scheduled' && (
-                          <button onClick={(e) => { e.stopPropagation(); onAction(row); }} className="text-xs px-3 py-1.5 rounded bg-yellow-700 hover:bg-yellow-600 text-white">Cancel</button>
-                        )}
-                        {row.status === 'published' && (
-                          <button onClick={(e) => { e.stopPropagation(); onAction(row); }} className="text-xs px-3 py-1.5 rounded bg-red-700 hover:bg-red-600 text-white">Delete</button>
-                        )}
-                      </div>
-                    </td>
-                  )}
+
+                  <td className="px-2 sm:px-3 md:px-4 py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      {row.status === 'scheduled' ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(row);
+                          }}
+                          className="text-[#DE0500] hover:opacity-75"
+                          aria-label="Cancel post"
+                        >
+                          <FiX className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(row);
+                          }}
+                          className="text-[#DE0500] hover:opacity-75"
+                          aria-label="Delete post"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -110,48 +224,36 @@ const PostsTable: React.FC<Props> = ({ title, rows, onRowClick, onAction, page, 
         </div>
       )}
       {!loading && total > 0 && (
-      <div className="flex items-center justify-between mt-4 text-sm text-gray-300">
-        <div className="flex items-center gap-2">
-          <span>Rows per page:</span>
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-            className="bg-[#1E1E1E] border border-gray-700 rounded-lg px-1 py-1.5 text-sm text-gray-200"
-          >
-            {[5, 10, 20, 50].map(size => (
-              <option key={size} value={size}>{size}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-3">
-          <span>
-            {total === 0 ? '0-0 of 0' : `${(page - 1) * pageSize + 1}-${Math.min(page * pageSize, total)} of ${total}`}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              aria-label="Previous page"
-              disabled={page <= 1}
-              onClick={() => onPageChange(page - 1)}
-              className="px-3 py-1.5 rounded-lg bg-[white] hover:bg-[#b80000] text-[black] disabled:opacity-40 disabled:hover:bg-[#D60000] inline-flex items-center justify-center"
-            >
-              <FiChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              aria-label="Next page"
-              disabled={page >= totalPages}
-              onClick={() => onPageChange(page + 1)}
-              className="px-3 py-1.5 rounded-lg bg-[white] hover:bg-[#b80000] text-[black] disabled:opacity-40 disabled:hover:bg-[#D60000] inline-flex items-center justify-center"
-            >
-              <FiChevronRight className="w-5 h-5" />
-            </button>
+        <div className="flex items-center justify-end mt-4 text-sm text-gray-300">
+          <div className="flex items-center gap-4">
+            <span>
+              {page} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Previous page"
+                disabled={page <= 1}
+                onClick={() => onPageChange(page - 1)}
+                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
+                style={page > 1 ? { background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)', boxShadow: '0px 10.67px 22.22px 0px #7F1D1D80' } : {}}
+              >
+                <FiChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="Next page"
+                disabled={page >= totalPages}
+                onClick={() => onPageChange(page + 1)}
+                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
+                style={page < totalPages ? { background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)', boxShadow: '0px 10.67px 22.22px 0px #7F1D1D80' } : {}}
+              >
+                <FiChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       )}
     </div>
   );
 };
 
 export default PostsTable;
-
-
