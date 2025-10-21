@@ -91,9 +91,15 @@ const ScheduledPostsList: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await schedulerService.deletePost?.(id);
-      await fetchData();
-    } catch (e) {}
+      const result = await schedulerService.deletePost(id);
+      if (result.success) {
+        await fetchData(); // Refresh the list after successful deletion
+      } else {
+        setError(result.message || 'Failed to delete post');
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to delete post');
+    }
   };
 
 	return (
@@ -136,7 +142,10 @@ const ScheduledPostsList: React.FC = () => {
 				    if (row.status === 'scheduled') handleCancel(row._id);
 				  }}
 				  onDelete={(row) => {
-				    if (row.status === 'published') handleDelete(row._id);
+				    // Allow deletion for published, failed, and cancelled posts
+				    if (['published', 'failed', 'cancelled'].includes(row.status)) {
+				      handleDelete(row._id);
+				    }
 				  }}
 				  page={pageHistory}
 				  pageSize={pageSizeHistory}

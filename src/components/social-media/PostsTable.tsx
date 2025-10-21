@@ -198,8 +198,9 @@ const PostsTable: React.FC<Props> = ({
                             e.stopPropagation();
                             onEdit(row);
                           }}
-                          className="text-[#DE0500] hover:opacity-75"
-                          aria-label="Cancel post"
+                          className="text-[#DE0500] hover:opacity-75 transition-opacity"
+                          aria-label="Cancel scheduled post"
+                          title="Cancel scheduled post"
                         >
                           <FiX className="w-4 h-4" />
                         </button>
@@ -209,8 +210,9 @@ const PostsTable: React.FC<Props> = ({
                             e.stopPropagation();
                             onDelete(row);
                           }}
-                          className="text-[#DE0500] hover:opacity-75"
+                          className="text-[#DE0500] hover:opacity-75 transition-opacity"
                           aria-label="Delete post"
+                          title="Delete post permanently"
                         >
                           <FiTrash2 className="w-4 h-4" />
                         </button>
