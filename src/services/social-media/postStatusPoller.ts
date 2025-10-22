@@ -11,9 +11,10 @@ export interface PostStatusCheck {
 }
 
 class PostStatusPoller {
-  private pollInterval: number = 30000; // 30 seconds
+  private pollInterval: number = 60000; // 60 seconds base interval
   private isPolling: boolean = false;
-  private intervalId: NodeJS.Timeout | null = null;
+  private intervalId: number | null = null;
+  private isChecking: boolean = false;
   private trackedPosts: Map<string, PostStatusCheck> = new Map();
   private lastKnownStatuses: Map<string, string> = new Map();
 
@@ -24,9 +25,15 @@ class PostStatusPoller {
     if (this.isPolling) return;
     
     this.isPolling = true;
-    this.intervalId = setInterval(() => {
-      this.checkForUpdates();
-    }, this.pollInterval);
+    const tick = async () => {
+      if (!this.isPolling) return;
+      await this.checkForUpdates();
+      // Add jitter (±20%) to spread requests across clients
+      const jitter = this.pollInterval * (0.8 + Math.random() * 0.4);
+      this.intervalId = setTimeout(tick, jitter);
+    };
+    // Kick off first tick with small delay to avoid burst on mount
+    this.intervalId = setTimeout(tick, 1500);
   }
 
   /**
@@ -37,7 +44,7 @@ class PostStatusPoller {
     
     this.isPolling = false;
     if (this.intervalId) {
-      clearInterval(this.intervalId);
+      clearTimeout(this.intervalId);
       this.intervalId = null;
     }
   }
@@ -50,11 +57,6 @@ class PostStatusPoller {
       postId,
       lastChecked: Date.now()
     });
-    
-    // Start polling if not already started
-    if (!this.isPolling) {
-      this.startPolling();
-    }
   }
 
   /**
@@ -81,13 +83,16 @@ class PostStatusPoller {
    * Check for status updates
    */
   private async checkForUpdates() {
+    if (!this.isPolling) return;
     if (this.trackedPosts.size === 0) return;
+    if (this.isChecking) return; // Prevent overlapping checks
+    this.isChecking = true;
 
     try {
       const posts = await schedulerService.listScheduled();
       
       // Check each tracked post for status changes
-      for (const [postId, check] of this.trackedPosts) {
+      for (const [postId] of this.trackedPosts) {
         const currentPost = posts.find(p => p._id === postId);
         
         if (currentPost) {
@@ -107,8 +112,18 @@ class PostStatusPoller {
           this.untrackPost(postId);
         }
       }
-    } catch (error) {
-      console.error('Error checking for post status updates:', error);
+    } catch (error: any) {
+      // Backoff on 429 or network issues
+      const status = error?.response?.status;
+      if (status === 429) {
+        // Pause polling for 2 minutes on rate limit
+        this.stopPolling();
+        this.intervalId = setTimeout(() => this.startPolling(), 120000);
+      }
+      // Swallow error to avoid crashing the app
+      // console.warn('Post status polling error:', error?.message || error);
+    } finally {
+      this.isChecking = false;
     }
   }
 
@@ -149,7 +164,3 @@ class PostStatusPoller {
 
 // Export singleton instance
 export const postStatusPoller = new PostStatusPoller();
-
-// Auto-start polling when the service is imported
-// This ensures status updates are checked even if components don't explicitly start polling
-postStatusPoller.startPolling();

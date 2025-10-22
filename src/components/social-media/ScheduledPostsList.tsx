@@ -32,6 +32,8 @@ const ScheduledPostsList: React.FC = () => {
 	const [isUpdating, setIsUpdating] = useState(false);
 
 	const fetchData = async () => {
+		// Prevent overlapping list calls
+		if (loading) return;
 		try {
 			setLoading(true);
 			setError(null);
@@ -50,6 +52,11 @@ const ScheduledPostsList: React.FC = () => {
 
 	useEffect(() => {
 		fetchData();
+		// Start polling explicitly when component mounts
+		postStatusPoller.startPolling();
+		return () => {
+			postStatusPoller.stopPolling();
+		};
 	}, []);
 
 	// Listen for newly scheduled posts to refresh without full page reload
