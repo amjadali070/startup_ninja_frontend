@@ -157,5 +157,44 @@ export const authService = {
 
   isAuthenticated() {
     return apiClient.isAuthenticated();
+  },
+
+  async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/auth/change-password', data);
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to change password'
+      };
+    }
+  },
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/auth/forgot-password', { email });
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to send password reset email'
+      };
+    }
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/auth/reset-password', { 
+        token, 
+        newPassword 
+      });
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to reset password'
+      };
+    }
   }
 };

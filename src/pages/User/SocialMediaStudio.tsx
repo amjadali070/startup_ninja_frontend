@@ -63,7 +63,7 @@ const SocialMediaStudio: FC = () => {
                   <div className="border rounded-xl xs:rounded-2xl border-white/10 p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 bg-[#151515]">
                     {/* Header with responsive typography */}
                     <div className="mb-4 xs:mb-5 sm:mb-6 md:mb-8">
-                      <h1 className="text-white text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold font-plus-jakarta leading-tight">
+                      <h1 className="text-white text-lg xs:text-xl sm:text-2xl md:text-2xl lg:text-2xl font-bold font-plus-jakarta leading-tight">
                         Create Post
                       </h1>
                     </div>

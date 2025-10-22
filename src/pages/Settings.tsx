@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import DashboardLayout from '../layouts/DashboardLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ProfileIdentityForm, { ProfileFormState } from '../components/settings/ProfileIdentityForm';
-import AccountSecurityForm, { SecurityFormState } from '../components/settings/AccountSecurityForm';
+import ChangePassword, { ChangePasswordFormState } from '../components/settings/ChangePassword';
 import LanguageRegionForm, { LanguageRegionFormState } from '../components/settings/LanguageRegionForm';
 import PaymentMethodCard, { PaymentMethod } from '../components/settings/PaymentMethodCard';
 import DeleteAccountForm from '../components/settings/DeleteAccountForm';
@@ -63,7 +63,7 @@ const Settings: FC = () => {
     bio: '',
   });
 
-  const [securityForm, setSecurityForm] = useState<SecurityFormState>({
+  const [changePasswordForm, setChangePasswordForm] = useState<ChangePasswordFormState>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -243,56 +243,62 @@ const Settings: FC = () => {
     toast.success('Profile image removed. Save your profile to confirm.');
   };
 
-  const handleSecurityChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setSecurityForm((prev) => ({
+    setChangePasswordForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleSecuritySubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleChangePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsUpdatingPassword(true);
 
     try {
       // Validate passwords match
-      if (securityForm.newPassword !== securityForm.confirmPassword) {
+      if (changePasswordForm.newPassword !== changePasswordForm.confirmPassword) {
         toast.error('New passwords do not match.');
         return;
       }
 
       // Validate password strength
-      if (securityForm.newPassword.length < 8) {
-        toast.error('New password must be at least 8 characters long.');
+      if (changePasswordForm.newPassword.length < 6) {
+        toast.error('New password must be at least 6 characters long.');
         return;
       }
 
-      // Here you would typically call an API to update the password
-      // For now, we'll just simulate the update
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Password updated successfully.');
-      setSecurityForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+      // Call the API to update the password
+      const response = await authService.changePassword({
+        currentPassword: changePasswordForm.currentPassword,
+        newPassword: changePasswordForm.newPassword
       });
-    } catch (err) {
+
+      if (response.success) {
+        toast.success('Password updated successfully.');
+        setChangePasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      } else {
+        toast.error(response.message || 'Failed to update password.');
+      }
+    } catch (err: any) {
       console.error('Password update failed:', err);
-      toast.error('Failed to update password. Please try again.');
+      toast.error(err?.response?.data?.message || 'Failed to update password. Please try again.');
     } finally {
       setIsUpdatingPassword(false);
     }
   };
 
-  const handleSecurityReset = () => {
-    setSecurityForm({
+  const handleChangePasswordReset = () => {
+    setChangePasswordForm({
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     });
-    toast.success('Security form reset.');
+    toast.success('Password form reset.');
   };
 
   const handleLanguageRegionChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -417,12 +423,12 @@ const Settings: FC = () => {
                   onProfileImageSelect={handleProfileImageSelect}
                   onProfileImageRemove={resolvedProfilePicture ? handleProfileImageRemove : undefined}
                 />
-                <AccountSecurityForm
-                  securityForm={securityForm}
+                <ChangePassword
+                  form={changePasswordForm}
                   isUpdating={isUpdatingPassword}
-                  onChange={handleSecurityChange}
-                  onSubmit={handleSecuritySubmit}
-                  onReset={handleSecurityReset}
+                  onChange={handleChangePasswordChange}
+                  onSubmit={handleChangePasswordSubmit}
+                  onReset={handleChangePasswordReset}
                 />
                 <DeleteAccountForm
                   onDeleteAccount={handleDeleteAccount}

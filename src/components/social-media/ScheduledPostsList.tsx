@@ -29,10 +29,8 @@ const ScheduledPostsList: React.FC = () => {
 	const [selected, setSelected] = useState<ScheduledPost | null>(null);
 	const [pageHistory, setPageHistory] = useState(1);
 	const [pageSizeHistory, setPageSizeHistory] = useState(5);
-	const [isUpdating, setIsUpdating] = useState(false);
 
 	const fetchData = async () => {
-		// Prevent overlapping list calls
 		if (loading) return;
 		try {
 			setLoading(true);
@@ -40,7 +38,6 @@ const ScheduledPostsList: React.FC = () => {
 			const data = await schedulerService.listScheduled();
 			setItems(data);
 			
-			// Track all posts for status updates
 			const postIds = data.map(post => post._id);
 			postStatusPoller.trackPosts(postIds);
 		} catch (e: any) {
@@ -52,27 +49,20 @@ const ScheduledPostsList: React.FC = () => {
 
 	useEffect(() => {
 		fetchData();
-		// Start polling explicitly when component mounts
 		postStatusPoller.startPolling();
 		return () => {
 			postStatusPoller.stopPolling();
 		};
 	}, []);
 
-	// Listen for newly scheduled posts to refresh without full page reload
 	useEffect(() => {
 		const handler = () => fetchData();
 		window.addEventListener('scheduledPosts:refresh', handler as EventListener);
 		return () => window.removeEventListener('scheduledPosts:refresh', handler as EventListener);
 	}, []);
 
-	// Listen for post status updates to refresh specific posts
 	useEffect(() => {
-		const unsubscribeStatus = onPostStatusUpdate(({ postId, status, publishedAt }) => {
-			// Show brief updating indicator
-			setIsUpdating(true);
-			
-			// Update the specific post in the local state
+		const unsubscribeStatus = onPostStatusUpdate(({ postId, status, publishedAt }) => {		
 			setItems(prevItems => 
 				prevItems.map(item => 
 					item._id === postId 
@@ -85,19 +75,10 @@ const ScheduledPostsList: React.FC = () => {
 				)
 			);
 			
-			// Hide updating indicator after a brief delay
-			setTimeout(() => setIsUpdating(false), 1000);
 		});
 
 		const unsubscribeRemoval = onPostRemoval(({ postId }) => {
-			// Show brief updating indicator
-			setIsUpdating(true);
-			
-			// Remove the post from local state
 			setItems(prevItems => prevItems.filter(item => item._id !== postId));
-			
-			// Hide updating indicator after a brief delay
-			setTimeout(() => setIsUpdating(false), 1000);
 		});
 		
 		return () => {
@@ -106,7 +87,6 @@ const ScheduledPostsList: React.FC = () => {
 		};
 	}, []);
 
-	// Cleanup poller when component unmounts
 	useEffect(() => {
 		return () => {
 			postStatusPoller.clearTrackedPosts();
@@ -145,12 +125,10 @@ const ScheduledPostsList: React.FC = () => {
 		try {
 			await schedulerService.cancelScheduled(id);
 			
-			// Trigger status update event
 			emitPostStatusUpdate({ postId: id, status: 'cancelled' });
 			
 			await fetchData();
 		} catch (e) {
-			// swallow for now, could add a toast in parent
 		}
 	};
 
@@ -158,16 +136,13 @@ const ScheduledPostsList: React.FC = () => {
     try {
       const result = await schedulerService.deletePost(id);
       if (result.success) {
-        // Remove the post from local state immediately
         setItems(prevItems => prevItems.filter(item => item._id !== id));
         
-        // Untrack the post from polling
         postStatusPoller.untrackPost(id);
         
-        // Trigger post removal event
         emitPostRemoval({ postId: id });
         
-        await fetchData(); // Refresh the list after successful deletion
+        await fetchData();
       } else {
         setError(result.message || 'Failed to delete post');
       }
@@ -181,12 +156,6 @@ const ScheduledPostsList: React.FC = () => {
 			<div className="flex items-center justify-between mb-4">
 				<div className="flex items-center gap-3">
 					<h2 className="text-white text-lg md:text-xl font-bold">Scheduled Posts</h2>
-					{isUpdating && (
-						<div className="flex items-center gap-2 text-green-400 text-sm">
-							<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-							<span>Updating...</span>
-						</div>
-					)}
 				</div>
 			<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full max-w-md sm:max-w-xl ml-auto">
 					<div className="relative flex-1">
@@ -224,7 +193,6 @@ const ScheduledPostsList: React.FC = () => {
 				    if (row.status === 'scheduled') handleCancel(row._id);
 				  }}
 				  onDelete={(row) => {
-				    // Allow deletion for published, failed, and cancelled posts
 				    if (['published', 'failed', 'cancelled'].includes(row.status)) {
 				      handleDelete(row._id);
 				    }
@@ -240,7 +208,6 @@ const ScheduledPostsList: React.FC = () => {
 
 			{error && <div className="text-red-400 text-sm mb-3">{error}</div>}
 
-			{/* Details Modal */}
 			<SchedulePostModal
 				post={selected as any}
 				onClose={() => setSelected(null)}
