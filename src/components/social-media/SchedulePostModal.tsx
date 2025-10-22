@@ -99,20 +99,16 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
           </button>
         </div>
 
-        {/* Main Content: Asymmetric Split (60/40) */}
         <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34] max-h-[78vh] sm:max-h-[75vh] overflow-y-auto lg:overflow-hidden">
 
-          {/* Column 1: Post Preview (3/5 width) */}
           <div className="lg:col-span-3 p-3 space-y-3">
 
             <h3 className="text-lg font-semibold text-gray-200">Post Content</h3>
             
-            {/* Social Media Card Simulation */}
             <div className="p-2 space-y-4">
                 
-                {/* Image/Media */}
                 {imageSrc ? (
-                  <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center">
+                  <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center border-2 border-dotted border-gray-600" style={{ borderStyle: 'dotted', borderSpacing: '4px' }}>
                     <img
                       src={imageSrc}
                       alt={post.caption ? post.caption.slice(0, 60) : 'Post media'}
@@ -121,19 +117,17 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-40 bg-black/50 flex items-center justify-center rounded-md border border-dashed border-gray-600">
+                  <div className="w-full h-40 bg-black/50 flex items-center justify-center rounded-md border-2 border-dotted border-gray-600" style={{ borderStyle: 'dotted', borderSpacing: '4px' }}>
                     <span className="text-gray-500 text-sm">No visual media attached</span>
                   </div>
                 )}
                 
-                {/* Caption */}
                 <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-[40px] max-h-40 md:max-h-56 overflow-y-auto pr-1 pt-2">
                  {post.caption || <span className="text-gray-500 italic">No caption added.</span>}
                 </div>
             </div>
           </div>
 
-          {/* Column 2: Details & Actions (2/5 width) */}
           <div className="lg:col-span-2 p-6 space-y-4">
             
             <div className="space-y-4 border-b border-gray-700/50 pb-4">
