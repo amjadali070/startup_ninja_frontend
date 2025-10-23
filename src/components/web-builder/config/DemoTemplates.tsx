@@ -243,9 +243,6 @@ const DemoTemplates = [
                 <div style="position: absolute; bottom: 20%; left: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,233,0.2), transparent); border-radius: 50%; filter: blur(80px);"></div>
                 
                 <div class="animated" style="animation-delay: 0.2s; z-index: 1;">
-                  <div style="display: inline-block; background: rgba(56,189,248,0.2); padding: 0.5rem 1.5rem; border-radius: 30px; margin-bottom: 1rem; border: 1px solid rgba(56,189,248,0.3);">
-                    <span style="color: #38bdf8; font-weight: 600;">Transforming Ideas Into Reality</span>
-                  </div>
                   <h1 style="font-size: 4.5rem; font-weight: 900; margin-bottom: 1.5rem; background: linear-gradient(135deg, #fff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2;">
                     Build The Future<br/>With PaksoftSystems
                   </h1>

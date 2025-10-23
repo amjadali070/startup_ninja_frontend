@@ -625,28 +625,29 @@ const WebsiteBuilderStudio: FC = () => {
                     });
                 }}
                 options={{
-                    devices: {
-                        default: [
-                            {
-                                id: 'desktop',
-                                name: 'Desktop',
-                                width: '1200px',
-                            },
-                            {
-                                id: 'tablet',
-                                name: 'Tablet',
-                                width: '768px',
-                                widthMedia: '992px',
-                            },
-                            {
-                                id: 'mobile',
-                                name: 'Mobile',
-                                width: '568px',
-                                widthMedia: '768px',
-                            }
-                        ],
-                        selected: 'desktop'
-                    },
+                    // devices: {
+                    //     default: [
+                    //         {
+                    //             id: 'desktop',
+                    //             name: 'Desktop',
+                    //             width: '1200px',
+                    //             widthMedia : '1800px'
+                    //         },
+                    //         {
+                    //             id: 'tablet',
+                    //             name: 'Tablet',
+                    //             width: '768px',
+                    //             widthMedia: '992px',
+                    //         },
+                    //         {
+                    //             id: 'mobile',
+                    //             name: 'Mobile',
+                    //             width: '568px',
+                    //             widthMedia: '768px',
+                    //         }
+                    //     ],
+                    //     selected: 'desktop'
+                    // },
                     licenseKey: '7560c2162e0840c48d8436e090b0d1c275fbab9659b54ebc83f4123cc00162da',
                     theme: 'dark',
                     customTheme: {
