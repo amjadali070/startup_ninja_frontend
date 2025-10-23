@@ -305,7 +305,7 @@ const DemoTemplates = [
                     <h3 style="color: #38bdf8; font-size: 1.8rem; margin-bottom: 1rem; font-weight: 700;">Mobile Applications</h3>
                     <p style="color: #cbd5e1; font-size: 1.1rem; line-height: 1.7;">Native and cross-platform mobile apps that deliver exceptional user experiences on iOS and Android devices.</p>
                     <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-                      <span style="background: rgba(56,189,248,0.2); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #38bdf8;">React Native</span>
+                      <span style="background: rgba(56,189,248,0.2); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #38bdf8;">React</span>
                       <span style="background: rgba(56,189,248,0.2); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #38bdf8;">Flutter</span>
                       <span style="background: rgba(56,189,248,0.2); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #38bdf8;">Swift</span>
                     </div>
@@ -398,7 +398,7 @@ const DemoTemplates = [
                       <h3 style="color: #38bdf8; font-size: 1.6rem; margin-bottom: 0.8rem; font-weight: 700;">HealthTech App</h3>
                       <p style="color: #cbd5e1; margin-bottom: 1.5rem; line-height: 1.6;">HIPAA-compliant telemedicine platform connecting patients with healthcare providers globally.</p>
                       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <span style="background: rgba(56,189,248,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: #38bdf8;">React Native</span>
+                        <span style="background: rgba(56,189,248,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: #38bdf8;">React</span>
                         <span style="background: rgba(56,189,248,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: #38bdf8;">WebRTC</span>
                         <span style="background: rgba(56,189,248,0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: #38bdf8;">AWS</span>
                       </div>
