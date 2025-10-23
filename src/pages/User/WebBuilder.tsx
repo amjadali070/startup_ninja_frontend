@@ -7,12 +7,14 @@ import CreateWebsiteModal from '../../components/web-builder/CreateWebsiteModal'
 import { FiCheckCircle, FiEdit2, FiEye, FiGlobe, FiMinusCircle, FiSmartphone } from 'react-icons/fi';
 import { CiDesktop } from "react-icons/ci";
 import { SlScreenTablet } from "react-icons/sl";
-
 import { BiPlus } from 'react-icons/bi';
 import WebBuilderService from '../../services/web-builder/WebBuilderService';
 import moment from 'moment-timezone';
 import grapesjs from 'grapesjs';
 import LoadingSpinner from '../../components/LoadingSpinner';
+
+// Environment variables
+const WEB_BUILDER_SERVICE_URL = import.meta.env.VITE_WEB_BUILDER_SERVICE_URL;
 
 const WebBuilder: FC = () => {
   const navigate = useNavigate();
@@ -186,8 +188,6 @@ const WebBuilder: FC = () => {
   `;
   };
 
-
-
   return (
     <DashboardLayout
       activePath="/ai-tools/web-builder"
@@ -288,13 +288,13 @@ const WebBuilder: FC = () => {
                           </p>
 
                           <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                            <span className={`flex items-center gap-1 font-medium ${site.status === 'Published' ? 'text-green-500' : 'text-red-500'}`} >
-                              {site.status === 'Published' ? (
+                            <span className={`flex items-center gap-1 font-medium ${site.status === 1 ? 'text-green-500' : 'text-red-500'}`} >
+                              {site.status === 1 ? (
                                 <FiCheckCircle className="w-4 h-4" />
                               ) : (
                                 <FiMinusCircle className="w-4 h-4" />
                               )}
-                              {site.status || 'Draft'}
+                              {site.status === 1 ? 'Published' : 'Draft'}
                             </span>
                             <span>{createdTime}</span>
                           </div>
@@ -320,7 +320,7 @@ const WebBuilder: FC = () => {
 
                             {/* Published Link (disabled if null) */}
                             <button title={isPublished ? 'Preview Published Website' : 'Website not published yet'}
-                              disabled={!isPublished} onClick={() => isPublished && window.open(site.publishedLink, '_blank')}
+                              disabled={!isPublished} onClick={() => isPublished && window.open(`${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`, '_blank')}
                               className={`p-2 rounded-md transition-all ${isPublished ? 'bg-[#2e2e2e] text-white hover:bg-[#3a3a3a]' : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed opacity-60'}`}>
                               <FiGlobe className="w-4 h-4" />
                             </button>
