@@ -33,6 +33,18 @@ export interface WebsiteDataResponse {
     data?: WebsiteProject;
 }
 
+export interface PublishWebsiteResponse {
+        success: boolean;
+        message: string;
+        data?: {
+            websiteId: string;
+            publishedUrl: string;
+            fullUrl: string;
+            publishedAt: string;
+            isUpdate: boolean;
+        };
+    }
+
 
 class WebBuilderService {
     private baseURL = '/website-builder';
@@ -130,6 +142,36 @@ class WebBuilderService {
         } catch (error: any) {
             const errorMessage =
                 error.response?.data?.message || "Failed to save website data.";
+            return {
+                success: false,
+                message: errorMessage,
+            };
+        }
+    }
+
+    /**
+     * Publish website to make it publicly accessible
+     */
+    async publishWebsite(
+        userId: string,
+        websiteId: string,
+        websiteHtml: string
+    ): Promise<PublishWebsiteResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/publish-website`, {
+                userId,
+                websiteId,
+                websiteHtml,
+            });
+
+            return {
+                success: response.success,
+                message: response.message,
+                data: response.data,
+            };
+        } catch (error: any) {
+            const errorMessage =
+                error.response?.data?.message || "Failed to publish website.";
             return {
                 success: false,
                 message: errorMessage,

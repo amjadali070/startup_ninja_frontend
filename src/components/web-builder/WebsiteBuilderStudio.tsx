@@ -67,7 +67,7 @@ const WebsiteBuilderStudio: FC = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px] w-full">
+            <div className="flex flex-col items-center justify-center py-20">
                 <LoadingSpinner size='medium' variant='dark' />
             </div>
         );
@@ -236,7 +236,7 @@ const WebsiteBuilderStudio: FC = () => {
     const addDeviceIcons = () => {
         const deviceButton = document.querySelector('.gs-devices .gs-utl-card-title .gs-utl-truncate') as HTMLElement;
         if (deviceButton && !deviceButton.querySelector('.device-icon-inline')) {
-            const deviceName = deviceButton.textContent.trim().toLowerCase();
+            const deviceName = deviceButton.textContent?.trim().toLowerCase() || '';
             const icon = deviceIcons[deviceName];
 
             if (icon) {
@@ -259,7 +259,7 @@ const WebsiteBuilderStudio: FC = () => {
         deviceOptions.forEach(option => {
             const textDiv = option.querySelector('.gs-utl-truncate');
             if (textDiv && !option.querySelector('.device-icon-inline')) {
-                const deviceName = textDiv.textContent.trim().toLowerCase();
+                const deviceName = textDiv.textContent?.trim().toLowerCase() || '';
                 const icon = deviceIcons[deviceName];
 
                 if (icon) {
@@ -497,7 +497,7 @@ const WebsiteBuilderStudio: FC = () => {
                             {
                                 type: 'text',
                                 content: `
-                                We’re about to host your website securely on our servers.
+                                We're about to host your website securely on our servers.
                                 Once published, your site will be live and accessible to visitors.
                                 You can republish anytime after making changes.
                             `,
@@ -544,8 +544,7 @@ const WebsiteBuilderStudio: FC = () => {
                                         },
                                         onClick: async ({ editor }: any) => {
                                             editor.runCommand('studio:layoutRemove', { id: 'publish-confirmation' });
-                                            // alert('🌐 Publishing your website...');
-                                            previewWebsite(editor);
+                                            await handlePublishWebsite(editor);
                                         },
                                     },
                                 ],
@@ -555,6 +554,51 @@ const WebsiteBuilderStudio: FC = () => {
                 ],
             },
         });
+    };
+
+    const handlePublishWebsite = async (editor: any) => {
+        try {
+            toast.loading('Publishing your website...', { id: 'publish-loading' });
+
+            const files = await editor.runCommand('studio:projectFiles', { styles: 'inline' }) as {
+                name: string;
+                mimeType: string;
+                content: string;
+                [key: string]: any;
+            }[];
+            
+            const firstPage = files.find(file => file.mimeType === 'text/html');
+            const websiteHtml = firstPage ? firstPage.content : '';
+
+            if (!websiteHtml) {
+                toast.error('No website content found to publish', { id: 'publish-loading' });
+                return;
+            }
+
+            const response = await WebBuilderService.publishWebsite(
+                user.id,
+                websiteData._id,
+                websiteHtml
+            );
+
+            if (response.success && response.data) {
+                const isUpdate = response.data.isUpdate;
+                toast.success(isUpdate ? 'Website updated successfully!' : 'Website published successfully!', { id: 'publish-loading' });
+                
+                window.open(response.data.fullUrl, '_blank');
+                
+                setWebsiteData(prev => prev ? {
+                    ...prev,
+                    publishedLink: response.data?.publishedUrl || '',
+                    status: 1
+                } : null);
+            } else {
+                toast.error(response.message || 'Failed to publish website', { id: 'publish-loading' });
+            }
+        } catch (error: any) {
+            console.error('Publishing error:', error);
+            toast.error(error?.message || 'Failed to publish website', { id: 'publish-loading' });
+        }
     };
 
 
