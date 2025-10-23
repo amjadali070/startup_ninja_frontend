@@ -1,23 +1,70 @@
 import { useEffect, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../layouts/DashboardLayout.tsx';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { authService } from '../../services/auth.ts';
-import CreateWebsiteModal from '../../components/web-builder/CreateWebsiteModal.tsx';
-import { FiCheckCircle, FiEdit2, FiEye, FiGlobe, FiMinusCircle} from 'react-icons/fi';
+import DashboardLayout from '../../layouts/DashboardLayout';
+import { useAuth } from '../../hooks/useAuth';
+import { authService } from '../../services/auth';
+import CreateWebsiteModal from '../../components/web-builder/CreateWebsiteModal';
+import { FiCheckCircle, FiEdit2, FiEye, FiGlobe, FiMinusCircle, FiSmartphone } from 'react-icons/fi';
+import { CiDesktop } from "react-icons/ci";
+import { SlScreenTablet } from "react-icons/sl";
+
 import { BiPlus } from 'react-icons/bi';
+import WebBuilderService from '../../services/web-builder/WebBuilderService';
+import moment from 'moment-timezone';
+import grapesjs from 'grapesjs';
 
 const WebBuilder: FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [websites, setWebsites] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
+  const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       navigate('/login', { replace: true });
       return;
     }
-  }, [navigate]);
+
+
+    fetchWebsites();
+  }, []);
+
+  // useEffect(() => {
+  //   const buildPreviews = async () => {
+  //     const previews: { [id: string]: string } = {};
+
+  //     for (const site of websites) {
+  //       if (site.websiteData && Object.keys(site.websiteData).length > 0) {
+  //         previews[site._id] = await generateHTML(site.websiteData);
+  //       }
+  //     }
+
+  //     setPreviewMap(previews);
+  //   };
+
+  //   if (websites.length > 0) buildPreviews();
+  // }, [websites]);
+
+
+  const fetchWebsites = async () => {
+    setLoading(true);
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    const response = await WebBuilderService.getUserWebsites(user.id);
+    if (response.success && response.data) {
+      setWebsites(response.data);
+    } else {
+      console.error(response.message);
+    }
+    setLoading(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -32,44 +79,112 @@ const WebBuilder: FC = () => {
   const handleOpenSettings = () => {
     navigate('/settings');
   };
-  const recentWebsites = [
-    {
-      id: 1,
-      title: 'Reteck Website Design',
-      subtitle: 'Business & Investor Landing',
-      image: '/images/website-demo.png',
-      status: 'Published',
-      views: 8,
-      date: '2d ago',
-    },
-    {
-      id: 2,
-      title: 'Hexeo Landing Page',
-      subtitle: 'Database & API Service',
-      image: '/images/website-demo.png',
-      status: 'Published',
-      views: 5,
-      date: '1d ago',
-    },
-    {
-      id: 3,
-      title: 'Neon Labs Landing Page',
-      subtitle: 'SaaS & Technology Startup',
-      image: '/images/website-demo.png',
-      status: 'Draft',
-      views: 12,
-      date: '3d ago',
-    },
-    {
-      id: 4,
-      title: 'Neonix Website',
-      subtitle: 'AI & Marketing Portfolio',
-      image: '/images/website-demo.png',
-      status: 'Published',
-      views: 2,
-      date: '2d ago',
-    },
-  ];
+
+  const truncateText = (text: string, limit = 50) =>
+    text ? (text.length > limit ? text.slice(0, limit) + '...' : text) : 'No description';
+
+
+
+
+  const PreviewModal = () => {
+    const [animateIn, setAnimateIn] = useState(false);
+    const [closing, setClosing] = useState(false);
+
+    useEffect(() => {
+      const timer = setTimeout(() => setAnimateIn(true), 20);
+      return () => clearTimeout(timer);
+    }, []);
+
+    if (!previewWebsite) return null;
+
+    const deviceSizes: any = {
+      desktop: { width: '100%', maxWidth: '1200px' },
+      tablet: { width: '768px', maxWidth: '992px' },
+      mobile: { width: '420px', maxWidth: '600px' },
+    };
+
+    const current = deviceSizes[previewDevice];
+
+    const handleClose = () => {
+      setClosing(true);
+      setAnimateIn(false);
+
+      setTimeout(() => {
+        setPreviewWebsite(null);
+        setClosing(false);
+      }, 350);
+    };
+
+    return (
+      <div className={`fixed inset-0 bg-black/80 backdrop-blur-md z-[9999] flex flex-col transition-opacity duration-300 ${animateIn && !closing ? "opacity-100" : "opacity-0"}`}>
+        {/* Top Bar */}
+        <div className={`flex justify-between items-center px-6 py-4 bg-[#1f1f1f] border-b border-[#333] transform transition-all duration-300 
+          ${animateIn && !closing ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"}`}>
+          <div className="text-white font-semibold text-lg">
+            {previewWebsite.title}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {["desktop", "tablet", "mobile"].map((device) => (
+              <button key={device} onClick={() => setPreviewDevice(device as any)}
+                className={`device-btn px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 
+                  ${previewDevice === device ? 'bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white' : 'bg-[#2c2c2c] text-gray-300 hover:bg-[#3a3a3a]'}`}>
+                {device === 'desktop' && <CiDesktop className="w-4 h-4" />}
+                {device === 'tablet' && <SlScreenTablet className="w-4 h-4" />}
+                {device === 'mobile' && <FiSmartphone className="w-4 h-4" />}
+                {device.charAt(0).toUpperCase() + device.slice(1)}
+              </button>
+            ))}
+            <button onClick={handleClose}
+              className="ml-3 text-gray-400 hover:text-white transition-all text-lg">✕
+            </button>
+          </div>
+        </div>
+
+        {/* Preview Area */}
+        <div className="flex-1 overflow-auto flex justify-center items-start bg-[#181818] p-5">
+          <div className={`bg-white shadow-xl rounded-xl overflow-hidden transition-all duration-500 ease-in-out transform 
+              ${animateIn && !closing ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
+            style={{ width: current.width, maxWidth: current.maxWidth, height: "calc(100vh - 100px)" }}>
+            <iframe srcDoc={previewWebsite.html} title="Website Preview" className="w-full h-full border-none" />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const handlePreviewStaging = async (site: any) => {
+    if (!site.websiteData || Object.keys(site.websiteData).length === 0) return;
+
+    const websiteHtml = await generateHTML(site.websiteData);
+    setPreviewWebsite({ html: websiteHtml, title: site.websiteTitle || site.title });
+    setPreviewDevice('desktop');
+  };
+
+  const generateHTML = async (projectData: any) => {
+    const editor = grapesjs.init({
+      container: document.createElement("div"),
+      storageManager: false,
+    });
+
+    await editor.loadProjectData(projectData);
+    const html = editor.getHtml();
+    const css = editor.getCss();
+    editor.destroy();
+
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>${css}</style>
+      </head>
+      <body style="margin:0;">${html}</body>
+    </html>
+  `;
+  };
+
 
 
   return (
@@ -81,6 +196,7 @@ const WebBuilder: FC = () => {
     >
       <main className="flex-1 overflow-y-auto">
         <div className="p-3 sm:p-4 lg:p-6">
+          {/* Hero Section */}
           <div className="mb-6">
             <section className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat border-[#ff3b3b47]">
               <div className="absolute inset-0 bg-[#f5212e0d]" />
@@ -94,8 +210,11 @@ const WebBuilder: FC = () => {
                   </p>
                 </div>
                 <div className="flex-shrink-0">
-                  <button type="button" onClick={() => setIsModalOpen(true)}
-                    className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-4 sm:py-2.5 sm:text-sm">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-4 sm:py-2.5 sm:text-sm"
+                  >
                     <BiPlus className="h-4 w-4" />
                     <span>Start New Website</span>
                   </button>
@@ -103,7 +222,8 @@ const WebBuilder: FC = () => {
               </div>
             </section>
           </div>
-          {/* Recent Websites Section */}
+
+          {/* Websites Section */}
           <div className="mt-10">
             <h3 className="text-lg sm:text-xl font-semibold text-white mb-1">
               Your Recent Websites
@@ -112,75 +232,114 @@ const WebBuilder: FC = () => {
               Manage and track all your created websites
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {recentWebsites.map((site) => (
-                <div key={site.id} className="group relative bg-[#121212] border border-[#2c2c2c] rounded-xl overflow-hidden transition-all duration-300">
-                  {/* Hover Overlay Gradient */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0"
-                    style={{
-                      background: "linear-gradient(131deg, #81000057, rgb(0 0 0 / 30%)), linear-gradient(167.91deg, rgba(129, 0, 0, 0.5) 27.29%, rgba(58, 0, 0, 0.5) 45.33%, rgba(29, 0, 0, 0.25) 87.42%, rgb(220 65 220 / 50%) 123.5%)",
-                    }}/>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+                <div className="w-16 h-16 border-4 border-[#ec2222] border-t-transparent rounded-full animate-spin mb-6"></div>
+                <h2 className="text-xl font-semibold text-gray-200">Loading your websites...</h2>
+                <p className="text-gray-400 mt-2">Please wait while we fetch your projects.</p>
+              </div>
+            ) : websites.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="p-6 rounded-2xl shadow-lg max-w-md">
+                  <h3 className="text-2xl font-semibold text-white mb-2">No Websites Yet</h3>
+                  <p className="text-gray-400 mb-6">
+                    You haven't created any website projects yet. Get started now and build something amazing!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {websites.map((site) => {
+                  const isPublished = !!site.publishedLink;
+                  const createdTime = moment.tz(site.createdAt, "Asia/Karachi").fromNow();
+                  const hasWebsiteData = site.websiteData && Object.keys(site.websiteData).length > 0;
 
-                  {/* Content should be above the overlay */}
-                  <div className="relative z-10">
-                    {/* Thumbnail */}
-                    <img src={site.image} alt={site.title} className="w-full h-40 object-cover" />
+                  return (
+                    <div key={site._id} className="group relative bg-[#121212] border border-[#2c2c2c] rounded-xl overflow-hidden transition-all duration-300">
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0"
+                        style={{
+                          background:
+                            'linear-gradient(131deg, #81000057, rgb(0 0 0 / 30%)), linear-gradient(167.91deg, rgba(129, 0, 0, 0.5) 27.29%, rgba(58, 0, 0, 0.5) 45.33%, rgba(29, 0, 0, 0.25) 87.42%, rgb(220 65 220 / 50%) 123.5%)',
+                        }} />
 
-                    {/* Info */}
-                    <div className="p-4">
-                      <h4 className="text-white font-semibold text-base flex items-center gap-2">
-                        {site.title}
-                      </h4>
-                      <p className="text-gray-400 text-sm mb-2">{site.subtitle}</p>
-
-                      <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                        {/* Status Icon + Label */}
-                        <span className={`flex items-center gap-1 font-medium ${site.status === 'Published' ? 'text-green-500' : 'text-red-500'
-                            }`}>
-                          {site.status === 'Published' ? (
-                            <FiCheckCircle className="w-4 h-4" />
+                      <div className="relative z-10">
+                        {
+                          !hasWebsiteData ? (
+                            <img src="/images/no-preview.png" alt={site.title} className="preview-website-img" />
                           ) : (
-                            <FiMinusCircle className="w-4 h-4" />
-                          )}
-                          {site.status}
-                        </span>
+                            <img src={"http://localhost:3004"+site.websitePreview} alt={site.title} className="preview-website-img" />
+                            // <div className="relative w-full h-[190px] overflow-hidden rounded-lg border-none">
+                            //   <div className="iframe-scale-wrapper"
+                            //     style={{ transformOrigin: 'top left', pointerEvents: 'none', width: '100%',height: '100%'}}>
+                            //     <iframe srcDoc={previewMap[site._id] || ""} title={site.title} className="w-[1200px] h-[900px] border-none rounded-lg"
+                            //       style={{ transformOrigin: 'top left',transform: 'scale(var(--iframe-scale))', pointerEvents: 'none', }} />
+                            //   </div>
+                            // </div>
+                          )
+                        }
 
-                        {/* Views */}
-                        <span className="flex items-center gap-1">
-                          <FiEye className="w-4 h-4" />
-                          {site.views}
-                        </span>
+                        {/* Info */}
+                        <div className="p-4">
+                          <h4 className="text-white font-semibold text-base flex items-center gap-2">
+                            {site.websiteTitle || site.title || 'Untitled Website'}
+                          </h4>
+                          <p className="text-gray-400 text-sm mb-2">
+                            {truncateText(site.websiteDescription)}
+                          </p>
 
-                        {/* Date */}
-                        <span>{site.date}</span>
-                      </div>
+                          <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                            <span className={`flex items-center gap-1 font-medium ${site.status === 'Published' ? 'text-green-500' : 'text-red-500'}`} >
+                              {site.status === 'Published' ? (
+                                <FiCheckCircle className="w-4 h-4" />
+                              ) : (
+                                <FiMinusCircle className="w-4 h-4" />
+                              )}
+                              {site.status || 'Draft'}
+                            </span>
+                            <span>{createdTime}</span>
+                          </div>
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            {/* Edit */}
+                            <button title="Edit Website" onClick={() => window.open(`/ai-tools/web-builder/new-website?id=${site._id}`, '_blank')}
+                              className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:shadow-lg text-white text-sm font-medium px-3 py-2 rounded-md">
+                              <FiEdit2 className="w-4 h-4" />
+                              Edit Website
+                            </button>
+                            {/* Staging Preview */}
+                            <button
+                              title={!hasWebsiteData ? "No Staging Preview Available" : "Preview Staging Website"} disabled={!hasWebsiteData} onClick={() => handlePreviewStaging(site)}
+                              className={`p-2 rounded-md transition-all flex items-center justify-center ${hasWebsiteData
+                                ? 'bg-[#2e2e2e] text-white hover:bg-[#3a3a3a]'
+                                : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed opacity-60'
+                                }`}
+                            >
+                              <FiEye className={`w-4 h-4 ${hasWebsiteData ? 'text-white' : 'text-gray-600'}`} />
+                            </button>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        <button title="Edit Website"
-                          onClick={() => window.open(`/ai-tools/web-builder/new-website`, '_blank', 'noopener,noreferrer')}
-                          className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:shadow-lg text-white text-sm font-medium px-3 py-2 rounded-md">
-                          <FiEdit2 className="w-4 h-4" />
-                          Edit Website
-                        </button>
 
-                        <button title="Preview Staging Website" className="bg-[#2e2e2e] text-white p-2 rounded-md hover:bg-[#3a3a3a]">
-                          <FiEye className="w-4 h-4" />
-                        </button>
-
-                        <button title="Preview Published Website" className="bg-[#2e2e2e] text-white p-2 rounded-md hover:bg-[#3a3a3a]">
-                          <FiGlobe className="w-4 h-4" />
-                        </button>
+                            {/* Published Link (disabled if null) */}
+                            <button title={isPublished ? 'Preview Published Website' : 'Website not published yet'}
+                              disabled={!isPublished} onClick={() => isPublished && window.open(site.publishedLink, '_blank')}
+                              className={`p-2 rounded-md transition-all ${isPublished ? 'bg-[#2e2e2e] text-white hover:bg-[#3a3a3a]' : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed opacity-60'}`}>
+                              <FiGlobe className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <CreateWebsiteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+          <CreateWebsiteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={fetchWebsites} />
         </div>
+
       </main>
+      {previewWebsite && <PreviewModal />}
+
     </DashboardLayout>
   );
 };

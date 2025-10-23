@@ -81,21 +81,21 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   }, [isMenuOpen]);
 
   // Notifications: fetch/poll
-  useEffect(() => {
-    let isCancelled = false;
-    const load = async () => {
-      try {
-        const res = await notificationsService.list(1, 30);
-        if (!isCancelled && res?.success) {
-          setNotifications(res.data);
-          setUnread(res.data.filter(n => !n.read).length);
-        }
-      } catch (_) {}
-    };
-    load();
-    const id = setInterval(load, 15000);
-    return () => { isCancelled = true; clearInterval(id); };
-  }, []);
+  // useEffect(() => {
+  //   let isCancelled = false;
+  //   const load = async () => {
+  //     try {
+  //       const res = await notificationsService.list(1, 30);
+  //       if (!isCancelled && res?.success) {
+  //         setNotifications(res.data);
+  //         setUnread(res.data.filter(n => !n.read).length);
+  //       }
+  //     } catch (_) {}
+  //   };
+  //   load();
+  //   const id = setInterval(load, 15000);
+  //   return () => { isCancelled = true; clearInterval(id); };
+  // }, []);
 
   const handleMarkAsRead = async (id: string) => {
     try { await notificationsService.markAsRead(id); } catch (_) {}
