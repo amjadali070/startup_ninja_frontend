@@ -1,24 +1,91 @@
 import { useEffect, useRef, useState, type FC } from 'react';
 import StudioEditor from '@grapesjs/studio-sdk/react';
-import DemoTemplates from './config/DemoTemplates';
 import {
     tableComponent, listPagesComponent, fsLightboxComponent, lightGalleryComponent,
     swiperComponent, iconifyComponent, accordionComponent, flexComponent, rteProseMirror, canvasEmptyState,
     canvasFullSize, canvasGridMode, youtubeAssetProvider
 } from '@grapesjs/studio-sdk-plugins';
 import '@grapesjs/studio-sdk/style';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import WebBuilderService, { WebsiteProject } from '../../services/web-builder/WebBuilderService';
+import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-hot-toast';
+import html2canvas from "html2canvas";
+import { Editor } from '@grapesjs/studio-sdk-plugins/dist/types.js';
+import DemoTemplates from './config/DemoTemplates';
 
 
 const WebsiteBuilderStudio: FC = () => {
-    const [previewDevice, setPreviewDevice] = useState('desktop');
+
+    const [previewDevice, setPreviewDevice] = useState("desktop");
+    const [websiteData, setWebsiteData] = useState<WebsiteProject | null>(null);
+    const [loading, setLoading] = useState(true);
     const editorRef = useRef(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
 
-    const cardPlugin = editor => {
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const websiteId = params.get("id");
+
+        // Validate ID
+        if (!websiteId) {
+            navigate("/ai-tools/web-builder", { replace: true });
+            return;
+        }
+
+        // Fetch website data
+        const fetchWebsiteData = async () => {
+            try {
+                if (!user.id) {
+                    navigate("/ai-tools/web-builder", { replace: true });
+                    return;
+                }
+
+                const response = await WebBuilderService.getWebsiteData(user.id, websiteId);
+
+                if (response.success && response.data) {
+                    setWebsiteData(response.data);
+                } else {
+                    console.error("Error:", response.message);
+                    navigate("/ai-tools/web-builder", { replace: true });
+                }
+            } catch (err) {
+                console.error("Error fetching website data:", err);
+                navigate("/ai-tools/web-builder", { replace: true });
+            } finally {
+                setTimeout(() => {
+                    setLoading(false);
+                }, 1500);
+            }
+        };
+        fetchWebsiteData();
+    }, [location.search, navigate]);
+
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+                <div className="w-16 h-16 border-4 border-[#ec2222] border-t-transparent rounded-full animate-spin mb-6"></div>
+                <h2 className="text-xl font-semibold text-gray-200">Loading your websites...</h2>
+                <p className="text-gray-400 mt-2">Please wait while we fetch your Website Data.</p>
+            </div>
+        );
+    }
+
+    if (!websiteData) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+                <h2 className="text-xl font-semibold text-gray-200">Website not found or unavailable....</h2>
+            </div>
+        );
+    }
+
+    const cardPlugin = (editor: Editor) => {
         // Register card component
         editor.Components.addType('card', {
-            isComponent: el => el.classList?.contains('card'),
+            isComponent: (el: any) => el.classList?.contains('card'),
             model: {
                 defaults: {
                     tagName: 'div',
@@ -85,32 +152,90 @@ const WebsiteBuilderStudio: FC = () => {
             }
         });
     };
-    const PROJECT_ID = 'DEMO_PROJECT_ID_EXPORT';
 
-    const getWebsiteKey = (env = 'STAGE') => PROJECT_ID + '_WEBSITE_' + env;
 
-    const saveToSessionStorage = async (projectId, project) => {
-        sessionStorage.setItem(projectId, JSON.stringify(project));
-    }
 
-    const loadFromSessionStorage = async (projectId) => {
-        const projectString = sessionStorage.getItem(projectId);
-        return projectString ? JSON.parse(projectString) : null
-    }
+    const saveToServer = async (project: any) => {
+        try {
+            const iframe = document.querySelector(".gjs-frame") as HTMLIFrameElement;
+            if (!iframe || !iframe.contentWindow || !iframe.contentDocument) {
+                toast.error("There is an issue when saving website");
+                return;
+            }
 
-    const navigatetoHome = (editor) => {
-        // console.log("Editor : ", editor);
+            const iframeWindow = iframe.contentWindow;
+            const iframeBody = iframe.contentDocument.body;
+
+            await new Promise((resolve) => {
+                if (iframe?.contentDocument?.readyState === "complete") return resolve(true);
+                iframe.contentWindow?.addEventListener("load", () => resolve(true));
+            });
+
+            iframeWindow.scrollTo(0, 0);
+
+            setTimeout(async () => {
+                const canvas = await html2canvas(iframeBody, {
+                    useCORS: true,
+                    backgroundColor: "#fff",
+                    scale: 1.5,
+                    width: iframeBody.scrollWidth,
+                    height: 700,
+                    windowWidth: iframeBody.scrollWidth,
+                    windowHeight: 700,
+                    x: 0,
+                    y: 0,
+                    scrollY: 0,
+                });
+
+                const screenshot = canvas.toDataURL("image/jpeg", 0.9);
+                await handleSave(project, screenshot);
+            }, 2000);
+        } catch (err) {
+            console.error(err);
+            toast.error("There is an issue when saving website");
+        }
+    };
+
+
+
+    const handleSave = async (project: any, websitePreview: string) => {
+        try {
+            const response = await WebBuilderService.saveWebsiteData(
+                user.id,
+                websiteData._id,
+                project,
+                websitePreview
+            );
+
+            if (response.success) {
+                console.log("Success");
+                toast.success("Website saved successfully!");
+            } else {
+                console.log("Failed");
+                toast.error(response.message);
+            }
+        } catch (err) {
+            console.error("Save failed:", err);
+            toast.error("Failed to save website!");
+        }
+    };
+
+
+
+
+    const navigatetoHome = (editor: any) => {
+        console.log("Editor : ", editor);
         navigate('/ai-tools/web-builder');
     }
 
-    const deviceIcons = {
+    const deviceIcons: Record<string, string> = {
         'desktop': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21,16H3V4H21M21,2H3C1.89,2 1,2.89 1,4V16A2,2 0 0,0 3,18H10V20H8V22H16V20H14V18H21A2,2 0 0,0 23,16V4C23,2.89 22.1,2 21,2Z" fill="currentColor"/></svg>`,
         'tablet': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"></rect><path d="M11 18h2"></path></g></svg>`,
         'mobile': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M7 23q-.8 0-1.4-.6T5 21V3q0-.8.6-1.4T7 1h10q.8 0 1.4.6T19 3v3.1q.5.2.7.6t.3.8v2q0 .5-.3.8t-.7.6V21q0 .8-.6 1.4T17 23zm0-2h10V3H7zm0 0V3zm5-1q.4 0 .7-.3t.3-.7-.3-.7-.7-.3-.7.3-.3.7.3.7.7.3"></path></svg>`
     };
 
     const addDeviceIcons = () => {
-        const deviceButton = document.querySelector('.gs-devices .gs-utl-card-title .gs-utl-truncate');
+        const deviceButton = document.querySelector('.gs-devices .gs-utl-card-title .gs-utl-truncate') as HTMLElement;
         if (deviceButton && !deviceButton.querySelector('.device-icon-inline')) {
             const deviceName = deviceButton.textContent.trim().toLowerCase();
             const icon = deviceIcons[deviceName];
@@ -145,26 +270,35 @@ const WebsiteBuilderStudio: FC = () => {
                     iconWrapper.style.marginRight = '3px';
 
                     const parentDiv = textDiv.parentElement;
-                    parentDiv.insertBefore(iconWrapper, textDiv);
+                    parentDiv?.insertBefore(iconWrapper, textDiv);
                 }
             }
         });
     };
 
-    const previewWebsite = async (editor) => {
-        const files = await editor.runCommand('studio:projectFiles', { styles: 'inline' });
+    const previewWebsite = async (editor: any) => {
+        const files = await editor.runCommand('studio:projectFiles', { styles: 'inline' }) as {
+            name: string;
+            mimeType: string;
+            content: string;
+            [key: string]: any;
+        }[];
         const firstPage = files.find(file => file.mimeType === 'text/html');
         const websiteHtml = firstPage ? firstPage.content : '';
 
-        const deviceSizes = {
-            desktop: { width: '100%', maxWidth: '1200px' },
-            tablet: { width: '768px', maxWidth: '992px' },
-            mobile: { width: '568px', maxWidth: '768px' }
+        const deviceSizes: Record<string, {
+            width: string;
+            maxWidth: string;
+        }> = {
+            desktop: { width: "100%", maxWidth: "1200px" },
+            tablet: { width: "768px", maxWidth: "992px" },
+            mobile: { width: "568px", maxWidth: "768px" },
         };
+
 
         let currentDevice = previewDevice;
 
-        const setActiveDeviceButton = (device) => {
+        const setActiveDeviceButton = (device: any) => {
             const all = document.querySelectorAll('.device-btn');
             all.forEach(btn => {
                 if (btn.classList.contains(`device-${device}`)) {
@@ -175,11 +309,11 @@ const WebsiteBuilderStudio: FC = () => {
             });
         };
 
-        const updatePreviewContent = (device) => {
+        const updatePreviewContent = (device: any) => {
             try { setPreviewDevice(device); } catch (e) { }
             currentDevice = device;
 
-            const iframeContainer = document.querySelector('[data-preview-container]');
+            const iframeContainer = document.querySelector('[data-preview-container]') as HTMLElement;
             if (iframeContainer) {
                 iframeContainer.style.width = deviceSizes[device].width;
                 iframeContainer.style.maxWidth = deviceSizes[device].maxWidth;
@@ -223,7 +357,7 @@ const WebsiteBuilderStudio: FC = () => {
                                     padding: '8px 12px',
                                     borderRadius: '6px',
                                 },
-                                onClick: ({ editor }) => {
+                                onClick: ({ editor }: any) => {
                                     editor.runCommand('studio:layoutRemove', { id: 'preview-website' });
                                 }
                             },
@@ -317,7 +451,7 @@ const WebsiteBuilderStudio: FC = () => {
         });
     };
 
-    const publishWebsite = async (editor) => {
+    const publishWebsite = async (editor: any) => {
         editor.runCommand('studio:layoutToggle', {
             id: 'publish-confirmation',
             header: false,
@@ -393,7 +527,7 @@ const WebsiteBuilderStudio: FC = () => {
                                             fontWeight: 600,
                                             transition: 'background 0.2s',
                                         },
-                                        onClick: ({ editor }) => {
+                                        onClick: ({ editor }: any) => {
                                             editor.runCommand('studio:layoutRemove', { id: 'publish-confirmation' });
                                         },
                                     },
@@ -409,7 +543,7 @@ const WebsiteBuilderStudio: FC = () => {
                                             boxShadow: '0 0 10px rgba(220,38,38,0.4)',
                                             transition: 'transform 0.2s ease',
                                         },
-                                        onClick: async ({ editor }) => {
+                                        onClick: async ({ editor }: any) => {
                                             editor.runCommand('studio:layoutRemove', { id: 'publish-confirmation' });
                                             // alert('🌐 Publishing your website...');
                                             previewWebsite(editor);
@@ -430,7 +564,7 @@ const WebsiteBuilderStudio: FC = () => {
     return (
         <div className="website-builder w-full h-dvh">
             <StudioEditor
-                onReady={(editor) => {
+                onReady={(editor: any) => {
                     editorRef.current = editor;
                     setTimeout(() => addDeviceIcons(), 200);
 
@@ -454,7 +588,6 @@ const WebsiteBuilderStudio: FC = () => {
                                 id: 'desktop',
                                 name: 'Desktop',
                                 width: '1200px',
-                                // Add a custom className or data attribute
                             },
                             {
                                 id: 'tablet',
@@ -514,7 +647,26 @@ const WebsiteBuilderStudio: FC = () => {
                     },
                     project: {
                         type: 'web',
-                        id: 'UNIQUE_PROJECT_ID',
+                        id: websiteData._id,
+                        default: {
+                            custom: {
+                                globalPageSettings: {
+                                    title: websiteData?.websiteTitle,
+                                    description: websiteData?.websiteDescription,
+                                    // slug?: string;
+                                    // title?: string;
+                                    // favicon?: string;
+                                    // description?: string;
+                                    // keywords?: string;
+                                    // socialTitle?: string;
+                                    // socialImage?: string;
+                                    // fonts?: Record<string, Font | InternalFont>;
+                                    // socialDescription?: string;
+                                    // customCodeHead?: string;
+                                    // customCodeBody?: string;
+                                }
+                            }
+                        }
                     },
                     layout: {
                         default: {
@@ -553,7 +705,7 @@ const WebsiteBuilderStudio: FC = () => {
 
                                                     },
                                                     tooltip: 'Add Blocks',
-                                                    onClick: ({ editor }) => {
+                                                    onClick: ({ editor }: any) => {
                                                         editor.runCommand('studio:layoutToggle', {
                                                             id: 'blocks-panel',
                                                             header: false,
@@ -580,7 +732,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                 icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
                                                                                 style: { background: 'none', border: 'none', cursor: 'pointer', marginLeft: '10px' },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', { id: 'blocks-panel' });
                                                                                 }
                                                                             }
@@ -630,7 +782,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                 icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
                                                                                 style: { background: 'none', border: 'none', cursor: 'pointer', marginLeft: '10px' },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', { id: 'layers-panel' });
                                                                                 }
                                                                             }
@@ -685,7 +837,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                 icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
                                                                                 style: { background: 'none', border: 'none', cursor: 'pointer', marginLeft: '10px' },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', { id: 'global-styles-panel' });
                                                                                 }
                                                                             }
@@ -745,7 +897,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                     marginLeft: '10px'
                                                                                 },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', {
                                                                                         id: 'assets-panel'
                                                                                     });
@@ -806,7 +958,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                     marginLeft: '10px'
                                                                                 },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', {
                                                                                         id: 'templates-panel'
                                                                                     });
@@ -819,7 +971,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                         content: {
                                                                             itemsPerRow: 1
                                                                         },
-                                                                        onSelect: ({ loadTemplate, template, editor }) => {
+                                                                        onSelect: ({ loadTemplate, template, editor }: any) => {
                                                                             loadTemplate(template);
                                                                             editor.runCommand('studio:layoutRemove', {
                                                                                 id: 'templates-panel'
@@ -878,7 +1030,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                                 icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
                                                                                 style: { background: 'none', border: 'none', cursor: 'pointer', marginLeft: '10px' },
                                                                                 tooltip: 'Close',
-                                                                                onClick: ({ editor }) => {
+                                                                                onClick: ({ editor }: any) => {
                                                                                     editor.runCommand('studio:layoutRemove', { id: 'page-settings-panel' });
                                                                                 }
                                                                             }
@@ -905,7 +1057,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                     type: 'canvasSidebarTop',
                                                     sidebarTop: {
                                                         leftContainer: {
-                                                            buttons: ({ items, editor }) => [
+                                                            buttons: () => [
                                                                 {
                                                                     id: 'code-show-btn',
                                                                     type: 'button',
@@ -919,10 +1071,10 @@ const WebsiteBuilderStudio: FC = () => {
                                                                         padding: '10px 15px',
                                                                         borderRadius: '8px',
                                                                     },
-                                                                    onClick: ({ editor }) => {
-                                                                        const importButton = document.querySelector('.importcode-btn button');
+                                                                    onClick: () => {
+                                                                        const importButton = document.querySelector('.importcode-btn button') as HTMLElement;
                                                                         if (importButton) {
-                                                                            const attributes = {};
+                                                                            const attributes: Record<string, string> = {};
                                                                             for (const attr of importButton.attributes) {
                                                                                 attributes[attr.name] = attr.value;
                                                                             }
@@ -936,7 +1088,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                             ]
                                                         },
                                                         rightContainer: {
-                                                            buttons: ({ items, editor }) => {
+                                                            buttons: ({ items }) => {
                                                                 const desiredButtons = ['store', 'fullscreen', 'undo', 'redo', 'showImportCode'];
                                                                 const filtered = items
                                                                     .filter(item => desiredButtons.includes(item.id))
@@ -1252,7 +1404,7 @@ const WebsiteBuilderStudio: FC = () => {
                         ]
                     },
                     identity: {
-                        id: 'UNIQUE_END_USER_ID'
+                        id: user.id
                     },
                     assets: {
                         storageType: 'cloud'
@@ -1260,33 +1412,18 @@ const WebsiteBuilderStudio: FC = () => {
                     storage: {
                         type: 'self',
                         autosaveChanges: 100,
-                        autosaveIntervalMs: 10000,
+                        autosaveIntervalMs: 100000,
 
-                        onSave: async ({ project, editor }) => {
-                            await saveToSessionStorage(PROJECT_ID, project);
-                            // With every save, we'll publish the website to STAGE
-                            // await publishWebsite(editor, 'STAGE');
-                            console.log('Project saved and published to STAGE', { project });
+                        onSave: async ({ project }) => {
+                            saveToServer(project);
                         },
-                        // onStore: (data, editor) => {
-                        //     const pagesHtml = editor.Pages.getAll().map((page) => {
-                        //         const component = page.getMainComponent();
-                        //         return {
-                        //         html: editor.getHtml({ component }),
-                        //         css: editor.getCss({ component }),
-                        //     };
-                        //     });
-                        //     return { id: projectID, data, pagesHtml };
-                        // },
-
 
                         onLoad: async () => {
-                            const project = await loadFromSessionStorage(PROJECT_ID);
-                            console.log('Project loaded', { project });
+                            const hasWebsiteData = websiteData && Object.keys(websiteData?.websiteData).length > 0;
                             return {
-                                project: project || {
+                                project: hasWebsiteData ? websiteData.websiteData : {
                                     pages: [
-                                        { name: 'Home', component: '<h1>New project</h1>' },
+                                        { name: websiteData?.websiteTitle, component: '<h1>New project</h1>' },
                                     ]
                                 }
                             };

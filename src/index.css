@@ -247,3 +247,32 @@ body {
 .gs-cmp-tooltip button:hover{
   background-color: #ec2222 !important;
 }
+
+
+/* .iframe-scale-wrapper iframe {
+  --iframe-scale: 0.32; 
+}
+
+@media (min-width: 640px) {
+  .iframe-scale-wrapper iframe {
+    --iframe-scale: 0.35;
+  }
+}
+
+@media (min-width: 1024px) {
+  .iframe-scale-wrapper iframe {
+    --iframe-scale: 0.19;
+  }
+}
+
+@media (min-width: 1280px) {
+  .iframe-scale-wrapper iframe {
+    --iframe-scale: 0.25;
+  }
+} */
+
+.preview-website-img {
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    min-height: 180px;
+}
