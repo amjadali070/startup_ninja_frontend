@@ -8,6 +8,7 @@ import {
 import '@grapesjs/studio-sdk/style';
 import { useLocation, useNavigate } from 'react-router-dom';
 import WebBuilderService, { WebsiteProject } from '../../services/web-builder/WebBuilderService';
+import GalleryService from '../../services/web-builder/GalleryService';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import html2canvas from "html2canvas";
@@ -601,6 +602,88 @@ const WebsiteBuilderStudio: FC = () => {
         }
     };
 
+    // Custom Asset Manager Logic
+    const customAssetManager = {
+        // Upload assets to our custom storage
+        onUpload: async ({ files }: { files: File[] }) => {
+            try {
+                toast.loading('Uploading assets...', { id: 'upload-assets' });
+                
+                const uploadPromises = files.map(file => GalleryService.uploadAsset(file));
+                const results = await Promise.all(uploadPromises);
+                
+                const successfulUploads = results.filter(result => result.success);
+                const failedUploads = results.filter(result => !result.success);
+                
+                if (successfulUploads.length > 0) {
+                    toast.success(`${successfulUploads.length} asset(s) uploaded successfully`, { id: 'upload-assets' });
+                }
+                
+                if (failedUploads.length > 0) {
+                    toast.error(`${failedUploads.length} asset(s) failed to upload`, { id: 'upload-assets' });
+                }
+                
+                // Return successful uploads in the format expected by GrapesJS
+                return successfulUploads.map(result => ({
+                    id: result.data?.id || '',
+                    src: result.data?.src || '',
+                    name: result.data?.name || '',
+                    mimeType: result.data?.mimeType || '',
+                    size: result.data?.size || 0
+                }));
+            } catch (error) {
+                console.error('Asset upload error:', error);
+                toast.error('Failed to upload assets', { id: 'upload-assets' });
+                return [];
+            }
+        },
+
+        // Delete assets from our custom storage
+        onDelete: async ({ assets }: { assets: any[] }) => {
+            try {
+                const assetIds = assets.map(asset => asset.getSrc().split('/').pop()?.split('_')[0]).filter(Boolean);
+                
+                if (assetIds.length === 0) return;
+                
+                toast.loading('Deleting assets...', { id: 'delete-assets' });
+                
+                const response = await GalleryService.deleteMultipleAssets(assetIds);
+                
+                if (response.success) {
+                    toast.success(response.message, { id: 'delete-assets' });
+                } else {
+                    toast.error(response.message, { id: 'delete-assets' });
+                }
+            } catch (error) {
+                console.error('Asset deletion error:', error);
+                toast.error('Failed to delete assets', { id: 'delete-assets' });
+            }
+        },
+
+        // Load assets from our custom storage
+        onLoad: async () => {
+            try {
+                const response = await GalleryService.getUserAssets(1, 100);
+                
+                if (response.success && response.data) {
+                    return response.data.items.map(asset => ({
+                        id: asset.id,
+                        src: asset.src,
+                        name: asset.name,
+                        type: asset.mimeType.startsWith('image/') ? 'image' : 'file',
+                        mimeType: asset.mimeType,
+                        size: asset.size
+                    }));
+                }
+                
+                return [];
+            } catch (error) {
+                console.error('Asset load error:', error);
+                return [];
+            }
+        }
+    };
+
 
 
 
@@ -930,7 +1013,7 @@ const WebsiteBuilderStudio: FC = () => {
                                                                             justifyContent: 'space-between'
                                                                         },
                                                                         children: [
-                                                                            'Assets',
+                                                                            'Assets Library',
                                                                             {
                                                                                 type: 'button',
                                                                                 icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
@@ -1451,7 +1534,10 @@ const WebsiteBuilderStudio: FC = () => {
                         id: user.id
                     },
                     assets: {
-                        storageType: 'cloud'
+                        storageType: 'self',
+                        onUpload: customAssetManager.onUpload,
+                        onDelete: customAssetManager.onDelete,
+                        onLoad: customAssetManager.onLoad
                     },
                     storage: {
                         type: 'self',
