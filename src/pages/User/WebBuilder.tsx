@@ -234,9 +234,9 @@ const WebBuilder: FC = () => {
             </p>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20">
+               <div className="flex items-center justify-center min-h-[400px] w-full">
                 <LoadingSpinner size='medium' variant='dark' />
-              </div>
+                </div>
             ) : websites.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="p-6 rounded-2xl shadow-lg max-w-md">

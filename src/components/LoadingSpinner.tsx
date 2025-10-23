@@ -63,7 +63,7 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   const sz = sizeStyles[size];
   const containerBase = fullscreen
     ? 'flex min-h-screen items-center justify-center'
-    : 'flex items-center justify-center';
+    : 'flex items-center justify-center w-full h-full';
 
   return (
     <div

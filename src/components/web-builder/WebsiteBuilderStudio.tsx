@@ -67,7 +67,7 @@ const WebsiteBuilderStudio: FC = () => {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20">
+            <div className="flex items-center justify-center min-h-[400px] w-full">
                 <LoadingSpinner size='medium' variant='dark' />
             </div>
         );
