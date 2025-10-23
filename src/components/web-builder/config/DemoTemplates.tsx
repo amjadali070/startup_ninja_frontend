@@ -1,11 +1,11 @@
 const DemoTemplates = [
   {
-    id: 'paksoft-main',
-    name: 'PaksoftSystems',
+    id: "paksoft-main",
+    name: "PaksoftSystems",
     data: {
       pages: [
         {
-          name: 'Home',
+          name: "Home",
           component: `
             <style>
               /* Responsive adjustments */
@@ -803,11 +803,11 @@ const DemoTemplates = [
                 
               </script>
             </section>
-          `
-        }
-      ]
-    }
-  }
+          `,
+        },
+      ],
+    },
+  },
 ];
 
 export default DemoTemplates;
