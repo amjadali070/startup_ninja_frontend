@@ -12,6 +12,7 @@ import { BiPlus } from 'react-icons/bi';
 import WebBuilderService from '../../services/web-builder/WebBuilderService';
 import moment from 'moment-timezone';
 import grapesjs from 'grapesjs';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const WebBuilder: FC = () => {
   const navigate = useNavigate();
@@ -233,10 +234,8 @@ const WebBuilder: FC = () => {
             </p>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-                <div className="w-16 h-16 border-4 border-[#ec2222] border-t-transparent rounded-full animate-spin mb-6"></div>
-                <h2 className="text-xl font-semibold text-gray-200">Loading your websites...</h2>
-                <p className="text-gray-400 mt-2">Please wait while we fetch your projects.</p>
+              <div className="flex flex-col items-center justify-center py-20">
+                <LoadingSpinner size='medium' variant='dark' />
               </div>
             ) : websites.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">

@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import html2canvas from "html2canvas";
 import { Editor } from '@grapesjs/studio-sdk-plugins/dist/types.js';
 import DemoTemplates from './config/DemoTemplates';
+import LoadingSpinner from '../LoadingSpinner';
 
 
 const WebsiteBuilderStudio: FC = () => {
@@ -66,10 +67,8 @@ const WebsiteBuilderStudio: FC = () => {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-                <div className="w-16 h-16 border-4 border-[#ec2222] border-t-transparent rounded-full animate-spin mb-6"></div>
-                <h2 className="text-xl font-semibold text-gray-200">Loading your websites...</h2>
-                <p className="text-gray-400 mt-2">Please wait while we fetch your Website Data.</p>
+            <div className="flex flex-col items-center justify-center py-20">
+                <LoadingSpinner size='medium' variant='dark' />
             </div>
         );
     }
