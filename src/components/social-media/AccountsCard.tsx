@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/social-media/oauth/linkedin';
 import twitterService, { TwitterConnectionStatus} from '../../services/social-media/oauth/twitter';
 import instagramService, { InstagramConnectionStatus } from '../../services/social-media/oauth/instagram';
 import facebookService, { FacebookConnectionStatus } from '../../services/social-media/oauth/facebook';
-import AlertModal from '../AlertModal';
 import { PLATFORM_BY_ID } from '../../constants/platforms';
 
 const AccountsCard: React.FC = () => {
@@ -58,17 +58,6 @@ const AccountsCard: React.FC = () => {
   const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
   const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [notification, setNotification] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: 'success' | 'error';
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    type: 'success',
-  });
 
   // Check connection status on component mount
   useEffect(() => {
@@ -83,11 +72,7 @@ const AccountsCard: React.FC = () => {
     // LinkedIn callback handling
     if (urlParams.get('linkedin_connected') === 'true') {
       const name = urlParams.get('name');
-      showNotification(
-        'Success!',
-        `LinkedIn account connected successfully! Welcome ${decodeURIComponent(name || 'LinkedIn User')}`,
-        'success'
-      );
+      toast.success(`LinkedIn account connected successfully! Welcome ${decodeURIComponent(name || 'LinkedIn User')}`);
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       // Refresh connection status
@@ -98,11 +83,7 @@ const AccountsCard: React.FC = () => {
       }, 1000);
     } else if (urlParams.get('linkedin_error') === 'true') {
       const message = urlParams.get('message');
-      showNotification(
-        'Connection Failed',
-        message || 'Failed to connect LinkedIn account',
-        'error'
-      );
+      toast.error(message || 'Failed to connect LinkedIn account');
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -111,11 +92,7 @@ const AccountsCard: React.FC = () => {
     if (urlParams.get('twitter_connected') === 'true') {
       const name = urlParams.get('name');
       const screenName = urlParams.get('screen_name');
-      showNotification(
-        'Success!',
-        `Twitter account connected successfully! Welcome @${decodeURIComponent(screenName || name || 'TwitterUser')}`,
-        'success'
-      );
+      toast.success(`Twitter account connected successfully! Welcome @${decodeURIComponent(screenName || name || 'TwitterUser')}`);
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       // Refresh connection status
@@ -126,11 +103,7 @@ const AccountsCard: React.FC = () => {
       }, 1000);
     } else if (urlParams.get('twitter_error') === 'true') {
       const message = urlParams.get('message');
-      showNotification(
-        'Connection Failed',
-        message || 'Failed to connect Twitter account',
-        'error'
-      );
+      toast.error(message || 'Failed to connect Twitter account');
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -139,11 +112,7 @@ const AccountsCard: React.FC = () => {
     if (urlParams.get('instagram_connected') === 'true') {
       const username = urlParams.get('username');
       const accountType = urlParams.get('account_type');
-      showNotification(
-        'Success!',
-        `Instagram account connected successfully! Welcome @${decodeURIComponent(username || 'InstagramUser')} (${decodeURIComponent(accountType || 'Personal')})`,
-        'success'
-      );
+      toast.success(`Instagram account connected successfully! Welcome @${decodeURIComponent(username || 'InstagramUser')} (${decodeURIComponent(accountType || 'Personal')})`);
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       // Refresh connection status
@@ -154,11 +123,7 @@ const AccountsCard: React.FC = () => {
       }, 1000);
     } else if (urlParams.get('instagram_error') === 'true') {
       const message = urlParams.get('message');
-      showNotification(
-        'Connection Failed',
-        message || 'Failed to connect Instagram account',
-        'error'
-      );
+      toast.error(message || 'Failed to connect Instagram account');
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -167,11 +132,7 @@ const AccountsCard: React.FC = () => {
     if (urlParams.get('facebook_connected') === 'true') {
       const name = urlParams.get('name');
       const pages = urlParams.get('pages');
-      showNotification(
-        'Success!',
-        `Facebook account connected successfully! Welcome ${decodeURIComponent(name || 'Facebook User')} (${pages || '0'} pages)`,
-        'success'
-      );
+      toast.success(`Facebook account connected successfully! Welcome ${decodeURIComponent(name || 'Facebook User')} (${pages || '0'} pages)`);
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
       // Refresh connection status
@@ -182,11 +143,7 @@ const AccountsCard: React.FC = () => {
       }, 1000);
     } else if (urlParams.get('facebook_error') === 'true') {
       const message = urlParams.get('message');
-      showNotification(
-        'Connection Failed',
-        message || 'Failed to connect Facebook account',
-        'error'
-      );
+      toast.error(message || 'Failed to connect Facebook account');
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -364,18 +321,6 @@ const AccountsCard: React.FC = () => {
     }
   };
 
-  const showNotification = (title: string, message: string, type: 'success' | 'error') => {
-    setNotification({
-      isOpen: true,
-      title,
-      message,
-      type,
-    });
-  };
-
-  const closeNotification = () => {
-    setNotification(prev => ({ ...prev, isOpen: false }));
-  };
 
   const handleToggleConnection = async (accountId: string) => {
     if (accountId === 'linkedin') {
@@ -388,21 +333,13 @@ const AccountsCard: React.FC = () => {
       await handleFacebookConnection();
     } else {
       // For other platforms, show coming soon message
-      showNotification(
-        'Coming Soon',
-        `${accounts.find(a => a.id === accountId)?.name} integration is coming soon!`,
-        'error'
-      );
+      toast.error(`${accounts.find(a => a.id === accountId)?.name} integration is coming soon!`);
     }
   };
 
   const handleLinkedInConnection = async () => {
     if (!user?.id) {
-      showNotification(
-        'Authentication Required', 
-        'Please log into your Startup Ninja account first, then try connecting LinkedIn again.', 
-        'error'
-      );
+      toast.error('Please log into your Startup Ninja account first, then try connecting LinkedIn again.');
       return;
     }
 
@@ -413,7 +350,7 @@ const AccountsCard: React.FC = () => {
         // Disconnect LinkedIn
         const result = await linkedinService.disconnectAccount();
         if (result.success) {
-          showNotification('Success', 'LinkedIn account disconnected successfully', 'success');
+          toast.success('LinkedIn account disconnected successfully');
           
           // Update UI immediately
           setLinkedinStatus({
@@ -445,7 +382,7 @@ const AccountsCard: React.FC = () => {
             await checkLinkedInStatus();
           }, 500);
         } else {
-          showNotification('Error', result.message, 'error');
+          toast.error(result.message);
         }
       } else {
         // Connect LinkedIn using popup approach
@@ -455,11 +392,7 @@ const AccountsCard: React.FC = () => {
           if (result) {
             // Connection successful via popup
             const userName = result.user?.name || result.user?.given_name || 'LinkedIn User';
-            showNotification(
-              'Success!', 
-              `LinkedIn account connected successfully! Welcome ${userName}`,
-              'success'
-            );
+            toast.success(`LinkedIn account connected successfully! Welcome ${userName}`);
             
             // Force immediate UI update with connected status
             const newLinkedInStatus = {
@@ -494,11 +427,7 @@ const AccountsCard: React.FC = () => {
         }
       }
     } catch (error: any) {
-      showNotification(
-        'Error', 
-        error.message || 'Failed to connect LinkedIn account', 
-        'error'
-      );
+      toast.error(error.message || 'Failed to connect LinkedIn account');
     } finally {
       setIsLoading(false);
     }
@@ -506,11 +435,7 @@ const AccountsCard: React.FC = () => {
 
   const handleTwitterConnection = async () => {
     if (!user?.id) {
-      showNotification(
-        'Authentication Required', 
-        'Please log into your Startup Ninja account first, then try connecting Twitter again.', 
-        'error'
-      );
+      toast.error('Please log into your Startup Ninja account first, then try connecting Twitter again.');
       return;
     }
 
@@ -521,7 +446,7 @@ const AccountsCard: React.FC = () => {
         // Disconnect Twitter
         const result = await twitterService.disconnectAccount();
         if (result.success) {
-          showNotification('Success', 'Twitter account disconnected successfully', 'success');
+          toast.success('Twitter account disconnected successfully');
           
           // Update UI immediately
           setTwitterStatus({
@@ -553,7 +478,7 @@ const AccountsCard: React.FC = () => {
             await checkTwitterStatus();
           }, 500);
         } else {
-          showNotification('Error', result.message, 'error');
+          toast.error(result.message);
         }
       } else {
         // Connect Twitter using popup approach
@@ -564,11 +489,7 @@ const AccountsCard: React.FC = () => {
             // Connection successful via popup
             const userName = result.user?.name || 'Twitter User';
             const screenName = result.user?.screen_name || '';
-            showNotification(
-              'Success!', 
-              `Twitter account connected successfully! Welcome @${screenName || userName}`,
-              'success'
-            );
+            toast.success(`Twitter account connected successfully! Welcome @${screenName || userName}`);
             
             // Force immediate UI update with connected status
             const newTwitterStatus = {
@@ -603,11 +524,7 @@ const AccountsCard: React.FC = () => {
         }
       }
     } catch (error: any) {
-      showNotification(
-        'Error', 
-        error.message || 'Failed to connect Twitter account', 
-        'error'
-      );
+      toast.error(error.message || 'Failed to connect Twitter account');
     } finally {
       setIsLoading(false);
     }
@@ -615,11 +532,7 @@ const AccountsCard: React.FC = () => {
 
   const handleInstagramConnection = async () => {
     if (!user?.id) {
-      showNotification(
-        'Authentication Required', 
-        'Please log into your Startup Ninja account first, then try connecting Instagram again.', 
-        'error'
-      );
+      toast.error('Please log into your Startup Ninja account first, then try connecting Instagram again.');
       return;
     }
 
@@ -630,7 +543,7 @@ const AccountsCard: React.FC = () => {
         // Disconnect Instagram
         const result = await instagramService.disconnectAccount();
         if (result.success) {
-          showNotification('Success', 'Instagram account disconnected successfully', 'success');
+          toast.success('Instagram account disconnected successfully');
           
           // Update UI immediately
           setInstagramStatus({
@@ -662,7 +575,7 @@ const AccountsCard: React.FC = () => {
             await checkInstagramStatus();
           }, 500);
         } else {
-          showNotification('Error', result.message, 'error');
+          toast.error(result.message);
         }
       } else {
         // Connect Instagram using popup approach
@@ -673,11 +586,7 @@ const AccountsCard: React.FC = () => {
             // Connection successful via popup
             const userName = result.user?.username || 'InstagramUser';
             const accountType = result.user?.account_type || 'Personal';
-            showNotification(
-              'Success!', 
-              `Instagram account connected successfully! Welcome @${userName} (${accountType})`,
-              'success'
-            );
+            toast.success(`Instagram account connected successfully! Welcome @${userName} (${accountType})`);
             
             // Force immediate UI update with connected status
             const newInstagramStatus = {
@@ -712,11 +621,7 @@ const AccountsCard: React.FC = () => {
         }
       }
     } catch (error: any) {
-      showNotification(
-        'Error', 
-        error.message || 'Failed to connect Instagram account', 
-        'error'
-      );
+      toast.error(error.message || 'Failed to connect Instagram account');
     } finally {
       setIsLoading(false);
     }
@@ -724,11 +629,7 @@ const AccountsCard: React.FC = () => {
 
   const handleFacebookConnection = async () => {
     if (!user?.id) {
-      showNotification(
-        'Authentication Required', 
-        'Please log into your Startup Ninja account first, then try connecting Facebook again.', 
-        'error'
-      );
+      toast.error('Please log into your Startup Ninja account first, then try connecting Facebook again.');
       return;
     }
 
@@ -739,7 +640,7 @@ const AccountsCard: React.FC = () => {
         // Disconnect Facebook
         const result = await facebookService.disconnectAccount();
         if (result.success) {
-          showNotification('Success', 'Facebook account disconnected successfully', 'success');
+          toast.success('Facebook account disconnected successfully');
           
           // Update UI immediately
           setFacebookStatus({
@@ -772,7 +673,7 @@ const AccountsCard: React.FC = () => {
             await checkFacebookStatus();
           }, 500);
         } else {
-          showNotification('Error', result.message, 'error');
+          toast.error(result.message);
         }
       } else {
         // Connect Facebook using popup approach
@@ -783,11 +684,7 @@ const AccountsCard: React.FC = () => {
             // Connection successful via popup
             const userName = result.user?.name || 'Facebook User';
             const pageCount = result.pages?.length || 0;
-            showNotification(
-              'Success!', 
-              `Facebook account connected successfully! Welcome ${userName} (${pageCount} pages)`,
-              'success'
-            );
+            toast.success(`Facebook account connected successfully! Welcome ${userName} (${pageCount} pages)`);
             
             // Force immediate UI update with connected status
             const newFacebookStatus = {
@@ -823,11 +720,7 @@ const AccountsCard: React.FC = () => {
         }
       }
     } catch (error: any) {
-      showNotification(
-        'Error', 
-        error.message || 'Failed to connect Facebook account', 
-        'error'
-      );
+      toast.error(error.message || 'Failed to connect Facebook account');
     } finally {
       setIsLoading(false);
     }
@@ -905,14 +798,6 @@ const AccountsCard: React.FC = () => {
         ))}
       </div>
     </div>
-
-      <AlertModal
-        isOpen={notification.isOpen}
-        onClose={closeNotification}
-        title={notification.title}
-        message={notification.message}
-        type={notification.type}
-      />
     </>
   );
 };

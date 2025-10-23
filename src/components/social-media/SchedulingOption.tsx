@@ -9,13 +9,13 @@ import {
   FaTrash,
   FaPaperPlane
 } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService from '../../services/social-media/oauth/linkedin';
 import twitterService from '../../services/social-media/oauth/twitter';
 import instagramService from '../../services/social-media/oauth/instagram';
 import facebookService from '../../services/social-media/oauth/facebook';
-import AlertModal from '../AlertModal';
 import schedulerService from '../../services/social-media/scheduler';
 import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
 import { buildLocalDate } from '../../utils/date';
@@ -49,17 +49,6 @@ const SchedulingOption: React.FC = () => {
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
-  const [notification, setNotification] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: 'success' | 'error';
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    type: 'success',
-  });
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
     // Default: empty list; user can add platforms
@@ -74,18 +63,6 @@ const SchedulingOption: React.FC = () => {
   const nowHM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   // currentHM and hasPastSelection not needed presently; min on date and validation handle this
 
-  const showNotification = (title: string, message: string, type: 'success' | 'error') => {
-    setNotification({
-      isOpen: true,
-      title,
-      message,
-      type,
-    });
-  };
-
-  const closeNotification = () => {
-    setNotification(prev => ({ ...prev, isOpen: false }));
-  };
 
   const handleScheduleChange = (platformId: string, field: 'date' | 'time', value: string) => {
     setScheduledPlatforms(currentPlatforms =>
@@ -127,7 +104,7 @@ const SchedulingOption: React.FC = () => {
 
   const handleSchedule = async () => {
     if (!postData.content && postData.files.length === 0) {
-      showNotification('Error', 'Please add content or an image to your post', 'error');
+      toast.error('Please add content or an image to your post');
       return;
     }
 
@@ -140,21 +117,21 @@ const SchedulingOption: React.FC = () => {
     ));
 
     if (platformsFromSchedule.length === 0) {
-      showNotification('Error', 'Please add at least one platform in Scheduling Options to schedule', 'error');
+      toast.error('Please add at least one platform in Scheduling Options to schedule');
       return;
     }
 
     // Validate that no selection is in the past
     const invalid = scheduledPlatforms.find(p => buildLocalDate(p.date, p.time).getTime() < Date.now());
     if (invalid) {
-      showNotification('Error', 'Please choose a future date and time for all platforms', 'error');
+      toast.error('Please choose a future date and time for all platforms');
       return;
     }
 
     // Use the first scheduled date/time entry as a single schedule time
     const first = scheduledPlatforms[0];
     if (!first?.date || !first?.time) {
-      showNotification('Error', 'Please select a valid date and time', 'error');
+      toast.error('Please select a valid date and time');
       return;
     }
 
@@ -187,7 +164,7 @@ const SchedulingOption: React.FC = () => {
     });
 
     if (validPlatforms.length === 0) {
-      showNotification('Validation failed', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+      toast.error('Validation failed: ' + failures.map(f => `${f.platform}: ${f.reason}`).join(', '));
       return;
     }
 
@@ -206,9 +183,9 @@ const SchedulingOption: React.FC = () => {
       });
 
       if (resp.success) {
-        showNotification('Scheduled', 'Your post has been scheduled for selected platforms.', 'success');
+        toast.success('Your post has been scheduled for selected platforms.');
         if (failures.length > 0) {
-          showNotification('Some platforms skipped', failures.map(f => `${f.platform}: ${f.reason}`).join('\n'), 'error');
+          toast.error('Some platforms skipped: ' + failures.map(f => `${f.platform}: ${f.reason}`).join(', '));
         }
         try {
           emitScheduledPostsRefresh({
@@ -217,11 +194,11 @@ const SchedulingOption: React.FC = () => {
           });
         } catch (_) {}
       } else {
-        showNotification('Error', resp.message || 'Failed to schedule post', 'error');
+        toast.error(resp.message || 'Failed to schedule post');
       }
     } catch (e: any) {
       const backendMsg = e?.response?.data?.message;
-      showNotification('Error', backendMsg || e?.message || 'Failed to schedule post', 'error');
+      toast.error(backendMsg || e?.message || 'Failed to schedule post');
     } finally {
       setIsScheduling(false);
     }
@@ -233,7 +210,7 @@ const SchedulingOption: React.FC = () => {
 
   const handlePublishNow = async () => {
     if (!postData.content && postData.files.length === 0) {
-      showNotification('Error', 'Please add content or an image to your post', 'error');
+      toast.error('Please add content or an image to your post');
       return;
     }
 
@@ -243,12 +220,12 @@ const SchedulingOption: React.FC = () => {
     );
 
     if (selectedSupportedPlatforms.length === 0) {
-      showNotification('Error', 'Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish', 'error');
+      toast.error('Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish');
       return;
     }
 
     if (!user?.id) {
-      showNotification('Error', 'User not authenticated', 'error');
+      toast.error('User not authenticated');
       return;
     }
 
@@ -342,25 +319,15 @@ const SchedulingOption: React.FC = () => {
       if (results.length > 0 && errors.length === 0) {
         // All platforms succeeded
         const platformList = results.join(' and ');
-        showNotification(
-          'Success!', 
-          `Your post has been published to ${platformList} successfully!`, 
-          'success'
-        );
+        toast.success(`Your post has been published to ${platformList} successfully!`);
       } else if (results.length > 0 && errors.length > 0) {
         // Some platforms succeeded, some failed
         const successPlatforms = results.join(' and ');
-        const formattedErrors = errors.map(e => `- ${e}`).join('\n');
-        const message = `Published to ${successPlatforms} successfully.\n\nErrors:\n${formattedErrors}`;
-        showNotification('Partial Success', message, 'error');
+        toast.success(`Published to ${successPlatforms} successfully.`);
+        toast.error('Some platforms failed: ' + errors.join(', '));
       } else {
         // All platforms failed
-        const errorMessages = errors.join('\n');
-        showNotification(
-          'Publishing Failed', 
-          errorMessages, 
-          'error'
-        );
+        toast.error('Publishing failed: ' + errors.join(', '));
       }
       
       // Clear the post data after successful posting (if at least one succeeded)
@@ -368,11 +335,7 @@ const SchedulingOption: React.FC = () => {
       
     } catch (error: any) {
       console.error('Publishing error:', error);
-      showNotification(
-        'Error',
-        (error?.response?.data?.message as string) || error?.message || 'Failed to publish posts',
-        'error'
-      );
+      toast.error((error?.response?.data?.message as string) || error?.message || 'Failed to publish posts');
     } finally {
       setIsPublishing(false);
     }
@@ -527,14 +490,6 @@ const SchedulingOption: React.FC = () => {
           <span>Save as draft</span>
         </button>
       </div>
-
-      <AlertModal
-        isOpen={notification.isOpen}
-        onClose={closeNotification}
-        title={notification.title}
-        message={notification.message}
-        type={notification.type}
-      />
 
       {/* Publishing Overlay */}
       <PublishingOverlay open={isPublishing} />
