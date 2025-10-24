@@ -276,3 +276,69 @@ body {
     object-fit: cover;
     min-height: 180px;
 }
+
+/* GrapesJS Studio Asset Manager Delete Modal Styles */
+.gs-utl-card.gs-theme-cl-bg.gs-utl-bg-white.gs-utl-border.gs-utl-rounded.gs-theme-cl-br.gs-utl-border-gray-300.gs-utl-overflow-auto.gs-utl-shadow-md.gs-utl-px-4.gs-utl-py-2 {
+  max-width: 400px !important;
+  width: 90% !important;
+}
+
+/* Target the specific card body with the 200px width constraint */
+.gs-utl-card-body .gs-utl-w-\[200px\].gs-utl-flex.gs-utl-flex-col.gs-utl-flex-wrap.gs-utl-space-y-4 {
+  width: 100% !important;
+  max-width: 350px !important;
+}
+
+/* Target only the text center elements within the delete modal */
+.gs-utl-card-body .gs-utl-text-center.gs-utl-flex-1 {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  line-height: 1.4 !important;
+}
+
+/* Target only paragraphs within the delete modal */
+.gs-utl-card-body .gs-utl-text-center p {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  line-height: 1.4 !important;
+  max-width: 100% !important;
+  margin: 8px 0 !important;
+}
+
+/* Target the specific warning message paragraph */
+.gs-utl-card-body .gs-utl-text-center p:last-child {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  line-height: 1.4 !important;
+  max-width: 100% !important;
+  text-align: center !important;
+}
+
+/* Target only buttons within the delete modal */
+.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button {
+  min-width: 80px !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Target the confirm button specifically */
+.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button.gs-utl-bg-red-500 {
+  background-color: #dc2626 !important;
+  color: white !important;
+  border: none !important;
+}
+
+/* Target the cancel button specifically */
+.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button.gs-utl-border {
+  background-color: #374151 !important;
+  color: white !important;
+  border: none !important;
+}
