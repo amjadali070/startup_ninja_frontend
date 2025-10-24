@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -12,19 +12,19 @@
   background: transparent;
 }
 .notification-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 .notification-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
 }
 .notification-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -32,7 +32,7 @@ body {
 
 /* Ninja Assistant Card Custom Styles */
 .ninja-assistant-card {
-  box-shadow: 0px 4px 40px 0px #7F1D1D80;
+  box-shadow: 0px 4px 40px 0px #7f1d1d80;
 }
 
 .animate-zoomIn {
@@ -75,7 +75,6 @@ body {
   }
 }
 
-
 .animate-slideUpFull {
   animation: slideUpFull 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -85,12 +84,15 @@ body {
 }
 
 .feature-bg {
-  background: linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%);
+  background: linear-gradient(
+    135.17deg,
+    rgba(55, 65, 81, 0.5) -94.55%,
+    rgba(18, 16, 16, 0.5) 95.54%
+  );
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 2rem;
 }
-
 
 /* Footer Logo Animation */
 .footer-logo-container {
@@ -103,16 +105,18 @@ body {
 }
 
 .white-path {
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
+    drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
 }
 
-
 .footer-logo-container:hover .white-path {
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))
+    drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 }
 
 .footer-logo-container:hover .red-path {
-  filter: drop-shadow(0 0 3px rgba(222, 5, 0, 0.6)) drop-shadow(0 0 6px rgba(222, 5, 0, 0.4));
+  filter: drop-shadow(0 0 3px rgba(222, 5, 0, 0.6))
+    drop-shadow(0 0 6px rgba(222, 5, 0, 0.4));
 }
 
 .footer-logo-container:hover .footer-logo-overlay {
@@ -126,7 +130,11 @@ body {
   width: 100%;
   height: 100%;
   opacity: 0.9;
-  background: radial-gradient(circle 150px at var(--mouse-x, -20%) var(--mouse-y, 0%), transparent 0%, rgba(0, 0, 0, 0.95) 100%);
+  background: radial-gradient(
+    circle 150px at var(--mouse-x, -20%) var(--mouse-y, 0%),
+    transparent 0%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
   /* background: radial-gradient(circle 150px at var(--mouse-x, 70%) var(--mouse-y, 50%), transparent 0%, rgba(0, 0, 0, 0.95) 100%); */
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -135,10 +143,10 @@ body {
 }
 
 .gs-studio-root {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
 }
 
-.gs-canvas-sidebar-top>.gs-cmp-editor-topbar {
+.gs-canvas-sidebar-top > .gs-cmp-editor-topbar {
   min-height: 55px !important;
 }
 
@@ -148,7 +156,6 @@ body {
 
 .gs-layout-panel {
   margin-left: 60px;
-
 }
 
 .gs-layout-panel__content,
@@ -172,51 +179,53 @@ body {
   display: block;
 }
 
-.gs-asset-manager__header>.gs-utl-flex:first-child {
+.gs-asset-manager__header > .gs-utl-flex:first-child {
   display: block;
   margin-bottom: 10px;
 }
 
-.gs-asset-manager__header>.gs-utl-flex:nth-child(2) {
+.gs-asset-manager__header > .gs-utl-flex:nth-child(2) {
   display: block;
 }
 
-
-.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(1) {
+.gs-asset-manager__header > .gs-utl-flex:nth-child(2) > div:nth-child(1) {
   width: 100% !important;
 }
 
-.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(1)>button {
+.gs-asset-manager__header
+  > .gs-utl-flex:nth-child(2)
+  > div:nth-child(1)
+  > button {
   width: 100%;
   padding: 7px 10px;
   border-radius: 8px;
 }
 
-.gs-asset-manager__header>.gs-utl-flex:nth-child(2)>div:nth-child(2) {
+.gs-asset-manager__header > .gs-utl-flex:nth-child(2) > div:nth-child(2) {
   display: none;
 }
 
-.gs-input-field>.gs-input-container {
+.gs-input-field > .gs-input-container {
   height: 40px;
   border-radius: 8px;
 }
 
 .gs-devices {
-    background-color: #181818 !important;
-    border-radius: 8px;
+  background-color: #181818 !important;
+  border-radius: 8px;
 }
 
-.device-desktop.active{
+.device-desktop.active {
   background-color: #ec2222;
   border-radius: 8px;
 }
 
-.device-tablet.active{
+.device-tablet.active {
   background-color: #ec2222;
   border-radius: 8px;
 }
 
-.device-mobile.active{
+.device-mobile.active {
   background-color: #ec2222;
   border-radius: 8px;
 }
@@ -224,30 +233,36 @@ body {
   overflow: auto !important;
 } */
 
-.gs-cmp-sidebar-right > .gs-cmp-tabs__panels > .gs-cmp-tabs__panel > .gs-utl-flex{
-    overflow: auto;
-    min-height: 70%;
-    height: 50%;
+.gs-cmp-sidebar-right
+  > .gs-cmp-tabs__panels
+  > .gs-cmp-tabs__panel
+  > .gs-utl-flex {
+  overflow: auto;
+  min-height: 70%;
+  height: 50%;
 }
 
-.gs-cmp-color-field, .gs-cmp-number-field , .gs-cmp-global-style-field > .gs-select-field{
+.gs-cmp-color-field,
+.gs-cmp-number-field,
+.gs-cmp-global-style-field > .gs-select-field {
   flex-direction: row;
-  gap:5px;
+  gap: 5px;
   align-items: center;
 }
 
-.gs-cmp-color-field > .gs-input-container , .gs-cmp-number-field > .gs-input-container  , .gs-cmp-global-style-field > .gs-select-field > button > div{
+.gs-cmp-color-field > .gs-input-container,
+.gs-cmp-number-field > .gs-input-container,
+.gs-cmp-global-style-field > .gs-select-field > button > div {
   padding: 8px;
-    border-radius: 8px;
+  border-radius: 8px;
 }
 
 .gs-label-field-container > label {
   font-size: 13px;
 }
-.gs-cmp-tooltip button:hover{
+.gs-cmp-tooltip button:hover {
   background-color: #ec2222 !important;
 }
-
 
 /* .iframe-scale-wrapper iframe {
   --iframe-scale: 0.32; 
@@ -272,9 +287,9 @@ body {
 } */
 
 .preview-website-img {
-    aspect-ratio: 2 / 1;
-    object-fit: cover;
-    min-height: 180px;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  min-height: 180px;
 }
 
 /* GrapesJS Studio Asset Manager Delete Modal Styles */
@@ -284,7 +299,8 @@ body {
 }
 
 /* Target the specific card body with the 200px width constraint */
-.gs-utl-card-body .gs-utl-w-\[200px\].gs-utl-flex.gs-utl-flex-col.gs-utl-flex-wrap.gs-utl-space-y-4 {
+.gs-utl-card-body
+  .gs-utl-w-\[200px\].gs-utl-flex.gs-utl-flex-col.gs-utl-flex-wrap.gs-utl-space-y-4 {
   width: 100% !important;
   max-width: 350px !important;
 }
@@ -321,7 +337,9 @@ body {
 }
 
 /* Target only buttons within the delete modal */
-.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button {
+.gs-utl-card-body
+  .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center
+  button {
   min-width: 80px !important;
   padding: 8px 16px !important;
   border-radius: 6px !important;
@@ -330,14 +348,18 @@ body {
 }
 
 /* Target the confirm button specifically */
-.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button.gs-utl-bg-red-500 {
+.gs-utl-card-body
+  .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center
+  button.gs-utl-bg-red-500 {
   background-color: #dc2626 !important;
   color: white !important;
   border: none !important;
 }
 
 /* Target the cancel button specifically */
-.gs-utl-card-body .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center button.gs-utl-border {
+.gs-utl-card-body
+  .gs-utl-flex.gs-utl-flex-wrap.gs-utl-space-x-4.gs-utl-items-center.gs-utl-justify-center
+  button.gs-utl-border {
   background-color: #374151 !important;
   color: white !important;
   border: none !important;
