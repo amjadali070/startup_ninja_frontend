@@ -15,6 +15,7 @@ import {
   canvasGridMode,
   youtubeAssetProvider,
 } from "@grapesjs/studio-sdk-plugins";
+// @ts-ignore: module has no type declarations for side-effect import
 import "@grapesjs/studio-sdk/style";
 import { useLocation, useNavigate } from "react-router-dom";
 import WebBuilderService, {
@@ -686,10 +687,9 @@ const WebsiteBuilderStudio: FC = () => {
         const failedUploads = results.filter((result) => !result.success);
 
         if (successfulUploads.length > 0) {
-          toast.success(
-            `${successfulUploads.length} asset(s) uploaded successfully`,
-            { id: "upload-assets" }
-          );
+          toast.success(`Assets uploaded successfully`, {
+            id: "upload-assets",
+          });
         }
 
         if (failedUploads.length > 0) {
@@ -717,7 +717,12 @@ const WebsiteBuilderStudio: FC = () => {
     onDelete: async ({ assets }: { assets: any[] }) => {
       try {
         const assetIds = assets
-          .map((asset) => asset.getSrc().split("/").pop()?.split("_")[0])
+          .map((asset) => {
+            const src = asset.getSrc();
+            // Extract filename from URL like: http://localhost:3004/gallery/filename.jpg
+            const filename = src.split("/").pop();
+            return filename;
+          })
           .filter(Boolean);
 
         if (assetIds.length === 0) return;
