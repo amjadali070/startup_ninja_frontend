@@ -14,6 +14,7 @@ import {
   canvasFullSize,
   canvasGridMode,
   youtubeAssetProvider,
+  googleFontsAssetProvider,
 } from "@grapesjs/studio-sdk-plugins";
 // @ts-ignore: module has no type declarations for side-effect import
 import "@grapesjs/studio-sdk/style";
@@ -848,6 +849,21 @@ const WebsiteBuilderStudio: FC = () => {
                   background2: "#c81010",
                   background3: "#a31515",
                   text: "rgba(255, 255, 255, 1)",
+                },
+              },
+            },
+          },
+          fonts: {
+            enableFontManager: true,
+          },
+          i18n: {
+            locales: {
+              en: {
+                fontManager: {
+                  addFontToProject: "Add font to project",
+                  projectFonts: "Project fonts",
+                  emptyProjectFonts: "There are no fonts in this project.",
+                  selectFont: "Select a font",
                 },
               },
             },
@@ -1796,6 +1812,9 @@ const WebsiteBuilderStudio: FC = () => {
             }),
             youtubeAssetProvider.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/asset-providers/youtube-asset-provider */
+            }),
+            googleFontsAssetProvider.init({
+              apiKey: import.meta.env.VITE_GOOGLE_FONTS_API_KEY,
             }),
           ],
           templates: {
