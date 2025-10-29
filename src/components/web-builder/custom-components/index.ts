@@ -15,6 +15,8 @@ export { footerPlugin } from "./Footer";
 export { sectionSeparatorPlugin } from "./SectionSeparator";
 export { videoEmbedPlugin } from "./VideoEmbed";
 export { contactFormPlugin } from "./ContactForm";
+export { contactFormMinimalPlugin } from "./ContactFormMinimal";
+export { contactFormSplitPlugin } from "./ContactFormSplit";
 export { socialLinksPlugin } from "./SocialLinks";
 export { breadcrumbPlugin } from "./Breadcrumb";
 export { documentUploaderPlugin } from "./DocumentUploader";

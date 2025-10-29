@@ -85,9 +85,9 @@ export const contactFormPlugin = (editor: Editor) => {
         traits: [
           {
             type: 'text',
-            label: 'Owner Email',
+            label: 'Form recipient email',
             name: 'data-owner-email',
-            placeholder: 'owner@example.com',
+            placeholder: 'recipient@example.com',
           },
         ],
         script: function () {
