@@ -577,7 +577,7 @@ const Register: React.FC = () => {
                     className="absolute inset-y-0 right-0 flex items-center px-3 text-[#888888] hover:text-white transition-colors duration-200"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <FaEyeSlash className="w-3.5 h-3.5" /> : <FaEye className="w-3.5 h-3.5" />}
+                    {showPassword ? <FaEye className="w-3.5 h-3.5" /> : <FaEyeSlash className="w-3.5 h-3.5" />}
                   </button>
                 </div>
                 {fieldErrors.password && (
@@ -609,7 +609,7 @@ const Register: React.FC = () => {
                     className="absolute inset-y-0 right-0 flex items-center px-3 text-[#888888] hover:text-white transition-colors duration-200"
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showConfirmPassword ? <FaEyeSlash className="w-3.5 h-3.5" /> : <FaEye className="w-3.5 h-3.5" />}
+                    {showConfirmPassword ? <FaEye className="w-3.5 h-3.5" /> : <FaEyeSlash className="w-3.5 h-3.5" />}
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && (

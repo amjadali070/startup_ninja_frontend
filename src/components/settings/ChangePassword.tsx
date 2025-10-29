@@ -1,5 +1,5 @@
-import { useState, type ChangeEvent, type FC, type FormEvent } from 'react';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { useState, type ChangeEvent, type FC, type FormEvent } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export type ChangePasswordFormState = {
   currentPassword: string;
@@ -26,15 +26,15 @@ const ChangePassword: FC<ChangePasswordProps> = ({
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
+  const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
     switch (field) {
-      case 'current':
+      case "current":
         setShowCurrentPassword(!showCurrentPassword);
         break;
-      case 'new':
+      case "new":
         setShowNewPassword(!showNewPassword);
         break;
-      case 'confirm':
+      case "confirm":
         setShowConfirmPassword(!showConfirmPassword);
         break;
     }
@@ -44,7 +44,9 @@ const ChangePassword: FC<ChangePasswordProps> = ({
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
       <div className="mb-4 xs:mb-5 sm:mb-6">
-        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-2">Account & Security</h3>
+        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-2">
+          Account & Security
+        </h3>
         <p className="text-gray-400 text-xs xs:text-sm">
           Manage your password and security settings
         </p>
@@ -54,10 +56,12 @@ const ChangePassword: FC<ChangePasswordProps> = ({
       <form onSubmit={onSubmit}>
         {/* Current Password Field */}
         <div className="mb-3 xs:mb-4">
-          <label className="block text-white text-sm xs:text-base font-bold mb-2">Current Password</label>
+          <label className="block text-white text-sm xs:text-base font-bold mb-2">
+            Current Password
+          </label>
           <div className="relative">
             <input
-              type={showCurrentPassword ? 'text' : 'password'}
+              type={showCurrentPassword ? "text" : "password"}
               name="currentPassword"
               value={form.currentPassword}
               onChange={onChange}
@@ -66,20 +70,26 @@ const ChangePassword: FC<ChangePasswordProps> = ({
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility('current')}
+              onClick={() => togglePasswordVisibility("current")}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
             >
-              {showCurrentPassword ? <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" /> : <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />}
+              {showCurrentPassword ? (
+                <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />
+              ) : (
+                <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" />
+              )}
             </button>
           </div>
         </div>
 
         {/* New Password Field */}
         <div className="mb-3 xs:mb-4">
-          <label className="block text-white text-sm xs:text-base font-bold mb-2">New Password</label>
+          <label className="block text-white text-sm xs:text-base font-bold mb-2">
+            New Password
+          </label>
           <div className="relative">
             <input
-              type={showNewPassword ? 'text' : 'password'}
+              type={showNewPassword ? "text" : "password"}
               name="newPassword"
               value={form.newPassword}
               onChange={onChange}
@@ -88,20 +98,26 @@ const ChangePassword: FC<ChangePasswordProps> = ({
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility('new')}
+              onClick={() => togglePasswordVisibility("new")}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
             >
-              {showNewPassword ? <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" /> : <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />}
+              {showNewPassword ? (
+                <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />
+              ) : (
+                <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Confirm Password Field */}
         <div className="mb-4 xs:mb-6">
-          <label className="block text-white text-sm xs:text-base font-bold mb-2">Confirm Password</label>
+          <label className="block text-white text-sm xs:text-base font-bold mb-2">
+            Confirm Password
+          </label>
           <div className="relative">
             <input
-              type={showConfirmPassword ? 'text' : 'password'}
+              type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               value={form.confirmPassword}
               onChange={onChange}
@@ -110,10 +126,14 @@ const ChangePassword: FC<ChangePasswordProps> = ({
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility('confirm')}
+              onClick={() => togglePasswordVisibility("confirm")}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
             >
-              {showConfirmPassword ? <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" /> : <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />}
+              {showConfirmPassword ? (
+                <FiEye className="w-4 h-4 xs:w-5 xs:h-5" />
+              ) : (
+                <FiEyeOff className="w-4 h-4 xs:w-5 xs:h-5" />
+              )}
             </button>
           </div>
         </div>
@@ -125,7 +145,7 @@ const ChangePassword: FC<ChangePasswordProps> = ({
             disabled={isUpdating}
             className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#FF1A1A] hover:to-[#A00000] text-white text-xs xs:text-sm font-bold rounded-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg"
           >
-            {isUpdating ? 'Updating…' : 'Update Password'}
+            {isUpdating ? "Updating…" : "Update Password"}
           </button>
           <button
             type="button"

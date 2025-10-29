@@ -128,7 +128,7 @@ const AdminLoginPage: React.FC = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="text-gray-400 hover:text-gray-300 focus:outline-none"
               >
-                {showPassword ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
+                {showPassword ? <FaEye className="text-sm" /> : <FaEyeSlash className="text-sm" />}
               </button>
             </div>
           </div>
