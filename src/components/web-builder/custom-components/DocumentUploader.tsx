@@ -235,7 +235,7 @@ export const documentUploaderPlugin = (editor: Editor) => {
     label: "Document Uploader",
     category: "Custom",
     media:
-      '<svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#e8eaed"><path d="M520-640v-200l200 200H520Zm-320 560q-33 0-56.5-23.5T120-160v-640q0-33 23.5-56.5T200-880h280v240h240v480q0 33-23.5 56.5T640-80H200Zm240-200h160v-80H440v-160H360v160h-160v80h160v160h80v-160Z"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M12 18v-5m0 0l-2 2m2-2l2 2" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
     content: { type: "document-uploader" },
   });
 };

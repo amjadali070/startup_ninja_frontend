@@ -86,7 +86,7 @@ export const featureBoxPlugin = (editor: Editor) => {
   editor.Blocks.add("feature-box", {
     label: "Feature Box",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e8eaed"><path d="M480-120 200-272v-240L40-600l440-240 440 240v320h-80v-276l-360 195v240L880-600 480-840 80-600l360 208v272Zm-49-209 300-163-300-163-300 163 300 163Zm0 0L131-492l300-163 300 163-300 163Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><path d="M12 2l2.09 4.23L19 7l-3.5 3.41L16.18 14 12 11.77 7.82 14l.68-3.59L5 7l4.91-.77L12 2z"/></svg>',
     content: {
       type: "feature-box",
     },

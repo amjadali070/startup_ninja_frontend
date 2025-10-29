@@ -101,7 +101,7 @@ export const documentUploaderDropzonePlugin = (editor: Editor) => {
   editor.Blocks.add("document-uploader-dropzone", {
     label: "Document Uploader (Dropzone)",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#e8eaed"><path d="M520-640v-200l200 200H520Zm-320 560q-33 0-56.5-23.5T120-160v-640q0-33 23.5-56.5T200-880h280v240h240v480q0 33-23.5 56.5T640-80H200Zm240-200h160v-80H440v-160H360v160h-160v80h160v160h80v-160Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><path d="M7 18a4 4 0 1 1 0-8 5.5 5.5 0 0 1 10.4-2.1A4.5 4.5 0 1 1 19 18H7z"/><path d="M12 13v5m0-5l-2 2m2-2l2 2" stroke="#0b1220" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     content: { type: "document-uploader-dropzone" },
   });
 };

@@ -90,7 +90,7 @@ export const contactFormSplitPlugin = (editor: Editor) => {
   editor.Blocks.add("contact-form-split", {
     label: "Contact Form (Split)",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="0 -960 960 960" width="40" fill="#e8eaed"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H144l336 218ZM140-685v-55 520-465Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM3 7v12h9V7H3zm11 0v12h7V7h-7z"/></svg>',
     content: { type: "contact-form-split" },
   });
 };

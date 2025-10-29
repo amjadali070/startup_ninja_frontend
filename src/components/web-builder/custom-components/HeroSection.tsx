@@ -142,7 +142,7 @@ export const heroSectionPlugin = (editor: Editor) => {
   editor.Blocks.add("hero-section", {
     label: "Hero Section",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e8eaed"><path d="M200-200v-560h560v560H200Zm80-240 140-182 100 130 120-162 120 168-80 106H280Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><rect x="3" y="5" width="18" height="12" rx="2" ry="2" fill="none" stroke="#e8eaed" stroke-width="1.5"/><path d="M7 14h10M8 9h8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="19" r="1" fill="#e8eaed"/></svg>',
     content: {
       type: "hero-section",
     },

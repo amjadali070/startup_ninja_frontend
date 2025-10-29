@@ -100,7 +100,7 @@ export const imageGalleryPlugin = (editor: Editor) => {
   editor.Blocks.add("image-gallery", {
     label: "Image Gallery",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e8eaed"><path d="M200-200v-560h560v560H200Zm80-240 140-182 100 130 120-162 120 168-80 106H280Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
     content: {
       type: "image-gallery",
     },

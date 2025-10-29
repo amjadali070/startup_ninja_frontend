@@ -143,7 +143,7 @@ export const contactFormPlugin = (editor: Editor) => {
   editor.Blocks.add("contact-form", {
     label: "Contact Form",
     category: "Custom",
-    media: '<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e8eaed"><path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-302L140-685v465h680v-465L480-462Zm0-60 336-218H144l336 218ZM140-685v-55 520-465Z"/></svg>',
+    media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#e8eaed"><path d="M21 8V7l-3 2-3-2v1l3 2 3-2z"/><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 2v.511l9 5.4 9-5.4V7H3zm18 10V9.489l-8.553 5.136a1 1 0 0 1-1.894 0L3 9.49V17h18z"/></svg>',
     content: {
       type: "contact-form",
     },
