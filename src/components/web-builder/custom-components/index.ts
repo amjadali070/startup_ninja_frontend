@@ -20,4 +20,6 @@ export { contactFormSplitPlugin } from "./ContactFormSplit";
 export { socialLinksPlugin } from "./SocialLinks";
 export { breadcrumbPlugin } from "./Breadcrumb";
 export { documentUploaderPlugin } from "./DocumentUploader";
+export { documentUploaderCardPlugin } from "./DocumentUploaderCard";
+export { documentUploaderDropzonePlugin } from "./DocumentUploaderDropzone";
 

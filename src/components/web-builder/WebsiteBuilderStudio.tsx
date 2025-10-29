@@ -66,6 +66,8 @@ import {
   socialLinksPlugin,
   breadcrumbPlugin,
   documentUploaderPlugin,
+  documentUploaderCardPlugin,
+  documentUploaderDropzonePlugin,
 } from "./custom-components";
 
 const WebsiteBuilderStudio: FC = () => {
@@ -2037,6 +2039,8 @@ const WebsiteBuilderStudio: FC = () => {
             socialLinksPlugin,
             breadcrumbPlugin,
             documentUploaderPlugin,
+            documentUploaderCardPlugin,
+            documentUploaderDropzonePlugin,
             tableComponent.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/components/table */
             }),

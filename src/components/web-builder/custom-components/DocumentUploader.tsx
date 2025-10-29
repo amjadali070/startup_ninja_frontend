@@ -77,12 +77,14 @@ export const documentUploaderPlugin = (editor: Editor) => {
             window.location.protocol === "https:" &&
             apiBase &&
             apiBase.startsWith("http://");
+          const ensureApi = (b: string) => !b ? '' : (b.endsWith('/api') ? b : `${b.replace(/\/+$/, '')}/api`);
+          const base = ensureApi(apiBase);
           const endpoint =
             (window as any)?.__WB_UPLOAD_ENDPOINT ||
             (isMixed
               ? "/api/website-builder/uploads/document"
-              : apiBase
-              ? `${apiBase}/website-builder/uploads/document`
+              : base
+              ? `${base}/website-builder/uploads/document`
               : "/api/website-builder/uploads/document");
           const buttonText = "Upload Document";
           const successMsg = "Uploaded successfully.";
@@ -186,8 +188,8 @@ export const documentUploaderPlugin = (editor: Editor) => {
             }
             const multiEndpoint = isMixed
               ? "/api/website-builder/uploads/documents"
-              : apiBase
-              ? `${apiBase}/website-builder/uploads/documents`
+              : base
+              ? `${base}/website-builder/uploads/documents`
               : "/api/website-builder/uploads/documents";
             setStatus("Uploading...");
             setProgress(10);
