@@ -15,6 +15,7 @@ import {
   canvasGridMode,
   youtubeAssetProvider,
   googleFontsAssetProvider,
+  animationComponent,
 } from "@grapesjs/studio-sdk-plugins";
 // @ts-ignore: module has no type declarations for side-effect import
 import "@grapesjs/studio-sdk/style";
@@ -1377,6 +1378,22 @@ const WebsiteBuilderStudio: FC = () => {
                                   ...filtered,
                                   {
                                     type: "button",
+                                    id: "wrap-animate-btn",
+                                    tooltip: "Animate Selected",
+                                    icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#CCCCCC"/></svg>`,
+                                    onClick: ({ editor }) => {
+                                      const selected = editor.getSelected?.();
+                                      if (!selected) return;
+                                      try {
+                                        editor.runCommand?.("core:component-wrap", {
+                                          component: selected,
+                                          wrapper: { type: "animation" },
+                                        });
+                                      } catch (e) {}
+                                    },
+                                  },
+                                  {
+                                    type: "button",
                                     id: "preview-stg-btn",
                                     icon: `<svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                         <path d="M1.53688 13.022C0.871153 13.4456 0 12.9674 0 12.1783V1.82167C0 1.03258 0.87115 0.554368 1.53688 0.978012L9.67424 6.15634C10.2917 6.54929 10.2917 7.45071 9.67425 7.84366L1.53688 13.022ZM2 10.35L7.25 7L4.5 8.75476L2 10.35Z" fill="#CCCCCC"/>
@@ -1778,6 +1795,27 @@ const WebsiteBuilderStudio: FC = () => {
             }),
             googleFontsAssetProvider.init({
               apiKey: import.meta.env.VITE_GOOGLE_FONTS_API_KEY,
+            }),
+            animationComponent.init({
+              animations({ items }) {
+                return items; // Returns all default animations
+              },
+              block: {
+                category: "Custom",
+                label: "Animate",
+              },
+              blockGroup: {
+                category: "Custom",
+                label: "Animate Group",
+              },
+              animationStyle: {
+                "animation-duration": "1s",
+                "animation-timing-function": "ease-out",
+                "animation-fill-mode": "both",
+              },
+              animationGroupStyle: {
+                "--stagger-delay": "0.2s",
+              },
             }),
           ],
           templates: {
