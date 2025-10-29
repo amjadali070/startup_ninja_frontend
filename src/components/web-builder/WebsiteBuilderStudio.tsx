@@ -1421,6 +1421,7 @@ const WebsiteBuilderStudio: FC = () => {
 
                                       const rows = items.map((it: any) => ({
                                         type: 'row',
+                                        htmlAttrs: { id: `doc-row-${it.id}` },
                                         style: { justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #333' },
                                         children: [
                                           { type: 'text', content: `${it.name}`, style: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
@@ -1445,8 +1446,18 @@ const WebsiteBuilderStudio: FC = () => {
                                                 try {
                                                   const r = await apiFetch(`/website-builder/uploads/documents/${it.id}`, { method: 'DELETE' });
                                                   if (!(r.status === 204 || r.ok)) throw new Error('delete failed');
-                                                  editor.runCommand('studio:layoutRemove', { id: 'documents-panel' });
-                                                  (document.getElementById('documents-panel-btn') as any)?.click?.();
+                                                  // Show success and refresh the list without closing the panel
+                                                  toast.success('Document deleted successfully');
+                                                  // Remove row immediately
+                                                  const row = document.getElementById(`doc-row-${it.id}`);
+                                                  if (row && row.parentElement) row.parentElement.removeChild(row);
+                                                  // Update total count
+                                                  const totalEl = document.getElementById('doc-total-count');
+                                                  if (totalEl) {
+                                                    const m = totalEl.textContent?.match(/\d+/);
+                                                    const n = m ? Math.max(0, parseInt(m[0]) - 1) : 0;
+                                                    totalEl.textContent = `Total: ${n}`;
+                                                  }
                                                 } catch {}
                                               }
                                             }
@@ -1467,7 +1478,7 @@ const WebsiteBuilderStudio: FC = () => {
                                               { type: 'button', tooltip: 'Close', style: { background: 'transparent', padding: '6px' }, icon: ICON_CLOSE, onClick: ({ editor }: any) => { editor.runCommand('studio:layoutRemove', { id: 'documents-panel' }); } }
                                             ]},
                                             ...rows.length ? rows : [{ type: 'text', content: authToken ? 'No documents uploaded yet.' : 'Not authorized. Please sign in again.', style: { color: '#aaa', padding: '8px 0' } }],
-                                            { type: 'row', style: { justifyContent: 'flex-end', paddingTop: '8px' }, children: [ { type: 'text', content: `Total: ${items.length}`, style: { color: '#aaa' } } ] }
+                                            { type: 'row', style: { justifyContent: 'flex-end', paddingTop: '8px' }, children: [ { type: 'text', htmlAttrs: { id: 'doc-total-count' }, content: `Total: ${items.length}`, style: { color: '#aaa' } } ] }
                                           ]
                                         }
                                       });
