@@ -6,7 +6,7 @@ export const contactFormPlugin = (editor: Editor) => {
     model: {
       defaults: {
         tagName: "form",
-        attributes: { class: "contact-form" },
+        attributes: { class: "contact-form", 'data-owner-email': '' },
         styles: `
           .contact-form {
             max-width: 600px;
@@ -82,6 +82,60 @@ export const contactFormPlugin = (editor: Editor) => {
           </div>
           <button type="submit" class="form-submit">Send Message</button>
         `,
+        traits: [
+          {
+            type: 'text',
+            label: 'Owner Email',
+            name: 'data-owner-email',
+            placeholder: 'owner@example.com',
+          },
+        ],
+        script: function () {
+          // @ts-ignore
+          const form = this as HTMLFormElement;
+          const ownerEmail = form.getAttribute('data-owner-email') || '';
+          const status = document.createElement('div');
+          status.style.marginTop = '10px';
+          form.appendChild(status);
+
+          const setStatus = (msg: string, color = '#374151') => { status.textContent = msg; (status as any).style.color = color; };
+
+          // Resolve API base, avoid mixed content (aligned with DocumentUploader, but tolerant if base misses /api)
+          const apiBase = (window as any)?.__API_BASE_URL || '';
+          const isMixed = window.location.protocol === 'https:' && apiBase && apiBase.startsWith('http://');
+          const ensureApi = (b: string) => !b ? '' : (b.endsWith('/api') ? b : `${b.replace(/\/+$/, '')}/api`);
+          const base = ensureApi(apiBase);
+          const endpoint = isMixed ? '/api/user/contact-email' : (base ? `${base}/user/contact-email` : '/api/user/contact-email');
+
+          form.addEventListener('submit', async (e: Event) => {
+            e.preventDefault();
+            try {
+              if (!ownerEmail) { setStatus('Owner email not set. Please configure in properties.', '#b91c1c'); return; }
+              const inputs = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('.form-input, .form-textarea');
+              const [nameEl, emailEl, subjectEl, messageEl] = Array.from(inputs);
+              const payload = {
+                toEmail: ownerEmail,
+                name: nameEl?.value || '',
+                email: emailEl?.value || '',
+                subject: subjectEl?.value || '',
+                message: (messageEl as HTMLTextAreaElement)?.value || '',
+                // Optional context
+                websiteId: (window as any)?.__WEBSITE_ID || ''
+              };
+              setStatus('Sending...');
+              const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              if (!res.ok) throw new Error('Failed');
+              setStatus('Message sent successfully.', '#065f46');
+              form.reset();
+            } catch (err) {
+              setStatus('Failed to send message.', '#b91c1c');
+            }
+          });
+        },
       },
     },
   });
