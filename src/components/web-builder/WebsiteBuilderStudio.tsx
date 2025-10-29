@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FC } from "react";
+import ReactDOMServer from "react-dom/server";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import {
   tableComponent,
@@ -29,6 +30,19 @@ import { toast } from "react-hot-toast";
 import html2canvas from "html2canvas";
 import DemoTemplates from "./config/DemoTemplates";
 import LoadingSpinner from "../LoadingSpinner";
+import { FaFileDownload } from "react-icons/fa";
+import { MdDelete, MdClose } from "react-icons/md";
+// Backend API base URL
+const API_BASE: string = (import.meta as any).env?.VITE_API_BASE_URL || "";
+const ICON_DOWNLOAD = ReactDOMServer.renderToStaticMarkup(
+  <FaFileDownload size={18} color="#ccc" />
+);
+const ICON_DELETE = ReactDOMServer.renderToStaticMarkup(
+  <MdDelete size={18} color="#dc2626" />
+);
+const ICON_CLOSE = ReactDOMServer.renderToStaticMarkup(
+  <MdClose size={18} color="#ccc" />
+);
 import {
   cardPlugin,
   heroSectionPlugin,
@@ -49,6 +63,7 @@ import {
   contactFormPlugin,
   socialLinksPlugin,
   breadcrumbPlugin,
+  documentUploaderPlugin,
 } from "./custom-components";
 
 const WebsiteBuilderStudio: FC = () => {
@@ -58,7 +73,7 @@ const WebsiteBuilderStudio: FC = () => {
   const editorRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -718,6 +733,9 @@ const WebsiteBuilderStudio: FC = () => {
       <StudioEditor
         onReady={(editor: any) => {
           editorRef.current = editor;
+          // Expose API base for runtime scripts
+          // @ts-ignore
+          (window as any).__API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
           setTimeout(() => addDeviceIcons(), 200);
 
           editor.on("device:select", () => {
@@ -1378,6 +1396,85 @@ const WebsiteBuilderStudio: FC = () => {
                                   ...filtered,
                                   {
                                     type: "button",
+                                    id: "documents-panel-btn",
+                                    icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#CCCCCC" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#CCCCCC" stroke-width="2" stroke-linejoin="round"/></svg>`,
+                                    tooltip: "View Uploaded Documents",
+                                    onClick: async ({ editor }) => {
+                                      const authToken = (token || '').replace(/^"|"$/g, '');
+                                      const withAuth = (opts: RequestInit = {}) => ({
+                                        ...opts,
+                                        headers: {
+                                          ...(opts.headers || {}),
+                                          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                                        },
+                                      });
+                                      const apiFetch = (path: string, opts?: RequestInit) => fetch(`${API_BASE}${path}`, withAuth(opts));
+                                      const siteId = websiteData?._id;
+                                      let items: any[] = [];
+                                      try {
+                                        const res = await apiFetch(`/website-builder/uploads/documents?websiteId=${siteId}`);
+                                        if (res.ok) {
+                                          const json = await res.json();
+                                          if (json?.success) items = json.data?.items || [];
+                                        }
+                                      } catch (e) {}
+
+                                      const rows = items.map((it: any) => ({
+                                        type: 'row',
+                                        style: { justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #333' },
+                                        children: [
+                                          { type: 'text', content: `${it.name}`, style: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                                          { type: 'row', style: { gap: '8px', alignItems: 'center' }, children: [
+                                            { type: 'button', tooltip: 'Download', style: { background: 'transparent', padding: '6px' }, icon: ICON_DOWNLOAD, onClick: async () => {
+                                                try {
+                                                  const r = await apiFetch(`/website-builder/uploads/documents/${it.id}/download`);
+                                                  if (!r.ok) throw new Error('download failed');
+                                                  const blob = await r.blob();
+                                                  const url = URL.createObjectURL(blob);
+                                                  const a = document.createElement('a');
+                                                  a.href = url;
+                                                  a.download = it.name || 'document';
+                                                  document.body.appendChild(a);
+                                                  a.click();
+                                                  a.remove();
+                                                  URL.revokeObjectURL(url);
+                                                } catch {}
+                                              }
+                                            },
+                                            { type: 'button', tooltip: 'Delete', style: { background: 'transparent', padding: '6px' }, icon: ICON_DELETE, onClick: async () => {
+                                                try {
+                                                  const r = await apiFetch(`/website-builder/uploads/documents/${it.id}`, { method: 'DELETE' });
+                                                  if (!(r.status === 204 || r.ok)) throw new Error('delete failed');
+                                                  editor.runCommand('studio:layoutRemove', { id: 'documents-panel' });
+                                                  (document.getElementById('documents-panel-btn') as any)?.click?.();
+                                                } catch {}
+                                              }
+                                            }
+                                          ]}
+                                        ]
+                                      }));
+
+                                      editor.runCommand('studio:layoutToggle', {
+                                        id: 'documents-panel',
+                                        header: false,
+                                        placer: { type: 'absolute', position: 'left', title: 'Documents', size: 'l' },
+                                        layout: {
+                                          type: 'column',
+                                          style: { gap: '12px', padding: '12px', overflow: 'auto' },
+                                          children: [
+                                            { type: 'row', style: { justifyContent: 'space-between', alignItems: 'center', paddingBottom: '6px', borderBottom: '1px solid #333' }, children: [
+                                              { type: 'text', content: 'Uploaded Documents', style: { color: '#fff', fontWeight: 700 } },
+                                              { type: 'button', tooltip: 'Close', style: { background: 'transparent', padding: '6px' }, icon: ICON_CLOSE, onClick: ({ editor }: any) => { editor.runCommand('studio:layoutRemove', { id: 'documents-panel' }); } }
+                                            ]},
+                                            ...rows.length ? rows : [{ type: 'text', content: authToken ? 'No documents uploaded yet.' : 'Not authorized. Please sign in again.', style: { color: '#aaa', padding: '8px 0' } }],
+                                            { type: 'row', style: { justifyContent: 'flex-end', paddingTop: '8px' }, children: [ { type: 'text', content: `Total: ${items.length}`, style: { color: '#aaa' } } ] }
+                                          ]
+                                        }
+                                      });
+                                    }
+                                  },
+                                  {
+                                    type: "button",
                                     id: "wrap-animate-btn",
                                     tooltip: "Animate Selected",
                                     icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#CCCCCC"/></svg>`,
@@ -1754,6 +1851,7 @@ const WebsiteBuilderStudio: FC = () => {
             contactFormPlugin,
             socialLinksPlugin,
             breadcrumbPlugin,
+            documentUploaderPlugin,
             tableComponent.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/components/table */
             }),

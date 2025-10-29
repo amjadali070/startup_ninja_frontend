@@ -17,4 +17,5 @@ export { videoEmbedPlugin } from "./VideoEmbed";
 export { contactFormPlugin } from "./ContactForm";
 export { socialLinksPlugin } from "./SocialLinks";
 export { breadcrumbPlugin } from "./Breadcrumb";
+export { documentUploaderPlugin } from "./DocumentUploader";
 
