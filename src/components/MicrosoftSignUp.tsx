@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMsal } from '@azure/msal-react';
 import { loginRequest} from '../lib/msalConfig';
-import { FaMicrosoft } from 'react-icons/fa';
 import { authService } from '../services/auth';
 import type { AuthResponse } from '../types/auth';
 
@@ -106,7 +105,7 @@ const MicrosoftSignUp: React.FC<MicrosoftSignUpProps> = ({
         disabled={isLoading}
         className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200"
       >
-        <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#00A4EF]" />
+        <img src="/svg/microsoft.svg" alt="Microsoft" className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
         {isLoading ? 'Signing in...' : computedLabel}
       </button>
       {shouldShowLocalError && error && (
