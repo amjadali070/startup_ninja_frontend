@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.ts";
 import { LoginRequest, AuthResponse } from "../../types/auth.ts";
-import { BsApple } from "react-icons/bs";
+// import { BsApple } from "react-icons/bs";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 import SocialAuth from "../../components/SocialAuth.tsx";
@@ -193,10 +193,10 @@ const Login: React.FC = () => {
           </h1>
 
           <div className="space-y-2.5 mb-4 sm:mb-6">
-            <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
+            {/* <button className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200">
               <BsApple className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
               Apple
-            </button>
+            </button> */}
 
             <SocialAuth
               buttonText="continue_with"
@@ -210,7 +210,7 @@ const Login: React.FC = () => {
               onClick={() => navigate("/register")}
               className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200"
             >
-              <SiGmail className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
+              <SiGmail className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#EA4335]" />
               Continue with Email
             </button>
           </div>

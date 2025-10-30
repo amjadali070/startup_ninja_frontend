@@ -106,7 +106,7 @@ const MicrosoftSignUp: React.FC<MicrosoftSignUpProps> = ({
         disabled={isLoading}
         className="w-full h-[44px] sm:h-[48px] bg-[#333333] hover:bg-[#404040] rounded-[8px] text-white text-[13px] sm:text-[14px] font-medium flex items-center px-4 transition-colors duration-200"
       >
-        <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3" />
+        <FaMicrosoft className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-[#00A4EF]" />
         {isLoading ? 'Signing in...' : computedLabel}
       </button>
       {shouldShowLocalError && error && (
