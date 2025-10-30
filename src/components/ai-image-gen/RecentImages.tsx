@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 type RawImageItem = {
   id?: string | number;
@@ -68,6 +69,11 @@ const resolveImageData = (
 
 const RecentImages: React.FC<RecentImagesProps> = ({ images }) => {
   const preparedImages = useMemo(() => resolveImageData(images), [images]);
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
+  const total = preparedImages.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const pageItems = preparedImages.slice((page - 1) * pageSize, page * pageSize);
 
   const ImageCard = ({ image }: { image: PreparedImageItem; index: number }) => (
     <article
@@ -111,10 +117,40 @@ const RecentImages: React.FC<RecentImagesProps> = ({ images }) => {
       </div>
 
       <div className="columns-2 gap-3 md:columns-3 lg:columns-4">
-        {preparedImages.map((image, index) => (
+        {pageItems.map((image, index) => (
           <ImageCard key={image.id} image={image} index={index} />
         ))}
       </div>
+
+      {total > 0 && (
+        <div className="flex items-center justify-end mt-4 text-sm text-gray-300">
+          <div className="flex items-center gap-4">
+            <span>
+              {page} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Previous page"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
+                style={page > 1 ? { background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)', boxShadow: '0px 10.67px 22.22px 0px #7F1D1D80' } : {}}
+              >
+                <FiChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="Next page"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
+                style={page < totalPages ? { background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)', boxShadow: '0px 10.67px 22.22px 0px #7F1D1D80' } : {}}
+              >
+                <FiChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
