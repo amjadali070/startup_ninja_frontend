@@ -819,7 +819,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .lux-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -837,7 +837,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .lux-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -948,23 +948,19 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="lux-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(212,175,55,0.1) 0%, transparent 70%);"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 300; margin-bottom: 1.5rem; letter-spacing: 3px; line-height: 1.2;">
-                    ELEGANCE<br/>
-                    <span class="text-gradient" style="font-weight: 400;">REDEFINED</span>
+                  <h1 class="hero-title" style="font-size: 4.25rem; font-weight: 300; margin-bottom: 1rem; letter-spacing: 3px; line-height: 1.15;">
+                    Elevate Your <span class="text-gradient" style="font-weight: 500;">Elegance</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 600px; margin: 0 auto 3rem; color: #cccccc; line-height: 1.6; font-weight: 300;">
-                    Discover our exclusive collection of luxury fashion pieces that embody timeless sophistication and contemporary style.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #d1d1d1; line-height: 1.7; font-weight: 300;">
+                    Curated luxury fashion that blends timeless craftsmanship with modern minimalism.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="gold-button" style="padding: 1.2rem 3rem; border: none; border-radius: 0; color: #000; font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; text-transform: uppercase;">
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="gold-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: #000; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 10px 30px rgba(212,175,55,0.35);">
                       Explore Collection
-                    </button>
-                    <button style="padding: 1.2rem 3rem; background: transparent; border: 1px solid #d4af37; color: #d4af37; font-size: 1.1rem; font-weight: 500; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; transition: all 0.3s ease;">
-                      View Lookbook
                     </button>
                   </div>
                 </div>
@@ -1504,7 +1500,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .restaurant-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -1522,7 +1518,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .restaurant-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -1684,24 +1680,20 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="restaurant-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 <div style="position: absolute; bottom: 20%; left: 10%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(244,208,63,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 300; margin-bottom: 1.5rem; color: #d4af37; line-height: 1.2; letter-spacing: 2px;">
-                    Culinary<br/>
-                    <span style="font-weight: 400; color: #f5f5dc;">Excellence</span>
+                  <h1 class="hero-title" style="font-size: 4rem; font-weight: 300; margin-bottom: 1rem; color: #f5f5dc; line-height: 1.15; letter-spacing: 2px;">
+                    Experience <span style="color:#d4af37;font-weight:500;">Fine Dining</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #d2b48c; line-height: 1.6; font-weight: 300;">
-                    Experience the finest Italian cuisine crafted with passion, tradition, and the freshest ingredients in an elegant atmosphere.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #d2b48c; line-height: 1.7; font-weight: 300;">
+                    Authentic Italian flavors, crafted with passion and served with elegance.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="gold-button" style="padding: 1.2rem 3rem; border: none; border-radius: 30px; color: #2c1810; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      View Menu
-                    </button>
-                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      Our Story
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="gold-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: #2c1810; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(212,175,55,0.35);">
+                      Reserve Table
                     </button>
                   </div>
                 </div>
@@ -1922,7 +1914,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .fitness-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -1940,7 +1932,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .fitness-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -2103,24 +2095,20 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="fitness-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 <div style="position: absolute; bottom: 20%; left: 10%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(247,147,30,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 800; margin-bottom: 1.5rem; color: #ff6b35; line-height: 1.2; letter-spacing: 2px;">
-                    TRANSFORM<br/>
-                    <span style="font-weight: 300; color: #ffffff;">YOUR BODY</span>
+                  <h1 class="hero-title" style="font-size: 4.25rem; font-weight: 800; margin-bottom: 1rem; color: #ffffff; line-height: 1.15; letter-spacing: 2px;">
+                    Transform <span style="color:#ff6b35; font-weight:800;">Your Body</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #cbd5e1; line-height: 1.6; font-weight: 300;">
-                    Achieve your fitness goals with our state-of-the-art equipment, expert trainers, and personalized workout programs designed for maximum results.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #cbd5e1; line-height: 1.7; font-weight: 300;">
+                    Train smarter with elite coaching and performance-focused programs.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="orange-button" style="padding: 1.2rem 3rem; border: none; border-radius: 30px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="orange-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: white; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(255,107,53,0.35);">
                       Start Training
-                    </button>
-                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      Free Trial
                     </button>
                   </div>
                 </div>
