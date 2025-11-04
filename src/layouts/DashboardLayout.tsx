@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import DashboardTopbar from '../components/dashboard/DashboardTopbar';
-import { useAuth } from '../hooks/useAuth';
-import { userService, type UserProfile } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
-import LoadingSpinner from '../components/LoadingSpinner';
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import DashboardTopbar from "../components/dashboard/DashboardTopbar";
+import { useAuth } from "../hooks/useAuth";
+import { userService, type UserProfile } from "../services/user";
+import { resolveProfilePictureUrl } from "../utils/profile";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,12 +15,12 @@ interface DashboardLayoutProps {
   onSettings?: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ 
-  children, 
-  activePath, 
-  title = 'Dashboard',
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  children,
+  activePath,
+  title = "Dashboard",
   onLogout,
-  onSettings 
+  onSettings,
 }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -35,20 +35,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        console.log('Fetching user profile in DashboardLayout...'); 
+        console.log("Fetching user profile in DashboardLayout...");
         const response = await userService.getProfile();
         if (response.success && response.user) {
           setProfile(response.user);
         } else {
-          if (response.message === 'User not found') {
+          if (response.message === "User not found") {
             await logout();
-            navigate('/login', { replace: true });
+            navigate("/login", { replace: true });
           }
-          setError(response.message || 'Unable to load profile.');
+          setError(response.message || "Unable to load profile.");
         }
       } catch (err) {
-        console.error('Dashboard layout profile fetch failed:', err);
-        setError('Unable to load profile.');
+        console.error("Dashboard layout profile fetch failed:", err);
+        setError("Unable to load profile.");
       } finally {
         setLoading(false);
       }
@@ -68,7 +68,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <h1 className="text-2xl font-semibold">Something went wrong</h1>
           <p className="mt-3 text-sm text-white/60">{error}</p>
           <button
-            onClick={() => navigate('/login', { replace: true })}
+            onClick={() => navigate("/login", { replace: true })}
             className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] text-sm font-semibold text-white shadow-[0_12px_32px_rgba(229,0,0,0.35)]"
           >
             Back to login
@@ -82,12 +82,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     return null;
   }
 
-  const displayName = profile.username || profile.email || 'Ninja';
+  const displayName = profile.username || profile.email || "Ninja";
 
   return (
-    <div className="flex min-h-screen bg-[#07070C] text-white">
+    <div className="flex h-screen bg-[#07070C] text-white overflow-hidden">
       <DashboardSidebar activePath={activePath} userData={profile} />
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         <DashboardTopbar
           title={title}
           userName={displayName}
@@ -97,7 +97,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           onLogout={onLogout}
           onSettings={onSettings}
         />
-        {children}
+        <div className="flex-1 overflow-hidden min-h-0">{children}</div>
       </div>
     </div>
   );

@@ -29,28 +29,68 @@
   height: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #0f0f0f;
+  background: transparent;
   border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(220, 38, 38, 0.87);
+  background: transparent;
   border-radius: 3px;
   border: 1px solid #2a2a2a;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(220, 38, 38, 0.87);
+  background: transparent;
 }
 /* Firefox scrollbar styling (scrollbar-width supported in Firefox 64+) */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(220, 38, 38, 0.87) #0f0f0f;
+  scrollbar-color: transparent transparent;
 }
 
+/* Hide scrollbar but keep scrolling functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Ensure no scrollbars on flex containers */
+[class*="overflow-hidden"]::-webkit-scrollbar {
+  display: none;
+}
+
+/* AI Chat specific scrollbar handling */
+main[class*="overflow-hidden"] {
+  overflow: hidden !important;
+}
+
+main[class*="overflow-hidden"]::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Allow scrolling in specific containers */
+.ai-chat-container {
+  overflow: hidden;
+}
+
+.ai-chat-messages-wrapper {
+  overflow: hidden;
+}
+
+html,
 body {
+  height: 100%;
+  overflow: hidden;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Ninja Assistant Card Custom Styles */
@@ -438,6 +478,46 @@ body {
   }
   to {
     transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Typing indicator dots animation */
+.typing-dots {
+  display: inline-block;
+  width: 48px;
+  height: 12px;
+}
+
+.typing-dots svg {
+  width: 100%;
+  height: 100%;
+}
+
+.typing-dot-1 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 0ms;
+}
+
+.typing-dot-2 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 200ms;
+}
+
+.typing-dot-3 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 400ms;
+}
+
+@keyframes typingDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
     opacity: 1;
   }
 }
