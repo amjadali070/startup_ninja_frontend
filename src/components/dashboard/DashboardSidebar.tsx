@@ -231,7 +231,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             className={
               isCollapsed
                 ? "flex flex-col items-center gap-3"
-                : "flex items-center justify-between"
+                : "flex items-center justify-between gap-2 mb-6"
             }
           >
             {isCollapsed ? (
@@ -276,18 +276,18 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       ? "/admin-dashboard"
                       : "/dashboard"
                   }
-                  className="transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
+                  className="flex-1 min-w-0 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
                 >
                   <img
-                    src="/images/logo.png"
+                    src="/svg/ninja-logo.svg"
                     alt="Startup Ninja"
-                    className="h-16 w-auto transition-all duration-300 ease-in-out"
+                    className="h-14 w-auto max-w-[180px] transition-all duration-300 ease-in-out"
                   />
                 </Link>
                 <button
                   type="button"
                   onClick={toggleCollapse}
-                  className="hidden lg:inline-flex items-center justify-center rounded-md bg-white/5 hover:bg-white/10 text-white/80 p-2 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out_0.1s_both,slideInRight_0.3s_ease-in-out_0.1s_both]"
+                  className="hidden lg:inline-flex flex-shrink-0 items-center justify-center rounded-md bg-white/5 hover:bg-white/10 text-white/80 p-2 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out_0.1s_both,slideInRight_0.3s_ease-in-out_0.1s_both]"
                   aria-label="Collapse sidebar"
                   title="Collapse"
                 >
@@ -297,7 +297,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             )}
           </div>
 
-          <nav className="mt-3 flex-1 space-y-1.5 overflow-hidden pr-1">
+          <nav className="flex-1 space-y-1.5 overflow-hidden pr-1">
             {filteredNavItems.map((item) => {
               const children = item.children ?? [];
               const hasChildren = children.length > 0;
