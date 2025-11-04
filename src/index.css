@@ -521,3 +521,52 @@ body {
     opacity: 1;
   }
 }
+
+/* Markdown code block styles */
+pre {
+  margin: 0;
+  padding: 0;
+}
+
+pre code.hljs {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+code.hljs {
+  background: #0a0a0a !important;
+  color: #e5e7eb;
+}
+
+/* Override highlight.js styles for better dark theme integration */
+.hljs {
+  background: #0a0a0a !important;
+  color: #e5e7eb !important;
+}
+
+/* Ensure code blocks are scrollable horizontally */
+pre {
+  overflow-x: auto;
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
