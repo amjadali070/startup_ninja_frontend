@@ -37,8 +37,6 @@ interface DashboardSidebarProps {
   userData: UserProfile | null;
 }
 
-// i want role based sidebar items here for admin i need only admin dashboard for now and for user i need all other items except admin dashboard
-
 const navItems: SidebarNavItem[] = [
   {
     label: "Dashboard",
@@ -111,11 +109,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   userData,
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false); // desktop collapse state
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
-  const [collapsedHover, setCollapsedHover] = useState<string | null>(null); // which item shows flyout when collapsed
+  const [collapsedHover, setCollapsedHover] = useState<string | null>(null);
   const location = useLocation();
   const filteredNavItems =
     userData?.role === "admin"
@@ -126,7 +124,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setIsMobileOpen(false);
   }, [location.pathname]);
 
-  // Persist collapse state so route changes don't reset it
   useEffect(() => {
     try {
       const stored = localStorage.getItem("dashboard_sidebar_collapsed");
@@ -223,49 +220,84 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       <aside
         id="dashboard-sidebar"
-        className={`pt-5 fixed inset-y-0 left-0 z-40 transform bg-[#0B0B0F] border-r border-white/5 transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:translate-x-0 ${
+        className={`pt-5 fixed inset-y-0 left-0 z-40 transform bg-[#0B0B0F] border-r border-white/5 transition-all duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:translate-x-0 ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${isMobileOpen ? "w-[260px]" : ""} ${
           isCollapsed ? "lg:w-[80px]" : "lg:w-[248px] xl:w-[260px]"
         }`}
       >
         <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
-          <div className="flex items-center justify-between">
+          <div
+            className={
+              isCollapsed
+                ? "flex flex-col items-center gap-3"
+                : "flex items-center justify-between"
+            }
+          >
             {isCollapsed ? (
-              <span className="h-8" />
+              <>
+                <Link
+                  to={
+                    userData?.role === "admin"
+                      ? "/admin-dashboard"
+                      : "/dashboard"
+                  }
+                  className="flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all duration-300 ease-in-out mt-2 animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
+                >
+                  <img
+                    src="/svg/ninja-icon.svg"
+                    alt="Startup Ninja"
+                    className="h-12 w-12 transition-all duration-300 ease-in-out"
+                  />
+                </Link>
+                <button
+                  type="button"
+                  onClick={toggleCollapse}
+                  className="hidden lg:flex items-center justify-center rounded-xl border border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F] px-2 py-2 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out_0.1s_both,slideInLeft_0.3s_ease-in-out_0.1s_both]"
+                  aria-label="Expand sidebar"
+                  title="Expand"
+                  onMouseEnter={(event) => {
+                    applyHoverGradient(event.currentTarget);
+                  }}
+                  onMouseLeave={(event) => {
+                    clearHoverGradient(event.currentTarget);
+                  }}
+                >
+                  <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 hover:scale-110">
+                    <FiChevronRight className="h-5 w-5" />
+                  </span>
+                </button>
+              </>
             ) : (
-              <Link
-                to={
-                  userData?.role === "admin" ? "/admin-dashboard" : "/dashboard"
-                }
-              >
-                <img
-                  src="/images/logo.png"
-                  alt="Startup Ninja"
-                  className="h-16 w-auto"
-                />
-              </Link>
+              <>
+                <Link
+                  to={
+                    userData?.role === "admin"
+                      ? "/admin-dashboard"
+                      : "/dashboard"
+                  }
+                  className="transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
+                >
+                  <img
+                    src="/images/logo.png"
+                    alt="Startup Ninja"
+                    className="h-16 w-auto transition-all duration-300 ease-in-out"
+                  />
+                </Link>
+                <button
+                  type="button"
+                  onClick={toggleCollapse}
+                  className="hidden lg:inline-flex items-center justify-center rounded-md bg-white/5 hover:bg-white/10 text-white/80 p-2 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out_0.1s_both,slideInRight_0.3s_ease-in-out_0.1s_both]"
+                  aria-label="Collapse sidebar"
+                  title="Collapse"
+                >
+                  <FiChevronLeft className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
+                </button>
+              </>
             )}
-            <button
-              type="button"
-              onClick={toggleCollapse}
-              className={
-                isCollapsed
-                  ? "hidden lg:inline-flex items-center justify-center rounded-md bg-white/5 hover:bg-white/10 text-white/80 p-2 transition-colors mr-3"
-                  : "hidden lg:inline-flex items-center justify-center rounded-md bg-white/5 hover:bg-white/10 text-white/80 p-2 transition-colors"
-              }
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              title={isCollapsed ? "Expand" : "Collapse"}
-            >
-              {isCollapsed ? (
-                <FiChevronRight className="h-4 w-4" />
-              ) : (
-                <FiChevronLeft className="h-4 w-4" />
-              )}
-            </button>
           </div>
 
-          <nav className="mt-3 flex-1 space-y-1.5 overflow-y-auto pr-1">
+          <nav className="mt-3 flex-1 space-y-1.5 overflow-hidden pr-1">
             {filteredNavItems.map((item) => {
               const children = item.children ?? [];
               const hasChildren = children.length > 0;
@@ -312,7 +344,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                         isCollapsed
                           ? "justify-center px-2 py-2"
                           : "gap-2 px-3 py-2"
-                      } rounded-xl border text-xs font-medium transition-all duration-200`;
+                      } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
                       const defaultState =
                         "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
                       const activeState =
@@ -348,15 +380,19 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       clearHoverGradient(element);
                     }}
                   >
-                    <span className="flex h-7 w-7 items-center justify-center text-white">
+                    <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
                       {item.icon}
                     </span>
                     {isCollapsed ? null : (
-                      <span className="truncate">{item.label}</span>
+                      <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
+                        {item.label}
+                      </span>
                     )}
                     <span
-                      className={`ml-auto flex items-center gap-2 ${
-                        isCollapsed ? "hidden" : ""
+                      className={`ml-auto flex items-center gap-2 transition-all duration-300 ease-in-out ${
+                        isCollapsed
+                          ? "opacity-0 w-0 overflow-hidden"
+                          : "opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.2s_forwards,slideInRight_0.3s_ease-in-out_0.2s_forwards]"
                       }`}
                     >
                       {hasChildren ? (
@@ -385,11 +421,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
                   {hasChildren ? (
                     <div
-                      className={`${
-                        isCollapsed ? "hidden" : ""
-                      } ml-12 flex flex-col gap-1 overflow-hidden rounded-xl border border-transparent pl-2 transition-[max-height,opacity] duration-300 ease-in-out ${
-                        isExpanded
-                          ? "max-h-96 opacity-100"
+                      className={`ml-12 flex flex-col gap-1 overflow-hidden rounded-xl border border-transparent pl-2 transition-all duration-300 ease-in-out ${
+                        isCollapsed
+                          ? "opacity-0 max-h-0 pointer-events-none"
+                          : isExpanded
+                          ? "max-h-96 opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.1s_forwards,slideInDown_0.3s_ease-in-out_0.1s_forwards]"
                           : "pointer-events-none max-h-0 opacity-0"
                       }`}
                       aria-label={`${item.label} submenu`}
@@ -455,7 +491,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     </div>
                   ) : null}
 
-                  {/* Flyout submenu for collapsed state */}
                   {hasChildren && isCollapsed ? (
                     <div
                       className={`absolute left-[84px] top-0 z-50 min-w-[200px] max-w-[240px] rounded-xl border border-white/10 bg-[#0B0B0F] p-2 shadow-xl transition-opacity duration-150 ${
