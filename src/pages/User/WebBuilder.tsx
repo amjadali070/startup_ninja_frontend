@@ -236,7 +236,7 @@ const WebBuilder: FC = () => {
   return (
     <DashboardLayout
       activePath="/ai-tools/web-builder"
-      title="Social Media Studio"
+      title="Ninja Website Builder"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >

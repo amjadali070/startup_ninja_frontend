@@ -2002,17 +2002,29 @@ const WebsiteBuilderStudio: FC = () => {
             onLoad: async () => {
               const hasWebsiteData =
                 websiteData && Object.keys(websiteData?.websiteData).length > 0;
+              if (hasWebsiteData) {
+                return { project: websiteData.websiteData };
+              }
+              // If no existing data, allow initializing from template via query param
+              try {
+                const params = new URLSearchParams(window.location.search);
+                const templateId = params.get('template');
+                if (templateId) {
+                  const tpl = (DemoTemplates as any[]).find((t) => t.id === templateId);
+                  if (tpl?.data) {
+                    return { project: tpl.data };
+                  }
+                }
+              } catch {}
               return {
-                project: hasWebsiteData
-                  ? websiteData.websiteData
-                  : {
-                      pages: [
-                        {
-                          name: websiteData?.websiteTitle,
-                          component: "<h1>New project</h1>",
-                        },
-                      ],
+                project: {
+                  pages: [
+                    {
+                      name: websiteData?.websiteTitle,
+                      component: "<h1>New project</h1>",
                     },
+                  ],
+                },
               };
             },
           },

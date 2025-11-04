@@ -809,6 +809,451 @@ const DemoTemplates = [
     },
   },
   {
+    id: "nova-tech",
+    name: "NovaTech",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              /* NovaTech color system updated from provided palette: #BF092F, #132440, #16476A, #3B9797 */
+              :root { --nx-primary:#BF092F; --nx-accent:#3B9797; --nx-bg:#132440; --nx-card:#0F1E33; --nx-border:#16476A; }
+              .nx-nav{position:fixed;inset:0 0 auto 0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;background:rgba(7,11,20,.6);backdrop-filter:blur(12px);border-bottom:1px solid var(--nx-border);z-index:50}
+              .nx-brand{font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+              .nx-links a{color:#c7d2fe;margin:0 .6rem;text-decoration:none;font-size:.95rem}
+              .nx-hero{padding:8rem 2rem 6rem;text-align:center;color:#e5e7eb;background:radial-gradient(900px 420px at 50% -10%, rgba(191,9,47,0.22), transparent), var(--nx-bg)}
+              .nx-title{font-size:4.2rem;font-weight:900;letter-spacing:1px;line-height:1.07;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+              .nx-sub{max-width:860px;margin:1rem auto 2.25rem;color:#93a3c8}
+              .nx-cta{display:inline-flex;gap:.75rem}
+              .nx-btn{padding:.9rem 1.6rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);color:#0b1724;font-weight:800;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));box-shadow:0 18px 44px rgba(22,71,106,.28);cursor:pointer}
+              .nx-sec{padding:3.5rem 2rem;background:var(--nx-bg)}
+              .nx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;max-width:1100px;margin:0 auto}
+              .nx-card{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:14px;padding:1.25rem;color:#e5e7eb;transition:transform .2s,border-color .2s}
+              .nx-card:hover{transform:translateY(-4px);border-color:#3B9797}
+              .nx-show{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+              .nx-show img{width:100%;height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--nx-border)}
+              .nx-pricing{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .nx-plan{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:14px;padding:1.5rem;color:#e5e7eb}
+              .nx-price{font-size:2rem;font-weight:900;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+              .nx-stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;max-width:900px;margin:0 auto}
+              .nx-pill{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:999px;padding:.65rem 1rem;text-align:center;color:#d1e7ff}
+              .nx-foot{padding:2rem;background:#0E1B2C;color:#b9c7d9;border-top:1px solid var(--nx-border);text-align:center}
+              @media(max-width:600px){.nx-title{font-size:2.4rem}}
+            </style>
+            <nav class="nx-nav"><div class="nx-brand">NovaTech</div><div class="nx-links"><a href="#features">Features</a><a href="#stack">Tech Stack</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a></div></nav>
+            <section class="nx-hero">
+              <h1 class="nx-title">Ship Faster. Scale Smarter.</h1>
+              <p class="nx-sub">A unified platform for building performant, secure apps—without the infrastructure tax. Edge‑ready, DX‑first.</p>
+              <div class="nx-cta"><button class="nx-btn">Get Started</button><button class="nx-btn" style="background:transparent;border-color:#24406A;color:#9fb2dd">View Docs</button></div>
+            </section>
+            <section id="about" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Our Mission</h3>
+              <p style="color:#93a3c8;max-width:900px;margin:0 auto">NovaTech removes unnecessary complexity so teams can focus on product. Sensible defaults, global scale and a cohesive toolchain—out of the box.</p>
+            </section>
+            <section id="features" class="nx-sec">
+              <div class="nx-grid">
+                <div class="nx-card"><h3>Edge‑first</h3><p style="color:#9fb2dd">Regions close to your users with zero‑config CDN and caching.</p></div>
+                <div class="nx-card"><h3>Observability</h3><p style="color:#9fb2dd">Metrics, logs and tracing—centralized and actionable.</p></div>
+                <div class="nx-card"><h3>CI/CD</h3><p style="color:#9fb2dd">Atomic deploys, instant rollbacks and preview environments.</p></div>
+                <div class="nx-card"><h3>AI Toolkit</h3><p style="color:#9fb2dd">Embeddable inference, vector store and prompt ops.</p></div>
+              </div>
+            </section>
+            <section id="demo" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 1rem">Product Demo</h3>
+              <div style="max-width:900px;margin:0 auto;border:1px solid var(--nx-border);border-radius:12px;overflow:hidden;background:var(--nx-card)">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Demo" style="width:100%;height:420px;border:0"></iframe>
+              </div>
+            </section>
+            <section id="benefits" class="nx-sec">
+              <div class="nx-grid">
+                <div class="nx-card"><h3>Fewer moving parts</h3><p style="color:#9fb2dd">Unified platform means less glue code and maintenance.</p></div>
+                <div class="nx-card"><h3>Predictable scale</h3><p style="color:#9fb2dd">Autoscale globally without re‑architecting.</p></div>
+                <div class="nx-card"><h3>Security by default</h3><p style="color:#9fb2dd">Hardened defaults, secret management and SSO.</p></div>
+              </div>
+            </section>
+            <section id="stack" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Tech Stack</h3>
+              <p style="color:#93a3c8;max-width:820px;margin:0 auto 1rem">Choose the tools you love—NovaTech meets you where you are.</p>
+              <div class="nx-stack">
+                <div class="nx-pill">React</div><div class="nx-pill">Next.js</div><div class="nx-pill">Node.js</div><div class="nx-pill">Go</div><div class="nx-pill">Postgres</div><div class="nx-pill">Redis</div><div class="nx-pill">Kafka</div><div class="nx-pill">Kubernetes</div><div class="nx-pill">AWS</div>
+              </div>
+            </section>
+            <section id="integrations" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Integrations</h3>
+              <div style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;color:#93a3c8">
+                <span>Stripe</span><span>Auth0</span><span>Algolia</span><span>Twilio</span><span>Prisma</span><span>Supabase</span>
+              </div>
+            </section>
+            <section id="pricing" class="nx-sec">
+              <div class="nx-pricing">
+                <div class="nx-plan"><h3>Starter</h3><div class="nx-price">$0</div><p style="color:#93a3c8">Hobby projects and experiments.</p></div>
+                <div class="nx-plan"><h3>Pro</h3><div class="nx-price">$29</div><p style="color:#93a3c8">Production apps with scale.</p></div>
+                <div class="nx-plan"><h3>Enterprise</h3><div class="nx-price">Custom</div><p style="color:#93a3c8">Advanced controls & support.</p></div>
+              </div>
+            </section>
+            <section id="security" class="nx-sec">
+              <div class="nx-grid">
+                <div class="nx-card"><h3>Security & Compliance</h3><p style="color:#9fb2dd">SOC 2 ready, data encryption at rest and in transit, audit logs.</p></div>
+                <div class="nx-card"><h3>Data Residency</h3><p style="color:#9fb2dd">EU and US data regions with fine‑grained controls.</p></div>
+                <div class="nx-card"><h3>Backups</h3><p style="color:#9fb2dd">Point‑in‑time recovery and cross‑region replication.</p></div>
+              </div>
+            </section>
+            <section id="roadmap" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Roadmap</h3>
+              <div class="nx-grid" style="grid-template-columns:1fr">
+                <div class="nx-card"><strong>Q2</strong> — Analytics v2, role‑based access</div>
+                <div class="nx-card"><strong>Q3</strong> — Global KV store, background jobs</div>
+                <div class="nx-card"><strong>Q4</strong> — Private networking, multi‑tenant projects</div>
+              </div>
+            </section>
+            <section id="testimonials" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Loved by builders</h3>
+              <p style="color:#93a3c8;max-width:800px;margin:0 auto 1.25rem">“NovaTech helped us cut build times in half and deliver a world‑class experience.” — Product Lead, Acme Corp</p>
+            </section>
+            <section id="faq" class="nx-sec">
+              <div class="nx-grid" style="grid-template-columns:1fr">
+                <div class="nx-card"><strong>Is there a free tier?</strong><p style="color:#93a3c8">Yes, the Starter plan is free for hobby projects.</p></div>
+                <div class="nx-card"><strong>Can I self host?</strong><p style="color:#93a3c8">Enterprise plan supports hybrid deployments.</p></div>
+                <div class="nx-card"><strong>Which regions are available?</strong><p style="color:#93a3c8">We deploy to 25+ regions worldwide.</p></div>
+              </div>
+            </section>
+            <section id="contact" class="nx-sec" style="text-align:center">
+              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Request a demo</h3>
+              <p style="color:#93a3c8;margin:0 0 1rem">Tell us about your team and use‑case. We’ll reach out shortly.</p>
+              <form onsubmit="event.preventDefault(); alert('Request sent!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
+                <input placeholder="Full name" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px"/>
+                <input placeholder="Company" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px"/>
+                <input type="email" placeholder="Work email" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px;grid-column:span 2"/>
+                <textarea placeholder="What are you building?" rows="3" style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px;grid-column:span 2"></textarea>
+                <button class="nx-btn" type="submit" style="grid-column:span 2">Request Demo</button>
+              </form>
+            </section>
+            <footer class="nx-foot">
+              <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                <div>© 2025 NovaTech</div>
+                <div style="display:flex;gap:1rem"><a href="#" style="color:#93a3c8;text-decoration:none">Privacy</a><a href="#" style="color:#93a3c8;text-decoration:none">Terms</a><a href="#" style="color:#93a3c8;text-decoration:none">Security</a></div>
+                <div style="display:flex;gap:.75rem;color:#93a3c8"><span>Twitter</span><span>GitHub</span><span>LinkedIn</span></div>
+              </div>
+            </footer>
+          `,
+        },
+      ],
+    },
+  },
+  {
+    id: "art-folio",
+    name: "ArtFolio",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              .af-nav{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222}
+              .af-brand{font-family:'Playfair Display',serif;color:#F59E0B;font-weight:700}
+              .af-hero{padding:7rem 2rem 5rem;background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);color:#fff;text-align:center}
+              .af-title{font-family:'Playfair Display',serif;font-size:3.5rem;letter-spacing:1px}
+              .af-title span{color:#F59E0B}
+              .af-sub{max-width:760px;margin:1rem auto 2rem;color:#d1d5db}
+              .af-btn{margin-top:1rem;border:1px solid #F59E0B;color:#F59E0B;background:transparent;padding:.7rem 1.3rem;border-radius:999px}
+              .af-section{padding:2.5rem 2rem;background:#111}
+              .af-grid{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .af-card{position:relative;border-radius:14px;overflow:hidden}
+              .af-card img{width:100%;height:260px;object-fit:cover;display:block;filter:grayscale(.15)}
+              .af-cap{position:absolute;left:0;right:0;bottom:0;padding:.75rem 1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff}
+              .af-test{max-width:900px;margin:0 auto;color:#ddd;text-align:center}
+              .af-footer{padding:2rem;background:#0d0d0d;color:#9ca3af;border-top:1px solid #222;text-align:center}
+              @media(max-width:600px){.af-title{font-size:2.2rem}}
+            </style>
+            <nav class="af-nav"><div class="af-brand">ArtFolio</div><div style="color:#bbb;font-size:.95rem">Portfolio · Services · Contact</div></nav>
+            <section class="af-hero">
+              <h1 class="af-title">Discover <span>Artistry</span> in Motion</h1>
+              <p class="af-sub">A bold portfolio template for designers, illustrators and studios who want their work to speak first.</p>
+              <button class="af-btn">View Portfolio</button>
+            </section>
+            <section class="af-section" id="about">
+              <div style="max-width:900px;margin:0 auto;text-align:center;color:#ddd">
+                <h3 style="color:#F59E0B;margin:0 0 .5rem">About Me</h3>
+                <p>I’m a multidisciplinary artist exploring the intersection of texture, light and narrative. My work spans brand identity, editorial and digital craft.</p>
+              </div>
+            </section>
+            <section class="af-section">
+              <div class="af-grid">
+                <figure class="af-card"><img src="https://images.unsplash.com/photo-1526312426976-593c1a1fb1a5?q=80&w=1200&auto=format&fit=crop" alt="work1"/><figcaption class="af-cap">Brand Identity</figcaption></figure>
+                <figure class="af-card"><img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1200&auto=format&fit=crop" alt="work2"/><figcaption class="af-cap">Packaging</figcaption></figure>
+                <figure class="af-card"><img src="https://images.unsplash.com/photo-1496302662116-35cc4f36df92?q=80&w=1200&auto=format&fit=crop" alt="work3"/><figcaption class="af-cap">Editorial</figcaption></figure>
+              </div>
+            </section>
+            <section class="af-section" id="exhibitions">
+              <div style="max-width:900px;margin:0 auto;color:#ddd">
+                <h3 style="color:#F59E0B;text-align:center;margin:0 0 1rem">Exhibitions</h3>
+                <ul style="list-style:none;padding:0;display:grid;gap:.75rem;grid-template-columns:1fr 1fr">
+                  <li style="background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:1rem">2024 — Shapes in Motion, Modern Arts Gallery</li>
+                  <li style="background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:1rem">2023 — Light & Grain, Downtown Studio</li>
+                  <li style="background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:1rem">2022 — Print Stories, Collective Space</li>
+                  <li style="background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:1rem">Awards — AIGA, D&AD (shortlist)</li>
+                </ul>
+              </div>
+            </section>
+            <section class="af-section" id="services">
+              <div class="af-grid">
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto">
+                  <div style="padding:1rem;color:#fff"><h3 style="margin:.25rem 0">Brand Strategy</h3><p style="color:#a3a3a3">Positioning, tone and narrative systems.</p></div>
+                </div>
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto">
+                  <div style="padding:1rem;color:#fff"><h3 style="margin:.25rem 0">Visual Identity</h3><p style="color:#a3a3a3">Logos, type, color and guidelines.</p></div>
+                </div>
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto">
+                  <div style="padding:1rem;color:#fff"><h3 style="margin:.25rem 0">Digital Design</h3><p style="color:#a3a3a3">Web, product and marketing assets.</p></div>
+                </div>
+              </div>
+            </section>
+            <section class="af-section" id="blog">
+              <div class="af-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+                <article style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1rem;color:#fff"><h3>Process Notes</h3><p style="color:#a3a3a3">Sketching type by hand before vector.</p></article>
+                <article style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1rem;color:#fff"><h3>Studio Tools</h3><p style="color:#a3a3a3">Palette building for brand systems.</p></article>
+                <article style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1rem;color:#fff"><h3>Case Study</h3><p style="color:#a3a3a3">From moodboard to launch in 4 weeks.</p></article>
+              </div>
+            </section>
+            <section class="af-section">
+              <div class="af-test">
+                <h3 style="color:#F59E0B;margin-bottom:.5rem">What clients say</h3>
+                <p>“ArtFolio delivered a stunning visual language for our brand. The attention to detail and craft is exceptional.”</p>
+              </div>
+            </section>
+            <section class="af-section" id="pricing">
+              <div class="af-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+                <div style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1.25rem;color:#fff"><h3>Starter</h3><div style="color:#F59E0B;font-weight:700;font-size:1.8rem">$899</div><p style="color:#a3a3a3">Logo, palette and basic guidelines.</p></div>
+                <div style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1.25rem;color:#fff"><h3>Studio</h3><div style="color:#F59E0B;font-weight:700;font-size:1.8rem">$2,999</div><p style="color:#a3a3a3">Identity system, website design, assets.</p></div>
+                <div style="background:#0d0d0d;border:1px solid #222;border-radius:14px;padding:1.25rem;color:#fff"><h3>Custom</h3><div style="color:#F59E0B;font-weight:700;font-size:1.8rem">Quote</div><p style="color:#a3a3a3">Tailored scope for larger engagements.</p></div>
+              </div>
+            </section>
+            <section class="af-section" id="team">
+              <div class="af-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto;text-align:center">
+                  <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop" alt="m1" style="width:100%;height:180px;object-fit:cover"/>
+                  <div class="af-cap" style="position:static;background:none;color:#fff;padding:1rem 0 .25rem">Amelia Hart — Creative Director</div>
+                </div>
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto;text-align:center">
+                  <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=600&auto=format&fit=crop" alt="m2" style="width:100%;height:180px;object-fit:cover"/>
+                  <div class="af-cap" style="position:static;background:none;color:#fff;padding:1rem 0 .25rem">Liam Brooks — Designer</div>
+                </div>
+                <div class="af-card" style="background:#0d0d0d;border:1px solid #222;height:auto;text-align:center">
+                  <img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=600&auto=format&fit=crop" alt="m3" style="width:100%;height:180px;object-fit:cover"/>
+                  <div class="af-cap" style="position:static;background:none;color:#fff;padding:1rem 0 .25rem">Noah Chen — Illustrator</div>
+                </div>
+              </div>
+            </section>
+            <section class="af-section" style="text-align:center">
+              <h3 style="color:#fff">Work with us</h3>
+              <p class="af-sub" style="margin:.5rem auto 1.25rem">Tell us about your project and we’ll craft something unique.</p>
+              <form onsubmit="event.preventDefault(); alert('Message sent');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
+                <input placeholder="Your name" required style="padding:.8rem 1rem;border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;border-radius:8px;grid-column:span 1"/>
+                <input placeholder="Email" type="email" required style="padding:.8rem 1rem;border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;border-radius:8px;grid-column:span 1"/>
+                <textarea placeholder="Project details" rows="3" style="padding:.8rem 1rem;border:1px solid #2a2a2a;background:#0d0d0d;color:#fff;border-radius:8px;grid-column:span 2"></textarea>
+                <button class="af-btn" type="submit" style="grid-column:span 2">Send Inquiry</button>
+              </form>
+            </section>
+            <footer class="af-footer">
+              <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                <div>© 2025 ArtFolio Studio</div>
+                <div style="display:flex;gap:1rem"><a href="#" style="color:#bbb;text-decoration:none">Privacy</a><a href="#" style="color:#bbb;text-decoration:none">Terms</a><a href="#" style="color:#bbb;text-decoration:none">Licensing</a></div>
+                <div style="display:flex;gap:.75rem;color:#bbb"><span>Instagram</span><span>Behance</span><span>Dribbble</span></div>
+              </div>
+            </footer>
+          `,
+        },
+      ],
+    },
+  },
+  {
+    id: "wander-green",
+    name: "WanderGreen",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              :root{--wg-primary:#10B981;--wg-deep:#064E3B}
+              .wg-nav{position:fixed;inset:0 0 auto 0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(2,44,34,.6);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);z-index:50;color:#eafff7}
+              .wg-brand{font-weight:800;color:#10B981}
+              .wg-hero{padding:7.5rem 2rem 5rem;text-align:center;color:#e6fffb;background:linear-gradient(180deg,#022c22 0%,#064e3b 100%)}
+              .wg-title{font-size:3.8rem;font-weight:800;letter-spacing:1px}
+              .wg-title span{color:var(--wg-primary)}
+              .wg-sub{max-width:820px;margin:1rem auto 2.25rem;color:#c7ffe9}
+              .wg-cta{display:inline-flex;gap:.75rem}
+              .wg-btn{padding:.9rem 1.5rem;border-radius:12px;background:var(--wg-primary);color:#053227;font-weight:800;border:none}
+              .wg-section{padding:2.5rem 2rem;background:#022c22}
+              .wg-feats{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+              .wg-card{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1.1rem;color:#eafff7}
+              .wg-gallery{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .wg-gallery img{width:100%;height:220px;object-fit:cover;border-radius:12px;border:1px solid #105e49}
+              .wg-dests{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .wg-dest{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1rem;color:#eafff7}
+              .wg-dest h4{margin:0 0 .25rem;color:#10B981}
+              .wg-dest ul{margin:.25rem 0 0;padding-left:1rem;color:#c7ffe9}
+              .wg-footer{padding:2rem;background:#012019;color:#b6ffe8;border-top:1px solid #115e49;text-align:center}
+              @media(max-width:600px){.wg-title{font-size:2.2rem}}
+            </style>
+            <nav class="wg-nav"><div class="wg-brand">WanderGreen</div><div style="font-size:.95rem">Trips · Gallery · Contact</div></nav>
+            <section class="wg-hero">
+              <h1 class="wg-title">Travel <span>Greener</span>, Explore Deeper</h1>
+              <p class="wg-sub">Sustainable adventures and eco‑friendly escapes that cherish our planet.</p>
+              <div class="wg-cta"><button class="wg-btn">Plan a Trip</button></div>
+            </section>
+            <section class="wg-section" id="about" style="text-align:center">
+              <h3 style="color:#eafff7;margin:0 0 .5rem">Our Mission</h3>
+              <p style="color:#c7ffe9;max-width:900px;margin:0 auto">WanderGreen crafts meaningful journeys that respect local communities and preserve nature. We believe travel can be transformative—for you and the planet.</p>
+            </section>
+            <section class="wg-section">
+              <div class="wg-feats">
+                <div class="wg-card"><strong>Low‑impact stays</strong><p>Handpicked eco lodges and green hotels.</p></div>
+                <div class="wg-card"><strong>Community tours</strong><p>Give back while you explore new cultures.</p></div>
+                <div class="wg-card"><strong>Offset program</strong><p>We offset every mile you travel with us.</p></div>
+              </div>
+            </section>
+            <section class="wg-section" id="destinations">
+              <h3 style="color:#eafff7;text-align:center;margin:0 0 .5rem">Destinations</h3>
+              <p style="color:#c7ffe9;text-align:center;max-width:900px;margin:0 auto 1rem">Handpicked eco‑friendly locations around the world. From ancient forests to pristine coasts—travel lightly and leave places better than you found them.</p>
+              <div class="wg-dests">
+                <div class="wg-dest"><h4>Japan</h4><ul><li>Kyoto — temples & tea gardens</li><li>Hokkaido — alpine trails & onsens</li><li>Okinawa — coral reefs & culture</li><li>Nara — cedar forests & deer park</li></ul></div>
+                <div class="wg-dest"><h4>New Zealand</h4><ul><li>Fiordland National Park</li><li>Queenstown & Lake Wakatipu</li><li>Abel Tasman Coast Track</li><li>Kaikōura marine encounters</li></ul></div>
+                <div class="wg-dest"><h4>Iceland</h4><ul><li>Golden Circle & Þingvellir</li><li>Vík black‑sand beaches</li><li>Skaftafell glacier hikes</li><li>Blue Lagoon geothermal spa</li></ul></div>
+                <div class="wg-dest"><h4>Peru</h4><ul><li>Machu Picchu & Inca Trail</li><li>Sacred Valley communities</li><li>Arequipa & Colca Canyon</li><li>Lake Titicaca islands</li></ul></div>
+                <div class="wg-dest"><h4>Italy</h4><ul><li>Cinque Terre coastal paths</li><li>Dolomites alpine huts</li><li>Amalfi Coast terraces</li><li>Tuscany slow routes</li></ul></div>
+                <div class="wg-dest"><h4>Indonesia</h4><ul><li>Ubud rice terraces</li><li>Komodo National Park</li><li>Raja Ampat diving</li><li>Lombok waterfalls</li></ul></div>
+              </div>
+            </section>
+            <section class="wg-section" id="experiences">
+              <div class="wg-feats">
+                <div class="wg-card"><h3>Hiking & Trails</h3><p>Guided treks through pristine reserves.</p></div>
+                <div class="wg-card"><h3>Wildlife Safaris</h3><p>Responsible encounters with local fauna.</p></div>
+                <div class="wg-card"><h3>Cultural Immersions</h3><p>Learn, cook and create with local artisans.</p></div>
+              </div>
+            </section>
+            <section class="wg-section">
+              <div class="wg-gallery">
+                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop" alt="g1"/>
+                <img src="https://images.unsplash.com/photo-1526481280698-8fcc13fd7906?q=80&w=1400&auto=format&fit=crop" alt="g2"/>
+                <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1400&auto=format&fit=crop" alt="g3"/>
+              </div>
+            </section>
+            <section class="wg-section" id="blog">
+              <h3 style="color:#eafff7;text-align:center;margin:0 0 1rem">Travel Tips</h3>
+              <div class="wg-feats" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+                <div class="wg-card"><strong>Pack Lighter</strong><p>Reduce weight and increase flexibility.</p></div>
+                <div class="wg-card"><strong>Eco Etiquette</strong><p>Respect wildlife and local customs.</p></div>
+                <div class="wg-card"><strong>Offset Smarter</strong><p>Choose verified carbon projects.</p></div>
+              </div>
+            </section>
+            <section class="wg-section" id="contact" style="text-align:center">
+              <h3 style="color:#eafff7;margin:0 0 .5rem">Book Your Journey</h3>
+              <p style="color:#c7ffe9;margin:0 0 1rem">Tell us where you want to go and we’ll plan the rest.</p>
+              <form onsubmit="event.preventDefault(); alert('Request sent!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
+                <input placeholder="Full name" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
+                <input placeholder="Email" type="email" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
+                <textarea placeholder="Destination & dates" rows="3" style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;grid-column:span 2"></textarea>
+                <button class="wg-btn" type="submit" style="grid-column:span 2">Request Plan</button>
+              </form>
+            </section>
+            <section class="wg-section" id="packages">
+              <div class="wg-feats">
+                <div class="wg-card"><h3>Weekend Escape</h3><p>2 nights eco‑lodge, guided trail. <strong>$399</strong></p></div>
+                <div class="wg-card"><h3>Island Retreat</h3><p>5 nights reef clean‑up, community tour. <strong>$1299</strong></p></div>
+                <div class="wg-card"><h3>Highland Trek</h3><p>7 days camping, reforestation support. <strong>$1899</strong></p></div>
+              </div>
+            </section>
+            <section class="wg-section" id="testimonials" style="text-align:center">
+              <h3 style="color:#eafff7;margin:0 0 .5rem">Traveler Stories</h3>
+              <p style="color:#c7ffe9;max-width:800px;margin:0 auto 1.25rem">“The most thoughtful, sustainable experience we’ve had. Every detail minimized impact while maximizing wonder.”</p>
+            </section>
+            <section class="wg-section" id="team">
+              <div class="wg-feats">
+                <div class="wg-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop" alt="g4" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Elena</strong><p>Lead Guide</p></div></div>
+                <div class="wg-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=600&auto=format&fit=crop" alt="g5" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Marco</strong><p>Conservationist</p></div></div>
+                <div class="wg-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=600&auto=format&fit=crop" alt="g6" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Asha</strong><p>Community Lead</p></div></div>
+              </div>
+            </section>
+            <section class="wg-section" style="text-align:center">
+              <h3 style="color:#eafff7;margin:0 0 .5rem">Join our newsletter</h3>
+              <p style="color:#c7ffe9;margin:0 0 1rem">Eco tips and destination inspiration.</p>
+              <form onsubmit="event.preventDefault(); alert('Subscribed!');" style="display:inline-flex;gap:.5rem;flex-wrap:wrap;justify-content:center">
+                <input type="email" required placeholder="you@example.com" style="padding:.8rem 1rem;border-radius:10px;border:1px solid #115e49;background:#013325;color:#eafff7;min-width:260px"/>
+                <button class="wg-btn" type="submit">Subscribe</button>
+              </form>
+            </section>
+            <footer class="wg-footer">
+              <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+                <div>© 2025 WanderGreen</div>
+                <div style="display:flex;gap:1rem"><a href="#" style="color:#b6ffe8;text-decoration:none">Privacy</a><a href="#" style="color:#b6ffe8;text-decoration:none">Terms</a><a href="#" style="color:#b6ffe8;text-decoration:none">Sustainability</a></div>
+                <div style="display:flex;gap:.75rem;color:#b6ffe8"><span>Instagram</span><span>Facebook</span><span>Twitter</span></div>
+              </div>
+            </footer>
+          `,
+        },
+      ],
+    },
+  },
+  {
+    id: "city-cafe",
+    name: "CityCafe",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              .cc-nav{position:fixed;inset:0 0 auto 0;height:60px;background:rgba(28,20,15,.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;color:#FDE68A;border-bottom:1px solid rgba(253,230,138,.2);z-index:50}
+              .cc-hero{padding:7rem 2rem 5rem;text-align:center;background:linear-gradient(180deg,#1c140f 0%,#120c08 100%);color:#fff}
+              .cc-title{font-size:3.2rem;font-weight:800;letter-spacing:.5px}
+              .cc-sub{max-width:740px;margin:1rem auto 2rem;color:#e5d5b3}
+              .cc-btn{padding:.8rem 1.4rem;border-radius:999px;background:#F59E0B;color:#1b120b;border:none;font-weight:800}
+              .cc-section{padding:2.5rem 2rem;background:#120c08;color:#f3ebe0}
+              .cc-grid{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+              .cc-card{background:#1b120b;border:1px solid #3a2a1e;border-radius:12px;padding:1rem}
+              .cc-gallery img{width:100%;height:220px;object-fit:cover;border-radius:10px;border:1px solid #3a2a1e}
+              .cc-footer{padding:2rem;background:#0c0906;color:#e5d5b3;border-top:1px solid #3a2a1e;text-align:center}
+            </style>
+            <nav class="cc-nav"><div style="font-weight:800">CityCafe</div><div style="opacity:.9">Menu · Gallery · Reservations</div></nav>
+            <section class="cc-hero"><h1 class="cc-title">Brewed to Perfection</h1><p class="cc-sub">Artisanal coffee, fresh bakes and cozy ambience in the heart of the city.</p><button class="cc-btn">Reserve a Table</button></section>
+            <section class="cc-section" id="menu"><div class="cc-grid">
+              <div class="cc-card"><h3>Espresso</h3><p>Rich and bold shot</p></div>
+              <div class="cc-card"><h3>Latte</h3><p>Velvety smooth milk</p></div>
+              <div class="cc-card"><h3>Croissant</h3><p>Buttery, flaky layers</p></div>
+              <div class="cc-card"><h3>Cheesecake</h3><p>Creamy, seasonal fruit</p></div>
+            </div></section>
+            <section class="cc-section" id="gallery"><div class="cc-grid cc-gallery">
+              <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1400&auto=format&fit=crop" alt="c1"/>
+              <img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=1400&auto=format&fit=crop" alt="c2"/>
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1400&auto=format&fit=crop" alt="c3"/>
+            </div></section>
+            <section class="cc-section" id="pricing"><div class="cc-grid">
+              <div class="cc-card"><h3>Breakfast</h3><p>Pastry + Coffee <strong>$8</strong></p></div>
+              <div class="cc-card"><h3>Lunch</h3><p>Panini + Drink <strong>$14</strong></p></div>
+              <div class="cc-card"><h3>Dessert</h3><p>Cake + Cappuccino <strong>$10</strong></p></div>
+            </div></section>
+            <section class="cc-section" id="team"><div class="cc-grid">
+              <div class="cc-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Maria</strong><p>Head Barista</p></div></div>
+              <div class="cc-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=600&auto=format&fit=crop" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Jon</strong><p>Pastry Chef</p></div></div>
+              <div class="cc-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=600&auto=format&fit=crop" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Eva</strong><p>Manager</p></div></div>
+            </div></section>
+            <section class="cc-section" style="text-align:center"><h3>Book a table</h3>
+              <form onsubmit="event.preventDefault(); alert('Booked!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
+                <input placeholder="Name" required style="padding:.8rem 1rem;border:1px solid #3a2a1e;background:#1b120b;color:#f3ebe0;border-radius:8px"/>
+                <input placeholder="Phone" required style="padding:.8rem 1rem;border:1px solid #3a2a1e;background:#1b120b;color:#f3ebe0;border-radius:8px"/>
+                <input type="date" required style="padding:.8rem 1rem;border:1px solid #3a2a1e;background:#1b120b;color:#f3ebe0;border-radius:8px;grid-column:span 2"/>
+                <button class="cc-btn" type="submit" style="grid-column:span 2">Reserve</button>
+              </form>
+            </section>
+            <footer class="cc-footer">© 2025 CityCafe. All rights reserved.</footer>
+          `,
+        },
+      ],
+    },
+  },
+  {
     id: "luxury-fashion",
     name: "LuxuryFashion",
     data: {
@@ -819,7 +1264,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .lux-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -837,7 +1282,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .lux-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -948,23 +1393,19 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="lux-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(212,175,55,0.1) 0%, transparent 70%);"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 300; margin-bottom: 1.5rem; letter-spacing: 3px; line-height: 1.2;">
-                    ELEGANCE<br/>
-                    <span class="text-gradient" style="font-weight: 400;">REDEFINED</span>
+                  <h1 class="hero-title" style="font-size: 4.25rem; font-weight: 300; margin-bottom: 1rem; letter-spacing: 3px; line-height: 1.15;">
+                    Elevate Your <span class="text-gradient" style="font-weight: 500;">Elegance</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 600px; margin: 0 auto 3rem; color: #cccccc; line-height: 1.6; font-weight: 300;">
-                    Discover our exclusive collection of luxury fashion pieces that embody timeless sophistication and contemporary style.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #d1d1d1; line-height: 1.7; font-weight: 300;">
+                    Curated luxury fashion that blends timeless craftsmanship with modern minimalism.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="gold-button" style="padding: 1.2rem 3rem; border: none; border-radius: 0; color: #000; font-size: 1.1rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; text-transform: uppercase;">
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="gold-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: #000; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 10px 30px rgba(212,175,55,0.35);">
                       Explore Collection
-                    </button>
-                    <button style="padding: 1.2rem 3rem; background: transparent; border: 1px solid #d4af37; color: #d4af37; font-size: 1.1rem; font-weight: 500; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; transition: all 0.3s ease;">
-                      View Lookbook
                     </button>
                   </div>
                 </div>
@@ -1504,7 +1945,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .restaurant-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -1522,7 +1963,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .restaurant-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -1684,24 +2125,20 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="restaurant-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 <div style="position: absolute; bottom: 20%; left: 10%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(244,208,63,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 300; margin-bottom: 1.5rem; color: #d4af37; line-height: 1.2; letter-spacing: 2px;">
-                    Culinary<br/>
-                    <span style="font-weight: 400; color: #f5f5dc;">Excellence</span>
+                  <h1 class="hero-title" style="font-size: 4rem; font-weight: 300; margin-bottom: 1rem; color: #f5f5dc; line-height: 1.15; letter-spacing: 2px;">
+                    Experience <span style="color:#d4af37;font-weight:500;">Fine Dining</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #d2b48c; line-height: 1.6; font-weight: 300;">
-                    Experience the finest Italian cuisine crafted with passion, tradition, and the freshest ingredients in an elegant atmosphere.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #d2b48c; line-height: 1.7; font-weight: 300;">
+                    Authentic Italian flavors, crafted with passion and served with elegance.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="gold-button" style="padding: 1.2rem 3rem; border: none; border-radius: 30px; color: #2c1810; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      View Menu
-                    </button>
-                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      Our Story
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="gold-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: #2c1810; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(212,175,55,0.35);">
+                      Reserve Table
                     </button>
                   </div>
                 </div>
@@ -1922,7 +2359,7 @@ const DemoTemplates = [
             <style>
               /* Responsive adjustments */
               @media (max-width: 900px) {
-                .hero-section {
+                .fitness-hero-section {
                   padding: 6rem 2rem 3rem !important;
                 }
                 .hero-title {
@@ -1940,7 +2377,7 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                .hero-section {
+                .fitness-hero-section {
                   padding: 4rem 1rem 2rem !important;
                 }
                 .hero-title {
@@ -2103,24 +2540,20 @@ const DemoTemplates = [
               </nav>
               
               <!-- Hero Section -->
-              <section class="hero-section" style="padding: 8rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;">
+              <section class="fitness-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 <div style="position: absolute; bottom: 20%; left: 10%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(247,147,30,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
                 
                 <div class="animate-fade-up" style="position: relative; z-index: 2;">
-                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 800; margin-bottom: 1.5rem; color: #ff6b35; line-height: 1.2; letter-spacing: 2px;">
-                    TRANSFORM<br/>
-                    <span style="font-weight: 300; color: #ffffff;">YOUR BODY</span>
+                  <h1 class="hero-title" style="font-size: 4.25rem; font-weight: 800; margin-bottom: 1rem; color: #ffffff; line-height: 1.15; letter-spacing: 2px;">
+                    Transform <span style="color:#ff6b35; font-weight:800;">Your Body</span>
                   </h1>
-                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #cbd5e1; line-height: 1.6; font-weight: 300;">
-                    Achieve your fitness goals with our state-of-the-art equipment, expert trainers, and personalized workout programs designed for maximum results.
+                  <p class="hero-subtitle" style="font-size: 1.25rem; max-width: 760px; margin: 0 auto 2.25rem; color: #cbd5e1; line-height: 1.7; font-weight: 300;">
+                    Train smarter with elite coaching and performance-focused programs.
                   </p>
-                  <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="orange-button" style="padding: 1.2rem 3rem; border: none; border-radius: 30px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                  <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="orange-button" style="padding: 1rem 2.5rem; border: none; border-radius: 999px; color: white; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(255,107,53,0.35);">
                       Start Training
-                    </button>
-                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 30px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-                      Free Trial
                     </button>
                   </div>
                 </div>
