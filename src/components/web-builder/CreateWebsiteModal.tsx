@@ -144,7 +144,7 @@ const CreateWebsiteModal: FC<CreateWebsiteModalProps> = ({
               </button>
             )}
           </div>
-          <div className="max-h-80 overflow-y-auto overflow-x-hidden rounded-md border border-gray-800 p-2 bg-[#131313]">
+          <div className="max-h-80 overflow-y-auto overflow-x-hidden rounded-md border border-gray-800 p-2 bg-[#131313] custom-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Blank template card */}
               <button
@@ -170,7 +170,7 @@ const CreateWebsiteModal: FC<CreateWebsiteModalProps> = ({
                   </div>
                   <div className="text-gray-400 text-xs">Pages: 1</div>
                   <div className="mt-2">
-                  <button
+                    <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
