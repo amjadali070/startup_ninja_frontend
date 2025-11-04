@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiEdit3 } from "react-icons/fi";
 import { ImFileText } from "react-icons/im";
 import { PiBrainLight } from "react-icons/pi";
+import { FaHistory } from "react-icons/fa";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import AIChatComposer from "../../components/ai-chat/AIChatComposer.tsx";
 import AIChatQuickActionCard from "../../components/ai-chat/AIChatQuickActionCard.tsx";
@@ -52,10 +53,7 @@ const AIChat: FC = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    // Open sidebar by default on desktop (lg breakpoint and above), closed on mobile
-    return window.innerWidth >= 1024;
-  });
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Default collapsed
   const typingIntervalRef = useRef<number | null>(null);
 
   // Get user profile picture
@@ -95,19 +93,6 @@ const AIChat: FC = () => {
       }
     };
   }, []);
-
-  // Handle window resize to adjust sidebar state
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024 && !sidebarOpen) {
-        // On desktop, open sidebar if not already open
-        setSidebarOpen(true);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [sidebarOpen]);
 
   const loadUserChats = useCallback(async () => {
     try {
@@ -301,13 +286,16 @@ const AIChat: FC = () => {
     setMessages([]);
     setPrompt("");
     setError(null);
-    setSidebarOpen(false); // Close sidebar on mobile
   }, []);
 
   const handleSelectChat = useCallback(
     (chatId: string) => {
       if (chatId !== currentChatId) {
         loadChatHistory(chatId);
+      }
+      // Close sidebar on mobile after selecting
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
       }
     },
     [currentChatId, loadChatHistory]
@@ -343,7 +331,18 @@ const AIChat: FC = () => {
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
-      <main className="h-full w-full flex flex-row overflow-hidden min-h-0">
+      <main className="h-full w-full flex flex-row overflow-hidden min-h-0 relative">
+        {/* History Toggle Button - Shows when sidebar is collapsed */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed top-20 right-4 z-30 lg:top-24 lg:right-4 h-10 w-10 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/5 transition-colors shadow-lg"
+            aria-label="Open chat history"
+          >
+            <FaHistory className="h-5 w-5" />
+          </button>
+        )}
+
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-4 sm:px-6 md:px-10 xl:px-14">
           <ChatMessagesList
             messages={messages}

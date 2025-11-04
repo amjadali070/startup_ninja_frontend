@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import { apiClient } from "./apiClient";
 import {
   GenerateChatMessageRequest,
   GenerateChatMessageResponse,
@@ -7,7 +7,7 @@ import {
   DeleteChatResponse,
   UpdateChatTitleRequest,
   UpdateChatTitleResponse,
-} from '../types/ai-content';
+} from "../types/ai-content";
 
 export const aiContentService = {
   /**
@@ -18,14 +18,15 @@ export const aiContentService = {
   ): Promise<GenerateChatMessageResponse> {
     try {
       const response = await apiClient.post<GenerateChatMessageResponse>(
-        '/ai-content/chat',
+        "/ai-content/chat",
         request
       );
       return response;
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to generate chat message',
+        message:
+          error.response?.data?.message || "Failed to generate chat message",
         errors: error.response?.data?.errors,
       };
     }
@@ -36,12 +37,14 @@ export const aiContentService = {
    */
   async getUserChats(): Promise<GetUserChatsResponse> {
     try {
-      const response = await apiClient.get<GetUserChatsResponse>('/ai-content/chats');
+      const response = await apiClient.get<GetUserChatsResponse>(
+        "/ai-content/chats"
+      );
       return response;
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch chats',
+        message: error.response?.data?.message || "Failed to fetch chats",
         errors: error.response?.data?.errors,
       };
     }
@@ -59,7 +62,8 @@ export const aiContentService = {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch chat history',
+        message:
+          error.response?.data?.message || "Failed to fetch chat history",
         errors: error.response?.data?.errors,
       };
     }
@@ -77,7 +81,7 @@ export const aiContentService = {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to delete chat',
+        message: error.response?.data?.message || "Failed to delete chat",
         errors: error.response?.data?.errors,
       };
     }
@@ -99,7 +103,7 @@ export const aiContentService = {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to update chat title',
+        message: error.response?.data?.message || "Failed to update chat title",
         errors: error.response?.data?.errors,
       };
     }
