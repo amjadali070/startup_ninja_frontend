@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef, type FC } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FiEdit3 } from "react-icons/fi";
 import { ImFileText } from "react-icons/im";
 import { PiBrainLight } from "react-icons/pi";
@@ -45,16 +45,20 @@ const quickActions = [
 
 const AIChat: FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { logout } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(
+    searchParams.get("chatId")
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Default collapsed
   const typingIntervalRef = useRef<number | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Get user profile picture
   const userProfilePicture = userProfile?.profilePicture
@@ -81,8 +85,9 @@ const AIChat: FC = () => {
 
     loadProfile();
 
-    // Load user chats on mount
+    // Load user chats on mount and restore chat from URL if exists
     loadUserChats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   // Cleanup typing interval on unmount
@@ -94,34 +99,98 @@ const AIChat: FC = () => {
     };
   }, []);
 
-  const loadUserChats = useCallback(async () => {
-    try {
-      const response = await aiContentService.getUserChats();
-      if (response.success && response.data) {
-        setChats(response.data);
-      }
-    } catch (err) {
-      console.error("Failed to load chats:", err);
-    }
-  }, []);
+  const loadUserChats = useCallback(
+    async (shouldRestoreFromUrl = true) => {
+      try {
+        const response = await aiContentService.getUserChats();
+        if (response.success && response.data) {
+          setChats(response.data);
 
-  const loadChatHistory = useCallback(async (chatId: string) => {
-    try {
-      const response = await aiContentService.getChatHistory(chatId);
-      if (response.success && response.data) {
-        setMessages(response.data.messages || []);
-        setCurrentChatId(chatId);
-        setError(null);
-        // Close sidebar on mobile after selecting
-        setSidebarOpen(false);
-      } else {
-        setError(response.message || "Failed to load chat history");
+          // After chats are loaded, check if we need to restore chat from URL
+          if (shouldRestoreFromUrl && isInitialLoad) {
+            const chatIdFromUrl = searchParams.get("chatId");
+            if (chatIdFromUrl) {
+              // Verify chat exists in the loaded chats
+              const chatExists = response.data.some(
+                (chat) => chat._id === chatIdFromUrl
+              );
+              if (chatExists) {
+                // Load the chat history
+                try {
+                  const historyResponse = await aiContentService.getChatHistory(
+                    chatIdFromUrl
+                  );
+                  if (historyResponse.success && historyResponse.data) {
+                    setMessages(historyResponse.data.messages || []);
+                    setCurrentChatId(chatIdFromUrl);
+                    setSearchParams({ chatId: chatIdFromUrl });
+                    setError(null);
+                  } else {
+                    // Chat history failed to load, reset
+                    setSearchParams({});
+                    setCurrentChatId(null);
+                    setMessages([]);
+                  }
+                } catch (historyErr) {
+                  console.error("Failed to load chat history:", historyErr);
+                  setSearchParams({});
+                  setCurrentChatId(null);
+                  setMessages([]);
+                }
+              } else {
+                // Chat doesn't exist, reset
+                setSearchParams({});
+                setCurrentChatId(null);
+                setMessages([]);
+              }
+            }
+            setIsInitialLoad(false);
+          }
+
+          return response.data;
+        }
+        return [];
+      } catch (err) {
+        console.error("Failed to load chats:", err);
+        if (shouldRestoreFromUrl && isInitialLoad) {
+          setIsInitialLoad(false);
+        }
+        return [];
       }
-    } catch (err) {
-      console.error("Failed to load chat history:", err);
-      setError("Failed to load chat history");
-    }
-  }, []);
+    },
+    [isInitialLoad, searchParams, setSearchParams]
+  );
+
+  const loadChatHistory = useCallback(
+    async (chatId: string) => {
+      try {
+        const response = await aiContentService.getChatHistory(chatId);
+        if (response.success && response.data) {
+          setMessages(response.data.messages || []);
+          setCurrentChatId(chatId);
+          // Update URL with chatId
+          setSearchParams({ chatId });
+          setError(null);
+          // Close sidebar on mobile after selecting
+          setSidebarOpen(false);
+        } else {
+          setError(response.message || "Failed to load chat history");
+          // If chat not found, remove from URL and reset
+          setSearchParams({});
+          setCurrentChatId(null);
+          setMessages([]);
+        }
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+        setError("Failed to load chat history");
+        // On error, remove from URL and reset
+        setSearchParams({});
+        setCurrentChatId(null);
+        setMessages([]);
+      }
+    },
+    [setSearchParams]
+  );
 
   const handleLogout = async () => {
     try {
@@ -191,6 +260,8 @@ const AIChat: FC = () => {
         // Update current chat ID if it's a new chat
         if (!currentChatId && response.data.chatId) {
           setCurrentChatId(response.data.chatId);
+          // Update URL with new chatId
+          setSearchParams({ chatId: response.data.chatId });
         }
 
         // Get all messages from server response
@@ -237,8 +308,8 @@ const AIChat: FC = () => {
           setError("No response received from assistant");
         }
 
-        // Reload chats to get updated list
-        await loadUserChats();
+        // Reload chats to get updated list (don't restore from URL since we just created/updated)
+        await loadUserChats(false);
 
         setPrompt("");
         return true;
@@ -286,7 +357,9 @@ const AIChat: FC = () => {
     setMessages([]);
     setPrompt("");
     setError(null);
-  }, []);
+    // Remove chatId from URL
+    setSearchParams({});
+  }, [setSearchParams]);
 
   const handleSelectChat = useCallback(
     (chatId: string) => {
@@ -312,6 +385,8 @@ const AIChat: FC = () => {
           // If deleted chat was current, reset to new chat
           if (chatId === currentChatId) {
             handleNewChat();
+            // Remove chatId from URL
+            setSearchParams({});
           }
         } else {
           setError(response.message || "Failed to delete chat");
