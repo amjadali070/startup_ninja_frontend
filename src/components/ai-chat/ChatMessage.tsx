@@ -105,18 +105,21 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                   // Style lists
                   ul: ({ node, ...props }) => (
                     <ul
-                      className="list-disc list-inside mb-2 space-y-1 text-white/90"
+                      className="list-disc list-outside mb-2 space-y-1 text-white/90 ml-4 pl-2"
                       {...props}
                     />
                   ),
                   ol: ({ node, ...props }) => (
                     <ol
-                      className="list-decimal list-inside mb-2 space-y-1 text-white/90"
+                      className="list-decimal list-outside mb-2 space-y-1 text-white/90 ml-4 pl-2"
                       {...props}
                     />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="text-white/90" {...props} />
+                    <li
+                      className="text-white/90 pl-1 leading-relaxed"
+                      {...props}
+                    />
                   ),
                   // Style code blocks
                   code: ({
