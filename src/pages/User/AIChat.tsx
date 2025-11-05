@@ -252,10 +252,8 @@ const AIChat: FC = () => {
     setIsGenerating(true);
     setError(null);
 
-    // Store the current message count to track what we've added
     const userMessage: ChatMessage = { role: "user", content: trimmedPrompt };
 
-    // Add user message immediately for better UX
     setMessages((prev) => [...prev, userMessage]);
 
     try {
@@ -265,17 +263,13 @@ const AIChat: FC = () => {
       });
 
       if (response.success && response.data) {
-        // Update current chat ID if it's a new chat
         if (!currentChatId && response.data.chatId) {
           setCurrentChatId(response.data.chatId);
-          // Update URL with new chatId
           setSearchParams({ chatId: response.data.chatId });
         }
 
-        // Get all messages from server response
         const serverMessages = response.data.messages || [];
 
-        // Find the last assistant message (the newly generated one)
         const assistantMessages = serverMessages.filter(
           (m) => m.role === "assistant"
         );
@@ -284,49 +278,76 @@ const AIChat: FC = () => {
         const finalText = lastAssistantMessage?.content || "";
 
         if (finalText) {
-          // Find the index of the last assistant message
-          let lastAssistantIndex = -1;
-          for (let i = serverMessages.length - 1; i >= 0; i--) {
-            if (serverMessages[i].role === "assistant") {
-              lastAssistantIndex = i;
-              break;
+          const newUserMessage = serverMessages.find((m) => m.role === "user");
+
+          setMessages((prevMessages) => {
+            const withoutEmptyAssistant = prevMessages.filter(
+              (msg) => !(msg.role === "assistant" && !msg.content)
+            );
+
+            const lastMessage =
+              withoutEmptyAssistant[withoutEmptyAssistant.length - 1];
+            const isLastMessageOurUserMessage =
+              lastMessage &&
+              lastMessage.role === "user" &&
+              lastMessage.content === trimmedPrompt;
+
+            if (isLastMessageOurUserMessage) {
+              return [
+                ...withoutEmptyAssistant,
+                { role: "assistant", content: "" },
+              ];
             }
-          }
 
-          // Replace the entire messages array with server messages (excluding the last assistant)
-          // Then add the assistant message with empty content for typewriter effect
-          const messagesWithoutLastAssistant = serverMessages.filter(
-            (_, index) => index !== lastAssistantIndex
-          );
+            let messagesToReturn = [...withoutEmptyAssistant];
+            if (newUserMessage && !isLastMessageOurUserMessage) {
+              messagesToReturn.push(newUserMessage);
+            }
 
-          // Set messages to server messages (without the last assistant response)
-          // Then add empty assistant message for typewriter effect
-          setMessages([
-            ...messagesWithoutLastAssistant,
-            { role: "assistant", content: "" },
-          ]);
+            messagesToReturn.push({ role: "assistant", content: "" });
 
-          // Start typewriter effect
+            return messagesToReturn;
+          });
+
           setTimeout(() => {
             typeWriterAppend(finalText);
-          }, 50);
+          }, 30);
         } else {
-          // If no content, use server messages as-is
-          setMessages(serverMessages);
+          setMessages((prevMessages) => {
+            const newUserMessage = serverMessages.find(
+              (m) => m.role === "user"
+            );
+            if (newUserMessage) {
+              const hasUserMessage = prevMessages.some(
+                (msg) =>
+                  msg.role === "user" &&
+                  msg.content === newUserMessage.content &&
+                  prevMessages.indexOf(msg) ===
+                    prevMessages.length -
+                      1 -
+                      prevMessages
+                        .slice()
+                        .reverse()
+                        .findIndex((m) => m.role === "user")
+              );
+
+              if (!hasUserMessage) {
+                return [...prevMessages, newUserMessage];
+              }
+            }
+            return prevMessages;
+          });
           setError("No response received from assistant");
         }
 
-        // Reload chats to get updated list (don't restore from URL since we just created/updated)
         await loadUserChats(false);
 
         setPrompt("");
         return true;
       } else {
         setError(response.message || "Failed to generate response");
-        // Remove the user message we just added on error
         setMessages((prev) =>
           prev.filter((msg, index) => {
-            // Remove the last user message if it matches
             return !(
               msg.role === "user" &&
               msg.content === trimmedPrompt &&
@@ -339,10 +360,8 @@ const AIChat: FC = () => {
     } catch (submissionError) {
       console.error("AI chat prompt submission failed:", submissionError);
       setError("Failed to send message. Please try again.");
-      // Remove the user message we just added on error
       setMessages((prev) =>
         prev.filter((msg, index) => {
-          // Remove the last user message if it matches
           return !(
             msg.role === "user" &&
             msg.content === trimmedPrompt &&
@@ -365,7 +384,6 @@ const AIChat: FC = () => {
     setMessages([]);
     setPrompt("");
     setError(null);
-    // Remove chatId from URL
     setSearchParams({});
   }, [setSearchParams]);
 
@@ -374,7 +392,6 @@ const AIChat: FC = () => {
       if (chatId !== currentChatId) {
         loadChatHistory(chatId);
       }
-      // Close sidebar on mobile after selecting
       if (window.innerWidth < 1024) {
         setSidebarOpen(false);
       }
@@ -400,20 +417,15 @@ const AIChat: FC = () => {
     try {
       const response = await aiContentService.deleteChat(chatToDelete.id);
       if (response.success) {
-        // Remove from chats list
         setChats((prev) => prev.filter((chat) => chat._id !== chatToDelete.id));
 
-        // Show success toast
         toast.success("Chat deleted successfully");
 
-        // If deleted chat was current, reset to new chat
         if (chatToDelete.id === currentChatId) {
           handleNewChat();
-          // Remove chatId from URL
           setSearchParams({});
         }
 
-        // Close modal
         setDeleteModalOpen(false);
         setChatToDelete(null);
       } else {
@@ -436,7 +448,6 @@ const AIChat: FC = () => {
           title: newTitle,
         });
         if (response.success && response.data) {
-          // Update chat in the list
           setChats((prev) =>
             prev.map((chat) =>
               chat._id === chatId
@@ -464,7 +475,6 @@ const AIChat: FC = () => {
       onSettings={handleOpenSettings}
     >
       <main className="h-full w-full flex flex-row overflow-hidden min-h-0 relative">
-        {/* History Toggle Button - Shows when sidebar is collapsed */}
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
@@ -483,7 +493,6 @@ const AIChat: FC = () => {
             error={error}
           />
 
-          {/* Chat Composer - Always visible at bottom */}
           <div className="flex-shrink-0 w-full">
             <AIChatComposer
               prompt={prompt}
@@ -509,7 +518,6 @@ const AIChat: FC = () => {
             </section>
           )}
 
-          {/* Footer Notice */}
           <div className="flex-shrink-0 pb-2">
             <AIChatFooterNotice />
           </div>
@@ -526,7 +534,6 @@ const AIChat: FC = () => {
           onToggle={() => setSidebarOpen(!sidebarOpen)}
         />
 
-        {/* Delete Confirmation Modal */}
         <DeleteChatModal
           isOpen={deleteModalOpen}
           chatTitle={chatToDelete?.title || ""}
