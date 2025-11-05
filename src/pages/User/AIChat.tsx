@@ -256,6 +256,9 @@ const AIChat: FC = () => {
 
     setMessages((prev) => [...prev, userMessage]);
 
+    // Clear the prompt immediately after adding the message
+    setPrompt("");
+
     try {
       const response = await aiContentService.generateChatMessage({
         message: trimmedPrompt,
@@ -342,7 +345,6 @@ const AIChat: FC = () => {
 
         await loadUserChats(false);
 
-        setPrompt("");
         return true;
       } else {
         setError(response.message || "Failed to generate response");
