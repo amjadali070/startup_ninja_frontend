@@ -2008,9 +2008,11 @@ const WebsiteBuilderStudio: FC = () => {
               // If no existing data, allow initializing from template via query param
               try {
                 const params = new URLSearchParams(window.location.search);
-                const templateId = params.get('template');
+                const templateId = params.get("template");
                 if (templateId) {
-                  const tpl = (DemoTemplates as any[]).find((t) => t.id === templateId);
+                  const tpl = (DemoTemplates as any[]).find(
+                    (t) => t.id === templateId
+                  );
                   if (tpl?.data) {
                     return { project: tpl.data };
                   }
