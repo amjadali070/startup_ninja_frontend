@@ -23,34 +23,120 @@
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-/* Custom scrollbar for CreateWebsiteModal */
+/* Custom scrollbar for CreateWebsiteModal and Dashboard pages */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #0f0f0f;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(220, 38, 38, 0.87);
-  border-radius: 3px;
-  border: 1px solid #2a2a2a;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(220, 38, 38, 0.87);
+  background: rgba(255, 255, 255, 0.3);
 }
 /* Firefox scrollbar styling (scrollbar-width supported in Firefox 64+) */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(220, 38, 38, 0.87) #0f0f0f;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
 }
 
+/* Chat Messages List Scrollbar - Red, Black, Gray-Black */
+.chat-messages-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #2a2a2a;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #de0500;
+}
+/* Firefox scrollbar styling for chat messages */
+.chat-messages-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a #0a0a0a;
+}
+
+/* Chat History Sidebar Scrollbar - Red, Black, Gray-Black */
+.chat-history-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-history-scrollbar::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+.chat-history-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #2a2a2a;
+}
+.chat-history-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #de0500;
+}
+/* Firefox scrollbar styling for chat history */
+.chat-history-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a #0a0a0a;
+}
+
+/* Hide scrollbar but keep scrolling functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Ensure no scrollbars on flex containers */
+[class*="overflow-hidden"]::-webkit-scrollbar {
+  display: none;
+}
+
+/* AI Chat specific scrollbar handling */
+main[class*="overflow-hidden"] {
+  overflow: hidden !important;
+}
+
+main[class*="overflow-hidden"]::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Allow scrolling in specific containers */
+.ai-chat-container {
+  overflow: hidden;
+}
+
+.ai-chat-messages-wrapper {
+  overflow: hidden;
+}
+
+html,
 body {
+  height: 100%;
+  overflow: hidden;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Ninja Assistant Card Custom Styles */
@@ -440,4 +526,93 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Typing indicator dots animation */
+.typing-dots {
+  display: inline-block;
+  width: 48px;
+  height: 12px;
+}
+
+.typing-dots svg {
+  width: 100%;
+  height: 100%;
+}
+
+.typing-dot-1 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 0ms;
+}
+
+.typing-dot-2 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 200ms;
+}
+
+.typing-dot-3 {
+  animation: typingDot 1.4s infinite ease-in-out;
+  animation-delay: 400ms;
+}
+
+@keyframes typingDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* Markdown code block styles */
+pre {
+  margin: 0;
+  padding: 0;
+}
+
+pre code.hljs {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+code.hljs {
+  background: #0a0a0a !important;
+  color: #e5e7eb;
+}
+
+/* Override highlight.js styles for better dark theme integration */
+.hljs {
+  background: #0a0a0a !important;
+  color: #e5e7eb !important;
+}
+
+/* Ensure code blocks are scrollable horizontally */
+pre {
+  overflow-x: auto;
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
