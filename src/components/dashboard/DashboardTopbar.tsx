@@ -1,10 +1,12 @@
-import { useEffect, useId, useRef, useState, type FC } from 'react';
-import { FiSearch, FiSettings } from 'react-icons/fi';
-import { HiMiniBellAlert } from 'react-icons/hi2';
-import { TbLogout2 } from 'react-icons/tb';
-import NotificationModal from '../NotificationModal';
-import { useNavigate } from 'react-router-dom';
-import notificationsService, { type NotificationItem } from '../../services/notifications';
+import { useEffect, useId, useRef, useState, type FC } from "react";
+import { FiSearch, FiSettings } from "react-icons/fi";
+import { HiMiniBellAlert } from "react-icons/hi2";
+import { TbLogout2 } from "react-icons/tb";
+import NotificationModal from "../NotificationModal";
+import { useNavigate } from "react-router-dom";
+import notificationsService, {
+  type NotificationItem,
+} from "../../services/notifications";
 
 interface DashboardTopbarProps {
   userName: string;
@@ -23,17 +25,17 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   username,
   onLogout,
   onSettings,
-  title = 'Dashboard'
+  title = "Dashboard",
 }) => {
-  const displayName = userName && userName.trim() ? userName : 'Ninja';
+  const displayName = userName && userName.trim() ? userName : "Ninja";
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .map((segment) => segment[0])
-    .join('')
+    .join("")
     .slice(0, 2)
     .toUpperCase();
-  const userEmail = email?.trim() ?? '';
-  const userHandle = username?.trim() ?? '';
+  const userEmail = email?.trim() ?? "";
+  const userHandle = username?.trim() ?? "";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
@@ -57,9 +59,9 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -69,14 +71,14 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsMenuOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMenuOpen]);
 
@@ -98,9 +100,13 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   // }, []);
 
   const handleMarkAsRead = async (id: string) => {
-    try { await notificationsService.markAsRead(id); } catch (_) {}
-    setNotifications(prev => prev.map(n => n._id === id ? { ...n, read: true } : n));
-    setUnread(prev => Math.max(0, prev - 1));
+    try {
+      await notificationsService.markAsRead(id);
+    } catch (_) {}
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+    );
+    setUnread((prev) => Math.max(0, prev - 1));
   };
 
   const toggleMenu = () => {
@@ -130,12 +136,12 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
 
   return (
     <div className="px-3 bg-[#0B0B0F] sm:px-4 md:px-6 lg:px-8 xl:px-12 pt-4 sm:pt-6 lg:pt-8 pb-3 sm:pb-4 border-b border-white/10">
-        <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
         <div className="flex-1 min-w-0">
           <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-semibold tracking-tight text-white truncate">
             {title}
           </h1>
-        </div>        
+        </div>
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
           <div className="hidden sm:flex items-center rounded-md bg-white/5 border border-white/10 px-2 sm:px-3 py-1.5 sm:py-2 w-[180px] sm:w-[220px] lg:w-[280px]">
             <FiSearch className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
@@ -172,7 +178,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                 {displayName}
               </span>
             </div>
-            
+
             <div className="relative">
               <button
                 type="button"
@@ -191,7 +197,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                   />
                 ) : (
                   <span className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-white/15 to-white/5 text-[10px] sm:text-xs font-semibold text-white">
-                    {initials || 'SN'}
+                    {initials || "SN"}
                   </span>
                 )}
               </button>
@@ -200,17 +206,23 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                 <div
                   id={menuId}
                   role="menu"
-                  className="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-3xl border border-white/10 bg-[rgba(14,14,24,0.95)] shadow-[0_24px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                  className="absolute right-0 z-40 mt-2 w-52 overflow-hidden rounded-3xl border border-white/10 bg-[rgba(14,14,24,0.95)] shadow-[0_24px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl"
                 >
-                  <div role="none" className="border-b border-white/10 bg-white/5 px-3 py-3">
+                  <div
+                    role="none"
+                    className="border-b border-white/10 bg-white/5 px-3 py-3"
+                  >
                     <div className="flex items-center gap-2">
-                     
                       <div className="min-w-0 text-left">
                         {userHandle && (
-                          <p className="truncate text-[10px] font-medium text-white/60">@{userHandle}</p>
+                          <p className="truncate text-[10px] font-medium text-white/60">
+                            @{userHandle}
+                          </p>
                         )}
                         {userEmail && (
-                          <p className="mt-0.5 truncate text-[10px] text-white/45">{userEmail}</p>
+                          <p className="mt-0.5 truncate text-[10px] text-white/45">
+                            {userEmail}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -240,7 +252,9 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                         <TbLogout2 className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
-                        <span>{isLoggingOut ? 'Logging out…' : 'Sign out'}</span>
+                        <span>
+                          {isLoggingOut ? "Logging out…" : "Sign out"}
+                        </span>
                       </div>
                     </button>
                   </div>
@@ -254,9 +268,9 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
       <NotificationModal
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}
-        notifications={notifications.map(n => ({
+        notifications={notifications.map((n) => ({
           id: n._id,
-          type: (n.type as any) || 'info',
+          type: (n.type as any) || "info",
           title: n.title,
           message: n.message,
           timestamp: new Date(n.createdAt).toLocaleString(),
@@ -264,7 +278,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
         }))}
         onMarkAsRead={handleMarkAsRead}
         onOpenItem={(id) => {
-          const item = notifications.find(n => n._id === id);
+          const item = notifications.find((n) => n._id === id);
           const scheduledPostId = (item?.metadata as any)?.scheduledPostId;
           if (scheduledPostId) {
             setIsNotificationModalOpen(false);

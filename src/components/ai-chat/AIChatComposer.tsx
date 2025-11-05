@@ -1,9 +1,8 @@
 import type { ChangeEvent, FC, KeyboardEvent } from "react";
 import { useState } from "react";
 import { GiNinjaStar } from "react-icons/gi";
-import { FiPaperclip, FiPlus } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
-import { PiWaveformBold } from "react-icons/pi";
 
 interface AIChatComposerProps {
   prompt: string;
@@ -91,14 +90,14 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
                 className="inline-flex items-center gap-2 rounded-[14px] border border-[#FF0600] px-3 py-1.5 text-xs font-semibold text-[#FF0600] shadow-[0_12px_30px_rgba(222,5,0,0.25)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FF0600]/10"
                 aria-label="New chat"
               >
-                <FiPlus className="h-3.5 w-3.5" />
+                <FaPlus className="h-3.5 w-3.5" />
                 New Chat
               </button>
             )}
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-1 text-white/45 sm:flex-nowrap sm:gap-2">
-            <button
+            {/* <button
               type="button"
               aria-label="Attach file"
               className="flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/5 hover:text-white"
@@ -111,7 +110,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
               className="flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/5 hover:text-white"
             >
               <PiWaveformBold className="h-[14px] w-[14px]" />
-            </button>
+            </button> */}
 
             <button
               type="button"

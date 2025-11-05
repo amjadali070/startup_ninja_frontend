@@ -1,15 +1,15 @@
-import { useMemo, type ReactNode } from 'react';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, type ReactNode } from "react";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { useNavigate } from "react-router-dom";
 import { PiImageSquareBold } from "react-icons/pi";
 import { FiGlobe, FiMessageSquare } from "react-icons/fi";
 import { RiOrganizationChart } from "react-icons/ri";
-import DashboardLayout from '../../layouts/DashboardLayout';
-import WelcomeBanner from '../../components/dashboard/WelcomeBanner.tsx';
-import QuickActionCard from '../../components/dashboard/QuickActionCard.tsx';
-import NinjaAssistantCard from '../../components/dashboard/NinjaAssistantCard.tsx';
-import ProjectCard from '../../components/dashboard/ProjectCard.tsx';
-import TokenUsageCard from '../../components/dashboard/TokenUsageCard.tsx';
+import DashboardLayout from "../../layouts/DashboardLayout";
+import WelcomeBanner from "../../components/dashboard/WelcomeBanner.tsx";
+import QuickActionCard from "../../components/dashboard/QuickActionCard.tsx";
+import NinjaAssistantCard from "../../components/dashboard/NinjaAssistantCard.tsx";
+import ProjectCard from "../../components/dashboard/ProjectCard.tsx";
+import TokenUsageCard from "../../components/dashboard/TokenUsageCard.tsx";
 
 interface QuickActionConfig {
   title: string;
@@ -22,96 +22,96 @@ interface QuickActionConfig {
 interface ProjectConfig {
   title: string;
   category: string;
-  status: 'Draft' | 'Live' | 'Paused';
+  status: "Draft" | "Live" | "Paused";
   progress: number;
   lastUpdated: string;
 }
 
 const assistantSuggestions = [
-  'Want to create a pitch deck based on your last doc?',
+  "Want to create a pitch deck based on your last doc?",
   "Try AI Image Generator to design your brand's logo.",
-  'Schedule your next social campaign with AI.',
-  'Generate hero section visuals for your landing page.',
+  "Schedule your next social campaign with AI.",
+  "Generate hero section visuals for your landing page.",
 ];
 
 const projectShowcase: ProjectConfig[] = [
   {
-    title: 'Startup Landing Page',
-    category: 'AI Website Builder',
-    status: 'Draft',
+    title: "Startup Landing Page",
+    category: "AI Website Builder",
+    status: "Draft",
     progress: 45,
-    lastUpdated: '3h ago',
+    lastUpdated: "3h ago",
   },
   {
-    title: 'Pricing Page (v2)',
-    category: 'AI Website Builder',
-    status: 'Draft',
+    title: "Pricing Page (v2)",
+    category: "AI Website Builder",
+    status: "Draft",
     progress: 45,
-    lastUpdated: '3h ago',
+    lastUpdated: "3h ago",
   },
 ];
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { logout , user } = useAuth();
+  const { logout, user } = useAuth();
   const handleLogout = async () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Dashboard logout failed:', error);
+      console.error("Dashboard logout failed:", error);
     } finally {
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   };
 
   const handleOpenSettings = () => {
-    navigate('/settings');
+    navigate("/settings");
   };
 
   const quickActions = useMemo<QuickActionConfig[]>(
     () => [
       {
-        title: 'AI Chat',
-        description: 'Generate content instantly with our advanced AI.',
-        buttonLabel: 'Generate Content',
+        title: "AI Chat",
+        description: "Generate content instantly with our advanced AI.",
+        buttonLabel: "Generate Content",
         icon: <FiMessageSquare className="h-12 w-12" />,
-        to: '/ai-tools/chat',
+        to: "/ai-tools/chat",
       },
       {
-        title: 'AI Image Generator',
-        description: 'Create stunning visuals from text prompts.',
-        buttonLabel: 'Generate Visual',
+        title: "AI Image Generator",
+        description: "Create stunning visuals from text prompts.",
+        buttonLabel: "Generate Visual",
         icon: <PiImageSquareBold className="h-12 w-12" />,
-        to: '/ai-tools/image-gen',
+        to: "/ai-tools/image-gen",
       },
       {
-        title: 'Website Builder',
-        description: 'Build professional websites with AI assistance.',
-        buttonLabel: 'Build Website',
+        title: "Website Builder",
+        description: "Build professional websites with AI assistance.",
+        buttonLabel: "Build Website",
         icon: <FiGlobe className="h-12 w-12" />,
-        to: '/ai-tools/web-builder',
+        to: "/ai-tools/web-builder",
       },
       {
-        title: 'Social Pro',
-        description: 'Automate and manage your social presence.',
-        buttonLabel: 'Schedule Content',
+        title: "Social Pro",
+        description: "Automate and manage your social presence.",
+        buttonLabel: "Schedule Content",
         icon: <RiOrganizationChart className="h-12 w-12" />,
-        to: '/ai-tools/social-pro',
+        to: "/ai-tools/social-pro",
       },
     ],
     []
   );
 
   return (
-    <DashboardLayout 
-      activePath="/dashboard" 
+    <DashboardLayout
+      activePath="/dashboard"
       title="Dashboard"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
       <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
         <div className="space-y-6">
-          <WelcomeBanner name={user.username || user.email || 'Ninja'} />
+          <WelcomeBanner name={user.username || user.email || "Ninja"} />
 
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {quickActions.map((action) => (
@@ -129,8 +129,12 @@ const Dashboard: React.FC = () => {
               <div className="relative z-10 flex h-full flex-col">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">Ongoing Projects</h3>
-                    <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">Keep track of your workspace progress in real time.</p>
+                    <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">
+                      Ongoing Projects
+                    </h3>
+                    <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">
+                      Keep track of your workspace progress in real time.
+                    </p>
                   </div>
                 </div>
 

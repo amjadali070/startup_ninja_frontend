@@ -87,7 +87,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   return (
     <div className="flex h-screen bg-[#07070C] text-white overflow-hidden">
       <DashboardSidebar activePath={activePath} userData={profile} />
-      <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <DashboardTopbar
           title={title}
           userName={displayName}
@@ -97,7 +97,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           onLogout={onLogout}
           onSettings={onSettings}
         />
-        <div className="flex-1 overflow-hidden min-h-0">{children}</div>
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">{children}</div>
       </div>
     </div>
   );
