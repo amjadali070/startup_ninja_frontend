@@ -124,7 +124,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
           </div>
 
           {/* Chat List */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+          <div className="flex-1 overflow-y-auto chat-history-scrollbar pr-2">
             {chats.length === 0 ? (
               <div className="p-4 text-center">
                 <p className="text-sm text-white/40">No chat history yet</p>

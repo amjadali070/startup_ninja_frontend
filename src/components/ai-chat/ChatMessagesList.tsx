@@ -31,7 +31,7 @@ const ChatMessagesList: FC<ChatMessagesListProps> = ({
   return (
     <div
       ref={containerRef}
-      className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2"
+      className="flex-1 min-h-0 overflow-y-auto chat-messages-scrollbar pr-2"
     >
       <div className="flex flex-col gap-4 px-2 py-4 pb-6 w-full">
         {messages.length === 0 && !isGenerating && (

@@ -46,6 +46,52 @@
   scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
 }
 
+/* Chat Messages List Scrollbar - Red, Black, Gray-Black */
+.chat-messages-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #2a2a2a;
+}
+.chat-messages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #de0500;
+}
+/* Firefox scrollbar styling for chat messages */
+.chat-messages-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a #0a0a0a;
+}
+
+/* Chat History Sidebar Scrollbar - Red, Black, Gray-Black */
+.chat-history-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-history-scrollbar::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+.chat-history-scrollbar::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #2a2a2a;
+}
+.chat-history-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #de0500;
+}
+/* Firefox scrollbar styling for chat history */
+.chat-history-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a #0a0a0a;
+}
+
 /* Hide scrollbar but keep scrolling functionality */
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
