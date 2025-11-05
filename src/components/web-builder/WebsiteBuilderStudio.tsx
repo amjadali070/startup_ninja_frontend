@@ -71,6 +71,12 @@ import {
 } from "./custom-components";
 
 const WebsiteBuilderStudio: FC = () => {
+  const normalizeDesktopMediaQueries = (html: string) =>
+    html.replace(
+      /@media\s*\(\s*max-width\s*:\s*1800px\s*\)/gi,
+      "@media screen"
+    );
+
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [websiteData, setWebsiteData] = useState<WebsiteProject | null>(null);
   const [loading, setLoading] = useState(true);
@@ -277,8 +283,8 @@ const WebsiteBuilderStudio: FC = () => {
       content: string;
       [key: string]: any;
     }[];
-    const firstPage = files.find((file) => file.mimeType === "text/html");
-    const websiteHtml = firstPage ? firstPage.content : "";
+  const firstPage = files.find((file) => file.mimeType === "text/html");
+  const websiteHtml = firstPage ? normalizeDesktopMediaQueries(firstPage.content) : "";
 
     const deviceSizes: Record<
       string,
@@ -590,8 +596,9 @@ const WebsiteBuilderStudio: FC = () => {
 
       const firstPage = files.find((file) => file.mimeType === "text/html");
       const websiteHtml = firstPage ? firstPage.content : "";
+      const sanitizedHtml = normalizeDesktopMediaQueries(websiteHtml);
 
-      if (!websiteHtml) {
+      if (!sanitizedHtml) {
         toast.error("No website content found to publish", {
           id: "publish-loading",
         });
@@ -601,7 +608,7 @@ const WebsiteBuilderStudio: FC = () => {
       const response = await WebBuilderService.publishWebsite(
         user.id,
         websiteData._id,
-        websiteHtml
+        sanitizedHtml
       );
 
       if (response.success && response.data) {
@@ -762,7 +769,6 @@ const WebsiteBuilderStudio: FC = () => {
                 id: "desktop",
                 name: "Desktop",
                 width: "1200px",
-                widthMedia: "1800px",
               },
               {
                 id: "tablet",

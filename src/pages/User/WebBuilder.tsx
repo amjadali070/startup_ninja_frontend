@@ -217,7 +217,10 @@ const WebBuilder: FC = () => {
 
     await editor.loadProjectData(projectData);
     const html = editor.getHtml();
-    const css = editor.getCss();
+    const css = editor.getCss().replace(
+      /@media\s*\(\s*max-width\s*:\s*1800px\s*\)/gi,
+      "@media screen"
+    );
     editor.destroy();
 
     return `
