@@ -4,6 +4,7 @@ import { FiEdit3 } from "react-icons/fi";
 import { ImFileText } from "react-icons/im";
 import { PiBrainLight } from "react-icons/pi";
 import { FaHistory } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import AIChatComposer from "../../components/ai-chat/AIChatComposer.tsx";
 import AIChatQuickActionCard from "../../components/ai-chat/AIChatQuickActionCard.tsx";
@@ -382,6 +383,9 @@ const AIChat: FC = () => {
           // Remove from chats list
           setChats((prev) => prev.filter((chat) => chat._id !== chatId));
 
+          // Show success toast
+          toast.success("Chat deleted successfully");
+
           // If deleted chat was current, reset to new chat
           if (chatId === currentChatId) {
             handleNewChat();
@@ -390,13 +394,15 @@ const AIChat: FC = () => {
           }
         } else {
           setError(response.message || "Failed to delete chat");
+          toast.error(response.message || "Failed to delete chat");
         }
       } catch (err) {
         console.error("Failed to delete chat:", err);
         setError("Failed to delete chat");
+        toast.error("Failed to delete chat");
       }
     },
-    [currentChatId, handleNewChat]
+    [currentChatId, handleNewChat, setSearchParams]
   );
 
   return (
@@ -432,6 +438,7 @@ const AIChat: FC = () => {
               prompt={prompt}
               onPromptChange={(value) => setPrompt(value)}
               onSubmit={handleComposerSubmit}
+              onNewChat={handleNewChat}
               isGenerating={isGenerating}
               className="w-full"
             />
