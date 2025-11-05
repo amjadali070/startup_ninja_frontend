@@ -1,6 +1,7 @@
 import { useState, type FC } from "react";
-import { FiX, FiPlus } from "react-icons/fi";
-import { FaHistory } from "react-icons/fa";
+import { FiX, FiPlus, FiCheck } from "react-icons/fi";
+import {} from "react-icons/fa";
+import { FaHistory, FaTrash, FaEdit } from "react-icons/fa";
 import { Chat } from "../../types/ai-content";
 
 interface ChatHistorySidebarProps {
@@ -9,6 +10,7 @@ interface ChatHistorySidebarProps {
   onNewChat: () => void;
   onSelectChat: (chatId: string) => void;
   onDeleteChat: (chatId: string) => void;
+  onRenameChat?: (chatId: string, newTitle: string) => void;
   isOpen?: boolean;
   onToggle?: () => void;
 }
@@ -19,10 +21,13 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
   onNewChat,
   onSelectChat,
   onDeleteChat,
+  onRenameChat,
   isOpen = true,
   onToggle,
 }) => {
   const [deleteHoverId, setDeleteHoverId] = useState<string | null>(null);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState<string>("");
 
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "";
@@ -37,6 +42,36 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
       return "Yesterday";
     } else {
       return d.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
+  };
+
+  const handleStartEdit = (chat: Chat) => {
+    setEditingChatId(chat._id);
+    setEditTitle(chat.title);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingChatId(null);
+    setEditTitle("");
+  };
+
+  const handleSaveEdit = (chatId: string) => {
+    const trimmedTitle = editTitle.trim();
+    if (trimmedTitle && onRenameChat) {
+      onRenameChat(chatId, trimmedTitle);
+      setEditingChatId(null);
+      setEditTitle("");
+    }
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    chatId: string
+  ) => {
+    if (e.key === "Enter") {
+      handleSaveEdit(chatId);
+    } else if (e.key === "Escape") {
+      handleCancelEdit();
     }
   };
 
@@ -116,40 +151,105 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                     onMouseLeave={() => setDeleteHoverId(null)}
                   >
                     <div className="flex-1 min-w-0 pr-2">
-                      <p
-                        className={`text-sm truncate ${
-                          currentChatId === chat._id
-                            ? "text-white font-medium"
-                            : "text-white/80"
-                        }`}
-                      >
-                        {chat.title}
-                      </p>
-                      {chat.lastMessageAt && (
-                        <p className="text-xs text-white/40 mt-0.5">
-                          {formatDate(chat.lastMessageAt)}
-                        </p>
+                      {editingChatId === chat._id ? (
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, chat._id)}
+                          onBlur={() => handleSaveEdit(chat._id)}
+                          autoFocus
+                          className="w-full text-sm bg-[#1A1A1A] border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-[#DE0500]"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <>
+                          <p
+                            className={`text-sm truncate ${
+                              currentChatId === chat._id
+                                ? "text-white font-medium"
+                                : "text-white/80"
+                            }`}
+                          >
+                            {chat.title}
+                          </p>
+                          {chat.lastMessageAt && (
+                            <p className="text-xs text-white/40 mt-0.5">
+                              {formatDate(chat.lastMessageAt)}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteChat(chat._id);
-                      }}
-                      className={`
-                        flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center
-                        transition-all duration-200
-                        ${
-                          deleteHoverId === chat._id ||
-                          currentChatId === chat._id
-                            ? "opacity-100 text-white/60 hover:text-red-400 hover:bg-red-500/10"
-                            : "opacity-0 lg:opacity-0 lg:group-hover:opacity-100 text-white/40"
-                        }
-                      `}
-                      aria-label={`Delete ${chat.title}`}
-                    >
-                      <FiX className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      {editingChatId === chat._id ? (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveEdit(chat._id);
+                            }}
+                            className="flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center text-green-400 hover:bg-green-500/10 transition-colors"
+                            aria-label="Save"
+                          >
+                            <FiCheck className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelEdit();
+                            }}
+                            className="flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center text-white/60 hover:bg-white/10 transition-colors"
+                            aria-label="Cancel"
+                          >
+                            <FiX className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {onRenameChat && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartEdit(chat);
+                              }}
+                              className={`
+                                flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center
+                                transition-all duration-200
+                                ${
+                                  deleteHoverId === chat._id ||
+                                  currentChatId === chat._id
+                                    ? "opacity-100 text-white/60 hover:text-blue-400 hover:bg-blue-500/10"
+                                    : "opacity-0 lg:opacity-0 lg:group-hover:opacity-100 text-white/40"
+                                }
+                              `}
+                              aria-label={`Rename ${chat.title}`}
+                            >
+                              <FaEdit className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteChat(chat._id);
+                            }}
+                            className={`
+                              flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center
+                              transition-all duration-200
+                              ${
+                                deleteHoverId === chat._id ||
+                                currentChatId === chat._id
+                                  ? "opacity-100 text-white/60 hover:text-red-400 hover:bg-red-500/10"
+                                  : "opacity-0 lg:opacity-0 lg:group-hover:opacity-100 text-white/40"
+                              }
+                            `}
+                            aria-label={`Delete ${chat.title}`}
+                          >
+                            <FaTrash className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

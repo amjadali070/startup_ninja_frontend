@@ -11,6 +11,7 @@ import AIChatQuickActionCard from "../../components/ai-chat/AIChatQuickActionCar
 import AIChatFooterNotice from "../../components/ai-chat/AIChatFooterNotice.tsx";
 import ChatMessagesList from "../../components/ai-chat/ChatMessagesList.tsx";
 import ChatHistorySidebar from "../../components/ai-chat/ChatHistorySidebar.tsx";
+import DeleteChatModal from "../../components/ai-chat/DeleteChatModal.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { authService } from "../../services/auth.ts";
 import { aiContentService } from "../../services/ai-content.ts";
@@ -60,6 +61,12 @@ const AIChat: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // Default collapsed
   const typingIntervalRef = useRef<number | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Get user profile picture
   const userProfilePicture = userProfile?.profilePicture
@@ -289,7 +296,7 @@ const AIChat: FC = () => {
           // Replace the entire messages array with server messages (excluding the last assistant)
           // Then add the assistant message with empty content for typewriter effect
           const messagesWithoutLastAssistant = serverMessages.filter(
-            (m, index) => index !== lastAssistantIndex
+            (_, index) => index !== lastAssistantIndex
           );
 
           // Set messages to server messages (without the last assistant response)
@@ -376,33 +383,77 @@ const AIChat: FC = () => {
   );
 
   const handleDeleteChat = useCallback(
-    async (chatId: string) => {
-      try {
-        const response = await aiContentService.deleteChat(chatId);
-        if (response.success) {
-          // Remove from chats list
-          setChats((prev) => prev.filter((chat) => chat._id !== chatId));
-
-          // Show success toast
-          toast.success("Chat deleted successfully");
-
-          // If deleted chat was current, reset to new chat
-          if (chatId === currentChatId) {
-            handleNewChat();
-            // Remove chatId from URL
-            setSearchParams({});
-          }
-        } else {
-          setError(response.message || "Failed to delete chat");
-          toast.error(response.message || "Failed to delete chat");
-        }
-      } catch (err) {
-        console.error("Failed to delete chat:", err);
-        setError("Failed to delete chat");
-        toast.error("Failed to delete chat");
+    (chatId: string) => {
+      const chat = chats.find((c) => c._id === chatId);
+      if (chat) {
+        setChatToDelete({ id: chatId, title: chat.title });
+        setDeleteModalOpen(true);
       }
     },
-    [currentChatId, handleNewChat, setSearchParams]
+    [chats]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!chatToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await aiContentService.deleteChat(chatToDelete.id);
+      if (response.success) {
+        // Remove from chats list
+        setChats((prev) => prev.filter((chat) => chat._id !== chatToDelete.id));
+
+        // Show success toast
+        toast.success("Chat deleted successfully");
+
+        // If deleted chat was current, reset to new chat
+        if (chatToDelete.id === currentChatId) {
+          handleNewChat();
+          // Remove chatId from URL
+          setSearchParams({});
+        }
+
+        // Close modal
+        setDeleteModalOpen(false);
+        setChatToDelete(null);
+      } else {
+        setError(response.message || "Failed to delete chat");
+        toast.error(response.message || "Failed to delete chat");
+      }
+    } catch (err) {
+      console.error("Failed to delete chat:", err);
+      setError("Failed to delete chat");
+      toast.error("Failed to delete chat");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [chatToDelete, currentChatId, handleNewChat, setSearchParams]);
+
+  const handleRenameChat = useCallback(
+    async (chatId: string, newTitle: string) => {
+      try {
+        const response = await aiContentService.updateChatTitle(chatId, {
+          title: newTitle,
+        });
+        if (response.success && response.data) {
+          // Update chat in the list
+          setChats((prev) =>
+            prev.map((chat) =>
+              chat._id === chatId
+                ? { ...chat, title: response.data!.title }
+                : chat
+            )
+          );
+          toast.success("Chat title updated successfully");
+        } else {
+          toast.error(response.message || "Failed to update chat title");
+        }
+      } catch (err) {
+        console.error("Failed to rename chat:", err);
+        toast.error("Failed to update chat title");
+      }
+    },
+    []
   );
 
   return (
@@ -470,8 +521,23 @@ const AIChat: FC = () => {
           onNewChat={handleNewChat}
           onSelectChat={handleSelectChat}
           onDeleteChat={handleDeleteChat}
+          onRenameChat={handleRenameChat}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteChatModal
+          isOpen={deleteModalOpen}
+          chatTitle={chatToDelete?.title || ""}
+          onClose={() => {
+            if (!isDeleting) {
+              setDeleteModalOpen(false);
+              setChatToDelete(null);
+            }
+          }}
+          onConfirm={handleConfirmDelete}
+          isDeleting={isDeleting}
         />
       </main>
     </DashboardLayout>
