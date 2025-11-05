@@ -349,6 +349,141 @@ body {
   overflow: auto;
   min-height: 70%;
   height: 50%;
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Add padding to right sidebar scrollable content containers */
+.gs-cmp-sidebar-right .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+.gs-cmp-sidebar-right .gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-right .gs-utl-flex-1 {
+  flex: 1 1 0%;
+}
+
+.gs-cmp-sidebar-right .gs-utl-max-w-full {
+  max-width: 100%;
+}
+
+/* Add padding to the tab panels in right sidebar */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Add padding to tab panel content */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel-content {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure properties panel content has proper padding */
+.gs-cmp-sidebar-right .gs-cmp-field,
+.gs-cmp-sidebar-right .gs-cmp-field-group {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+/* Add padding to the first and last elements in sidebar */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel > *:first-child {
+  margin-top: 16px !important;
+}
+
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel > *:last-child {
+  margin-bottom: 24px !important;
+}
+
+/* Ensure the scrollable flex container has proper padding */
+.gs-cmp-sidebar-right .gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-cmp-sidebar-right .gs-utl-flex[style*="overflow"] {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Left Sidebar - Full Scrollable Support */
+.gs-cmp-sidebar-left,
+.gs-cmp-sidebar-left .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-flex-1 {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-max-w-full {
+  max-width: 100%;
+}
+
+/* Ensure left sidebar panels are scrollable */
+.gs-cmp-sidebar-left > .gs-utl-flex,
+.gs-cmp-sidebar-left > .gs-utl-flex-1,
+.gs-cmp-sidebar-left .gs-utl-flex {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 0;
+}
+
+/* Sidebar column (left sidebar buttons) */
+.sidebar-column {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure all left sidebar containers are scrollable */
+.gs-studio-root .gs-cmp-sidebar-left .gs-utl-overflow-y-auto,
+.gs-studio-root .gs-cmp-sidebar-left .gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-studio-root .sidebar-column .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+/* Global GrapesJS utility classes for full scrollability */
+.gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+.gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+/* Ensure flex containers with overflow are scrollable */
+.gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-utl-flex-1.gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 0;
+  max-height: 100vh !important;
 }
 
 .gs-utl-dark .gs-theme-cl-bg0 {
