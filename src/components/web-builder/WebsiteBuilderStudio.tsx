@@ -283,8 +283,10 @@ const WebsiteBuilderStudio: FC = () => {
       content: string;
       [key: string]: any;
     }[];
-  const firstPage = files.find((file) => file.mimeType === "text/html");
-  const websiteHtml = firstPage ? normalizeDesktopMediaQueries(firstPage.content) : "";
+    const firstPage = files.find((file) => file.mimeType === "text/html");
+    const websiteHtml = firstPage
+      ? normalizeDesktopMediaQueries(firstPage.content)
+      : "";
 
     const deviceSizes: Record<
       string,
@@ -879,14 +881,15 @@ const WebsiteBuilderStudio: FC = () => {
                       type: "column",
                       className: "sidebar-column",
                       style: {
-                        padding: 5,
+                        paddingTop: 20,
+                        paddingBottom: 20,
+                        paddingLeft: 10,
+                        paddingRight: 10,
                         gap: 10,
                         borderRightWidth: "1px",
                         backgroundColor: "#1a1a1a",
                         minWidth: "60px",
                         alignItems: "center",
-                        marginTop: 10,
-                        marginBottom: 10,
                       },
                       children: [
                         {
