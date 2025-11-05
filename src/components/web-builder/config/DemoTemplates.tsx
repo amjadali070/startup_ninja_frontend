@@ -2641,6 +2641,627 @@ const DemoTemplates = [
       ],
     },
   },
+  {
+    id: "edu-platform",
+    name: "EduPlatform",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .edu-hero-section { padding: 6rem 2rem 3rem !important; }
+                .hero-title { font-size: 3rem !important; }
+                .hero-subtitle { font-size: 1.2rem !important; }
+                .course-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .edu-hero-section { padding: 4rem 1rem 2rem !important; }
+                .hero-title { font-size: 2rem !important; }
+                .nav-menu { flex-direction: column !important; gap: 1rem !important; }
+              }
+              @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              @keyframes slideInLeft {
+                from { opacity: 0; transform: translateX(-30px); }
+                to { opacity: 1; transform: translateX(0); }
+              }
+              @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+              }
+              .animate-fade-up { animation: fadeInUp 0.8s ease-out; }
+              .animate-slide-left { animation: slideInLeft 0.8s ease-out; }
+              .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+              .edu-card {
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                position: relative;
+                overflow: hidden;
+              }
+              .edu-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(147,51,234,0.2), transparent);
+                transition: left 0.5s ease;
+              }
+              .edu-card:hover::before { left: 100%; }
+              .edu-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 50px rgba(147,51,234,0.3);
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+              }
+              .purple-button::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.6s ease, height 0.6s ease;
+              }
+              .purple-button:hover::before {
+                width: 300px;
+                height: 300px;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+              .outline-button {
+                background: transparent;
+                border: 2px solid #9333ea;
+                color: #9333ea;
+                transition: all 0.3s ease;
+              }
+              .outline-button:hover {
+                background: #9333ea;
+                color: white;
+                transform: translateY(-2px);
+              }
+              .edu-icon {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1.5rem;
+                font-size: 2rem;
+                color: white;
+                box-shadow: 0 10px 30px rgba(147,51,234,0.3);
+              }
+            </style>
+            <section style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="#courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Courses</a>
+                    <a href="#about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">About</a>
+                    <a href="#instructors" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Instructors</a>
+                    <a href="#contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Contact</a>
+                    <button class="purple-button" style="padding: 0.8rem 2rem; border: none; border-radius: 25px; color: white; font-weight: 600; cursor: pointer;">
+                      Enroll Now
+                    </button>
+                  </div>
+                </div>
+              </nav>
+              <section class="edu-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(147,51,234,0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);"></div>
+                <div style="position: absolute; bottom: 20%; left: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);"></div>
+                <div class="animate-fade-up" style="position: relative; z-index: 2;">
+                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 900; margin-bottom: 1.5rem; background: linear-gradient(135deg, #fff, #e9d5ff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2;">
+                    Learn Without Limits<br/>Grow Without Boundaries
+                  </h1>
+                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #c4b5fd; line-height: 1.8;">
+                    Transform your future with expert-led courses, hands-on projects, and a community of learners. Start your journey today.
+                  </p>
+                  <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="purple-button" style="padding: 1.2rem 3rem; border: none; border-radius: 50px; color: white; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(147,51,234,0.35);">
+                      Explore Courses
+                    </button>
+                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 50px; font-size: 1.2rem; font-weight: 700; cursor: pointer; border: 2px solid #9333ea; color: #e9d5ff;">
+                      Free Trial
+                    </button>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 4rem; margin-top: 5rem; flex-wrap: wrap; justify-content: center; z-index: 1;">
+                  <div class="animate-slide-left" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">10K+</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Active Students</div>
+                  </div>
+                  <div class="animate-fade-up" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">500+</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Expert Courses</div>
+                  </div>
+                  <div class="animate-fade-up" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">95%</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Success Rate</div>
+                  </div>
+                  <div class="animate-slide-left" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">24/7</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Support</div>
+                  </div>
+                </div>
+              </section>
+              <section id="courses" style="padding: 6rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Our Courses</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">Featured Programs</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Hand-picked courses designed by industry experts</p>
+                  </div>
+                  <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem;">
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">💻</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Web Development</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Master modern web development with React, Node.js, and full-stack technologies.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">12 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Beginner</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$299</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">📱</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Mobile Development</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Build native and cross-platform mobile apps with Flutter and React Native.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">10 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Intermediate</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$349</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">🤖</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Data Science & AI</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Learn machine learning, data analysis, and AI with Python and TensorFlow.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">16 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Advanced</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$449</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="instructors" style="padding: 6rem 2rem; background: #1e1b4b;">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Meet Our</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">Expert Instructors</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Learn from industry professionals with years of experience</p>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 3rem;">
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👨‍💻</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Alex Johnson</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Senior Developer</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">15+ years in software development, former Google engineer.</p>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👩‍💻</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Sarah Chen</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Data Scientist</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">AI researcher with published papers in machine learning.</p>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👨‍🎓</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Michael Park</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Mobile Expert</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Creator of award-winning mobile applications.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="contact" style="padding: 6rem 2rem; background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1000px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Get In Touch</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem;">Start Your Learning Journey</h2>
+                    <p style="color: #c4b5fd; font-size: 1.2rem; line-height: 1.6;">Have questions? We're here to help you succeed.</p>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+                    <div>
+                      <div style="display: grid; gap: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📍</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Address</h4>
+                            <p style="color: #c4b5fd;">123 Education Street<br/>Learning City, LC 12345</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📞</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Phone</h4>
+                            <p style="color: #c4b5fd;">(555) 123-LEARN<br/>Support: (555) 123-HELP</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">✉️</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Email</h4>
+                            <p style="color: #c4b5fd;">info@eduplatform.com<br/>support@eduplatform.com</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); padding: 3rem; border-radius: 20px; border: 1px solid rgba(168,85,247,0.3);">
+                      <h3 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 2rem; color: #e9d5ff; text-align: center;">Contact Us</h3>
+                      <form onsubmit="event.preventDefault(); alert('Thank you! We will contact you soon.');" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <input type="text" placeholder="Full Name" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="email" placeholder="Email Address" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <textarea placeholder="Message" rows="4" style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';"></textarea>
+                        <button type="submit" class="purple-button" style="padding: 1.2rem 2rem; border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                          Send Message
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+                  <div style="font-size: 2rem; font-weight: 700; color: #e9d5ff; margin-bottom: 1rem; letter-spacing: 1px;">EduPlatform</div>
+                  <p style="color: #c4b5fd; margin-bottom: 2rem; font-size: 0.9rem;">Learn without limits. Grow without boundaries.</p>
+                  <div style="border-top: 1px solid rgba(168,85,247,0.3); padding-top: 2rem; color: #a78bfa;">
+                    <p>&copy; 2025 EduPlatform. All rights reserved. | Privacy Policy | Terms of Service</p>
+                  </div>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "Courses",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .course-hero { padding: 6rem 2rem 3rem !important; }
+                .course-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .course-hero { padding: 4rem 1rem 2rem !important; }
+                .nav-menu { flex-direction: column !important; }
+              }
+              .course-card {
+                transition: all 0.4s ease;
+                position: relative;
+                overflow: hidden;
+              }
+              .course-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 50px rgba(147,51,234,0.3);
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">Courses</a>
+                    <a href="/about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">About</a>
+                    <a href="/contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Contact</a>
+                    <button class="purple-button" style="padding: 0.8rem 2rem; border: none; border-radius: 25px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                  </div>
+                </div>
+              </nav>
+              <section class="course-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">All Courses</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Discover your perfect learning path</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; justify-content: center;">
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid #9333ea; background: #9333ea; color: white; font-weight: 600; cursor: pointer;">All</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Web Dev</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Mobile</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Data Science</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Design</button>
+                  </div>
+                  <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem;">
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">💻</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Full Stack Web Development</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Complete web development bootcamp covering frontend and backend technologies.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">12 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$299</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">📱</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">React Native Mobile Apps</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Build native mobile applications for iOS and Android using React Native.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">10 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$349</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🤖</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Python for Data Science</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Master data analysis, visualization, and machine learning with Python.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">14 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$399</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🎨</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">UI/UX Design Mastery</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Learn user interface and user experience design principles and tools.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">8 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$249</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">☁️</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Cloud Computing & AWS</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Deploy and manage applications on AWS cloud infrastructure.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">10 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$379</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🔒</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Cybersecurity Fundamentals</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Learn to protect systems and networks from cyber threats.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">12 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$329</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "About",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .about-hero { padding: 6rem 2rem 3rem !important; }
+                .about-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .about-hero { padding: 4rem 1rem 2rem !important; }
+              }
+              .about-card {
+                transition: all 0.4s ease;
+              }
+              .about-card:hover {
+                transform: translateY(-5px);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Courses</a>
+                    <a href="/about" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">About</a>
+                    <a href="/contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Contact</a>
+                  </div>
+                </div>
+              </nav>
+              <section class="about-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">About EduPlatform</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 700px; margin: 0 auto;">Empowering learners worldwide with quality education</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 1.5rem;">Our Mission</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 800px; margin: 0 auto; line-height: 1.8;">
+                      EduPlatform is dedicated to making quality education accessible to everyone. We believe that learning should be engaging, practical, and transformative. Our mission is to provide world-class courses that prepare students for real-world challenges and opportunities.
+                    </p>
+                  </div>
+                  <div class="about-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-bottom: 4rem;">
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">🎯</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Vision</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">To become the leading online learning platform that transforms lives through education.</p>
+                    </div>
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">💡</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Values</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Excellence, innovation, accessibility, and student success drive everything we do.</p>
+                    </div>
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">🚀</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Impact</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Over 10,000 students have transformed their careers through our programs.</p>
+                    </div>
+                  </div>
+                  <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 4rem; text-align: center;">
+                    <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem;">Why Choose EduPlatform?</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: left;">
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Expert Instructors</h4>
+                        <p style="color: #c4b5fd;">Learn from industry professionals with years of experience.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Hands-on Projects</h4>
+                        <p style="color: #c4b5fd;">Build real-world projects to enhance your portfolio.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Lifetime Access</h4>
+                        <p style="color: #c4b5fd;">Access course materials and updates forever.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Career Support</h4>
+                        <p style="color: #c4b5fd;">Get help with resume building and job placement.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "Contact",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .contact-hero { padding: 6rem 2rem 3rem !important; }
+                .contact-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .contact-hero { padding: 4rem 1rem 2rem !important; }
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Courses</a>
+                    <a href="/about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">About</a>
+                    <a href="/contact" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">Contact</a>
+                  </div>
+                </div>
+              </nav>
+              <section class="contact-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Get In Touch</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">We'd love to hear from you. Send us a message!</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div class="contact-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+                    <div>
+                      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; color: #e9d5ff;">Contact Information</h2>
+                      <p style="color: #c4b5fd; margin-bottom: 3rem; line-height: 1.8; font-size: 1.1rem;">
+                        Have questions about our courses or need support? Reach out to us through any of the channels below. Our team is here to help you succeed.
+                      </p>
+                      <div style="display: grid; gap: 2rem;">
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">📍</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Our Location</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">123 Education Street<br/>Learning City, LC 12345<br/>United States</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">📞</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Phone</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">Main: (555) 123-LEARN<br/>Support: (555) 123-HELP<br/>Mon-Fri: 9AM - 6PM EST</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">✉️</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Email</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">General: info@eduplatform.com<br/>Support: support@eduplatform.com<br/>Enrollment: enroll@eduplatform.com</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); padding: 3rem; border-radius: 20px; border: 1px solid rgba(168,85,247,0.3);">
+                      <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #e9d5ff;">Send Us a Message</h3>
+                      <form onsubmit="event.preventDefault(); alert('Thank you! We will contact you soon.');" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <input type="text" placeholder="Your Name" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="email" placeholder="Email Address" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="text" placeholder="Subject" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <textarea placeholder="Your Message" rows="5" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';"></textarea>
+                        <button type="submit" class="purple-button" style="padding: 1.2rem 2rem; border: none; border-radius: 12px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                          Send Message
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+      ],
+    },
+  },
 ];
 
 export default DemoTemplates;
