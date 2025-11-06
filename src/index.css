@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Loading spinner animation refinements */
+.ninja-spinner {
+  display: block;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: ninja-spin 0.9s linear infinite;
+}
+
+@keyframes ninja-spin {
+  from {
+    transform: translateZ(0) rotate(0deg);
+  }
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ninja-spinner {
+    animation-duration: 1.5s;
+  }
+}
+
 /* Custom scrollbar styles */
 .notification-scroll::-webkit-scrollbar {
   width: 4px;
