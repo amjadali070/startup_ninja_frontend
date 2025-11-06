@@ -9,9 +9,55 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 2.5rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(56,189,248,0.15);
+                border: 1px solid rgba(56,189,248,0.4);
+                color: #fff;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(56,189,248,0.35);
+              }
               @media (max-width: 900px) {
+                header.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                }
                 header {
                   padding: 1rem 2rem;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: center;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  background: rgba(15, 23, 42, 0.95);
+                  border-radius: 12px;
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
                 }
                 main.hero-gradient {
                   padding: 7rem 1rem 3rem;
@@ -27,12 +73,12 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                header {
+                header.responsive-nav-container {
                   flex-direction: column;
                   gap: 1rem;
                   padding: 0.5rem 0.5rem;
                 }
-                nav {
+                .responsive-nav-menu {
                   flex-direction: column;
                   gap: 1rem;
                 }
@@ -224,11 +270,12 @@ const DemoTemplates = [
             
             <section style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #fff; overflow-x: hidden;">
               <!-- Navigation Header -->
-              <header style="position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+              <header class="responsive-nav-container" style="position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
                 <div style="font-size: 2rem; font-weight: bold; letter-spacing: 1px; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem;">
                   PaksoftSystems
                 </div>
-                <nav style="display: flex; gap: 2.5rem;">
+                <button class="responsive-nav-toggle" aria-label="Toggle navigation">☰</button>
+                <nav class="responsive-nav-menu" style="display: flex; gap: 2.5rem;">
                   <a href="#services" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Services</a>
                   <a href="#portfolio" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Portfolio</a>
                   <a href="#pricing" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Pricing</a>
@@ -647,6 +694,32 @@ const DemoTemplates = [
               </footer>
               
               <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
                 // Smooth scroll for navigation links
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                   anchor.addEventListener('click', function (e) {
@@ -809,139 +882,6 @@ const DemoTemplates = [
     },
   },
   {
-    id: "nova-tech",
-    name: "NovaTech",
-    data: {
-      pages: [
-        {
-          name: "Home",
-          component: `
-            <style>
-              /* NovaTech color system updated from provided palette: #BF092F, #132440, #16476A, #3B9797 */
-              :root { --nx-primary:#BF092F; --nx-accent:#3B9797; --nx-bg:#132440; --nx-card:#0F1E33; --nx-border:#16476A; }
-              .nx-nav{position:fixed;inset:0 0 auto 0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;background:rgba(7,11,20,.6);backdrop-filter:blur(12px);border-bottom:1px solid var(--nx-border);z-index:50}
-              .nx-brand{font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-              .nx-links a{color:#c7d2fe;margin:0 .6rem;text-decoration:none;font-size:.95rem}
-              .nx-hero{padding:8rem 2rem 6rem;text-align:center;color:#e5e7eb;background:radial-gradient(900px 420px at 50% -10%, rgba(191,9,47,0.22), transparent), var(--nx-bg)}
-              .nx-title{font-size:4.2rem;font-weight:900;letter-spacing:1px;line-height:1.07;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-              .nx-sub{max-width:860px;margin:1rem auto 2.25rem;color:#93a3c8}
-              .nx-cta{display:inline-flex;gap:.75rem}
-              .nx-btn{padding:.9rem 1.6rem;border-radius:999px;border:1px solid rgba(255,255,255,.1);color:#0b1724;font-weight:800;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));box-shadow:0 18px 44px rgba(22,71,106,.28);cursor:pointer}
-              .nx-sec{padding:3.5rem 2rem;background:var(--nx-bg)}
-              .nx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;max-width:1100px;margin:0 auto}
-              .nx-card{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:14px;padding:1.25rem;color:#e5e7eb;transition:transform .2s,border-color .2s}
-              .nx-card:hover{transform:translateY(-4px);border-color:#3B9797}
-              .nx-show{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-              .nx-show img{width:100%;height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--nx-border)}
-              .nx-pricing{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-              .nx-plan{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:14px;padding:1.5rem;color:#e5e7eb}
-              .nx-price{font-size:2rem;font-weight:900;background:linear-gradient(90deg,var(--nx-primary),var(--nx-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-              .nx-stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;max-width:900px;margin:0 auto}
-              .nx-pill{background:var(--nx-card);border:1px solid var(--nx-border);border-radius:999px;padding:.65rem 1rem;text-align:center;color:#d1e7ff}
-              .nx-foot{padding:2rem;background:#0E1B2C;color:#b9c7d9;border-top:1px solid var(--nx-border);text-align:center}
-              @media(max-width:600px){.nx-title{font-size:2.4rem}}
-            </style>
-            <nav class="nx-nav"><div class="nx-brand">NovaTech</div><div class="nx-links"><a href="#features">Features</a><a href="#stack">Tech Stack</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a></div></nav>
-            <section class="nx-hero">
-              <h1 class="nx-title">Ship Faster. Scale Smarter.</h1>
-              <p class="nx-sub">A unified platform for building performant, secure apps—without the infrastructure tax. Edge‑ready, DX‑first.</p>
-              <div class="nx-cta"><button class="nx-btn">Get Started</button><button class="nx-btn" style="background:transparent;border-color:#24406A;color:#9fb2dd">View Docs</button></div>
-            </section>
-            <section id="about" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Our Mission</h3>
-              <p style="color:#93a3c8;max-width:900px;margin:0 auto">NovaTech removes unnecessary complexity so teams can focus on product. Sensible defaults, global scale and a cohesive toolchain—out of the box.</p>
-            </section>
-            <section id="features" class="nx-sec">
-              <div class="nx-grid">
-                <div class="nx-card"><h3>Edge‑first</h3><p style="color:#9fb2dd">Regions close to your users with zero‑config CDN and caching.</p></div>
-                <div class="nx-card"><h3>Observability</h3><p style="color:#9fb2dd">Metrics, logs and tracing—centralized and actionable.</p></div>
-                <div class="nx-card"><h3>CI/CD</h3><p style="color:#9fb2dd">Atomic deploys, instant rollbacks and preview environments.</p></div>
-                <div class="nx-card"><h3>AI Toolkit</h3><p style="color:#9fb2dd">Embeddable inference, vector store and prompt ops.</p></div>
-              </div>
-            </section>
-            <section id="demo" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 1rem">Product Demo</h3>
-              <div style="max-width:900px;margin:0 auto;border:1px solid var(--nx-border);border-radius:12px;overflow:hidden;background:var(--nx-card)">
-                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Demo" style="width:100%;height:420px;border:0"></iframe>
-              </div>
-            </section>
-            <section id="benefits" class="nx-sec">
-              <div class="nx-grid">
-                <div class="nx-card"><h3>Fewer moving parts</h3><p style="color:#9fb2dd">Unified platform means less glue code and maintenance.</p></div>
-                <div class="nx-card"><h3>Predictable scale</h3><p style="color:#9fb2dd">Autoscale globally without re‑architecting.</p></div>
-                <div class="nx-card"><h3>Security by default</h3><p style="color:#9fb2dd">Hardened defaults, secret management and SSO.</p></div>
-              </div>
-            </section>
-            <section id="stack" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Tech Stack</h3>
-              <p style="color:#93a3c8;max-width:820px;margin:0 auto 1rem">Choose the tools you love—NovaTech meets you where you are.</p>
-              <div class="nx-stack">
-                <div class="nx-pill">React</div><div class="nx-pill">Next.js</div><div class="nx-pill">Node.js</div><div class="nx-pill">Go</div><div class="nx-pill">Postgres</div><div class="nx-pill">Redis</div><div class="nx-pill">Kafka</div><div class="nx-pill">Kubernetes</div><div class="nx-pill">AWS</div>
-              </div>
-            </section>
-            <section id="integrations" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Integrations</h3>
-              <div style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;color:#93a3c8">
-                <span>Stripe</span><span>Auth0</span><span>Algolia</span><span>Twilio</span><span>Prisma</span><span>Supabase</span>
-              </div>
-            </section>
-            <section id="pricing" class="nx-sec">
-              <div class="nx-pricing">
-                <div class="nx-plan"><h3>Starter</h3><div class="nx-price">$0</div><p style="color:#93a3c8">Hobby projects and experiments.</p></div>
-                <div class="nx-plan"><h3>Pro</h3><div class="nx-price">$29</div><p style="color:#93a3c8">Production apps with scale.</p></div>
-                <div class="nx-plan"><h3>Enterprise</h3><div class="nx-price">Custom</div><p style="color:#93a3c8">Advanced controls & support.</p></div>
-              </div>
-            </section>
-            <section id="security" class="nx-sec">
-              <div class="nx-grid">
-                <div class="nx-card"><h3>Security & Compliance</h3><p style="color:#9fb2dd">SOC 2 ready, data encryption at rest and in transit, audit logs.</p></div>
-                <div class="nx-card"><h3>Data Residency</h3><p style="color:#9fb2dd">EU and US data regions with fine‑grained controls.</p></div>
-                <div class="nx-card"><h3>Backups</h3><p style="color:#9fb2dd">Point‑in‑time recovery and cross‑region replication.</p></div>
-              </div>
-            </section>
-            <section id="roadmap" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .75rem">Roadmap</h3>
-              <div class="nx-grid" style="grid-template-columns:1fr">
-                <div class="nx-card"><strong>Q2</strong> — Analytics v2, role‑based access</div>
-                <div class="nx-card"><strong>Q3</strong> — Global KV store, background jobs</div>
-                <div class="nx-card"><strong>Q4</strong> — Private networking, multi‑tenant projects</div>
-              </div>
-            </section>
-            <section id="testimonials" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Loved by builders</h3>
-              <p style="color:#93a3c8;max-width:800px;margin:0 auto 1.25rem">“NovaTech helped us cut build times in half and deliver a world‑class experience.” — Product Lead, Acme Corp</p>
-            </section>
-            <section id="faq" class="nx-sec">
-              <div class="nx-grid" style="grid-template-columns:1fr">
-                <div class="nx-card"><strong>Is there a free tier?</strong><p style="color:#93a3c8">Yes, the Starter plan is free for hobby projects.</p></div>
-                <div class="nx-card"><strong>Can I self host?</strong><p style="color:#93a3c8">Enterprise plan supports hybrid deployments.</p></div>
-                <div class="nx-card"><strong>Which regions are available?</strong><p style="color:#93a3c8">We deploy to 25+ regions worldwide.</p></div>
-              </div>
-            </section>
-            <section id="contact" class="nx-sec" style="text-align:center">
-              <h3 style="color:#e5e7eb;margin:0 0 .5rem">Request a demo</h3>
-              <p style="color:#93a3c8;margin:0 0 1rem">Tell us about your team and use‑case. We’ll reach out shortly.</p>
-              <form onsubmit="event.preventDefault(); alert('Request sent!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
-                <input placeholder="Full name" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px"/>
-                <input placeholder="Company" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px"/>
-                <input type="email" placeholder="Work email" required style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px;grid-column:span 2"/>
-                <textarea placeholder="What are you building?" rows="3" style="padding:.8rem 1rem;border:1px solid var(--nx-border);background:var(--nx-card);color:#e5e7eb;border-radius:8px;grid-column:span 2"></textarea>
-                <button class="nx-btn" type="submit" style="grid-column:span 2">Request Demo</button>
-              </form>
-            </section>
-            <footer class="nx-foot">
-              <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
-                <div>© 2025 NovaTech</div>
-                <div style="display:flex;gap:1rem"><a href="#" style="color:#93a3c8;text-decoration:none">Privacy</a><a href="#" style="color:#93a3c8;text-decoration:none">Terms</a><a href="#" style="color:#93a3c8;text-decoration:none">Security</a></div>
-                <div style="display:flex;gap:.75rem;color:#93a3c8"><span>Twitter</span><span>GitHub</span><span>LinkedIn</span></div>
-              </div>
-            </footer>
-          `,
-        },
-      ],
-    },
-  },
-  {
     id: "art-folio",
     name: "ArtFolio",
     data: {
@@ -950,7 +890,13 @@ const DemoTemplates = [
           name: "Home",
           component: `
             <style>
-              .af-nav{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222}
+              .af-nav{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222;z-index:50}
+              .af-links{display:flex;align-items:center;gap:1.5rem}
+              .af-links a{color:#bbb;text-decoration:none;font-size:.95rem;transition:color .3s ease}
+              .af-links a:hover{color:#F59E0B}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.5rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:#F59E0B;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.3)}
               .af-brand{font-family:'Playfair Display',serif;color:#F59E0B;font-weight:700}
               .af-hero{padding:7rem 2rem 5rem;background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);color:#fff;text-align:center}
               .af-title{font-family:'Playfair Display',serif;font-size:3.5rem;letter-spacing:1px}
@@ -964,9 +910,20 @@ const DemoTemplates = [
               .af-cap{position:absolute;left:0;right:0;bottom:0;padding:.75rem 1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff}
               .af-test{max-width:900px;margin:0 auto;color:#ddd;text-align:center}
               .af-footer{padding:2rem;background:#0d0d0d;color:#9ca3af;border-top:1px solid #222;text-align:center}
+              @media(max-width:768px){.af-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(17,17,17,.95);border:1px solid #222;border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}}
               @media(max-width:600px){.af-title{font-size:2.2rem}}
             </style>
-            <nav class="af-nav"><div class="af-brand">ArtFolio</div><div style="color:#bbb;font-size:.95rem">Portfolio · Services · Contact</div></nav>
+            <nav class="af-nav responsive-nav-container">
+              <div class="af-brand">ArtFolio</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="af-links responsive-nav-menu">
+                <a href="#about">About</a>
+                <a href="#exhibitions">Exhibitions</a>
+                <a href="#services">Services</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#team">Team</a>
+              </div>
+            </nav>
             <section class="af-hero">
               <h1 class="af-title">Discover <span>Artistry</span> in Motion</h1>
               <p class="af-sub">A bold portfolio template for designers, illustrators and studios who want their work to speak first.</p>
@@ -1062,6 +1019,34 @@ const DemoTemplates = [
                 <div style="display:flex;gap:.75rem;color:#bbb"><span>Instagram</span><span>Behance</span><span>Dribbble</span></div>
               </div>
             </footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -1078,6 +1063,12 @@ const DemoTemplates = [
             <style>
               :root{--wg-primary:#10B981;--wg-deep:#064E3B}
               .wg-nav{position:fixed;inset:0 0 auto 0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(2,44,34,.6);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);z-index:50;color:#eafff7}
+              .wg-links{display:flex;align-items:center;gap:1.25rem;font-size:.95rem}
+              .wg-links a{color:#c7ffe9;text-decoration:none;transition:color .3s ease}
+              .wg-links a:hover{color:#10B981}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.25rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#eafff7;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(16,185,129,.3)}
               .wg-brand{font-weight:800;color:#10B981}
               .wg-hero{padding:7.5rem 2rem 5rem;text-align:center;color:#e6fffb;background:linear-gradient(180deg,#022c22 0%,#064e3b 100%)}
               .wg-title{font-size:3.8rem;font-weight:800;letter-spacing:1px}
@@ -1085,27 +1076,58 @@ const DemoTemplates = [
               .wg-sub{max-width:820px;margin:1rem auto 2.25rem;color:#c7ffe9}
               .wg-cta{display:inline-flex;gap:.75rem}
               .wg-btn{padding:.9rem 1.5rem;border-radius:12px;background:var(--wg-primary);color:#053227;font-weight:800;border:none}
-              .wg-section{padding:2.5rem 2rem;background:#022c22}
+              .wg-section{padding:2.75rem 1.5rem;background:#022c22}
+              .wg-section-content{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
+              .wg-section-content.center{align-items:center;text-align:center}
+              .wg-heading{color:#eafff7;margin:0;font-size:1.75rem;letter-spacing:0.5px}
+              .wg-subtext{color:#c7ffe9;margin:0;line-height:1.65;font-size:1.05rem}
+              .wg-narrow-900{max-width:900px}
+              .wg-narrow-800{max-width:800px}
+              .wg-narrow-720{max-width:720px}
               .wg-feats{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
               .wg-card{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1.1rem;color:#eafff7}
               .wg-gallery{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
               .wg-gallery img{width:100%;height:220px;object-fit:cover;border-radius:12px;border:1px solid #105e49}
-              .wg-dests{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .wg-dests{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
               .wg-dest{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1rem;color:#eafff7}
               .wg-dest h4{margin:0 0 .25rem;color:#10B981}
               .wg-dest ul{margin:.25rem 0 0;padding-left:1rem;color:#c7ffe9}
               .wg-footer{padding:2rem;background:#012019;color:#b6ffe8;border-top:1px solid #115e49;text-align:center}
-              @media(max-width:600px){.wg-title{font-size:2.2rem}}
+              .wg-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem;max-width:720px;margin:1.25rem auto 0;width:100%}
+              .wg-form-grid .wg-input{width:100%}
+              .wg-input{padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;transition:border-color .2s ease}
+              .wg-input:focus{outline:none;border-color:#1dd1a1;box-shadow:0 0 0 2px rgba(29,209,161,0.25)}
+              .wg-textarea{padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;resize:vertical}
+              .wg-textarea:focus{outline:none;border-color:#1dd1a1;box-shadow:0 0 0 2px rgba(29,209,161,0.25)}
+              .wg-form-grid .wg-textarea{grid-column:1 / -1}
+              .wg-form-grid button{grid-column:1 / -1;justify-self:center}
+              .wg-newsletter-form{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;width:100%;margin-top:1rem}
+              .wg-newsletter-form .wg-input{flex:1 1 260px;min-width:240px}
+              .wg-newsletter-form .wg-btn{flex:0 0 auto}
+              @media(max-width:900px){.wg-section{padding:2.5rem 1.25rem}}
+              @media(max-width:768px){.wg-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(2,44,34,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}.wg-section-content{gap:1rem}.wg-feats,.wg-dests{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.wg-newsletter-form button{width:100%}.wg-heading{font-size:1.5rem}.wg-subtext{font-size:1rem}}
+              @media(max-width:600px){.wg-title{font-size:2.2rem}.wg-section{padding:2.25rem 1rem}.wg-form-grid{grid-template-columns:1fr}.wg-newsletter-form input{flex:1 1 100%;min-width:0}.wg-heading{font-size:1.35rem}}
             </style>
-            <nav class="wg-nav"><div class="wg-brand">WanderGreen</div><div style="font-size:.95rem">Trips · Gallery · Contact</div></nav>
+            <nav class="wg-nav responsive-nav-container">
+              <div class="wg-brand">WanderGreen</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="wg-links responsive-nav-menu">
+                <a href="#about">About</a>
+                <a href="#destinations">Destinations</a>
+                <a href="#experiences">Experiences</a>
+                <a href="#contact">Contact</a>
+              </div>
+            </nav>
             <section class="wg-hero">
               <h1 class="wg-title">Travel <span>Greener</span>, Explore Deeper</h1>
               <p class="wg-sub">Sustainable adventures and eco‑friendly escapes that cherish our planet.</p>
               <div class="wg-cta"><button class="wg-btn">Plan a Trip</button></div>
             </section>
-            <section class="wg-section" id="about" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Our Mission</h3>
-              <p style="color:#c7ffe9;max-width:900px;margin:0 auto">WanderGreen crafts meaningful journeys that respect local communities and preserve nature. We believe travel can be transformative—for you and the planet.</p>
+            <section class="wg-section" id="about">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Our Mission</h3>
+                <p class="wg-subtext">WanderGreen crafts meaningful journeys that respect local communities and preserve nature. We believe travel can be transformative—for you and the planet.</p>
+              </div>
             </section>
             <section class="wg-section">
               <div class="wg-feats">
@@ -1115,8 +1137,10 @@ const DemoTemplates = [
               </div>
             </section>
             <section class="wg-section" id="destinations">
-              <h3 style="color:#eafff7;text-align:center;margin:0 0 .5rem">Destinations</h3>
-              <p style="color:#c7ffe9;text-align:center;max-width:900px;margin:0 auto 1rem">Handpicked eco‑friendly locations around the world. From ancient forests to pristine coasts—travel lightly and leave places better than you found them.</p>
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Destinations</h3>
+                <p class="wg-subtext">Handpicked eco‑friendly locations around the world. From ancient forests to pristine coasts—travel lightly and leave places better than you found them.</p>
+              </div>
               <div class="wg-dests">
                 <div class="wg-dest"><h4>Japan</h4><ul><li>Kyoto — temples & tea gardens</li><li>Hokkaido — alpine trails & onsens</li><li>Okinawa — coral reefs & culture</li><li>Nara — cedar forests & deer park</li></ul></div>
                 <div class="wg-dest"><h4>New Zealand</h4><ul><li>Fiordland National Park</li><li>Queenstown & Lake Wakatipu</li><li>Abel Tasman Coast Track</li><li>Kaikōura marine encounters</li></ul></div>
@@ -1141,21 +1165,25 @@ const DemoTemplates = [
               </div>
             </section>
             <section class="wg-section" id="blog">
-              <h3 style="color:#eafff7;text-align:center;margin:0 0 1rem">Travel Tips</h3>
-              <div class="wg-feats" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Travel Tips</h3>
+              </div>
+              <div class="wg-feats">
                 <div class="wg-card"><strong>Pack Lighter</strong><p>Reduce weight and increase flexibility.</p></div>
                 <div class="wg-card"><strong>Eco Etiquette</strong><p>Respect wildlife and local customs.</p></div>
                 <div class="wg-card"><strong>Offset Smarter</strong><p>Choose verified carbon projects.</p></div>
               </div>
             </section>
-            <section class="wg-section" id="contact" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Book Your Journey</h3>
-              <p style="color:#c7ffe9;margin:0 0 1rem">Tell us where you want to go and we’ll plan the rest.</p>
-              <form onsubmit="event.preventDefault(); alert('Request sent!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
-                <input placeholder="Full name" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
-                <input placeholder="Email" type="email" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
-                <textarea placeholder="Destination & dates" rows="3" style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;grid-column:span 2"></textarea>
-                <button class="wg-btn" type="submit" style="grid-column:span 2">Request Plan</button>
+            <section class="wg-section" id="contact">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Book Your Journey</h3>
+                <p class="wg-subtext">Tell us where you want to go and we’ll plan the rest.</p>
+              </div>
+              <form class="wg-form-grid" onsubmit="event.preventDefault(); alert('Request sent!');">
+                <input class="wg-input" placeholder="Full name" required />
+                <input class="wg-input" placeholder="Email" type="email" required />
+                <textarea class="wg-textarea" placeholder="Destination & dates" rows="3"></textarea>
+                <button class="wg-btn" type="submit">Request Plan</button>
               </form>
             </section>
             <section class="wg-section" id="packages">
@@ -1165,9 +1193,11 @@ const DemoTemplates = [
                 <div class="wg-card"><h3>Highland Trek</h3><p>7 days camping, reforestation support. <strong>$1899</strong></p></div>
               </div>
             </section>
-            <section class="wg-section" id="testimonials" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Traveler Stories</h3>
-              <p style="color:#c7ffe9;max-width:800px;margin:0 auto 1.25rem">“The most thoughtful, sustainable experience we’ve had. Every detail minimized impact while maximizing wonder.”</p>
+            <section class="wg-section" id="testimonials">
+              <div class="wg-section-content center wg-narrow-800">
+                <h3 class="wg-heading">Traveler Stories</h3>
+                <p class="wg-subtext">“The most thoughtful, sustainable experience we’ve had. Every detail minimized impact while maximizing wonder.”</p>
+              </div>
             </section>
             <section class="wg-section" id="team">
               <div class="wg-feats">
@@ -1176,13 +1206,15 @@ const DemoTemplates = [
                 <div class="wg-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=600&auto=format&fit=crop" alt="g6" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Asha</strong><p>Community Lead</p></div></div>
               </div>
             </section>
-            <section class="wg-section" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Join our newsletter</h3>
-              <p style="color:#c7ffe9;margin:0 0 1rem">Eco tips and destination inspiration.</p>
-              <form onsubmit="event.preventDefault(); alert('Subscribed!');" style="display:inline-flex;gap:.5rem;flex-wrap:wrap;justify-content:center">
-                <input type="email" required placeholder="you@example.com" style="padding:.8rem 1rem;border-radius:10px;border:1px solid #115e49;background:#013325;color:#eafff7;min-width:260px"/>
-                <button class="wg-btn" type="submit">Subscribe</button>
-              </form>
+            <section class="wg-section">
+              <div class="wg-section-content center wg-narrow-720">
+                <h3 class="wg-heading">Join our newsletter</h3>
+                <p class="wg-subtext">Eco tips and destination inspiration.</p>
+                <form class="wg-newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed!');">
+                  <input class="wg-input" type="email" required placeholder="you@example.com" />
+                  <button class="wg-btn" type="submit">Subscribe</button>
+                </form>
+              </div>
             </section>
             <footer class="wg-footer">
               <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
@@ -1191,6 +1223,34 @@ const DemoTemplates = [
                 <div style="display:flex;gap:.75rem;color:#b6ffe8"><span>Instagram</span><span>Facebook</span><span>Twitter</span></div>
               </div>
             </footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -1206,6 +1266,12 @@ const DemoTemplates = [
           component: `
             <style>
               .cc-nav{position:fixed;inset:0 0 auto 0;height:60px;background:rgba(28,20,15,.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;color:#FDE68A;border-bottom:1px solid rgba(253,230,138,.2);z-index:50}
+              .cc-links{display:flex;align-items:center;gap:1.25rem;font-size:.95rem}
+              .cc-links a{color:#FDE68A;text-decoration:none;opacity:.9;transition:color .3s ease,opacity .3s ease}
+              .cc-links a:hover{color:#F59E0B;opacity:1}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.25rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:#FDE68A;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.3)}
               .cc-hero{padding:7rem 2rem 5rem;text-align:center;background:linear-gradient(180deg,#1c140f 0%,#120c08 100%);color:#fff}
               .cc-title{font-size:3.2rem;font-weight:800;letter-spacing:.5px}
               .cc-sub{max-width:740px;margin:1rem auto 2rem;color:#e5d5b3}
@@ -1215,8 +1281,19 @@ const DemoTemplates = [
               .cc-card{background:#1b120b;border:1px solid #3a2a1e;border-radius:12px;padding:1rem}
               .cc-gallery img{width:100%;height:220px;object-fit:cover;border-radius:10px;border:1px solid #3a2a1e}
               .cc-footer{padding:2rem;background:#0c0906;color:#e5d5b3;border-top:1px solid #3a2a1e;text-align:center}
+              @media(max-width:768px){.cc-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(28,20,15,.92);border:1px solid rgba(253,230,138,.2);border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}}
             </style>
-            <nav class="cc-nav"><div style="font-weight:800">CityCafe</div><div style="opacity:.9">Menu · Gallery · Reservations</div></nav>
+            <nav class="cc-nav responsive-nav-container">
+              <div style="font-weight:800">CityCafe</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="cc-links responsive-nav-menu">
+                <a href="#menu">Menu</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#team">Team</a>
+                <a href="#contact">Contact</a>
+              </div>
+            </nav>
             <section class="cc-hero"><h1 class="cc-title">Brewed to Perfection</h1><p class="cc-sub">Artisanal coffee, fresh bakes and cozy ambience in the heart of the city.</p><button class="cc-btn">Reserve a Table</button></section>
             <section class="cc-section" id="menu"><div class="cc-grid">
               <div class="cc-card"><h3>Espresso</h3><p>Rich and bold shot</p></div>
@@ -1248,6 +1325,34 @@ const DemoTemplates = [
               </form>
             </section>
             <footer class="cc-footer">© 2025 CityCafe. All rights reserved.</footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -1263,6 +1368,32 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 3rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(212,175,55,0.15);
+                border: 1px solid rgba(212,175,55,0.4);
+                color: #d4af37;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(212,175,55,0.35);
+              }
               @media (max-width: 900px) {
                 .lux-hero-section {
                   padding: 6rem 2rem 3rem !important;
@@ -1280,6 +1411,26 @@ const DemoTemplates = [
                 .feature-grid {
                   grid-template-columns: 1fr !important;
                 }
+                nav.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                  padding: 1.2rem 2rem !important;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: flex-start;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  border-top: 1px solid rgba(212,175,55,0.2);
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
+                }
               }
               @media (max-width: 600px) {
                 .lux-hero-section {
@@ -1291,7 +1442,7 @@ const DemoTemplates = [
                 .hero-subtitle {
                   font-size: 1rem !important;
                 }
-                .nav-menu {
+                .responsive-nav-menu {
                   flex-direction: column !important;
                   gap: 1rem !important;
                 }
@@ -1378,12 +1529,13 @@ const DemoTemplates = [
             
             <section style="font-family: 'Playfair Display', 'Times New Roman', serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%); color: #ffffff; min-height: 100vh;">
               <!-- Navigation -->
-              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212,175,55,0.2);">
+              <nav class="responsive-nav-container" style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212,175,55,0.2);">
                 <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
                   <div style="font-size: 2rem; font-weight: 700; letter-spacing: 2px;" class="text-gradient">
                     LUXE
                   </div>
-                  <div class="nav-menu" style="display: flex; gap: 3rem; align-items: center;">
+                  <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="900">☰</button>
+                  <div class="nav-menu responsive-nav-menu" style="display: flex; gap: 3rem; align-items: center;">
                     <a href="#collections" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">Collections</a>
                     <a href="#about" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">About</a>
                     <a href="#contact" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">Contact</a>
@@ -1521,6 +1673,34 @@ const DemoTemplates = [
                   </div>
                 </div>
               </footer>
+              <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
+              </script>
             </section>
           `,
         },
@@ -1537,6 +1717,32 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0,188,212,0.15);
+                border: 1px solid rgba(0,188,212,0.4);
+                color: #00bcd4;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(0,188,212,0.3);
+              }
               @media (max-width: 900px) {
                 .hero-container {
                   padding: 6rem 2rem 3rem !important;
@@ -1554,6 +1760,26 @@ const DemoTemplates = [
                 .stats-grid {
                   grid-template-columns: repeat(2, 1fr) !important;
                 }
+                nav.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                  padding: 1rem 2rem !important;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: flex-start;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  border-top: 1px solid rgba(0,188,212,0.2);
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
+                }
               }
               @media (max-width: 600px) {
                 .hero-container {
@@ -1565,7 +1791,7 @@ const DemoTemplates = [
                 .hero-subtitle {
                   font-size: 1rem !important;
                 }
-                .nav-menu {
+                .responsive-nav-menu {
                   flex-direction: column !important;
                   gap: 1rem !important;
                 }
@@ -1695,13 +1921,14 @@ const DemoTemplates = [
             
             <section style="font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 50%, #bbdefb 100%); color: #333; min-height: 100vh;">
               <!-- Navigation -->
-              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1rem 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
+              <nav class="responsive-nav-container" style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1rem 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
                 <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00bcd4, #4fc3f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">H</div>
                     <div style="font-size: 1.5rem; font-weight: 700; color: #00bcd4;">HealthCare Pro</div>
                   </div>
-                  <div class="nav-menu" style="display: flex; gap: 2rem; align-items: center;">
+                  <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="900">☰</button>
+                  <div class="nav-menu responsive-nav-menu" style="display: flex; gap: 2rem; align-items: center;">
                     <a href="#services" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Services</a>
                     <a href="#about" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">About</a>
                     <a href="#contact" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Contact</a>
@@ -1928,6 +2155,34 @@ const DemoTemplates = [
                   </div>
                 </div>
               </footer>
+              <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
+              </script>
             </section>
           `,
         },
@@ -2766,6 +3021,627 @@ const DemoTemplates = [
                   <div style="border-top: 1px solid rgba(255,107,53,0.2); padding-top: 2rem; text-align: center; color: #cbd5e1;">
                     <p>&copy; 2025 Power Gym. All rights reserved. | Privacy Policy | Terms of Service</p>
                   </div>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+      ],
+    },
+  },
+  {
+    id: "edu-platform",
+    name: "EduPlatform",
+    data: {
+      pages: [
+        {
+          name: "Home",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .edu-hero-section { padding: 6rem 2rem 3rem !important; }
+                .hero-title { font-size: 3rem !important; }
+                .hero-subtitle { font-size: 1.2rem !important; }
+                .course-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .edu-hero-section { padding: 4rem 1rem 2rem !important; }
+                .hero-title { font-size: 2rem !important; }
+                .nav-menu { flex-direction: column !important; gap: 1rem !important; }
+              }
+              @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              @keyframes slideInLeft {
+                from { opacity: 0; transform: translateX(-30px); }
+                to { opacity: 1; transform: translateX(0); }
+              }
+              @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+              }
+              .animate-fade-up { animation: fadeInUp 0.8s ease-out; }
+              .animate-slide-left { animation: slideInLeft 0.8s ease-out; }
+              .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+              .edu-card {
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                position: relative;
+                overflow: hidden;
+              }
+              .edu-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(147,51,234,0.2), transparent);
+                transition: left 0.5s ease;
+              }
+              .edu-card:hover::before { left: 100%; }
+              .edu-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 50px rgba(147,51,234,0.3);
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+              }
+              .purple-button::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.6s ease, height 0.6s ease;
+              }
+              .purple-button:hover::before {
+                width: 300px;
+                height: 300px;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+              .outline-button {
+                background: transparent;
+                border: 2px solid #9333ea;
+                color: #9333ea;
+                transition: all 0.3s ease;
+              }
+              .outline-button:hover {
+                background: #9333ea;
+                color: white;
+                transform: translateY(-2px);
+              }
+              .edu-icon {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1.5rem;
+                font-size: 2rem;
+                color: white;
+                box-shadow: 0 10px 30px rgba(147,51,234,0.3);
+              }
+            </style>
+            <section style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="#courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Courses</a>
+                    <a href="#about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">About</a>
+                    <a href="#instructors" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Instructors</a>
+                    <a href="#contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Contact</a>
+                    <button class="purple-button" style="padding: 0.8rem 2rem; border: none; border-radius: 25px; color: white; font-weight: 600; cursor: pointer;">
+                      Enroll Now
+                    </button>
+                  </div>
+                </div>
+              </nav>
+              <section class="edu-hero-section" style="padding: 8rem 2rem 6rem; text-align: center; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 20%; right: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(147,51,234,0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(60px);"></div>
+                <div style="position: absolute; bottom: 20%; left: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(80px);"></div>
+                <div class="animate-fade-up" style="position: relative; z-index: 2;">
+                  <h1 class="hero-title" style="font-size: 4.5rem; font-weight: 900; margin-bottom: 1.5rem; background: linear-gradient(135deg, #fff, #e9d5ff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2;">
+                    Learn Without Limits<br/>Grow Without Boundaries
+                  </h1>
+                  <p class="hero-subtitle" style="font-size: 1.4rem; max-width: 700px; margin: 0 auto 3rem; color: #c4b5fd; line-height: 1.8;">
+                    Transform your future with expert-led courses, hands-on projects, and a community of learners. Start your journey today.
+                  </p>
+                  <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="purple-button" style="padding: 1.2rem 3rem; border: none; border-radius: 50px; color: white; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(147,51,234,0.35);">
+                      Explore Courses
+                    </button>
+                    <button class="outline-button" style="padding: 1.2rem 3rem; border-radius: 50px; font-size: 1.2rem; font-weight: 700; cursor: pointer; border: 2px solid #9333ea; color: #e9d5ff;">
+                      Free Trial
+                    </button>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 4rem; margin-top: 5rem; flex-wrap: wrap; justify-content: center; z-index: 1;">
+                  <div class="animate-slide-left" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">10K+</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Active Students</div>
+                  </div>
+                  <div class="animate-fade-up" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">500+</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Expert Courses</div>
+                  </div>
+                  <div class="animate-fade-up" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">95%</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Success Rate</div>
+                  </div>
+                  <div class="animate-slide-left" style="text-align: center;">
+                    <div style="font-size: 3rem; font-weight: 900; color: #c084fc;">24/7</div>
+                    <div style="font-size: 1rem; color: #c4b5fd; margin-top: 0.5rem;">Support</div>
+                  </div>
+                </div>
+              </section>
+              <section id="courses" style="padding: 6rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Our Courses</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">Featured Programs</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Hand-picked courses designed by industry experts</p>
+                  </div>
+                  <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem;">
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">💻</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Web Development</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Master modern web development with React, Node.js, and full-stack technologies.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">12 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Beginner</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$299</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">📱</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Mobile Development</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Build native and cross-platform mobile apps with Flutter and React Native.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">10 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Intermediate</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$349</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div class="edu-icon animate-pulse">🤖</div>
+                      <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Data Science & AI</h3>
+                      <p style="color: #c4b5fd; font-size: 1.1rem; line-height: 1.7; margin-bottom: 2rem;">Learn machine learning, data analysis, and AI with Python and TensorFlow.</p>
+                      <div style="margin-bottom: 2rem;">
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff; margin-right: 0.5rem;">16 Weeks</span>
+                        <span style="background: rgba(147,51,234,0.3); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; color: #e9d5ff;">Advanced</span>
+                      </div>
+                      <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-bottom: 1.5rem;">$449</div>
+                      <button class="outline-button" style="padding: 0.8rem 2rem; border-radius: 25px; font-weight: 500; cursor: pointer;">
+                        Enroll Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="instructors" style="padding: 6rem 2rem; background: #1e1b4b;">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Meet Our</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem;">Expert Instructors</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Learn from industry professionals with years of experience</p>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 3rem;">
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👨‍💻</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Alex Johnson</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Senior Developer</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">15+ years in software development, former Google engineer.</p>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👩‍💻</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Sarah Chen</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Data Scientist</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">AI researcher with published papers in machine learning.</p>
+                    </div>
+                    <div class="edu-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; text-align: center;">
+                      <div style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👨‍🎓</div>
+                      <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700;">Michael Park</h3>
+                      <div style="color: #c084fc; margin-bottom: 1rem; font-weight: 600;">Mobile Expert</div>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Creator of award-winning mobile applications.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="contact" style="padding: 6rem 2rem; background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1000px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <div style="color: #c084fc; font-size: 1rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">Get In Touch</div>
+                    <h2 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem;">Start Your Learning Journey</h2>
+                    <p style="color: #c4b5fd; font-size: 1.2rem; line-height: 1.6;">Have questions? We're here to help you succeed.</p>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+                    <div>
+                      <div style="display: grid; gap: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📍</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Address</h4>
+                            <p style="color: #c4b5fd;">123 Education Street<br/>Learning City, LC 12345</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📞</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Phone</h4>
+                            <p style="color: #c4b5fd;">(555) 123-LEARN<br/>Support: (555) 123-HELP</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">✉️</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Email</h4>
+                            <p style="color: #c4b5fd;">info@eduplatform.com<br/>support@eduplatform.com</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); padding: 3rem; border-radius: 20px; border: 1px solid rgba(168,85,247,0.3);">
+                      <h3 style="font-size: 1.8rem; font-weight: 600; margin-bottom: 2rem; color: #e9d5ff; text-align: center;">Contact Us</h3>
+                      <form onsubmit="event.preventDefault(); alert('Thank you! We will contact you soon.');" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <input type="text" placeholder="Full Name" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="email" placeholder="Email Address" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <textarea placeholder="Message" rows="4" style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 10px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';"></textarea>
+                        <button type="submit" class="purple-button" style="padding: 1.2rem 2rem; border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                          Send Message
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+                  <div style="font-size: 2rem; font-weight: 700; color: #e9d5ff; margin-bottom: 1rem; letter-spacing: 1px;">EduPlatform</div>
+                  <p style="color: #c4b5fd; margin-bottom: 2rem; font-size: 0.9rem;">Learn without limits. Grow without boundaries.</p>
+                  <div style="border-top: 1px solid rgba(168,85,247,0.3); padding-top: 2rem; color: #a78bfa;">
+                    <p>&copy; 2025 EduPlatform. All rights reserved. | Privacy Policy | Terms of Service</p>
+                  </div>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "Courses",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .course-hero { padding: 6rem 2rem 3rem !important; }
+                .course-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .course-hero { padding: 4rem 1rem 2rem !important; }
+                .nav-menu { flex-direction: column !important; }
+              }
+              .course-card {
+                transition: all 0.4s ease;
+                position: relative;
+                overflow: hidden;
+              }
+              .course-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 50px rgba(147,51,234,0.3);
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">Courses</a>
+                    <a href="/about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">About</a>
+                    <a href="/contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Contact</a>
+                    <button class="purple-button" style="padding: 0.8rem 2rem; border: none; border-radius: 25px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                  </div>
+                </div>
+              </nav>
+              <section class="course-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">All Courses</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">Discover your perfect learning path</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; justify-content: center;">
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid #9333ea; background: #9333ea; color: white; font-weight: 600; cursor: pointer;">All</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Web Dev</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Mobile</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Data Science</button>
+                    <button style="padding: 0.8rem 1.5rem; border-radius: 25px; border: 2px solid rgba(168,85,247,0.3); background: transparent; color: #e9d5ff; font-weight: 500; cursor: pointer;">Design</button>
+                  </div>
+                  <div class="course-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem;">
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">💻</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Full Stack Web Development</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Complete web development bootcamp covering frontend and backend technologies.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">12 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$299</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">📱</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">React Native Mobile Apps</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Build native mobile applications for iOS and Android using React Native.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">10 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$349</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🤖</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Python for Data Science</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Master data analysis, visualization, and machine learning with Python.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">14 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$399</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🎨</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">UI/UX Design Mastery</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Learn user interface and user experience design principles and tools.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">8 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$249</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">☁️</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Cloud Computing & AWS</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Deploy and manage applications on AWS cloud infrastructure.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">10 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$379</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                    <div class="course-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 2rem; overflow: hidden;">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 15px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">🔒</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Cybersecurity Fundamentals</h3>
+                      <p style="color: #c4b5fd; margin-bottom: 1.5rem; line-height: 1.6;">Learn to protect systems and networks from cyber threats.</p>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="color: #c084fc; font-weight: 600;">12 Weeks</span>
+                        <span style="color: #c084fc; font-weight: 600;">$329</span>
+                      </div>
+                      <button class="purple-button" style="width: 100%; padding: 1rem; border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Enroll Now</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "About",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .about-hero { padding: 6rem 2rem 3rem !important; }
+                .about-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .about-hero { padding: 4rem 1rem 2rem !important; }
+              }
+              .about-card {
+                transition: all 0.4s ease;
+              }
+              .about-card:hover {
+                transform: translateY(-5px);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Courses</a>
+                    <a href="/about" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">About</a>
+                    <a href="/contact" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Contact</a>
+                  </div>
+                </div>
+              </nav>
+              <section class="about-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">About EduPlatform</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 700px; margin: 0 auto;">Empowering learners worldwide with quality education</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div style="text-align: center; margin-bottom: 4rem;">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 1.5rem;">Our Mission</h2>
+                    <p style="font-size: 1.2rem; color: #c4b5fd; max-width: 800px; margin: 0 auto; line-height: 1.8;">
+                      EduPlatform is dedicated to making quality education accessible to everyone. We believe that learning should be engaging, practical, and transformative. Our mission is to provide world-class courses that prepare students for real-world challenges and opportunities.
+                    </p>
+                  </div>
+                  <div class="about-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-bottom: 4rem;">
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">🎯</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Vision</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">To become the leading online learning platform that transforms lives through education.</p>
+                    </div>
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #a855f7, #c084fc); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">💡</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Values</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Excellence, innovation, accessibility, and student success drive everything we do.</p>
+                    </div>
+                    <div class="about-card" style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3rem; text-align: center;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem;">🚀</div>
+                      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #e9d5ff;">Our Impact</h3>
+                      <p style="color: #c4b5fd; line-height: 1.6;">Over 10,000 students have transformed their careers through our programs.</p>
+                    </div>
+                  </div>
+                  <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 4rem; text-align: center;">
+                    <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem;">Why Choose EduPlatform?</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: left;">
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Expert Instructors</h4>
+                        <p style="color: #c4b5fd;">Learn from industry professionals with years of experience.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Hands-on Projects</h4>
+                        <p style="color: #c4b5fd;">Build real-world projects to enhance your portfolio.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Lifetime Access</h4>
+                        <p style="color: #c4b5fd;">Access course materials and updates forever.</p>
+                      </div>
+                      <div>
+                        <h4 style="color: #e9d5ff; font-size: 1.2rem; margin-bottom: 0.5rem;">✓ Career Support</h4>
+                        <p style="color: #c4b5fd;">Get help with resume building and job placement.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
+                </div>
+              </footer>
+            </section>
+          `,
+        },
+        {
+          name: "Contact",
+          component: `
+            <style>
+              @media (max-width: 900px) {
+                .contact-hero { padding: 6rem 2rem 3rem !important; }
+                .contact-grid { grid-template-columns: 1fr !important; }
+              }
+              @media (max-width: 600px) {
+                .contact-hero { padding: 4rem 1rem 2rem !important; }
+              }
+              .purple-button {
+                background: linear-gradient(135deg, #9333ea, #a855f7);
+                transition: all 0.3s ease;
+              }
+              .purple-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(147,51,234,0.4);
+              }
+            </style>
+            <section style="font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); color: #ffffff; min-height: 100vh;">
+              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(30,27,75,0.95); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">📚</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #e9d5ff; letter-spacing: 1px;">EduPlatform</div>
+                  </div>
+                  <div class="nav-menu" style="display: flex; gap: 2.5rem; align-items: center;">
+                    <a href="/" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Home</a>
+                    <a href="/courses" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">Courses</a>
+                    <a href="/about" style="color: #e9d5ff; text-decoration: none; font-size: 1rem; font-weight: 500;">About</a>
+                    <a href="/contact" style="color: #c084fc; text-decoration: none; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #c084fc;">Contact</a>
+                  </div>
+                </div>
+              </nav>
+              <section class="contact-hero" style="padding: 8rem 2rem 4rem; text-align: center;">
+                <h1 style="font-size: 4rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(135deg, #fff, #e9d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Get In Touch</h1>
+                <p style="font-size: 1.3rem; color: #c4b5fd; max-width: 600px; margin: 0 auto;">We'd love to hear from you. Send us a message!</p>
+              </section>
+              <section style="padding: 4rem 2rem; background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                  <div class="contact-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+                    <div>
+                      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; color: #e9d5ff;">Contact Information</h2>
+                      <p style="color: #c4b5fd; margin-bottom: 3rem; line-height: 1.8; font-size: 1.1rem;">
+                        Have questions about our courses or need support? Reach out to us through any of the channels below. Our team is here to help you succeed.
+                      </p>
+                      <div style="display: grid; gap: 2rem;">
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">📍</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Our Location</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">123 Education Street<br/>Learning City, LC 12345<br/>United States</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">📞</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Phone</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">Main: (555) 123-LEARN<br/>Support: (555) 123-HELP<br/>Mon-Fri: 9AM - 6PM EST</p>
+                          </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 1.5rem; padding: 2rem; background: rgba(147,51,234,0.1); border-radius: 15px; border: 1px solid rgba(168,85,247,0.3);">
+                          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9333ea, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0;">✉️</div>
+                          <div>
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #e9d5ff; font-size: 1.2rem;">Email</h4>
+                            <p style="color: #c4b5fd; line-height: 1.6;">General: info@eduplatform.com<br/>Support: support@eduplatform.com<br/>Enrollment: enroll@eduplatform.com</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background: rgba(147,51,234,0.1); backdrop-filter: blur(10px); padding: 3rem; border-radius: 20px; border: 1px solid rgba(168,85,247,0.3);">
+                      <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #e9d5ff;">Send Us a Message</h3>
+                      <form onsubmit="event.preventDefault(); alert('Thank you! We will contact you soon.');" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <input type="text" placeholder="Your Name" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="email" placeholder="Email Address" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <input type="text" placeholder="Subject" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';" />
+                        <textarea placeholder="Your Message" rows="5" required style="padding: 1.2rem; border: 2px solid rgba(168,85,247,0.3); border-radius: 12px; font-size: 1rem; background: rgba(30,27,75,0.5); color: #e9d5ff; resize: vertical; transition: border-color 0.3s ease;" onfocus="this.style.borderColor='#9333ea';" onblur="this.style.borderColor='rgba(168,85,247,0.3)';"></textarea>
+                        <button type="submit" class="purple-button" style="padding: 1.2rem 2rem; border: none; border-radius: 12px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                          Send Message
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer style="padding: 3rem 2rem 2rem; background: #1e1b4b; border-top: 1px solid rgba(168,85,247,0.3);">
+                <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: #a78bfa;">
+                  <p>&copy; 2025 EduPlatform. All rights reserved.</p>
                 </div>
               </footer>
             </section>

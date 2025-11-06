@@ -79,7 +79,6 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
                 components={{
-                  // Style headings
                   h1: ({ node, ...props }) => (
                     <h1
                       className="text-lg font-bold mt-4 mb-2 text-white"
@@ -98,27 +97,27 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                       {...props}
                     />
                   ),
-                  // Style paragraphs
                   p: ({ node, ...props }) => (
                     <p className="mb-2 last:mb-0 text-white/90" {...props} />
                   ),
-                  // Style lists
                   ul: ({ node, ...props }) => (
                     <ul
-                      className="list-disc list-inside mb-2 space-y-1 text-white/90"
+                      className="list-disc list-outside mb-2 space-y-1 text-white/90 ml-4 pl-2"
                       {...props}
                     />
                   ),
                   ol: ({ node, ...props }) => (
                     <ol
-                      className="list-decimal list-inside mb-2 space-y-1 text-white/90"
+                      className="list-decimal list-outside mb-2 space-y-1 text-white/90 ml-4 pl-2"
                       {...props}
                     />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="text-white/90" {...props} />
+                    <li
+                      className="text-white/90 pl-1 leading-relaxed"
+                      {...props}
+                    />
                   ),
-                  // Style code blocks
                   code: ({
                     node,
                     inline,
@@ -142,14 +141,12 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                       </code>
                     );
                   },
-                  // Style blockquotes
                   blockquote: ({ node, ...props }) => (
                     <blockquote
                       className="border-l-4 border-white/20 pl-4 my-2 italic text-white/70"
                       {...props}
                     />
                   ),
-                  // Style links
                   a: ({ node, ...props }) => (
                     <a
                       className="text-[#DE0500] hover:text-[#FF3B3B] underline"
@@ -158,15 +155,12 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                       {...props}
                     />
                   ),
-                  // Style strong/bold
                   strong: ({ node, ...props }) => (
                     <strong className="font-semibold text-white" {...props} />
                   ),
-                  // Style emphasis/italic
                   em: ({ node, ...props }) => (
                     <em className="italic text-white/90" {...props} />
                   ),
-                  // Style horizontal rules
                   hr: ({ node, ...props }) => (
                     <hr className="border-white/10 my-4" {...props} />
                   ),

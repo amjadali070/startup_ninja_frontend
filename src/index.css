@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Loading spinner animation refinements */
+.ninja-spinner {
+  display: block;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: ninja-spin 0.9s linear infinite;
+}
+
+@keyframes ninja-spin {
+  from {
+    transform: translateZ(0) rotate(0deg);
+  }
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ninja-spinner {
+    animation-duration: 1.5s;
+  }
+}
+
 /* Custom scrollbar styles */
 .notification-scroll::-webkit-scrollbar {
   width: 4px;
@@ -349,6 +374,154 @@ body {
   overflow: auto;
   min-height: 70%;
   height: 50%;
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Add padding to right sidebar scrollable content containers */
+.gs-cmp-sidebar-right .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+.gs-cmp-sidebar-right .gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-right .gs-utl-flex-1 {
+  flex: 1 1 0%;
+}
+
+.gs-cmp-sidebar-right .gs-utl-max-w-full {
+  max-width: 100%;
+}
+
+/* Add padding to the tab panels in right sidebar */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Add padding to tab panel content */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel-content {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure properties panel content has proper padding */
+.gs-cmp-sidebar-right .gs-cmp-field,
+.gs-cmp-sidebar-right .gs-cmp-field-group {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+/* Add padding to the first and last elements in sidebar */
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel > *:first-child {
+  margin-top: 16px !important;
+}
+
+.gs-cmp-sidebar-right .gs-cmp-tabs__panel > *:last-child {
+  margin-bottom: 24px !important;
+}
+
+/* Ensure the scrollable flex container has proper padding */
+.gs-cmp-sidebar-right .gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-cmp-sidebar-right .gs-utl-flex[style*="overflow"] {
+  padding-top: 16px !important;
+  padding-bottom: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Left Sidebar - Full Scrollable Support */
+.gs-cmp-sidebar-left,
+.gs-cmp-sidebar-left .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-flex-1 {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.gs-cmp-sidebar-left .gs-utl-max-w-full {
+  max-width: 100%;
+}
+
+/* Ensure left sidebar panels are scrollable */
+.gs-cmp-sidebar-left > .gs-utl-flex,
+.gs-cmp-sidebar-left > .gs-utl-flex-1,
+.gs-cmp-sidebar-left .gs-utl-flex {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 0;
+}
+
+/* Sidebar column (left sidebar buttons) */
+.sidebar-column {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure all left sidebar containers are scrollable */
+.gs-studio-root .gs-cmp-sidebar-left .gs-utl-overflow-y-auto,
+.gs-studio-root .gs-cmp-sidebar-left .gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-studio-root .sidebar-column .gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+/* Global GrapesJS utility classes for full scrollability */
+.gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+.gs-utl-overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+
+/* Ensure flex containers with overflow are scrollable */
+.gs-utl-flex.gs-utl-overflow-y-auto,
+.gs-utl-flex-1.gs-utl-overflow-y-auto {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 0;
+  max-height: 100vh !important;
+}
+
+.gs-utl-dark .gs-theme-cl-bg0 {
+  background-color: #a31515;
+  color: #ffffff !important;
+}
+
+/* Ensure all elements with this class have white text */
+.gs-utl-dark .gs-theme-cl-bg0 *,
+.gs-utl-dark .gs-theme-cl-bg0 svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .gs-cmp-color-field,
@@ -371,6 +544,138 @@ body {
 }
 .gs-cmp-tooltip button:hover {
   background-color: #ec2222 !important;
+}
+
+/* GrapesJS Studio Selected/Active Button Text Color - White */
+.gs-cmp-btn-primary,
+.gs-cmp-btn-primary.active,
+.gs-cmp-btn[aria-pressed="true"],
+.gs-cmp-btn[data-active="true"],
+.gs-utl-btn-primary,
+.gs-utl-btn-primary.active,
+button[aria-pressed="true"],
+button[data-active="true"],
+.gs-cmp-toggle-group button.active,
+.gs-cmp-toggle-group button[aria-pressed="true"],
+.gs-utl-toggle-group button.active,
+.gs-utl-toggle-group button[aria-pressed="true"],
+/* Target buttons with primary/red background */
+.gs-studio-root button[style*="background-color: rgb(236, 34, 34)"],
+.gs-studio-root button[style*="background-color:#ec2222"],
+.gs-studio-root button[style*="background: rgb(236, 34, 34)"],
+.gs-studio-root button[style*="background:#ec2222"],
+.gs-studio-root button[style*="background-color: rgb(163, 21, 21)"],
+.gs-studio-root button[style*="background-color:#a31515"],
+/* Target all buttons in sidebar with red background */
+.gs-cmp-sidebar-right button[style*="background-color: rgb(236, 34, 34)"],
+.gs-cmp-sidebar-right button[style*="background-color:#ec2222"],
+.gs-cmp-sidebar-right button[style*="background-color: rgb(163, 21, 21)"],
+.gs-cmp-sidebar-right button[style*="background-color:#a31515"],
+.gs-cmp-sidebar-right button[aria-pressed="true"],
+.gs-cmp-sidebar-right button.active,
+/* Target field buttons with red background */
+.gs-cmp-field button[aria-pressed="true"],
+.gs-cmp-field button.active,
+.gs-cmp-field-group button[aria-pressed="true"],
+.gs-cmp-field-group button.active,
+/* Target buttons with theme background class */
+.gs-theme-cl-bg0,
+button.gs-theme-cl-bg0,
+.gs-utl-dark button.gs-theme-cl-bg0 {
+  color: #ffffff !important;
+}
+
+/* Ensure text is white for buttons with red/primary background */
+.gs-cmp-btn-primary *,
+.gs-cmp-btn-primary.active *,
+.gs-utl-btn-primary *,
+.gs-utl-btn-primary.active *,
+button[aria-pressed="true"] *,
+button[data-active="true"] *,
+.gs-cmp-toggle-group button.active *,
+.gs-utl-toggle-group button.active *,
+.gs-studio-root button[style*="background-color: rgb(236, 34, 34)"] *,
+.gs-studio-root button[style*="background-color:#ec2222"] *,
+.gs-studio-root button[style*="background-color: rgb(163, 21, 21)"] *,
+.gs-studio-root button[style*="background-color:#a31515"] *,
+.gs-cmp-sidebar-right button[style*="background-color: rgb(236, 34, 34)"] *,
+.gs-cmp-sidebar-right button[style*="background-color:#ec2222"] *,
+.gs-cmp-sidebar-right button[style*="background-color: rgb(163, 21, 21)"] *,
+.gs-cmp-sidebar-right button[style*="background-color:#a31515"] *,
+.gs-cmp-sidebar-right button[aria-pressed="true"] *,
+.gs-cmp-sidebar-right button.active *,
+.gs-cmp-field button[aria-pressed="true"] *,
+.gs-cmp-field button.active *,
+.gs-cmp-field-group button[aria-pressed="true"] *,
+.gs-cmp-field-group button.active *,
+.gs-theme-cl-bg0 *,
+button.gs-theme-cl-bg0 *,
+.gs-utl-dark button.gs-theme-cl-bg0 * {
+  color: #ffffff !important;
+}
+
+/* Target specific button groups that might have selected states */
+.gs-cmp-field-group button[aria-pressed="true"],
+.gs-cmp-field-group button.active,
+.gs-cmp-field button[aria-pressed="true"],
+.gs-cmp-field button.active {
+  color: #ffffff !important;
+}
+
+/* Ensure SVG icons and text in selected buttons are white */
+.gs-cmp-btn-primary svg,
+.gs-cmp-btn-primary.active svg,
+.gs-utl-btn-primary svg,
+.gs-utl-btn-primary.active svg,
+button[aria-pressed="true"] svg,
+button[data-active="true"] svg,
+.gs-cmp-toggle-group button.active svg,
+.gs-utl-toggle-group button.active svg,
+.gs-studio-root button[style*="background-color: rgb(236, 34, 34)"] svg,
+.gs-studio-root button[style*="background-color:#ec2222"] svg,
+.gs-studio-root button[style*="background-color: rgb(163, 21, 21)"] svg,
+.gs-studio-root button[style*="background-color:#a31515"] svg,
+.gs-cmp-sidebar-right button[style*="background-color: rgb(236, 34, 34)"] svg,
+.gs-cmp-sidebar-right button[style*="background-color:#ec2222"] svg,
+.gs-cmp-sidebar-right button[style*="background-color: rgb(163, 21, 21)"] svg,
+.gs-cmp-sidebar-right button[style*="background-color:#a31515"] svg,
+.gs-cmp-sidebar-right button[aria-pressed="true"] svg,
+.gs-cmp-sidebar-right button.active svg,
+.gs-cmp-field button[aria-pressed="true"] svg,
+.gs-cmp-field button.active svg,
+.gs-cmp-field-group button[aria-pressed="true"] svg,
+.gs-cmp-field-group button.active svg,
+.gs-theme-cl-bg0 svg,
+button.gs-theme-cl-bg0 svg,
+.gs-utl-dark button.gs-theme-cl-bg0 svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Target toggle buttons in style manager panels */
+.gs-cmp-field button,
+.gs-cmp-toggle-group button,
+.gs-utl-toggle-group button {
+  transition: color 0.2s ease;
+}
+
+.gs-cmp-field button[aria-pressed="true"],
+.gs-cmp-toggle-group button[aria-pressed="true"],
+.gs-utl-toggle-group button[aria-pressed="true"],
+.gs-cmp-field button.active,
+.gs-cmp-toggle-group button.active,
+.gs-utl-toggle-group button.active {
+  color: #ffffff !important;
+}
+
+.gs-cmp-field button[aria-pressed="true"] *,
+.gs-cmp-toggle-group button[aria-pressed="true"] *,
+.gs-utl-toggle-group button[aria-pressed="true"] *,
+.gs-cmp-field button.active *,
+.gs-cmp-toggle-group button.active *,
+.gs-utl-toggle-group button.active * {
+  color: #ffffff !important;
 }
 
 /* .iframe-scale-wrapper iframe {

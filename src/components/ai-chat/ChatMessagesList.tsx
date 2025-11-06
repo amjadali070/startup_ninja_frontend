@@ -40,34 +40,59 @@ const ChatMessagesList: FC<ChatMessagesListProps> = ({
           </div>
         )}
 
-        {/* Chat Messages */}
         {messages.length > 0 && (
           <>
             {messages
-              .filter((msg) => msg.content || msg.role === "user") // Filter out empty assistant messages
-              .map((message, index) => (
-                <ChatMessage
-                  key={`${message.role}-${index}-${
-                    message.content?.substring(0, 20) || index
-                  }`}
-                  message={message}
-                  userProfilePicture={userProfilePicture}
-                />
-              ))}
+              .filter((msg) => msg.content || msg.role === "user")
+              .map((message, index, array) => {
+                if (message.content && message.content.length > 0) {
+                  const contentHash = message.content
+                    .substring(0, 100)
+                    .replace(/\s+/g, " ")
+                    .trim();
+                  const timestamp = message.timestamp || "";
+
+                  const stableKey = `${message.role}-${contentHash.substring(
+                    0,
+                    50
+                  )}-${timestamp || index}`;
+                  return (
+                    <ChatMessage
+                      key={stableKey}
+                      message={message}
+                      userProfilePicture={userProfilePicture}
+                    />
+                  );
+                }
+
+                const prevMessage = index > 0 ? array[index - 1] : null;
+                const prevContentHash = prevMessage?.content
+                  ? prevMessage.content
+                      .substring(0, 30)
+                      .replace(/\s+/g, " ")
+                      .trim()
+                  : "start";
+                const typingKey = `${message.role}-typing-${prevContentHash}-${index}`;
+
+                return (
+                  <ChatMessage
+                    key={typingKey}
+                    message={message}
+                    userProfilePicture={userProfilePicture}
+                  />
+                );
+              })}
           </>
         )}
 
-        {/* Typing Indicator */}
         {isGenerating && <TypingIndicator />}
 
-        {/* Error Display */}
         {error && (
           <div className="mt-2 w-full rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
             <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
 
-        {/* Scroll anchor with extra spacing */}
         <div ref={messagesEndRef} className="h-4" />
       </div>
     </div>
