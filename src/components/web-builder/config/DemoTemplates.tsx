@@ -9,9 +9,55 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 2.5rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(56,189,248,0.15);
+                border: 1px solid rgba(56,189,248,0.4);
+                color: #fff;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(56,189,248,0.35);
+              }
               @media (max-width: 900px) {
+                header.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                }
                 header {
                   padding: 1rem 2rem;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: center;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  background: rgba(15, 23, 42, 0.95);
+                  border-radius: 12px;
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
                 }
                 main.hero-gradient {
                   padding: 7rem 1rem 3rem;
@@ -27,12 +73,12 @@ const DemoTemplates = [
                 }
               }
               @media (max-width: 600px) {
-                header {
+                header.responsive-nav-container {
                   flex-direction: column;
                   gap: 1rem;
                   padding: 0.5rem 0.5rem;
                 }
-                nav {
+                .responsive-nav-menu {
                   flex-direction: column;
                   gap: 1rem;
                 }
@@ -224,11 +270,12 @@ const DemoTemplates = [
             
             <section style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #fff; overflow-x: hidden;">
               <!-- Navigation Header -->
-              <header style="position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+              <header class="responsive-nav-container" style="position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
                 <div style="font-size: 2rem; font-weight: bold; letter-spacing: 1px; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem;">
                   PaksoftSystems
                 </div>
-                <nav style="display: flex; gap: 2.5rem;">
+                <button class="responsive-nav-toggle" aria-label="Toggle navigation">☰</button>
+                <nav class="responsive-nav-menu" style="display: flex; gap: 2.5rem;">
                   <a href="#services" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Services</a>
                   <a href="#portfolio" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Portfolio</a>
                   <a href="#pricing" class="nav-link" style="color: #fff; text-decoration: none; font-size: 1rem; font-weight: 500;">Pricing</a>
@@ -647,6 +694,32 @@ const DemoTemplates = [
               </footer>
               
               <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
                 // Smooth scroll for navigation links
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                   anchor.addEventListener('click', function (e) {
@@ -817,7 +890,13 @@ const DemoTemplates = [
           name: "Home",
           component: `
             <style>
-              .af-nav{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222}
+              .af-nav{position:fixed;top:0;left:0;right:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-bottom:1px solid #222;z-index:50}
+              .af-links{display:flex;align-items:center;gap:1.5rem}
+              .af-links a{color:#bbb;text-decoration:none;font-size:.95rem;transition:color .3s ease}
+              .af-links a:hover{color:#F59E0B}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.5rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:#F59E0B;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.3)}
               .af-brand{font-family:'Playfair Display',serif;color:#F59E0B;font-weight:700}
               .af-hero{padding:7rem 2rem 5rem;background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);color:#fff;text-align:center}
               .af-title{font-family:'Playfair Display',serif;font-size:3.5rem;letter-spacing:1px}
@@ -831,9 +910,20 @@ const DemoTemplates = [
               .af-cap{position:absolute;left:0;right:0;bottom:0;padding:.75rem 1rem;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff}
               .af-test{max-width:900px;margin:0 auto;color:#ddd;text-align:center}
               .af-footer{padding:2rem;background:#0d0d0d;color:#9ca3af;border-top:1px solid #222;text-align:center}
+              @media(max-width:768px){.af-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(17,17,17,.95);border:1px solid #222;border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}}
               @media(max-width:600px){.af-title{font-size:2.2rem}}
             </style>
-            <nav class="af-nav"><div class="af-brand">ArtFolio</div><div style="color:#bbb;font-size:.95rem">Portfolio · Services · Contact</div></nav>
+            <nav class="af-nav responsive-nav-container">
+              <div class="af-brand">ArtFolio</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="af-links responsive-nav-menu">
+                <a href="#about">About</a>
+                <a href="#exhibitions">Exhibitions</a>
+                <a href="#services">Services</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#team">Team</a>
+              </div>
+            </nav>
             <section class="af-hero">
               <h1 class="af-title">Discover <span>Artistry</span> in Motion</h1>
               <p class="af-sub">A bold portfolio template for designers, illustrators and studios who want their work to speak first.</p>
@@ -929,6 +1019,34 @@ const DemoTemplates = [
                 <div style="display:flex;gap:.75rem;color:#bbb"><span>Instagram</span><span>Behance</span><span>Dribbble</span></div>
               </div>
             </footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -945,6 +1063,12 @@ const DemoTemplates = [
             <style>
               :root{--wg-primary:#10B981;--wg-deep:#064E3B}
               .wg-nav{position:fixed;inset:0 0 auto 0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:rgba(2,44,34,.6);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);z-index:50;color:#eafff7}
+              .wg-links{display:flex;align-items:center;gap:1.25rem;font-size:.95rem}
+              .wg-links a{color:#c7ffe9;text-decoration:none;transition:color .3s ease}
+              .wg-links a:hover{color:#10B981}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.25rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#eafff7;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(16,185,129,.3)}
               .wg-brand{font-weight:800;color:#10B981}
               .wg-hero{padding:7.5rem 2rem 5rem;text-align:center;color:#e6fffb;background:linear-gradient(180deg,#022c22 0%,#064e3b 100%)}
               .wg-title{font-size:3.8rem;font-weight:800;letter-spacing:1px}
@@ -952,27 +1076,58 @@ const DemoTemplates = [
               .wg-sub{max-width:820px;margin:1rem auto 2.25rem;color:#c7ffe9}
               .wg-cta{display:inline-flex;gap:.75rem}
               .wg-btn{padding:.9rem 1.5rem;border-radius:12px;background:var(--wg-primary);color:#053227;font-weight:800;border:none}
-              .wg-section{padding:2.5rem 2rem;background:#022c22}
+              .wg-section{padding:2.75rem 1.5rem;background:#022c22}
+              .wg-section-content{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem}
+              .wg-section-content.center{align-items:center;text-align:center}
+              .wg-heading{color:#eafff7;margin:0;font-size:1.75rem;letter-spacing:0.5px}
+              .wg-subtext{color:#c7ffe9;margin:0;line-height:1.65;font-size:1.05rem}
+              .wg-narrow-900{max-width:900px}
+              .wg-narrow-800{max-width:800px}
+              .wg-narrow-720{max-width:720px}
               .wg-feats{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
               .wg-card{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1.1rem;color:#eafff7}
               .wg-gallery{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
               .wg-gallery img{width:100%;height:220px;object-fit:cover;border-radius:12px;border:1px solid #105e49}
-              .wg-dests{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+              .wg-dests{max-width:1100px;margin:0 auto;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
               .wg-dest{background:#0a3b2f;border:1px solid #115e49;border-radius:12px;padding:1rem;color:#eafff7}
               .wg-dest h4{margin:0 0 .25rem;color:#10B981}
               .wg-dest ul{margin:.25rem 0 0;padding-left:1rem;color:#c7ffe9}
               .wg-footer{padding:2rem;background:#012019;color:#b6ffe8;border-top:1px solid #115e49;text-align:center}
-              @media(max-width:600px){.wg-title{font-size:2.2rem}}
+              .wg-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem;max-width:720px;margin:1.25rem auto 0;width:100%}
+              .wg-form-grid .wg-input{width:100%}
+              .wg-input{padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;transition:border-color .2s ease}
+              .wg-input:focus{outline:none;border-color:#1dd1a1;box-shadow:0 0 0 2px rgba(29,209,161,0.25)}
+              .wg-textarea{padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;resize:vertical}
+              .wg-textarea:focus{outline:none;border-color:#1dd1a1;box-shadow:0 0 0 2px rgba(29,209,161,0.25)}
+              .wg-form-grid .wg-textarea{grid-column:1 / -1}
+              .wg-form-grid button{grid-column:1 / -1;justify-self:center}
+              .wg-newsletter-form{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;width:100%;margin-top:1rem}
+              .wg-newsletter-form .wg-input{flex:1 1 260px;min-width:240px}
+              .wg-newsletter-form .wg-btn{flex:0 0 auto}
+              @media(max-width:900px){.wg-section{padding:2.5rem 1.25rem}}
+              @media(max-width:768px){.wg-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(2,44,34,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}.wg-section-content{gap:1rem}.wg-feats,.wg-dests{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.wg-newsletter-form button{width:100%}.wg-heading{font-size:1.5rem}.wg-subtext{font-size:1rem}}
+              @media(max-width:600px){.wg-title{font-size:2.2rem}.wg-section{padding:2.25rem 1rem}.wg-form-grid{grid-template-columns:1fr}.wg-newsletter-form input{flex:1 1 100%;min-width:0}.wg-heading{font-size:1.35rem}}
             </style>
-            <nav class="wg-nav"><div class="wg-brand">WanderGreen</div><div style="font-size:.95rem">Trips · Gallery · Contact</div></nav>
+            <nav class="wg-nav responsive-nav-container">
+              <div class="wg-brand">WanderGreen</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="wg-links responsive-nav-menu">
+                <a href="#about">About</a>
+                <a href="#destinations">Destinations</a>
+                <a href="#experiences">Experiences</a>
+                <a href="#contact">Contact</a>
+              </div>
+            </nav>
             <section class="wg-hero">
               <h1 class="wg-title">Travel <span>Greener</span>, Explore Deeper</h1>
               <p class="wg-sub">Sustainable adventures and eco‑friendly escapes that cherish our planet.</p>
               <div class="wg-cta"><button class="wg-btn">Plan a Trip</button></div>
             </section>
-            <section class="wg-section" id="about" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Our Mission</h3>
-              <p style="color:#c7ffe9;max-width:900px;margin:0 auto">WanderGreen crafts meaningful journeys that respect local communities and preserve nature. We believe travel can be transformative—for you and the planet.</p>
+            <section class="wg-section" id="about">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Our Mission</h3>
+                <p class="wg-subtext">WanderGreen crafts meaningful journeys that respect local communities and preserve nature. We believe travel can be transformative—for you and the planet.</p>
+              </div>
             </section>
             <section class="wg-section">
               <div class="wg-feats">
@@ -982,8 +1137,10 @@ const DemoTemplates = [
               </div>
             </section>
             <section class="wg-section" id="destinations">
-              <h3 style="color:#eafff7;text-align:center;margin:0 0 .5rem">Destinations</h3>
-              <p style="color:#c7ffe9;text-align:center;max-width:900px;margin:0 auto 1rem">Handpicked eco‑friendly locations around the world. From ancient forests to pristine coasts—travel lightly and leave places better than you found them.</p>
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Destinations</h3>
+                <p class="wg-subtext">Handpicked eco‑friendly locations around the world. From ancient forests to pristine coasts—travel lightly and leave places better than you found them.</p>
+              </div>
               <div class="wg-dests">
                 <div class="wg-dest"><h4>Japan</h4><ul><li>Kyoto — temples & tea gardens</li><li>Hokkaido — alpine trails & onsens</li><li>Okinawa — coral reefs & culture</li><li>Nara — cedar forests & deer park</li></ul></div>
                 <div class="wg-dest"><h4>New Zealand</h4><ul><li>Fiordland National Park</li><li>Queenstown & Lake Wakatipu</li><li>Abel Tasman Coast Track</li><li>Kaikōura marine encounters</li></ul></div>
@@ -1008,21 +1165,25 @@ const DemoTemplates = [
               </div>
             </section>
             <section class="wg-section" id="blog">
-              <h3 style="color:#eafff7;text-align:center;margin:0 0 1rem">Travel Tips</h3>
-              <div class="wg-feats" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Travel Tips</h3>
+              </div>
+              <div class="wg-feats">
                 <div class="wg-card"><strong>Pack Lighter</strong><p>Reduce weight and increase flexibility.</p></div>
                 <div class="wg-card"><strong>Eco Etiquette</strong><p>Respect wildlife and local customs.</p></div>
                 <div class="wg-card"><strong>Offset Smarter</strong><p>Choose verified carbon projects.</p></div>
               </div>
             </section>
-            <section class="wg-section" id="contact" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Book Your Journey</h3>
-              <p style="color:#c7ffe9;margin:0 0 1rem">Tell us where you want to go and we’ll plan the rest.</p>
-              <form onsubmit="event.preventDefault(); alert('Request sent!');" style="display:inline-grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:720px;width:100%">
-                <input placeholder="Full name" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
-                <input placeholder="Email" type="email" required style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px"/>
-                <textarea placeholder="Destination & dates" rows="3" style="padding:.8rem 1rem;border:1px solid #115e49;background:#013325;color:#eafff7;border-radius:8px;grid-column:span 2"></textarea>
-                <button class="wg-btn" type="submit" style="grid-column:span 2">Request Plan</button>
+            <section class="wg-section" id="contact">
+              <div class="wg-section-content center wg-narrow-900">
+                <h3 class="wg-heading">Book Your Journey</h3>
+                <p class="wg-subtext">Tell us where you want to go and we’ll plan the rest.</p>
+              </div>
+              <form class="wg-form-grid" onsubmit="event.preventDefault(); alert('Request sent!');">
+                <input class="wg-input" placeholder="Full name" required />
+                <input class="wg-input" placeholder="Email" type="email" required />
+                <textarea class="wg-textarea" placeholder="Destination & dates" rows="3"></textarea>
+                <button class="wg-btn" type="submit">Request Plan</button>
               </form>
             </section>
             <section class="wg-section" id="packages">
@@ -1032,9 +1193,11 @@ const DemoTemplates = [
                 <div class="wg-card"><h3>Highland Trek</h3><p>7 days camping, reforestation support. <strong>$1899</strong></p></div>
               </div>
             </section>
-            <section class="wg-section" id="testimonials" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Traveler Stories</h3>
-              <p style="color:#c7ffe9;max-width:800px;margin:0 auto 1.25rem">“The most thoughtful, sustainable experience we’ve had. Every detail minimized impact while maximizing wonder.”</p>
+            <section class="wg-section" id="testimonials">
+              <div class="wg-section-content center wg-narrow-800">
+                <h3 class="wg-heading">Traveler Stories</h3>
+                <p class="wg-subtext">“The most thoughtful, sustainable experience we’ve had. Every detail minimized impact while maximizing wonder.”</p>
+              </div>
             </section>
             <section class="wg-section" id="team">
               <div class="wg-feats">
@@ -1043,13 +1206,15 @@ const DemoTemplates = [
                 <div class="wg-card" style="text-align:center"><img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=600&auto=format&fit=crop" alt="g6" style="width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:.5rem"/><div><strong>Asha</strong><p>Community Lead</p></div></div>
               </div>
             </section>
-            <section class="wg-section" style="text-align:center">
-              <h3 style="color:#eafff7;margin:0 0 .5rem">Join our newsletter</h3>
-              <p style="color:#c7ffe9;margin:0 0 1rem">Eco tips and destination inspiration.</p>
-              <form onsubmit="event.preventDefault(); alert('Subscribed!');" style="display:inline-flex;gap:.5rem;flex-wrap:wrap;justify-content:center">
-                <input type="email" required placeholder="you@example.com" style="padding:.8rem 1rem;border-radius:10px;border:1px solid #115e49;background:#013325;color:#eafff7;min-width:260px"/>
-                <button class="wg-btn" type="submit">Subscribe</button>
-              </form>
+            <section class="wg-section">
+              <div class="wg-section-content center wg-narrow-720">
+                <h3 class="wg-heading">Join our newsletter</h3>
+                <p class="wg-subtext">Eco tips and destination inspiration.</p>
+                <form class="wg-newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed!');">
+                  <input class="wg-input" type="email" required placeholder="you@example.com" />
+                  <button class="wg-btn" type="submit">Subscribe</button>
+                </form>
+              </div>
             </section>
             <footer class="wg-footer">
               <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
@@ -1058,6 +1223,34 @@ const DemoTemplates = [
                 <div style="display:flex;gap:.75rem;color:#b6ffe8"><span>Instagram</span><span>Facebook</span><span>Twitter</span></div>
               </div>
             </footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -1073,6 +1266,12 @@ const DemoTemplates = [
           component: `
             <style>
               .cc-nav{position:fixed;inset:0 0 auto 0;height:60px;background:rgba(28,20,15,.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;color:#FDE68A;border-bottom:1px solid rgba(253,230,138,.2);z-index:50}
+              .cc-links{display:flex;align-items:center;gap:1.25rem;font-size:.95rem}
+              .cc-links a{color:#FDE68A;text-decoration:none;opacity:.9;transition:color .3s ease,opacity .3s ease}
+              .cc-links a:hover{color:#F59E0B;opacity:1}
+              .responsive-nav-menu{display:flex;align-items:center;gap:1.25rem}
+              .responsive-nav-toggle{display:none;align-items:center;justify-content:center;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:#FDE68A;padding:.3rem .6rem;border-radius:6px;font-size:1.5rem;cursor:pointer}
+              .responsive-nav-toggle:focus{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.3)}
               .cc-hero{padding:7rem 2rem 5rem;text-align:center;background:linear-gradient(180deg,#1c140f 0%,#120c08 100%);color:#fff}
               .cc-title{font-size:3.2rem;font-weight:800;letter-spacing:.5px}
               .cc-sub{max-width:740px;margin:1rem auto 2rem;color:#e5d5b3}
@@ -1082,8 +1281,19 @@ const DemoTemplates = [
               .cc-card{background:#1b120b;border:1px solid #3a2a1e;border-radius:12px;padding:1rem}
               .cc-gallery img{width:100%;height:220px;object-fit:cover;border-radius:10px;border:1px solid #3a2a1e}
               .cc-footer{padding:2rem;background:#0c0906;color:#e5d5b3;border-top:1px solid #3a2a1e;text-align:center}
+              @media(max-width:768px){.cc-nav{height:auto;padding:.75rem 1rem;flex-wrap:wrap}.responsive-nav-toggle{display:inline-flex}.responsive-nav-menu{width:100%;display:none!important;flex-direction:column!important;gap:1rem!important;background:rgba(28,20,15,.92);border:1px solid rgba(253,230,138,.2);border-radius:10px;padding:.75rem 0;margin-top:.75rem}.responsive-nav-menu.open{display:flex!important}}
             </style>
-            <nav class="cc-nav"><div style="font-weight:800">CityCafe</div><div style="opacity:.9">Menu · Gallery · Reservations</div></nav>
+            <nav class="cc-nav responsive-nav-container">
+              <div style="font-weight:800">CityCafe</div>
+              <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="768">☰</button>
+              <div class="cc-links responsive-nav-menu">
+                <a href="#menu">Menu</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#team">Team</a>
+                <a href="#contact">Contact</a>
+              </div>
+            </nav>
             <section class="cc-hero"><h1 class="cc-title">Brewed to Perfection</h1><p class="cc-sub">Artisanal coffee, fresh bakes and cozy ambience in the heart of the city.</p><button class="cc-btn">Reserve a Table</button></section>
             <section class="cc-section" id="menu"><div class="cc-grid">
               <div class="cc-card"><h3>Espresso</h3><p>Rich and bold shot</p></div>
@@ -1115,6 +1325,34 @@ const DemoTemplates = [
               </form>
             </section>
             <footer class="cc-footer">© 2025 CityCafe. All rights reserved.</footer>
+            <script>
+              const setupResponsiveNav = () => {
+                document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                  const container = toggle.closest('.responsive-nav-container');
+                  const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                  if (!menu) {
+                    return;
+                  }
+                  const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                  const handleResize = () => {
+                    if (window.innerWidth > breakpoint) {
+                      menu.classList.add('open');
+                      toggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                      menu.classList.remove('open');
+                      toggle.setAttribute('aria-expanded', 'false');
+                    }
+                  };
+                  toggle.addEventListener('click', () => {
+                    const isOpen = menu.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', String(isOpen));
+                  });
+                  handleResize();
+                  window.addEventListener('resize', handleResize);
+                });
+              };
+              setupResponsiveNav();
+            </script>
           `,
         },
       ],
@@ -1130,6 +1368,32 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 3rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(212,175,55,0.15);
+                border: 1px solid rgba(212,175,55,0.4);
+                color: #d4af37;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(212,175,55,0.35);
+              }
               @media (max-width: 900px) {
                 .lux-hero-section {
                   padding: 6rem 2rem 3rem !important;
@@ -1147,6 +1411,26 @@ const DemoTemplates = [
                 .feature-grid {
                   grid-template-columns: 1fr !important;
                 }
+                nav.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                  padding: 1.2rem 2rem !important;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: flex-start;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  border-top: 1px solid rgba(212,175,55,0.2);
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
+                }
               }
               @media (max-width: 600px) {
                 .lux-hero-section {
@@ -1158,7 +1442,7 @@ const DemoTemplates = [
                 .hero-subtitle {
                   font-size: 1rem !important;
                 }
-                .nav-menu {
+                .responsive-nav-menu {
                   flex-direction: column !important;
                   gap: 1rem !important;
                 }
@@ -1245,12 +1529,13 @@ const DemoTemplates = [
             
             <section style="font-family: 'Playfair Display', 'Times New Roman', serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%); color: #ffffff; min-height: 100vh;">
               <!-- Navigation -->
-              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212,175,55,0.2);">
+              <nav class="responsive-nav-container" style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212,175,55,0.2);">
                 <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
                   <div style="font-size: 2rem; font-weight: 700; letter-spacing: 2px;" class="text-gradient">
                     LUXE
                   </div>
-                  <div class="nav-menu" style="display: flex; gap: 3rem; align-items: center;">
+                  <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="900">☰</button>
+                  <div class="nav-menu responsive-nav-menu" style="display: flex; gap: 3rem; align-items: center;">
                     <a href="#collections" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">Collections</a>
                     <a href="#about" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">About</a>
                     <a href="#contact" style="color: #ffffff; text-decoration: none; font-size: 1rem; font-weight: 500; letter-spacing: 1px; transition: color 0.3s ease;">Contact</a>
@@ -1388,6 +1673,34 @@ const DemoTemplates = [
                   </div>
                 </div>
               </footer>
+              <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
+              </script>
             </section>
           `,
         },
@@ -1404,6 +1717,32 @@ const DemoTemplates = [
           component: `
             <style>
               /* Responsive adjustments */
+              .responsive-nav-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              .responsive-nav-menu {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+              }
+              .responsive-nav-toggle {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0,188,212,0.15);
+                border: 1px solid rgba(0,188,212,0.4);
+                color: #00bcd4;
+                padding: 0.35rem 0.75rem;
+                border-radius: 8px;
+                font-size: 1.5rem;
+                cursor: pointer;
+              }
+              .responsive-nav-toggle:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(0,188,212,0.3);
+              }
               @media (max-width: 900px) {
                 .hero-container {
                   padding: 6rem 2rem 3rem !important;
@@ -1421,6 +1760,26 @@ const DemoTemplates = [
                 .stats-grid {
                   grid-template-columns: repeat(2, 1fr) !important;
                 }
+                nav.responsive-nav-container {
+                  flex-wrap: wrap;
+                  gap: 1rem;
+                  padding: 1rem 2rem !important;
+                }
+                .responsive-nav-toggle {
+                  display: inline-flex;
+                }
+                .responsive-nav-menu {
+                  display: none !important;
+                  flex-direction: column !important;
+                  align-items: flex-start;
+                  gap: 1rem !important;
+                  width: 100%;
+                  padding: 1rem 0;
+                  border-top: 1px solid rgba(0,188,212,0.2);
+                }
+                .responsive-nav-menu.open {
+                  display: flex !important;
+                }
               }
               @media (max-width: 600px) {
                 .hero-container {
@@ -1432,7 +1791,7 @@ const DemoTemplates = [
                 .hero-subtitle {
                   font-size: 1rem !important;
                 }
-                .nav-menu {
+                .responsive-nav-menu {
                   flex-direction: column !important;
                   gap: 1rem !important;
                 }
@@ -1562,13 +1921,14 @@ const DemoTemplates = [
             
             <section style="font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 50%, #bbdefb 100%); color: #333; min-height: 100vh;">
               <!-- Navigation -->
-              <nav style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1rem 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
+              <nav class="responsive-nav-container" style="position: fixed; top: 0; width: 100%; z-index: 1000; padding: 1rem 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 20px rgba(0,0,0,0.1);">
                 <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00bcd4, #4fc3f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">H</div>
                     <div style="font-size: 1.5rem; font-weight: 700; color: #00bcd4;">HealthCare Pro</div>
                   </div>
-                  <div class="nav-menu" style="display: flex; gap: 2rem; align-items: center;">
+                  <button class="responsive-nav-toggle" aria-label="Toggle navigation" data-breakpoint="900">☰</button>
+                  <div class="nav-menu responsive-nav-menu" style="display: flex; gap: 2rem; align-items: center;">
                     <a href="#services" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Services</a>
                     <a href="#about" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">About</a>
                     <a href="#contact" style="color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.3s ease;">Contact</a>
@@ -1795,6 +2155,34 @@ const DemoTemplates = [
                   </div>
                 </div>
               </footer>
+              <script>
+                const setupResponsiveNav = () => {
+                  document.querySelectorAll('.responsive-nav-toggle').forEach(toggle => {
+                    const container = toggle.closest('.responsive-nav-container');
+                    const menu = container ? container.querySelector('.responsive-nav-menu') : null;
+                    if (!menu) {
+                      return;
+                    }
+                    const breakpoint = parseInt(toggle.getAttribute('data-breakpoint') || '900', 10);
+                    const handleResize = () => {
+                      if (window.innerWidth > breakpoint) {
+                        menu.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                      } else {
+                        menu.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                      }
+                    };
+                    toggle.addEventListener('click', () => {
+                      const isOpen = menu.classList.toggle('open');
+                      toggle.setAttribute('aria-expanded', String(isOpen));
+                    });
+                    handleResize();
+                    window.addEventListener('resize', handleResize);
+                  });
+                };
+                setupResponsiveNav();
+              </script>
             </section>
           `,
         },
