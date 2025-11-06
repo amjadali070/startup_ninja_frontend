@@ -71,11 +71,24 @@ import {
 } from "./custom-components";
 
 const WebsiteBuilderStudio: FC = () => {
-  const normalizeDesktopMediaQueries = (html: string) =>
-    html.replace(
-      /@media\s*\(\s*max-width\s*:\s*1800px\s*\)/gi,
-      "@media screen"
+  const normalizeDesktopMediaQueries = (html: string) => {
+    if (!html) return html;
+    const replaceIfWide = (_m: string, num: string) => {
+      const n = parseInt(num, 10);
+      return n >= 1200 ? "@media screen" : _m;
+    };
+    // Handle: @media (max-width: 1800px)
+    let out = html.replace(
+      /@media\s*\(\s*max-width\s*:\s*(\d+)px\s*\)/gi,
+      replaceIfWide
     );
+    // Handle: @media only screen and (max-width: 1800px)
+    out = out.replace(
+      /@media\s+(?:only\s+)?screen\s+and\s*\(\s*max-width\s*:\s*(\d+)px\s*\)/gi,
+      replaceIfWide
+    );
+    return out;
+  };
 
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [websiteData, setWebsiteData] = useState<WebsiteProject | null>(null);
@@ -283,9 +296,23 @@ const WebsiteBuilderStudio: FC = () => {
       content: string;
       [key: string]: any;
     }[];
-    const firstPage = files.find((file) => file.mimeType === "text/html");
-    const websiteHtml = firstPage
-      ? normalizeDesktopMediaQueries(firstPage.content)
+    // Try to resolve current page HTML, fallback to the first HTML file
+    const Pages = editor.Pages;
+    const selectedPage = Pages?.getSelected?.();
+    const selectedPageId = selectedPage?.id || selectedPage?.getId?.();
+    const findHtmlByPage = (pageId?: string) =>
+      files.find(
+        (f) =>
+          f.mimeType === "text/html" &&
+          (f.pageId === pageId ||
+            f.page?.id === pageId ||
+            f.name?.includes?.(pageId || ""))
+      );
+    const htmlFile =
+      findHtmlByPage(selectedPageId) ||
+      files.find((f) => f.mimeType === "text/html");
+    const websiteHtml = htmlFile
+      ? normalizeDesktopMediaQueries(htmlFile.content)
       : "";
 
     const deviceSizes: Record<
@@ -330,6 +357,21 @@ const WebsiteBuilderStudio: FC = () => {
       setActiveDeviceButton(device);
     };
 
+    const pageModels = Pages?.getAll?.() || [];
+    let currentPage = Pages?.getSelected?.() || pageModels?.[0];
+
+    const getHtmlForPage = (page: any) => {
+      const pid = page?.id || page?.getId?.();
+      const match = files.find(
+        (f) =>
+          f.mimeType === "text/html" &&
+          (f.pageId === pid ||
+            f.page?.id === pid ||
+            f.name?.includes?.(pid || ""))
+      );
+      return match ? normalizeDesktopMediaQueries(match.content) : websiteHtml;
+    };
+
     editor.runCommand("studio:layoutToggle", {
       id: "preview-website",
       header: false,
@@ -370,6 +412,41 @@ const WebsiteBuilderStudio: FC = () => {
                     id: "preview-website",
                   });
                 },
+              },
+              {
+                type: "row",
+                style: { gap: "8px", alignItems: "center" },
+                children: [
+                  {
+                    type: "text",
+                    content: "Page:",
+                    style: { color: "#ddd", fontSize: "12px" },
+                  },
+                  {
+                    type: "select",
+                    id: "preview-page-select",
+                    options: pageModels.map((p: any) => ({
+                      id: p.id || p.getId?.(),
+                      label: p.getName?.() || p.get?.("name") || p.id,
+                    })),
+                    value: currentPage?.id || currentPage?.getId?.(),
+                    style: { minWidth: "160px" },
+                    onChange: ({ value }: any) => {
+                      const page =
+                        pageModels.find(
+                          (p: any) => (p.id || p.getId?.()) === value
+                        ) || currentPage;
+                      currentPage = page;
+                      const iframe = document.getElementById(
+                        "preview-iframe"
+                      ) as HTMLIFrameElement | null;
+                      if (iframe) {
+                        const html = getHtmlForPage(page);
+                        iframe.srcdoc = html;
+                      }
+                    },
+                  },
+                ],
               },
               {
                 type: "row",
@@ -455,7 +532,7 @@ const WebsiteBuilderStudio: FC = () => {
                   {
                     type: "row",
                     as: "iframe",
-                    id: "preview-iframe-container",
+                    id: "preview-iframe",
                     srcDoc: websiteHtml,
                     style: {
                       width: "100%",
@@ -596,22 +673,134 @@ const WebsiteBuilderStudio: FC = () => {
         [key: string]: any;
       }[];
 
-      const firstPage = files.find((file) => file.mimeType === "text/html");
-      const websiteHtml = firstPage ? firstPage.content : "";
-      const sanitizedHtml = normalizeDesktopMediaQueries(websiteHtml);
+      const Pages = editor.Pages;
+      const pageModels = Pages?.getAll?.() || [];
 
-      if (!sanitizedHtml) {
+      const kebabCase = (str: string) =>
+        (str || "")
+          .toString()
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+      const getPageSlug = (page: any) => {
+        const settings = page?.get?.("settings") || {};
+        const slug = settings.slug || page?.get?.("slug");
+        const name =
+          page?.getName?.() ||
+          page?.get?.("name") ||
+          page?.id ||
+          page?.getId?.();
+        return slug || kebabCase(name);
+      };
+
+      const buildHtmlFor = (pid?: string) => {
+        const f = files.find(
+          (x) =>
+            x.mimeType === "text/html" &&
+            (x.pageId === pid ||
+              x.page?.id === pid ||
+              x.name?.includes?.(pid || ""))
+        );
+        return f?.content || "";
+      };
+
+      const filesPayload: { path: string; content: string }[] = [];
+      const homePage = pageModels[0];
+      const prevSelected = Pages?.getSelected?.();
+      for (const p of pageModels) {
+        const pid = p?.id || p?.getId?.();
+        let raw = buildHtmlFor(pid);
+        if (!raw) {
+          try {
+            Pages?.select?.(p);
+            const pf = (await editor.runCommand("studio:projectFiles", {
+              styles: "inline",
+            })) as any[];
+            const f2 = pf.find(
+              (x) =>
+                x.mimeType === "text/html" &&
+                (x.pageId === pid ||
+                  x.page?.id === pid ||
+                  x.name?.includes?.(pid || ""))
+            );
+            raw = f2?.content || "";
+          } catch (e) {}
+        }
+        if (!raw) {
+          try {
+            // Final fallback: render from editor APIs
+            Pages?.select?.(p);
+            const htmlRaw = editor.getHtml?.() || "";
+            const cssRaw = editor.getCss?.() || "";
+            if (htmlRaw) {
+              raw = `<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\"/>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n    <style>${cssRaw}</style>\n  </head>\n  <body style=\"margin:0;\">${htmlRaw}</body>\n</html>`;
+            }
+          } catch (e) {}
+        }
+        if (!raw) continue;
+        const html = normalizeDesktopMediaQueries(raw);
+        const isHome = p === homePage;
+        const filename = isHome
+          ? "index.html"
+          : `${getPageSlug(p) || pid}.html`;
+        filesPayload.push({ path: filename, content: html });
+      }
+      try {
+        prevSelected && Pages?.select?.(prevSelected);
+      } catch {}
+
+      if (!filesPayload.length) {
+        try {
+          const htmlRaw = editor.getHtml?.() || "";
+          const cssRaw = editor.getCss?.() || "";
+          if (htmlRaw) {
+            const one = `<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset=\"UTF-8\"/>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n    <style>${cssRaw}</style>\n  </head>\n  <body style=\"margin:0;\">${htmlRaw}</body>\n</html>`;
+            filesPayload.push({
+              path: "index.html",
+              content: normalizeDesktopMediaQueries(one),
+            });
+          }
+        } catch (e) {}
+      }
+
+      if (!filesPayload.length) {
         toast.error("No website content found to publish", {
           id: "publish-loading",
         });
         return;
       }
 
-      const response = await WebBuilderService.publishWebsite(
-        user.id,
-        websiteData._id,
-        sanitizedHtml
-      );
+      let response: any = null;
+      try {
+        const authToken = (token || "").replace(/^"|"$/g, "");
+        const res = await fetch(`${API_BASE}/website-builder/publish-website`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            websiteId: websiteData._id,
+            files: filesPayload,
+          }),
+        });
+        response = await res.json();
+      } catch (e) {
+        // ignore
+      }
+
+      if (!response?.success) {
+        // Legacy single-file fallback
+        const first = filesPayload[0]?.content || "";
+        response = await WebBuilderService.publishWebsite(
+          user.id,
+          websiteData._id,
+          first
+        );
+      }
 
       if (response.success && response.data) {
         const isUpdate = response.data.isUpdate;
@@ -765,6 +954,57 @@ const WebsiteBuilderStudio: FC = () => {
           });
         }}
         options={{
+          pages: {
+            add: ({ editor, rename }: any) => {
+              const page = editor.Pages.add(
+                {
+                  name: "New page",
+                  component: "<div>New page</div>",
+                },
+                { select: true }
+              );
+              rename(page);
+            },
+            duplicate: ({ editor, page, rename }: any) => {
+              const root = page.getMainComponent();
+              const newPage = editor.Pages.add(
+                {
+                  name: `${page.getName()} (Copy)`,
+                  component: root.clone(),
+                },
+                { select: true }
+              );
+              rename(newPage);
+            },
+            remove: ({ editor, page }: any) => {
+              const { Pages } = editor;
+              if (confirm("Are you sure you want to delete the page?")) {
+                Pages.remove(page);
+                const all = Pages.getAll();
+                all && all[0] && Pages.select(all[0]);
+              }
+            },
+            commandItems: ({ items }: any) => [
+              ...items,
+              {
+                id: "set-as-home",
+                label: "Set as Home",
+                cmd: ({ editor, page }: any) => {
+                  const { Pages } = editor;
+                  const all = Pages.getAll();
+                  const idx = all.findIndex(
+                    (p: any) =>
+                      (p.id || p.getId?.()) === (page.id || page.getId?.())
+                  );
+                  if (idx > 0) {
+                    Pages.move(page, { at: 0 });
+                    Pages.select(page);
+                  }
+                },
+              },
+            ],
+            settings: true,
+          },
           devices: {
             default: [
               {
@@ -957,6 +1197,75 @@ const WebsiteBuilderStudio: FC = () => {
                                   {
                                     type: "panelBlocks",
                                     content: { itemsPerRow: 2 },
+                                  },
+                                ],
+                              },
+                            });
+                          },
+                        },
+                        // Pages Button
+                        {
+                          id: "pages-manager",
+                          type: "button",
+                          icon: `<svg width="22" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 4H14C15.1046 4 16 4.89543 16 6V18C16 19.1046 15.1046 20 14 20H4C2.89543 20 2 19.1046 2 18V6C2 4.89543 2.89543 4 4 4Z" stroke="#CCCCCC" stroke-width="2"/>
+                                        <path d="M20 16V6C20 4.89543 19.1046 4 18 4H9" stroke="#CCCCCC" stroke-width="2"/>
+                                    </svg>`,
+                          tooltip: "Pages",
+                          onClick: ({ editor }) => {
+                            editor.runCommand("studio:layoutToggle", {
+                              id: "pages-panel",
+                              header: false,
+                              placer: {
+                                type: "absolute",
+                                position: "left",
+                                title: "Pages",
+                                size: "l",
+                              },
+                              layout: {
+                                type: "column",
+                                style: {
+                                  gap: 20,
+                                  padding: 10,
+                                  overflow: "auto",
+                                },
+                                children: [
+                                  {
+                                    type: "row",
+                                    style: {
+                                      padding: "10px 0",
+                                      fontWeight: "bold",
+                                      fontSize: "1rem",
+                                      color: "#fff",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                    },
+                                    children: [
+                                      "Pages",
+                                      {
+                                        type: "button",
+                                        icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
+                                        style: {
+                                          background: "none",
+                                          border: "none",
+                                          cursor: "pointer",
+                                          marginLeft: "10px",
+                                        },
+                                        tooltip: "Close",
+                                        onClick: ({ editor }: any) => {
+                                          editor.runCommand(
+                                            "studio:layoutRemove",
+                                            {
+                                              id: "pages-panel",
+                                            }
+                                          );
+                                        },
+                                      },
+                                    ],
+                                  },
+                                  {
+                                    type: "panelPages",
                                   },
                                 ],
                               },
