@@ -31,7 +31,7 @@ import html2canvas from "html2canvas";
 import DemoTemplates from "./config/DemoTemplates";
 import LoadingSpinner from "../LoadingSpinner";
 import { FaFileDownload } from "react-icons/fa";
-import { MdDelete, MdClose } from "react-icons/md";
+import { MdDelete, MdClose, MdWebStories } from "react-icons/md";
 // Backend API base URL
 const API_BASE: string = (import.meta as any).env?.VITE_API_BASE_URL || "";
 const ICON_DOWNLOAD = ReactDOMServer.renderToStaticMarkup(
@@ -42,6 +42,9 @@ const ICON_DELETE = ReactDOMServer.renderToStaticMarkup(
 );
 const ICON_CLOSE = ReactDOMServer.renderToStaticMarkup(
   <MdClose size={18} color="#ccc" />
+);
+const ICON_PAGES = ReactDOMServer.renderToStaticMarkup(
+  <MdWebStories size={20} color="#ccc" />
 );
 import {
   cardPlugin,
@@ -1207,10 +1210,7 @@ const WebsiteBuilderStudio: FC = () => {
                         {
                           id: "pages-manager",
                           type: "button",
-                          icon: `<svg width="22" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 4H14C15.1046 4 16 4.89543 16 6V18C16 19.1046 15.1046 20 14 20H4C2.89543 20 2 19.1046 2 18V6C2 4.89543 2.89543 4 4 4Z" stroke="#CCCCCC" stroke-width="2"/>
-                                        <path d="M20 16V6C20 4.89543 19.1046 4 18 4H9" stroke="#CCCCCC" stroke-width="2"/>
-                                    </svg>`,
+                          icon: ICON_PAGES,
                           tooltip: "Pages",
                           onClick: ({ editor }) => {
                             editor.runCommand("studio:layoutToggle", {
