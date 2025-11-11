@@ -43,7 +43,7 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
           <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 bg-[#1A1A1A] flex items-center justify-center">
             {!ninjaImageError ? (
               <img
-                src="/svg/ninja-icon.svg"
+                src="/svg/ninja-spinner.svg"
                 alt="Ninja Assistant"
                 className="h-5 w-5"
                 onError={() => setNinjaImageError(true)}
