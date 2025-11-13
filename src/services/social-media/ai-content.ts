@@ -1,10 +1,10 @@
-import { apiClient } from "./apiClient";
+import { apiClient } from "../apiClient";
 import {
   EnhanceWithAIRequest,
   EnhanceWithAIResponse,
   WriteWithAIRequest,
   WriteWithAIResponse,
-} from "../types/social-media";
+} from "../../types/social-media";
 
 export const socialMediaService = {
   /**
@@ -32,9 +32,7 @@ export const socialMediaService = {
   /**
    * Generate new post content with AI
    */
-  async writeWithAI(
-    request: WriteWithAIRequest
-  ): Promise<WriteWithAIResponse> {
+  async writeWithAI(request: WriteWithAIRequest): Promise<WriteWithAIResponse> {
     try {
       const response = await apiClient.post<WriteWithAIResponse>(
         "/social-media/ai/write",
@@ -51,4 +49,3 @@ export const socialMediaService = {
     }
   },
 };
-
