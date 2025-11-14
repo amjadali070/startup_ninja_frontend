@@ -6,17 +6,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { FiPlus, FiX } from "react-icons/fi";
-import { MdKeyboardArrowLeft } from "react-icons/md";
-import { IoSend } from "react-icons/io5";
-import ChatMessageBubble from "../ai-chat/ChatMessage";
-import TypingIndicator from "../ai-chat/TypingIndicator";
 import { aiContentService } from "../../services/ai-chat/ai-content";
 import type {
   Chat,
   ChatMessage as ChatMessageType,
 } from "../../types/ai-content";
 import ChatbotHistoryPanel from "./ChatHistoryPanel";
+import ChatbotDeleteChatModal from "./DeleteChatModal";
+import ChatbotHeader from "./ChatbotHeader";
+import ChatbotMessages from "./ChatbotMessages";
+import ChatbotQuickPrompts from "./ChatbotQuickPrompts";
+import ChatbotComposer from "./ChatbotComposer";
 
 const QUICK_PROMPTS = [
   "Write a story",
@@ -62,6 +62,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
   const headerRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLElement | null>(null);
   const [layoutOffsets, setLayoutOffsets] = useState({ top: 0, bottom: 0 });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const applyButtonPosition = useCallback((x: number, y: number) => {
     positionRef.current = { x, y };
@@ -408,29 +414,42 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     await loadChats();
   };
 
-  const handleDeleteChat = async (targetChatId: string) => {
-    const confirmed = window.confirm(
-      "Delete this chat? This action cannot be undone."
-    );
-    if (!confirmed) {
+  const handleDeleteChat = (targetChatId: string) => {
+    const targetChat = chats.find((chat) => chat._id === targetChatId);
+    if (!targetChat) {
       return;
     }
+    setChatToDelete({
+      id: targetChatId,
+      title: targetChat.title ?? "Untitled chat",
+    });
+    setDeleteModalOpen(true);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (!chatToDelete) {
+      return;
+    }
+    setIsDeleting(true);
     try {
-      const response = await aiContentService.deleteChat(targetChatId);
+      const response = await aiContentService.deleteChat(chatToDelete.id);
       if (response.success) {
-        setChats((prev) => prev.filter((chat) => chat._id !== targetChatId));
-        if (chatId === targetChatId) {
+        setChats((prev) => prev.filter((chat) => chat._id !== chatToDelete.id));
+        if (chatId === chatToDelete.id) {
           handleStartNewChat();
         }
         setError(null);
         await loadChats();
+        setDeleteModalOpen(false);
+        setChatToDelete(null);
       } else {
         setError(response.message ?? "Failed to delete chat");
       }
     } catch (error) {
       console.error("Failed to delete chat in chatbot:", error);
       setError("Failed to delete chat");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -528,38 +547,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
                 onRenameChat={handleRenameChat}
               />
               <div className="relative flex h-full flex-1 flex-col overflow-hidden">
-                <header
+                <ChatbotHeader
                   ref={headerRef}
-                  className="absolute inset-x-0 top-0 z-10 flex items-center justify-between bg-[#121214] px-6 pt-6 pb-4"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setHistoryOpen((prev) => !prev)}
-                    className="inline-flex min-h-[32px] w-auto items-center justify-center gap-0.5 rounded-md bg-[linear-gradient(180deg,_#FF5C5C_0%,_#DC0000_100%)] px-2.5 py-1.5 text-sm font-semibold text-white transition-transform duration-200 hover:scale-[1.02]"
-                  >
-                    <MdKeyboardArrowLeft className="text-lg" />
-                    Chats
-                  </button>
-                  <div className="flex items-center gap-6 text-sm font-semibold">
-                    <button
-                      type="button"
-                      onClick={handleStartNewChat}
-                      className="flex items-center gap-2 text-white/85 transition-colors duration-200 hover:text-white"
-                    >
-                      <FiPlus className="text-lg" />
-                      New chat
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsOpen(false)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/7 text-white/75 transition-all duration-200 hover:bg-white/12 hover:text-white"
-                    >
-                      <FiX className="text-lg" />
-                      <span className="sr-only">Close chatbot</span>
-                    </button>
-                  </div>
-                </header>
-
+                  onToggleHistory={() => setHistoryOpen((prev) => !prev)}
+                  onStartNewChat={handleStartNewChat}
+                  onClose={() => setIsOpen(false)}
+                  historyOpen={historyOpen}
+                />
                 <main
                   className="relative flex flex-1 flex-col overflow-hidden break-words"
                   style={{
@@ -567,100 +561,47 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
                     paddingBottom: layoutOffsets.bottom,
                   }}
                 >
-                  <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-4 sm:px-6 custom-scrollbar hide-scrollbar">
-                    <div className="flex w-full flex-col gap-4 overflow-x-hidden pb-10 pr-1">
-                      {isHistoryLoading ? (
-                        <div className="flex justify-center py-6 text-sm text-white/50">
-                          Loading conversation...
-                        </div>
-                      ) : messages.length === 0 && !isGenerating ? (
-                        <div className="mt-6 flex flex-col items-center text-center text-white/45">
-                          <p className="text-sm sm:text-base">
-                            Ask anything to get started.
-                          </p>
-                        </div>
-                      ) : (
-                        messages.map((message, index) => {
-                          const key = `${message.role}-${index}-${String(
-                            message.timestamp ?? message.content
-                          ).slice(0, 32)}`;
-
-                          return (
-                            <div
-                              key={key}
-                              className="w-full break-words whitespace-pre-wrap [&>*]:break-words [&_*]:break-words [&>div]:w-full [&>div>div:nth-child(2)]:max-w-full [&>div>div:nth-child(2)]:break-words [&>div>div:nth-child(2)]:sm:max-w-full"
-                            >
-                              <ChatMessageBubble
-                                message={message}
-                                userProfilePicture={userProfilePicture}
-                              />
-                            </div>
-                          );
-                        })
-                      )}
-
-                      {isGenerating && <TypingIndicator />}
-
-                      {error && (
-                        <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                          {error}
-                        </div>
-                      )}
-
-                      <div ref={messagesEndRef} />
-                    </div>
-                  </div>
+                  <ChatbotMessages
+                    messages={messages}
+                    isHistoryLoading={isHistoryLoading}
+                    isGenerating={isGenerating}
+                    error={error}
+                    userProfilePicture={userProfilePicture}
+                    messagesEndRef={messagesEndRef}
+                  />
 
                   {messages.length === 0 &&
                     !isGenerating &&
                     !isHistoryLoading && (
-                      <div className="space-y-4 overflow-x-hidden px-4 pb-3 sm:px-6">
-                        <div className="px-1 sm:px-2">
-                          <h2 className="text-[22px] font-semibold leading-[30px] text-white sm:text-[24px] sm:leading-[34px]">
-                            How can I help you?
-                          </h2>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          {QUICK_PROMPTS.map((prompt) => (
-                            <button
-                              key={prompt}
-                              type="button"
-                              onClick={() => handleQuickPrompt(prompt)}
-                              disabled={isGenerating}
-                              className="rounded-full bg-[#1C1D21] px-4 py-3 text-[11px] font-medium text-white/90 shadow-[0_20px_50px_rgba(0,0,0,0.45)] transition-all duration-200 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {prompt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      <ChatbotQuickPrompts
+                        prompts={QUICK_PROMPTS}
+                        disabled={isGenerating}
+                        onSelect={handleQuickPrompt}
+                      />
                     )}
                 </main>
 
-                <footer
+                <ChatbotComposer
                   ref={footerRef}
-                  className="absolute inset-x-0 bottom-0 z-10 border-t border-white/10 bg-[#121214] px-3 py-3 sm:px-6 sm:py-4"
-                >
-                  <div className="flex w-full items-center gap-3">
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={handleInputChange}
-                      onKeyDown={handleInputKeyDown}
-                      placeholder="Ask anything..."
-                      className="flex-1 bg-transparent text-sm text-white placeholder:text-white/45 focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => void handleSubmit()}
-                      disabled={isGenerating || !inputValue.trim()}
-                      className="flex h-12 w-12 items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <IoSend className="text-xl" />
-                      <span className="sr-only">Send message</span>
-                    </button>
-                  </div>
-                </footer>
+                  inputValue={inputValue}
+                  onInputChange={handleInputChange}
+                  onInputKeyDown={handleInputKeyDown}
+                  onSubmit={() => void handleSubmit()}
+                  isGenerating={isGenerating}
+                />
+
+                <ChatbotDeleteChatModal
+                  isOpen={deleteModalOpen}
+                  chatTitle={chatToDelete?.title ?? ""}
+                  onClose={() => {
+                    if (!isDeleting) {
+                      setDeleteModalOpen(false);
+                      setChatToDelete(null);
+                    }
+                  }}
+                  onConfirm={() => void handleConfirmDelete()}
+                  isDeleting={isDeleting}
+                />
               </div>
             </div>
           </div>

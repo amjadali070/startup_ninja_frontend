@@ -135,34 +135,68 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                           : "border-transparent hover:border-white/10 hover:bg-white/5"
                       }`}
                     >
-                      <button
-                        type="button"
-                        className="flex-1 truncate text-left"
-                        onClick={() => onSelectChat(chat._id)}
-                      >
-                        <p
-                          className={`truncate text-[13px] font-medium ${
-                            currentChatId === chat._id
-                              ? "text-white"
-                              : "text-white/85"
-                          }`}
-                        >
-                          {(editingChatId === chat._id
-                            ? draftTitle
-                            : chat.title) || "Untitled chat"}
-                        </p>
-                        {chat.lastMessageAt && (
-                          <span className="text-[11px] text-white/40">
-                            {new Date(chat.lastMessageAt).toLocaleTimeString(
-                              [],
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
+                      <div className="flex-1 truncate text-left">
+                        {editingChatId === chat._id ? (
+                          <div className="flex flex-col gap-1">
+                            <input
+                              type="text"
+                              value={draftTitle}
+                              onChange={(event) =>
+                                setDraftTitle(event.target.value)
                               }
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  void handleSaveRename(chat._id);
+                                } else if (event.key === "Escape") {
+                                  event.preventDefault();
+                                  setEditingChatId(null);
+                                  setDraftTitle("");
+                                }
+                              }}
+                              autoFocus
+                              className="w-full rounded-md border border-white/15 bg-[#16161A] px-2 py-1 text-[13px] font-medium text-white placeholder:text-white/40 focus:border-[#DE0500] focus:outline-none"
+                              placeholder="Rename chat"
+                            />
+                            {chat.lastMessageAt && (
+                              <span className="text-[11px] text-white/40">
+                                {new Date(
+                                  chat.lastMessageAt
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
                             )}
-                          </span>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="flex-1 truncate text-left"
+                            onClick={() => onSelectChat(chat._id)}
+                          >
+                            <p
+                              className={`truncate text-[13px] font-medium ${
+                                currentChatId === chat._id
+                                  ? "text-white"
+                                  : "text-white/85"
+                              }`}
+                            >
+                              {chat.title || "Untitled chat"}
+                            </p>
+                            {chat.lastMessageAt && (
+                              <span className="text-[11px] text-white/40">
+                                {new Date(
+                                  chat.lastMessageAt
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
 
                       {editingChatId === chat._id ? (
                         <div className="flex items-center gap-1 pl-2">
@@ -218,29 +252,6 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
             ))
           )}
         </div>
-
-        {editingChatId && (
-          <div className="border-t border-white/10 px-4 py-3">
-            <input
-              type="text"
-              value={draftTitle}
-              onChange={(event) => setDraftTitle(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  void handleSaveRename(editingChatId);
-                } else if (event.key === "Escape") {
-                  event.preventDefault();
-                  setEditingChatId(null);
-                  setDraftTitle("");
-                }
-              }}
-              autoFocus
-              className="w-full rounded-lg border border-white/15 bg-[#16161A] px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-[#DE0500] focus:outline-none"
-              placeholder="Rename chat"
-            />
-          </div>
-        )}
       </div>
     </aside>
   );
