@@ -104,7 +104,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
         </div>
       </div>
-      <Chatbot />
+      <Chatbot userProfilePicture={resolvedProfilePicture} />
     </>
   );
 };
