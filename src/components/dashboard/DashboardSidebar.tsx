@@ -194,21 +194,20 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={toggleMobileSidebar}
-        className="fixed left-3 top-3 sm:left-4 z-[60] inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-white lg:hidden"
-        aria-controls="dashboard-sidebar"
-        aria-expanded={isMobileOpen}
-        aria-label="Toggle sidebar"
-        title="Toggle sidebar"
-      >
-        {isMobileOpen ? (
-          <FiX className="h-6 w-6" />
-        ) : (
+      {/* Hamburger button - only shows when sidebar is closed */}
+      {!isMobileOpen && (
+        <button
+          type="button"
+          onClick={toggleMobileSidebar}
+          className="fixed left-3 top-3 sm:left-4 z-[60] inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-white lg:hidden"
+          aria-controls="dashboard-sidebar"
+          aria-expanded={false}
+          aria-label="Open sidebar"
+          title="Open sidebar"
+        >
           <FiMenu className="h-6 w-6" />
-        )}
-      </button>
+        </button>
+      )}
 
       {isMobileOpen && (
         <div
@@ -270,20 +269,33 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               </>
             ) : (
               <>
-                <Link
-                  to={
-                    userData?.role === "admin"
-                      ? "/admin-dashboard"
-                      : "/dashboard"
-                  }
-                  className="flex-1 min-w-0 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
-                >
-                  <img
-                    src="/svg/ninja-logo.svg"
-                    alt="Startup Ninja"
-                    className="h-14 w-auto max-w-[180px] transition-all duration-300 ease-in-out"
-                  />
-                </Link>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Link
+                    to={
+                      userData?.role === "admin"
+                        ? "/admin-dashboard"
+                        : "/dashboard"
+                    }
+                    className="flex-1 min-w-0 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
+                  >
+                    <img
+                      src="/svg/ninja-logo.svg"
+                      alt="Startup Ninja"
+                      className="h-14 w-auto max-w-[180px] transition-all duration-300 ease-in-out"
+                    />
+                  </Link>
+                  {isMobileOpen && (
+                    <button
+                      type="button"
+                      onClick={closeMobileSidebar}
+                      className="lg:hidden inline-flex items-center justify-center rounded-full text-white p-2 transition-all"
+                      aria-label="Close sidebar"
+                      title="Close sidebar"
+                    >
+                      <FiX className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={toggleCollapse}
