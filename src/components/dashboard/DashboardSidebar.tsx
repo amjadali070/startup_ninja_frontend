@@ -197,7 +197,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <button
         type="button"
         onClick={toggleMobileSidebar}
-        className="fixed left-3 top-16 sm:left-4 sm:top-5 z-[60] inline-flex items-center justify-center rounded-full bg-black/40 px-3 py-2 text-sm font-semibold text-white shadow-lg ring-1 ring-white/15 backdrop-blur-md lg:hidden"
+        className="fixed left-3 top-3 sm:left-4 z-[60] inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-white lg:hidden"
         aria-controls="dashboard-sidebar"
         aria-expanded={isMobileOpen}
         aria-label="Toggle sidebar"

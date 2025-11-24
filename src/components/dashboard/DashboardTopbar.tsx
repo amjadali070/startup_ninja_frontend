@@ -137,7 +137,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   return (
     <div className="px-3 bg-[#0B0B0F] sm:px-4 md:px-6 lg:px-8 xl:px-12 pt-4 sm:pt-6 lg:pt-8 pb-3 sm:pb-4 border-b border-white/10">
       <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
-        <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-3 flex-1 min-w-0 pl-16 lg:pl-0">
           <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-[26px] font-semibold tracking-tight text-white truncate">
             {title}
           </h1>
