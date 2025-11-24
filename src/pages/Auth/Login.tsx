@@ -37,60 +37,73 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError("");
 
-    if (!showPasswordStep) {
-      const trimmedEmail = formData.email.trim();
-      if (!trimmedEmail) {
-        setError("Please enter your email address.");
-        return;
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmedEmail)) {
-        setError("Please enter a valid email address.");
-        return;
-      }
-
-      setShowPasswordStep(true);
-      setShowPassword(false);
-      return;
-    }
-
-    if (!formData.password.trim()) {
-      setError("Please enter your password.");
-      return;
-    }
-
-    setLoading(true);
-
     try {
-      const response = await authService.login(formData);
-      if (
-        response.success &&
-        response.requiresEmailVerification &&
-        response.userId
-      ) {
-        // Show email verification modal
-        setVerificationData({
-          userId: response.userId,
-          email: formData.email,
-        });
-        setShowEmailVerification(true);
-        setError("");
-      } else if (response.success && response.token) {
-        setError("");
-        login(response.user, response.token); // update context
-        if (response?.user?.role == "admin") {
-          navigate("/admin-dashboard");
-        } else {
-          navigate("/dashboard");
+      if (!showPasswordStep) {
+        const trimmedEmail = formData.email.trim();
+        if (!trimmedEmail) {
+          setError("Please enter your email address.");
+          return;
         }
-      } else {
-        setError(response.message || "Login failed");
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+          setError("Please enter a valid email address.");
+          return;
+        }
+
+        setShowPasswordStep(true);
+        setShowPassword(false);
+        return;
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "An error occurred during login");
-    } finally {
+
+      if (!formData.password.trim()) {
+        setError("Please enter your password.");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await authService.login(formData);
+        if (
+          response.success &&
+          response.requiresEmailVerification &&
+          response.userId
+        ) {
+          // Show email verification modal
+          setVerificationData({
+            userId: response.userId,
+            email: formData.email,
+          });
+          setShowEmailVerification(true);
+          setError("");
+        } else if (response.success && response.token) {
+          setError("");
+          login(response.user, response.token); // update context
+          if (response?.user?.role == "admin") {
+            navigate("/admin-dashboard");
+          } else {
+            navigate("/dashboard");
+          }
+        } else {
+          setError(response.message || "Login failed");
+        }
+      } catch (err: any) {
+        console.error("Login error:", err);
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          "An error occurred during login";
+        setError(errorMessage);
+        // Don't reset password field, just show error
+      } finally {
+        setLoading(false);
+      }
+    } catch (error: any) {
+      console.error("Form submission error:", error);
+      setError("An unexpected error occurred");
       setLoading(false);
     }
   };

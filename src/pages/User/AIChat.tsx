@@ -14,7 +14,7 @@ import ChatHistorySidebar from "../../components/ai-chat/ChatHistorySidebar.tsx"
 import DeleteChatModal from "../../components/ai-chat/DeleteChatModal.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { authService } from "../../services/auth.ts";
-import { aiContentService } from "../../services/ai-content.ts";
+import { aiContentService } from "../../services/ai-chat/ai-content.ts";
 import { userService, type UserProfile } from "../../services/user.ts";
 import { resolveProfilePictureUrl } from "../../utils/profile.ts";
 import { ChatMessage, Chat } from "../../types/ai-content";

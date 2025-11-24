@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import { userService, type UserProfile } from "../services/user";
 import { resolveProfilePictureUrl } from "../utils/profile";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Chatbot from "../components/chatbot/Chatbot";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -85,21 +86,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const displayName = profile.username || profile.email || "Ninja";
 
   return (
-    <div className="flex h-screen bg-[#07070C] text-white overflow-hidden">
-      <DashboardSidebar activePath={activePath} userData={profile} />
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <DashboardTopbar
-          title={title}
-          userName={displayName}
-          profilePicture={resolvedProfilePicture}
-          email={profile.email}
-          username={profile.username}
-          onLogout={onLogout}
-          onSettings={onSettings}
-        />
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">{children}</div>
+    <>
+      <div className="flex h-screen bg-[#07070C] text-white overflow-hidden">
+        <DashboardSidebar activePath={activePath} userData={profile} />
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <DashboardTopbar
+            title={title}
+            userName={displayName}
+            profilePicture={resolvedProfilePicture}
+            email={profile.email}
+            username={profile.username}
+            onLogout={onLogout}
+            onSettings={onSettings}
+          />
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+            {children}
+          </div>
+        </div>
       </div>
-    </div>
+      <Chatbot userProfilePicture={resolvedProfilePicture} />
+    </>
   );
 };
 

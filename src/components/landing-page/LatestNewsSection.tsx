@@ -39,7 +39,7 @@ const newsItems = [
 
 export default function LatestNewsSection() {
   return (
-    <section className="relative w-full flex flex-col items-center justify-center py-16 px-6 mt-10 overflow-hidden text-white">
+    <section className="relative w-full flex flex-col items-center justify-center py-16 px-4 md:px-6 mt-10 overflow-hidden text-white">
       {/* Header */}
       <div className="w-full max-w-6xl flex justify-between items-center mb-10">
         <h2 className="text-3xl md:text-4xl font-semibold">Latest news</h2>

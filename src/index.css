@@ -152,7 +152,7 @@ main[class*="overflow-hidden"]::-webkit-scrollbar {
 html,
 body {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   margin: 0;
   padding: 0;
@@ -161,7 +161,7 @@ body {
 
 #root {
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* Ninja Assistant Card Custom Styles */

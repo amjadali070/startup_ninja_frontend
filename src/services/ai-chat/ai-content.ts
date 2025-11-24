@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { apiClient } from "../apiClient";
 import {
   GenerateChatMessageRequest,
   GenerateChatMessageResponse,
@@ -7,7 +7,7 @@ import {
   DeleteChatResponse,
   UpdateChatTitleRequest,
   UpdateChatTitleResponse,
-} from "../types/ai-content";
+} from "../../types/ai-content";
 
 export const aiContentService = {
   /**

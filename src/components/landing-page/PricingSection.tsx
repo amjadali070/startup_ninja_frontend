@@ -45,12 +45,12 @@ const plans = [
 
 export default function PricingSection() {
     return (
-        <section className="relative w-full flex flex-col items-center justify-center py-16 px-6 mt-10 overflow-hidden text-white">
+        <section className="relative w-full flex flex-col items-center justify-center py-16 px-4 md:px-6 mt-10 overflow-hidden text-white">
             <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                <h2 className="text-3xl md:text-5xl font-bold mb-4">
                     Choose The Perfect <br /> Plan For Your Business
                 </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
+                <p className="text-gray-400 max-w-2xl mx-auto px-4">
                     Adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
                     magna aliqua. Ut enim ad minim veniam, natus error sit voluptatem
                     accusantium doloremque laudantium.

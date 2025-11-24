@@ -9,7 +9,7 @@ import { FaWandMagicSparkles, FaPenNib } from "react-icons/fa6";
 import { toast } from "react-hot-toast";
 import { usePost } from "./PostContext";
 import { CAPTION_LIMITS } from "../../constants/platforms";
-import { socialMediaService } from "../../services/social-media";
+import { socialMediaService } from "../../services/social-media/ai-content";
 
 const WritePostContent: React.FC = () => {
   const { postData, updateContent } = usePost();
