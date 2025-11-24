@@ -21,8 +21,8 @@ const ChatbotMessages: React.FC<ChatbotMessagesProps> = ({
   userProfilePicture,
   messagesEndRef,
 }) => (
-  <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-4 sm:px-6 custom-scrollbar hide-scrollbar">
-    <div className="flex w-full flex-col gap-4 overflow-x-hidden pb-10 pr-1">
+  <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-4 md:px-5 lg:px-6 pt-3 sm:pt-4 custom-scrollbar hide-scrollbar">
+    <div className="flex w-full flex-col gap-3 sm:gap-4 overflow-x-hidden pb-10 pr-1">
       {isHistoryLoading ? (
         <div className="flex justify-center py-6 text-sm text-white/50">
           <LoadingSpinner size="small" />

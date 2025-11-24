@@ -529,13 +529,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-x-4 bottom-4 z-[120] flex justify-center sm:inset-auto sm:bottom-8 sm:right-6 sm:left-auto sm:justify-end">
+        <div className="fixed inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 md:bottom-6 lg:bottom-8 z-[120] flex justify-center sm:inset-auto sm:right-4 md:right-6 sm:left-auto sm:justify-end">
           <div
             className={`w-full transition-[width] duration-300 ease-in-out ${
-              historyOpen ? "sm:w-[706px]" : "sm:w-[446px]"
+              historyOpen ? "sm:w-[706px] md:w-[720px]" : "sm:w-[446px] md:w-[480px]"
             }`}
           >
-            <div className="relative flex h-full max-h-[90vh] w-full flex-row overflow-hidden rounded-md bg-[#121214] text-white shadow-[0_32px_80px_rgba(0,0,0,0.65)] sm:h-[694px] sm:max-h-none">
+            <div className="relative flex h-full max-h-[85vh] sm:max-h-[90vh] w-full flex-row overflow-hidden rounded-lg sm:rounded-md bg-[#121214] text-white shadow-[0_32px_80px_rgba(0,0,0,0.65)] sm:h-[600px] md:h-[650px] lg:h-[694px] sm:max-h-none">
               <ChatbotHistoryPanel
                 chats={chats}
                 currentChatId={chatId}
@@ -614,14 +614,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
         onPointerDown={handlePointerDown}
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
-        className={`fixed left-0 top-0 z-[130] flex h-14 w-14 select-none items-center justify-center rounded-full bg-[#1C1D21] text-white shadow-[0_24px_60px_rgba(0,0,0,0.45)] outline-none transition-transform duration-200 hover:scale-105 focus-visible:ring-4 focus-visible:ring-white/20 cursor-grab active:cursor-grabbing transform-gpu ${
+        className={`fixed left-0 top-0 z-[130] flex h-12 w-12 sm:h-14 sm:w-14 select-none items-center justify-center rounded-full bg-[#1C1D21] text-white shadow-[0_24px_60px_rgba(0,0,0,0.45)] outline-none transition-transform duration-200 hover:scale-105 focus-visible:ring-4 focus-visible:ring-white/20 cursor-grab active:cursor-grabbing transform-gpu ${
           isOpen ? "pointer-events-none scale-90 opacity-0" : "active:scale-95"
         }`}
       >
         <img
           src="/svg/ninja-spinner.svg"
           alt="Ninja Assistant"
-          className="h-6 w-6"
+          className="h-5 w-5 sm:h-6 sm:w-6"
         />
         <span className="sr-only">Open chatbot</span>
       </button>

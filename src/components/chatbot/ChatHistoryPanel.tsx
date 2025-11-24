@@ -96,9 +96,9 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
       aria-hidden={!isOpen}
     >
       <div className="flex h-full flex-col">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white/10 px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white">
+            <span className="text-xs sm:text-sm font-semibold text-white">
               Chat history
             </span>
           </div>
@@ -112,7 +112,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-2 py-3 hide-scrollbar">
+        <div className="flex-1 space-y-2 sm:space-y-3 overflow-y-auto px-2 py-2 sm:py-3 hide-scrollbar">
           {chats.length === 0 ? (
             <div className="rounded-xl border border-white/10 bg-[#111118] px-4 py-6 text-center text-xs text-white/45">
               No chats yet. Start a conversation.
@@ -121,7 +121,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
             Object.entries(groupedChats).map(([label, grouped]) => (
               <div key={label} className="space-y-2">
                 {label !== "other" && (
-                  <p className="px-2 text-[10px] uppercase tracking-wide text-white/35">
+                  <p className="px-1 sm:px-2 text-[9px] sm:text-[10px] uppercase tracking-wide text-white/35">
                     {label}
                   </p>
                 )}
@@ -129,7 +129,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                   {grouped.map((chat) => (
                     <div
                       key={chat._id}
-                      className={`group flex items-center justify-between rounded-xl border px-3 py-2 transition-all duration-200 ${
+                      className={`group flex items-center justify-between rounded-xl border px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-200 ${
                         currentChatId === chat._id
                           ? "border-[#DE0500]/40 bg-[#DE0500]/10"
                           : "border-transparent hover:border-white/10 hover:bg-white/5"
@@ -155,7 +155,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                                 }
                               }}
                               autoFocus
-                              className="w-full rounded-md border border-white/15 bg-[#16161A] px-2 py-1 text-[13px] font-medium text-white placeholder:text-white/40 focus:border-[#DE0500] focus:outline-none"
+                              className="w-full rounded-md border border-white/15 bg-[#16161A] px-2 py-1 text-xs sm:text-[13px] font-medium text-white placeholder:text-white/40 focus:border-[#DE0500] focus:outline-none"
                               placeholder="Rename chat"
                             />
                             {chat.lastMessageAt && (
@@ -176,7 +176,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                             onClick={() => onSelectChat(chat._id)}
                           >
                             <p
-                              className={`truncate text-[13px] font-medium ${
+                              className={`truncate text-xs sm:text-[13px] font-medium ${
                                 currentChatId === chat._id
                                   ? "text-white"
                                   : "text-white/85"
@@ -185,7 +185,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                               {chat.title || "Untitled chat"}
                             </p>
                             {chat.lastMessageAt && (
-                              <span className="text-[11px] text-white/40">
+                              <span className="text-[10px] sm:text-[11px] text-white/40">
                                 {new Date(
                                   chat.lastMessageAt
                                 ).toLocaleTimeString([], {
