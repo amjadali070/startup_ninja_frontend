@@ -6,17 +6,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { aiContentService } from "../../services/ai-chat/ai-content";
+import { chatbotService } from "../../services/ai-chat/chatbot";
 import type {
   Chat,
   ChatMessage as ChatMessageType,
 } from "../../types/ai-content";
 import ChatbotHistoryPanel from "./ChatHistoryPanel";
-import ChatbotDeleteChatModal from "./DeleteChatModal";
 import ChatbotHeader from "./ChatbotHeader";
 import ChatbotMessages from "./ChatbotMessages";
 import ChatbotQuickPrompts from "./ChatbotQuickPrompts";
 import ChatbotComposer from "./ChatbotComposer";
+import ChatbotDeleteChatModal from "./DeleteChatModal";
 
 const QUICK_PROMPTS = [
   "Write a story",
@@ -271,7 +271,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
 
   const loadChats = useCallback(async () => {
     try {
-      const response = await aiContentService.getUserChats();
+      const response = await chatbotService.getUserChats();
       if (response.success && response.data) {
         setChats(response.data);
       }
@@ -284,7 +284,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     setIsHistoryLoading(true);
     setError(null);
     try {
-      const response = await aiContentService.getChatHistory(selectedChatId);
+      const response = await chatbotService.getChatHistory(selectedChatId);
       if (response.success && response.data) {
         setChatId(selectedChatId);
         setMessages(response.data.messages ?? []);
@@ -335,7 +335,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     setIsGenerating(true);
 
     try {
-      const response = await aiContentService.generateChatMessage({
+      const response = await chatbotService.generateChatMessage({
         message: trimmed,
         chatId: chatId ?? undefined,
       });
@@ -432,7 +432,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     }
     setIsDeleting(true);
     try {
-      const response = await aiContentService.deleteChat(chatToDelete.id);
+      const response = await chatbotService.deleteChat(chatToDelete.id);
       if (response.success) {
         setChats((prev) => prev.filter((chat) => chat._id !== chatToDelete.id));
         if (chatId === chatToDelete.id) {
@@ -460,7 +460,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     }
 
     try {
-      const response = await aiContentService.updateChatTitle(targetChatId, {
+      const response = await chatbotService.updateChatTitle(targetChatId, {
         title: trimmedTitle,
       });
 
