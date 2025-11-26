@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
-import HeroSection from '../components/landing-page/HeroSection';
-import ChatFeatureSection from '../components/landing-page/ChatFeatureSection';
-import ImageWebFeatureSection from '../components/landing-page/ImageWebFeatureSection';
-import SocialMediaFeature from '../components/landing-page/SocialMediaFeature';
-import PricingSection from '../components/landing-page/PricingSection';
-import LatestNewsSection from '../components/landing-page/LatestNewsSection';
-import BusinessSection from '../components/landing-page/BusinessSection';
+import HeroSection from '../../components/landing-page/home-page/HeroSection';
+import ChatFeatureSection from '../../components/landing-page/home-page/ChatFeatureSection';
+import ImageWebFeatureSection from '../../components/landing-page/home-page/ImageWebFeatureSection';
+import SocialMediaFeature from '../../components/landing-page/home-page/SocialMediaFeature';
+import PricingSection from '../../components/landing-page/home-page/PricingSection';
+import LatestNewsSection from '../../components/landing-page/home-page/LatestNewsSection';
+import BusinessSection from '../../components/landing-page/home-page/BusinessSection';
 
 const HomePage: React.FC = () => {
   const chatBubbles = [
@@ -21,12 +21,10 @@ const HomePage: React.FC = () => {
       <section className="relative w-full h-screen flex flex-col items-center justify-center text-white overflow-hidden">
         <HeroSection />
       </section>
-      {/* Dashboard Banner Section */}
       <section
         ref={bannerRef}
         className="relative w-full min-h-[500px] md:min-h-[700px] flex items-center justify-center bg-gradient-to-b from-[#2a0a0a] via-[#1a0a0a] to-[#0a0a0a] overflow-hidden"
       >
-        {/* Glow Background */}
         <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
           <div
             className="absolute w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full opacity-40"

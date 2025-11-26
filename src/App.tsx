@@ -17,22 +17,12 @@ import {
 } from "./components/RouteGuards";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { Toaster } from "react-hot-toast";
-import HomePage from "./pages/HomePage.tsx";
+import HomePage from "./pages/landing-page/HomePage.tsx";
+import LandingPage from "./pages/landing-page/LandingPage.tsx";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
 import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
-import Products from "./pages/Products.tsx";
-import Solutions from "./pages/Solutions.tsx";
-import Developers from "./pages/Developers.tsx";
-import Resources from "./pages/Resources.tsx";
-import PricingPage from "./pages/PricingPage.tsx";
-import BookADemo from "./pages/BookADemo.tsx";
-import ContactUs from "./pages/ContactUs.tsx";
-import Documentation from "./pages/Documentation.tsx";
-import TermsCondition from "./pages/TermsCondition.tsx";
-import LatestNewsPage from "./pages/LatestNewsPage.tsx";
-import BusinessPage from "./pages/BusinessPage.tsx";
 
 function App() {
   return (
@@ -43,17 +33,7 @@ function App() {
           {/* Public Routes with Layout */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/solutions" element={<Solutions />} />
-            <Route path="/developers" element={<Developers />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/book-demo" element={<BookADemo />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/documentation" element={<Documentation />} />
-            <Route path="/terms" element={<TermsCondition />} />
-            <Route path="/latest-news" element={<LatestNewsPage />} />
-            <Route path="/business" element={<BusinessPage />} />
+            <Route path="/:page" element={<LandingPage />} />
           </Route>
 
           {/* Auth Routes (No Layout) */}
