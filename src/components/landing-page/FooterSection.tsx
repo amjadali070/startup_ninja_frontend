@@ -14,9 +14,9 @@ const FooterSection = () => {
           container.style.setProperty("--mouse-y", `${y}%`);
         }}
       >
-        <div className="footer-logo-container max-w-full">
+        <div className="footer-logo-container w-full max-w-[300px] md:max-w-[700px] lg:max-w-[1000px]">
           <svg
-            className="footer-logo-base w-full max-w-[300px] md:max-w-[600px] lg:max-w-[800px] h-auto"
+            className="footer-logo-base w-full h-auto"
             viewBox="0 0 1087 313"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
