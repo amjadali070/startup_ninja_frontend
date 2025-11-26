@@ -2,58 +2,93 @@ import React from 'react';
 
 const TermsMain: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black text-white pt-32 px-4 md:px-8 lg:px-16">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold mb-12 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
-          Terms & Conditions
-        </h1>
-        
-        <div className="space-y-12 text-white/80">
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>
-            <p className="leading-relaxed">
-              Welcome to Startup Ninja. By accessing our website and using our services, you agree to be bound by these Terms and Conditions. Please read them carefully.
-            </p>
-          </section>
-          
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">2. Use of Services</h2>
-            <p className="leading-relaxed mb-4">
-              You agree to use our services only for lawful purposes and in accordance with these Terms. You are prohibited from violating or attempting to violate the security of the Service.
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>You must be at least 18 years old to use this service.</li>
-              <li>You are responsible for maintaining the confidentiality of your account.</li>
-              <li>You agree not to reproduce, duplicate, copy, sell, resell or exploit any portion of the Service.</li>
-            </ul>
-          </section>
-          
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">3. Intellectual Property</h2>
-            <p className="leading-relaxed">
-              The Service and its original content, features, and functionality are and will remain the exclusive property of Startup Ninja and its licensors.
-            </p>
-          </section>
-          
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">4. Termination</h2>
-            <p className="leading-relaxed">
-              We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
-            </p>
-          </section>
-          
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">5. Changes to Terms</h2>
-            <p className="leading-relaxed">
-              We reserve the right, at our sole discretion, to modify or replace these Terms at any time. What constitutes a material change will be determined at our sole discretion.
-            </p>
-          </section>
-          
-          <div className="pt-8 border-t border-white/10 text-sm text-white/50">
-            Last updated: November 26, 2025
+    <div className="min-h-screen bg-black text-white">
+      <section className="relative pt-32 pb-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            Terms & <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Conditions</span>
+          </h1>
+          <p className="text-gray-400 mb-12">Last updated: November 26, 2024</p>
+
+          <div className="space-y-8 text-gray-300">
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">1. Agreement to Terms</h2>
+              <p className="leading-relaxed">
+                By accessing and using Startup Ninja, you agree to be bound by these Terms and Conditions. 
+                If you disagree with any part of these terms, you may not access the service.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">2. Use License</h2>
+              <p className="leading-relaxed mb-4">
+                Permission is granted to temporarily use Startup Ninja for personal or commercial purposes. This includes:
+              </p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Access to AI Chat, Image Generation, Web Builder, and Social Media Pro</li>
+                <li>Creation and publication of content generated through our platform</li>
+                <li>Commercial use of generated images and content</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">3. Subscription and Payment</h2>
+              <p className="leading-relaxed mb-4">
+                Startup Ninja offers multiple subscription tiers. By subscribing, you agree to:
+              </p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li>Pay all fees associated with your chosen plan</li>
+                <li>Automatic renewal unless cancelled before the billing cycle</li>
+                <li>No refunds for partial months of service</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">4. Cancellation Policy</h2>
+              <p className="leading-relaxed">
+                You may cancel your subscription at any time from your Account Settings. 
+                Cancellation takes effect at the end of the current billing period. 
+                Your content remains accessible but inactive until reactivation.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">5. Intellectual Property</h2>
+              <p className="leading-relaxed">
+                All content you create using Startup Ninja (text, images, websites) belongs to you. 
+                You retain full ownership and commercial rights to your generated content.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">6. Privacy</h2>
+              <p className="leading-relaxed">
+                Your privacy is important to us. We collect and use your data as described in our Privacy Policy. 
+                We do not sell your personal information to third parties.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">7. Limitation of Liability</h2>
+              <p className="leading-relaxed">
+                Startup Ninja shall not be liable for any indirect, incidental, special, consequential, 
+                or punitive damages resulting from your use or inability to use the service.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mb-4 text-white">8. Contact Information</h2>
+              <p className="leading-relaxed">
+                For questions about these Terms, please contact us at:
+                <br />
+                <a href="mailto:legal@startupninja.com" className="text-red-500 hover:text-red-400">
+                  legal@startupninja.com
+                </a>
+              </p>
+            </section>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

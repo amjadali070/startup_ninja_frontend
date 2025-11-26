@@ -1,58 +1,156 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { FaUsers, FaChartLine, FaRocket, FaCheck } from 'react-icons/fa';
 
 const BusinessMain: React.FC = () => {
+  const agencyFeatures = [
+    'Team Management (up to 10 users)',
+    'White-label options',
+    'Advanced analytics dashboard',
+    'Priority phone support',
+    'Dedicated account manager',
+    'Custom integrations',
+    'SLA guarantee',
+    'Bulk content generation'
+  ];
+
+  const useCases = [
+    {
+      icon: <FaUsers className="w-10 h-10" />,
+      title: 'Agencies',
+      description: 'Manage multiple client projects from one dashboard. Scale your operations without scaling your team.'
+    },
+    {
+      icon: <FaChartLine className="w-10 h-10" />,
+      title: 'Freelancers',
+      description: 'Deliver more value to clients with professional tools. Increase your output and profit margins.'
+    },
+    {
+      icon: <FaRocket className="w-10 h-10" />,
+      title: 'Growing Startups',
+      description: 'Empower your team with collaborative tools. Build faster as you scale your business.'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-black text-white pt-32 px-4 md:px-8 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center gap-16 mb-24">
-          <div className="flex-1">
-            <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
-              Startup Ninja for <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ED351C] to-[#ff7c6a]">Business</span>
-            </h1>
-            <p className="text-xl text-white/70 mb-8">
-              Scale your content production with enterprise-grade AI tools designed for teams. Security, collaboration, and control built-in.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <button className="px-8 py-4 rounded-full bg-[#ED351C] text-white font-bold hover:bg-[#ff4d33] transition-colors shadow-[0_0_20px_rgba(237,53,28,0.3)]">
-                Contact Sales
-              </button>
-              <button className="px-8 py-4 rounded-full bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">
-                View Pricing
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 relative">
-            <div className="absolute inset-0 bg-[#ED351C] blur-[100px] opacity-20 rounded-full" />
-            <div className="relative z-10 bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 aspect-square flex items-center justify-center">
-              <span className="text-white/20 text-2xl">Enterprise Dashboard Mockup</span>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-black text-white">
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
-          {[
-            { title: 'Enterprise Security', desc: 'SSO, audit logs, and role-based access control.' },
-            { title: 'Team Collaboration', desc: 'Shared workspaces, asset libraries, and approval workflows.' },
-            { title: 'Dedicated Support', desc: '24/7 priority support and dedicated success manager.' }
-          ].map((item) => (
-            <div key={item.title} className="p-8 rounded-3xl bg-[#1a1a1a] border border-white/10">
-              <h3 className="text-2xl font-bold mb-4 text-white">{item.title}</h3>
-              <p className="text-white/70">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-        
-        <div className="text-center bg-gradient-to-b from-[#1a1a1a] to-black border border-white/10 rounded-3xl p-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to scale?</h2>
-          <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
-            Join thousands of forward-thinking companies using Startup Ninja to revolutionize their workflows.
+        <div className="relative max-w-7xl mx-auto text-center">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            Scale Your <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Agency</span> with AI
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            Built for teams and agencies who need to deliver more, faster. Manage clients, collaborate with your team, and scale your operations.
           </p>
-          <button className="px-10 py-5 rounded-full bg-white text-black font-bold hover:bg-gray-200 transition-colors">
-            Get Started Now
-          </button>
+          <Link 
+            to="/pricing" 
+            className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+          >
+            VIEW AGENCY PRICING
+          </Link>
         </div>
-      </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Perfect For <span className="text-red-500">Growing Teams</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {useCases.map((useCase, index) => (
+              <div key={index} className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center hover:border-red-500/50 transition-all duration-300">
+                <div className="inline-block p-4 bg-red-600/20 rounded-full mb-4 text-red-500">
+                  {useCase.icon}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{useCase.title}</h3>
+                <p className="text-gray-400">{useCase.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Agency Features */}
+      <section className="py-20 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Agency <span className="text-red-500">Features</span>
+            </h2>
+            <p className="text-xl text-gray-300">
+              Everything you need to manage clients and scale your business
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {agencyFeatures.map((feature, index) => (
+              <div key={index} className="flex items-center bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-red-500/50 transition-colors">
+                <FaCheck className="w-6 h-6 text-green-500 mr-4 flex-shrink-0" />
+                <span className="text-lg">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Case Study Placeholder */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl p-12">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-6">Success Stories</h2>
+              <p className="text-xl text-gray-300">
+                See how agencies are using Startup Ninja to scale their operations
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-5xl font-bold text-red-500 mb-2">10x</div>
+                <p className="text-gray-400">Faster content creation</p>
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-bold text-red-500 mb-2">5+</div>
+                <p className="text-gray-400">More clients per team member</p>
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-bold text-red-500 mb-2">$50k+</div>
+                <p className="text-gray-400">Annual savings on tools</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-12">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Scale Your Agency?
+          </h2>
+          <p className="text-xl mb-8 opacity-90">
+            Book a demo to see how Startup Ninja can transform your operations.
+          </p>
+          <Link 
+            to="/book-demo" 
+            className="inline-block px-8 py-4 bg-black rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300 mr-4"
+          >
+            BOOK A DEMO
+          </Link>
+          <Link 
+            to="/pricing" 
+            className="inline-block px-8 py-4 border-2 border-white rounded-lg font-bold text-lg hover:bg-white hover:text-red-600 transition-all duration-300"
+          >
+            VIEW PRICING
+          </Link>
+        </div>
+      </section>
     </div>
   );
 };
