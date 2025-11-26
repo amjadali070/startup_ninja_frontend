@@ -67,14 +67,15 @@ const DevelopersMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Build <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Without Limits</span>
+            Build <span style={{color: '#D23621'}}>Without Limits</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Professional websites in minutes, not months. No coding required, no technical barriers—just your brilliant idea brought to life.
           </p>
           <Link 
             to="/register" 
-            className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+            style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
           >
             START BUILDING
           </Link>

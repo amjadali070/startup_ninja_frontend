@@ -6,7 +6,7 @@ const TermsMain: React.FC = () => {
       <section className="relative pt-32 pb-20 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Terms & <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Conditions</span>
+            Terms & <span style={{color: '#D23621'}}>Conditions</span>
           </h1>
           <p className="text-gray-400 mb-12">Last updated: November 26, 2024</p>
 

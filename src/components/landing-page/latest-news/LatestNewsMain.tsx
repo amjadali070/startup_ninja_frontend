@@ -61,7 +61,7 @@ const LatestNewsMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Latest from the <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Dojo</span>
+            Latest from the <span style={{color: '#D23621'}}>Dojo</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             News, tutorials, and insights to help you build faster and smarter.

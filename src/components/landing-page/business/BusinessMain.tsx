@@ -39,14 +39,15 @@ const BusinessMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Scale Your <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Agency</span> with AI
+            Scale Your <span style={{color: '#D23621'}}>Agency</span> with AI
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Built for teams and agencies who need to deliver more, faster. Manage clients, collaborate with your team, and scale your operations.
           </p>
           <Link 
             to="/pricing" 
-            className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+            style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
           >
             VIEW AGENCY PRICING
           </Link>
@@ -58,7 +59,7 @@ const BusinessMain: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Perfect For <span className="text-red-500">Growing Teams</span>
+              Perfect For <span style={{color: '#D23621'}}>Growing Teams</span>
             </h2>
           </div>
 
@@ -81,7 +82,7 @@ const BusinessMain: React.FC = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Agency <span className="text-red-500">Features</span>
+              Agency <span style={{color: '#D23621'}}>Features</span>
             </h2>
             <p className="text-xl text-gray-300">
               Everything you need to manage clients and scale your business

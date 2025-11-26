@@ -96,7 +96,7 @@ const PricingMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Plans Built for <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Every Stage</span>
+            Plans Built for <span style={{color: '#D23621'}}>Every Stage</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Start free, scale as you grow. No hidden fees, cancel anytime.
@@ -198,7 +198,7 @@ const PricingMain: React.FC = () => {
       <section className="py-20 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            The Math is <span className="text-red-500">Simple</span>
+            The Math is <span style={{color: '#D23621'}}>Simple</span>
           </h2>
           <p className="text-xl text-gray-300 mb-12">
             Replace $100-300/month in subscriptions with one affordable price
@@ -272,7 +272,7 @@ const PricingMain: React.FC = () => {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">
-            Frequently Asked <span className="text-red-500">Questions</span>
+            Frequently Asked <span style={{color: '#D23621'}}>Questions</span>
           </h2>
 
           <div className="space-y-6">

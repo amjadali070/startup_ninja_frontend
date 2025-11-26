@@ -21,7 +21,7 @@ const ContactMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            We're <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">Here to Help</span>
+            We're <span style={{color: '#D23621'}}>Here to Help</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Have a question? Need support? Our team responds within 24 hours.
@@ -92,7 +92,8 @@ const ContactMain: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+                className="w-full py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+                style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
               >
                 SEND MESSAGE
               </button>

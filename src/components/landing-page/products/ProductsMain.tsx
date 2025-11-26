@@ -65,7 +65,7 @@ const ProductsMain: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
         
         <div className="relative max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 text-transparent bg-clip-text">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6" style={{color: '#D23621'}}>
             Your Complete AI Co-Founder Toolkit
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
@@ -73,7 +73,8 @@ const ProductsMain: React.FC = () => {
           </p>
           <Link 
             to="/pricing" 
-            className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+            style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
           >
             START FOR FREE
           </Link>
@@ -87,7 +88,10 @@ const ProductsMain: React.FC = () => {
             {products.map((product, index) => (
               <div 
                 key={index}
-                className="group relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl p-8 hover:border-red-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.2)]"
+                className="group relative bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl p-8 transition-all duration-300 hover:shadow-[0_0_30px_rgba(220,38,38,0.2)]"
+                style={{'--hover-bg': 'linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)' } as React.CSSProperties}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = ''}
               >
                 {/* Icon */}
                 <div className={`inline-block p-4 rounded-xl bg-gradient-to-r ${product.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
@@ -121,7 +125,7 @@ const ProductsMain: React.FC = () => {
       <section className="py-20 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            One Platform, <span className="text-red-500">Infinite Possibilities</span>
+            One Platform, <span style={{color: '#D23621'}}>Infinite Possibilities</span>
           </h2>
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
             Stop juggling a dozen subscriptions. Our tools work together seamlessly—generate content in Ninja Chat, create visuals in Imaginative Ninja, build your site, and schedule it all on social media.
@@ -132,13 +136,13 @@ const ProductsMain: React.FC = () => {
             {['Research & Plan', 'Design & Create', 'Build & Launch', 'Market & Grow'].map((step, index) => (
               <div key={index} className="relative">
                 <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-red-500/50 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center text-xl font-bold mb-4 mx-auto">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 mx-auto" style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}>
                     {index + 1}
                   </div>
                   <p className="font-semibold">{step}</p>
                 </div>
                 {index < 3 && (
-                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-red-600 to-orange-600"></div>
+                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5" style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}></div>
                 )}
               </div>
             ))}
@@ -155,7 +159,7 @@ const ProductsMain: React.FC = () => {
 
       {/* CTA Section */}
       <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-12">
+        <div className="max-w-4xl mx-auto text-center rounded-2xl p-12" style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}>
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Ready to Build Your Dream?
           </h2>

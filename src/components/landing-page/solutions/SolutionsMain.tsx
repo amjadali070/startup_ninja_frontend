@@ -70,7 +70,7 @@ const SolutionsMain: React.FC = () => {
         
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Stop Juggling <span className="bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">A Dozen Tools</span>
+            Stop Juggling <span style={{color: '#D23621'}}>A Dozen Tools</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
             The fragmented startup stack is killing your momentum. We consolidate everything you need into one intelligent platform.
@@ -83,7 +83,7 @@ const SolutionsMain: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              The <span className="text-red-500">Fragmented Stack</span> Problem
+              The <span style={{color: '#D23621'}}>Fragmented Stack</span> Problem
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               When you have a brilliant idea, you're immediately forced to become four experts at once: a strategist, designer, developer, and marketer.
@@ -115,7 +115,7 @@ const SolutionsMain: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Our <span className="text-red-500">All-in-One</span> Solution
+              Our <span style={{color: '#D23621'}}>All-in-One</span> Solution
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Startup Ninja eliminates the fragmented stack by consolidating all four critical roles into one intelligent, integrated platform.
@@ -142,7 +142,7 @@ const SolutionsMain: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Built For <span className="text-red-500">Every Founder</span>
+              Built For <span style={{color: '#D23621'}}>Every Founder</span>
             </h2>
           </div>
 
@@ -192,7 +192,8 @@ const SolutionsMain: React.FC = () => {
             <div className="text-center">
               <Link 
                 to="/pricing" 
-                className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+                className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+              style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
               >
                 SEE PRICING
               </Link>
@@ -212,7 +213,8 @@ const SolutionsMain: React.FC = () => {
           </p>
           <Link 
             to="/register" 
-            className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+              style={{background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)'}}
           >
             START FOR FREE
           </Link>
