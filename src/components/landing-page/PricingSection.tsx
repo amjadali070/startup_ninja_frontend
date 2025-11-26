@@ -1,4 +1,5 @@
 import { FaCheckCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 const plans = [
     {
         title: "Basic",
@@ -83,9 +84,9 @@ export default function PricingSection() {
                         </div>
                         <p className="text-gray-300 mb-6">{plan.description}</p>
 
-                        <button className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition">
+                        <Link to="/pricing" className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition">
                             OUR PROCESS
-                        </button>
+                        </Link>
 
                         <div className="border-t border-red-900/50 pt-6">
                             <p className="text-gray-300 mb-4 font-medium">

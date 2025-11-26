@@ -17,7 +17,7 @@ const HeroSection: React.FC = () => (
                 <Link to="/register" className="px-6 py-4 rounded-lg bg-[#d62424] text-white font-semibold hover:bg-[#c81c1c] transition text-center">
                     START FOR FREE
                 </Link>
-                <Link to="#demo" className="px-6 py-4 rounded-lg border border-white text-white font-semibold hover:bg-white/10 transition text-center">
+                <Link to="/book-demo" className="px-6 py-4 rounded-lg border border-white text-white font-semibold hover:bg-white/10 transition text-center">
                     BOOK A DEMO
                 </Link>
             </div>

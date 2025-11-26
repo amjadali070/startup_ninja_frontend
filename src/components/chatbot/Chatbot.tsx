@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { chatbotService } from "../../services/ai-chat/chatbot";
+import { chatbotService } from "../../services/chatbot/chatbot";
 import type {
   Chat,
   ChatMessage as ChatMessageType,

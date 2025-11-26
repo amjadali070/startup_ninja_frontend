@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
+import PublicLayout from "./layouts/PublicLayout";
 import Login from "./pages/Auth/Login.tsx";
 import Register from "./pages/Auth/Register.tsx";
 import Dashboard from "./pages/User/Dashboard.tsx";
@@ -20,21 +22,41 @@ import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
 import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
+import Products from "./pages/Products.tsx";
+import Solutions from "./pages/Solutions.tsx";
+import Developers from "./pages/Developers.tsx";
+import Resources from "./pages/Resources.tsx";
+import PricingPage from "./pages/PricingPage.tsx";
+import BookADemo from "./pages/BookADemo.tsx";
+import ContactUs from "./pages/ContactUs.tsx";
+import Documentation from "./pages/Documentation.tsx";
+import TermsCondition from "./pages/TermsCondition.tsx";
+import LatestNewsPage from "./pages/LatestNewsPage.tsx";
+import BusinessPage from "./pages/BusinessPage.tsx";
 
 function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-[#0D0D0D]">
+        <ScrollToTop />
         <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <HomePage />
-              </PublicRoute>
-            }
-          />
+          {/* Public Routes with Layout */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/solutions" element={<Solutions />} />
+            <Route path="/developers" element={<Developers />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/book-demo" element={<BookADemo />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/documentation" element={<Documentation />} />
+            <Route path="/terms" element={<TermsCondition />} />
+            <Route path="/latest-news" element={<LatestNewsPage />} />
+            <Route path="/business" element={<BusinessPage />} />
+          </Route>
+
+          {/* Auth Routes (No Layout) */}
           <Route
             path="/login"
             element={

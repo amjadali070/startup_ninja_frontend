@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function BusinessSection() {
   const cards = [
     {
@@ -24,9 +26,9 @@ export default function BusinessSection() {
         <h2 className="text-2xl md:text-4xl font-semibold">
           Startup Ninja for business
         </h2>
-        <a href="#" className="text-xs md:text-sm text-gray-300 hover:text-red-500 transition-colors">
+        <Link to="/business" className="text-xs md:text-sm text-gray-300 hover:text-red-500 transition-colors">
           View all
-        </a>
+        </Link>
       </div>
       {/* Card Row */}
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">

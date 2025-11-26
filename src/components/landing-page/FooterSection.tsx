@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const FooterSection = () => {
   return (
     <footer className="text-gray-500 pb-10 pt-20 text-center px-4 md:px-20">
@@ -92,24 +94,24 @@ const FooterSection = () => {
         </div>
       </div>
       <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-8">
-        <a href="#" className="hover:text-white">
+        <Link to="/login" className="hover:text-white">
           Sign In
-        </a>
-        <a href="#" className="hover:text-white">
+        </Link>
+        <Link to="/book-demo" className="hover:text-white">
           Book a Demo
-        </a>
-        <a href="#" className="hover:text-white">
+        </Link>
+        <Link to="/contact" className="hover:text-white">
           Contact Us
-        </a>
-        <a href="#" className="hover:text-white">
+        </Link>
+        <Link to="/documentation" className="hover:text-white">
           Documentation
-        </a>
-        <a href="#" className="hover:text-white">
+        </Link>
+        <Link to="/pricing" className="hover:text-white">
           Pricing
-        </a>
-        <a href="#" className="hover:text-white">
+        </Link>
+        <Link to="/terms" className="hover:text-white">
           Terms & Condition
-        </a>
+        </Link>
       </div>
       <p className="mt-2 text-md p-2">
         Startup Ninja &copy; 2025 All rights reserved

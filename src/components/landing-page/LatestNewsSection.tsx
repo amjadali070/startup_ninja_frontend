@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const newsItems = [
   {
     title: "Ninja Assistant Gets Smarter with AI-Powered Workflows",
@@ -43,12 +45,12 @@ export default function LatestNewsSection() {
       {/* Header */}
       <div className="w-full max-w-6xl flex justify-between items-center mb-10">
         <h2 className="text-3xl md:text-4xl font-semibold">Latest news</h2>
-        <a
-          href="#"
+        <Link
+          to="/latest-news"
           className="text-sm text-gray-300 hover:text-red-500 transition-colors"
         >
           View all
-        </a>
+        </Link>
       </div>
 
       {/* News Grid */}

@@ -1,9 +1,7 @@
 import React, { useRef } from 'react';
-import FrontLayout from '../layouts/FrontLayout';
 import HeroSection from '../components/landing-page/HeroSection';
 import ChatFeatureSection from '../components/landing-page/ChatFeatureSection';
 import ImageWebFeatureSection from '../components/landing-page/ImageWebFeatureSection';
-import Navbar from '../components/landing-page/Navbar';
 import SocialMediaFeature from '../components/landing-page/SocialMediaFeature';
 import PricingSection from '../components/landing-page/PricingSection';
 import LatestNewsSection from '../components/landing-page/LatestNewsSection';
@@ -19,9 +17,8 @@ const HomePage: React.FC = () => {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <FrontLayout>
+    <>
       <section className="relative w-full h-screen flex flex-col items-center justify-center text-white overflow-hidden">
-        <Navbar />
         <HeroSection />
       </section>
       {/* Dashboard Banner Section */}
@@ -101,7 +98,7 @@ const HomePage: React.FC = () => {
       <PricingSection />
       <LatestNewsSection />
       <BusinessSection />
-    </FrontLayout>
+    </>
   );
 };
 export default HomePage;
