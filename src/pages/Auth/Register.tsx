@@ -294,7 +294,7 @@ const Register: React.FC = () => {
         });
         setShowEmailVerification(true);
       } else if (response.success && response.token && response.user) {
-        login(response.user, response.token);
+        login(response.user, response.token, response.refreshToken);
         navigate('/dashboard');
       } else if (response.success) {
         navigate('/login', {
@@ -321,7 +321,7 @@ const Register: React.FC = () => {
     try {
       const response = await authService.verifyEmail(verificationData.userId, otp);
       if (response.success && response.token && response.user) {
-        login(response.user, response.token);
+        login(response.user, response.token, response.refreshToken);
         setShowEmailVerification(false);
         toast.success('Email verified successfully! Welcome to Startup Ninja!');
         navigate('/dashboard');

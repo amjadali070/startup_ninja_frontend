@@ -18,6 +18,7 @@ export interface AuthResponse {
   message: string;
   user?: User;
   token?: string;
+  refreshToken?: string;
   isNewUser?: boolean;
   requiresEmailVerification?: boolean;
   userId?: string;

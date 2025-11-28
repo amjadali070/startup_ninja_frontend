@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (userData: User, token: string) => void;
+  login: (userData: User, token: string, refreshToken?: string) => void;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -29,9 +29,12 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
     setLoading(false);
   }, []);
 
-  const login = useCallback((userData: User, token: string) => {
+  const login = useCallback((userData: User, token: string, refreshToken?: string) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
     setToken(token);
     setUser(userData);
   }, []);
@@ -45,6 +48,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
       console.error('AuthProvider logout failed:', error);
     } finally {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       setToken(null);
       setUser(null);

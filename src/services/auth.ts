@@ -9,6 +9,9 @@ export const authService = {
       // Store token and user data if login successful
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }
@@ -32,6 +35,9 @@ export const authService = {
       // Store token and user data if registration successful
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }
@@ -54,6 +60,9 @@ export const authService = {
 
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }
@@ -95,6 +104,9 @@ export const authService = {
 
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }
@@ -120,6 +132,9 @@ export const authService = {
       // Store token and user data if verification successful
       if (response.success && response.token) {
         apiClient.setAuthToken(response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
         }

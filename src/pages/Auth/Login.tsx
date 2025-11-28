@@ -81,7 +81,7 @@ const Login: React.FC = () => {
           setError("");
         } else if (response.success && response.token) {
           setError("");
-          login(response.user, response.token); // update context
+          login(response.user, response.token, response.refreshToken); // update context
           if (response?.user?.role == "admin") {
             navigate("/admin-dashboard");
           } else {
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
       console.log("📧 Verification Response:", response);
 
       if (response.success && response.token && response.user) {
-        login(response.user, response.token);
+        login(response.user, response.token, response.refreshToken);
         setShowEmailVerification(false);
         // Show success toast
         toast.success("Email verified successfully! Welcome to Startup Ninja!");
@@ -180,7 +180,7 @@ const Login: React.FC = () => {
   const handleSocialAuthSuccess = (response: AuthResponse) => {
     setError("");
     if (response.token && response.user) {
-      login(response.user, response.token);
+      login(response.user, response.token, response.refreshToken);
       navigate("/dashboard");
     }
   };
