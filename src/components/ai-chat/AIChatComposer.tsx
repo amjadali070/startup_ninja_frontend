@@ -1,5 +1,5 @@
 import type { ChangeEvent, FC, KeyboardEvent } from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { GiNinjaStar } from "react-icons/gi";
 import { FaPlus } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
@@ -28,6 +28,18 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
   className,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus input when generation finishes
+  useEffect(() => {
+    if (!isGenerating && !isSubmitting) {
+      // Use a small timeout to ensure state updates have propagated and DOM is ready
+      const timeoutId = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 10);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isGenerating, isSubmitting]);
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     onPromptChange(event.target.value);
@@ -70,6 +82,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
     >
       <div className="flex h-full flex-col">
         <textarea
+          ref={textareaRef}
           value={prompt}
           onChange={handleChange}
           onKeyDown={handleKeyDownInternal}

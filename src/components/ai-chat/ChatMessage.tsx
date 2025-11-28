@@ -172,12 +172,23 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
           )}
         </div>
         {message.timestamp && (
-          <span className="mt-1 text-xs text-white/40 px-1">
-            {new Date(message.timestamp).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <div className="mt-1 flex items-center gap-2 px-1">
+            <span className="text-xs text-white/40">
+              {new Date(message.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+            {message.source && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                message.source === 'dataset' 
+                  ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                  : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+              }`}>
+                {message.source === 'dataset' ? 'Cached' : 'AI'}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

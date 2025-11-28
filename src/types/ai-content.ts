@@ -2,6 +2,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date | string;
+  source?: 'dataset' | 'openai';
 }
 
 export interface Chat {
