@@ -39,17 +39,20 @@ const DocumentationMain: React.FC = () => {
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
             <span style={{color: '#D23621'}}>Documentation</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style={{color: '#CCCCCC'}}>
             Everything you need to master Startup Ninja
           </p>
 
           <div className="max-w-2xl mx-auto">
             <div className="relative">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2" style={{color: '#999'}} />
               <input
                 type="text"
                 placeholder="Search documentation..."
-                className="w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-800 rounded-lg focus:border-red-500 focus:outline-none transition-colors"
+                className="w-full pl-12 pr-4 py-4 bg-black rounded-lg focus:outline-none transition-colors border"
+                style={{border: '1px solid #8B0000'}}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#D23621'}
+                onBlur={(e) => e.currentTarget.style.borderColor = ''}
               />
             </div>
           </div>
@@ -60,15 +63,28 @@ const DocumentationMain: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {sections.map((section, index) => (
-              <div key={index} className="bg-gray-900 border border-gray-800 rounded-2xl p-8 hover:border-red-500/50 transition-all duration-300">
-                <div className="text-red-500 mb-4">{section.icon}</div>
+              <div 
+                key={index} 
+                className="rounded-lg p-8 border transition-all duration-300"
+                style={{
+                  background: 'linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)',
+                  border: '1px solid #8B0000'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)';
+                }}
+              >
+                <div className="mb-4" style={{color: '#D23621'}}>{section.icon}</div>
                 <h3 className="text-2xl font-bold mb-4">{section.title}</h3>
-                <p className="text-gray-400 mb-6">{section.description}</p>
+                <p className="mb-6" style={{color: '#CCCCCC'}}>{section.description}</p>
                 
                 <ul className="space-y-3">
                   {section.articles.map((article, idx) => (
                     <li key={idx}>
-                      <a href="#" className="text-gray-300 hover:text-red-500 transition-colors flex items-center">
+                      <a href="#" className="transition-colors flex items-center" style={{color: '#CCCCCC'}} onMouseEnter={(e) => e.currentTarget.style.color = '#D23621'} onMouseLeave={(e) => e.currentTarget.style.color = '#CCCCCC'}>
                         <span className="mr-2">→</span>
                         {article}
                       </a>
@@ -84,7 +100,7 @@ const DocumentationMain: React.FC = () => {
       <section className="py-20 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Need More Help?</h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl mb-8" style={{color: '#CCCCCC'}}>
             Can't find what you're looking for? Our support team is here to help.
           </p>
           <Link 

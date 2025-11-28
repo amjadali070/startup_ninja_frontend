@@ -1,87 +1,132 @@
-import React from 'react';
+import React from "react";
 
 const LatestNewsMain: React.FC = () => {
   const featuredPost = {
-    title: 'Introducing Startup Ninja: Your AI Co-Founder',
-    excerpt: 'Today we\'re launching Startup Ninja, the all-in-one platform that consolidates your entire startup stack into one intelligent ecosystem.',
-    date: 'November 26, 2024',
-    category: 'Product Launch',
-    image: '/images/placeholder-news.jpg'
+    title: "Introducing Startup Ninja: Your AI Co-Founder",
+    excerpt:
+      "Today we're launching Startup Ninja, the all-in-one platform that consolidates your entire startup stack into one intelligent ecosystem.",
+    date: "November 26, 2024",
+    category: "Product Launch",
+    image: "/images/placeholder-news.jpg",
   };
 
   const recentPosts = [
     {
-      title: '10 Ways AI Can Accelerate Your Startup',
-      excerpt: 'Discover how artificial intelligence is transforming the way founders build and scale their businesses.',
-      date: 'November 20, 2024',
-      category: 'Tutorials',
-      readTime: '5 min read'
+      title: "10 Ways AI Can Accelerate Your Startup",
+      excerpt:
+        "Discover how artificial intelligence is transforming the way founders build and scale their businesses.",
+      date: "November 20, 2024",
+      category: "Tutorials",
+      readTime: "5 min read",
     },
     {
-      title: 'From Idea to Launch in 7 Days',
-      excerpt: 'How one founder used Startup Ninja to go from concept to live website in just one week.',
-      date: 'November 15, 2024',
-      category: 'Success Stories',
-      readTime: '8 min read'
+      title: "From Idea to Launch in 7 Days",
+      excerpt:
+        "How one founder used Startup Ninja to go from concept to live website in just one week.",
+      date: "November 15, 2024",
+      category: "Success Stories",
+      readTime: "8 min read",
     },
     {
-      title: 'The Future of No-Code Development',
-      excerpt: 'Why no-code tools are democratizing entrepreneurship and what it means for the future.',
-      date: 'November 10, 2024',
-      category: 'Industry Insights',
-      readTime: '6 min read'
+      title: "The Future of No-Code Development",
+      excerpt:
+        "Why no-code tools are democratizing entrepreneurship and what it means for the future.",
+      date: "November 10, 2024",
+      category: "Industry Insights",
+      readTime: "6 min read",
     },
     {
-      title: 'Social Media Automation Best Practices',
-      excerpt: 'Learn how to automate your social media without losing authenticity and engagement.',
-      date: 'November 5, 2024',
-      category: 'Tutorials',
-      readTime: '7 min read'
+      title: "Social Media Automation Best Practices",
+      excerpt:
+        "Learn how to automate your social media without losing authenticity and engagement.",
+      date: "November 5, 2024",
+      category: "Tutorials",
+      readTime: "7 min read",
     },
     {
-      title: 'SEO Tips for New Websites',
-      excerpt: 'Essential SEO strategies to help your new website get discovered on Google faster.',
-      date: 'November 1, 2024',
-      category: 'Tutorials',
-      readTime: '10 min read'
+      title: "SEO Tips for New Websites",
+      excerpt:
+        "Essential SEO strategies to help your new website get discovered on Google faster.",
+      date: "November 1, 2024",
+      category: "Tutorials",
+      readTime: "10 min read",
     },
     {
-      title: 'Building a Brand Identity with AI',
-      excerpt: 'How to use AI image generation to create a cohesive and professional brand identity.',
-      date: 'October 28, 2024',
-      category: 'Tutorials',
-      readTime: '9 min read'
-    }
+      title: "Building a Brand Identity with AI",
+      excerpt:
+        "How to use AI image generation to create a cohesive and professional brand identity.",
+      date: "October 28, 2024",
+      category: "Tutorials",
+      readTime: "9 min read",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
-        
+
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Latest from the <span style={{color: '#D23621'}}>Dojo</span>
+            Latest from the <span style={{ color: "#D23621" }}>Dojo</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p
+            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
+            style={{ color: "#CCCCCC" }}
+          >
             News, tutorials, and insights to help you build faster and smarter.
           </p>
         </div>
       </section>
 
       {/* Featured Post */}
-      <section className="py-20 px-4">
+      <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-2xl overflow-hidden hover:border-red-500/50 transition-all duration-300 cursor-pointer">
+          <div
+            className="rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer"
+            style={{
+              background:
+                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
+              border: "1px solid transparent",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
+            }}
+          >
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-gray-800 h-64 md:h-auto flex items-center justify-center">
-                <span className="text-gray-600 text-4xl">📰</span>
+              <div
+                className="h-64 md:h-auto flex items-center justify-center"
+                style={{
+                  background:
+                    "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
+                }}
+              >
+                <span className="text-6xl">📰</span>
               </div>
               <div className="p-8 md:p-12 flex flex-col justify-center">
-                <div className="text-red-500 text-sm font-semibold mb-2">{featuredPost.category}</div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">{featuredPost.title}</h2>
-                <p className="text-gray-400 mb-6 leading-relaxed">{featuredPost.excerpt}</p>
-                <div className="text-sm text-gray-500">{featuredPost.date}</div>
+                <div
+                  className="text-sm font-semibold mb-2"
+                  style={{ color: "#D23621" }}
+                >
+                  {featuredPost.category}
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                  {featuredPost.title}
+                </h2>
+                <p
+                  className="mb-6 leading-relaxed"
+                  style={{ color: "#CCCCCC" }}
+                >
+                  {featuredPost.excerpt}
+                </p>
+                <div className="text-sm" style={{ color: "#999" }}>
+                  {featuredPost.date}
+                </div>
               </div>
             </div>
           </div>
@@ -89,17 +134,46 @@ const LatestNewsMain: React.FC = () => {
       </section>
 
       {/* Recent Posts */}
-      <section className="py-20 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
+      <section className="py-16 px-4 bg-gradient-to-b from-black via-red-900/10 to-black">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold mb-12">Recent Posts</h2>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recentPosts.map((post, index) => (
-              <div key={index} className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-red-500/50 transition-all duration-300 cursor-pointer group">
-                <div className="text-red-500 text-sm font-semibold mb-2">{post.category}</div>
-                <h3 className="text-xl font-bold mb-3 group-hover:text-red-500 transition-colors">{post.title}</h3>
-                <p className="text-gray-400 mb-4 leading-relaxed">{post.excerpt}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
+              <div
+                key={index}
+                className="group rounded-lg p-6 border transition-all duration-300 cursor-pointer"
+                style={{
+                  background:
+                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
+                  border: "1px solid #8B0000",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
+                }}
+              >
+                <div
+                  className="text-sm font-semibold mb-2"
+                  style={{ color: "#D23621" }}
+                >
+                  {post.category}
+                </div>
+                <h3 className="text-xl font-bold mb-3">{post.title}</h3>
+                <p
+                  className="mb-4 leading-relaxed"
+                  style={{ color: "#CCCCCC" }}
+                >
+                  {post.excerpt}
+                </p>
+                <div
+                  className="flex justify-between items-center text-sm"
+                  style={{ color: "#999" }}
+                >
                   <span>{post.date}</span>
                   <span>{post.readTime}</span>
                 </div>
@@ -111,7 +185,15 @@ const LatestNewsMain: React.FC = () => {
 
       {/* Newsletter */}
       <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-12">
+        <div
+          className="max-w-4xl mx-auto text-center rounded-lg p-12"
+          style={{
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgba(222, 5, 0, 0.7) 0%, rgba(120, 3, 0, 0) 100%)",
+            boxShadow:
+              "near-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%);",
+          }}
+        >
           <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
           <p className="text-xl mb-8 opacity-90">
             Get the latest news, tutorials, and tips delivered to your inbox.
