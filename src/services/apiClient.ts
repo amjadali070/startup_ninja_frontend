@@ -201,10 +201,14 @@ class ApiClient {
                     return this.axiosInstance(originalRequest);
                   }
                 } catch (refreshError) {
-                  // Refresh failed - clear tokens and redirect to login
+                  // Refresh failed - clear tokens and notify user
                   this.clearAuthToken();
                   localStorage.removeItem("refreshToken");
-                  window.location.href = "/login";
+                  
+                  // Dispatch session expired event for the modal
+                  window.dispatchEvent(new Event("session-expired"));
+                  
+                  // Optional: still reject so the calling code knows it failed
                   return Promise.reject(refreshError);
                 } finally {
                   this.isRefreshing = false;

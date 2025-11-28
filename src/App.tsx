@@ -23,6 +23,7 @@ import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
 import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
+import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 
 function App() {
   return (
@@ -181,6 +182,7 @@ function App() {
             },
           }}
         />
+        <SessionExpiredModal />
       </div>
     </AuthProvider>
   );
