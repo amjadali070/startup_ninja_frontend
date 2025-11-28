@@ -19,18 +19,54 @@ const ChatMessagesList: FC<ChatMessagesListProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (instant = false) => {
+    if (containerRef.current) {
+      const { scrollHeight, clientHeight } = containerRef.current;
+      const maxScrollTop = scrollHeight - clientHeight;
+      
+      if (instant) {
+        containerRef.current.scrollTop = maxScrollTop;
+      } else {
+        containerRef.current.scrollTo({
+          top: maxScrollTop,
+          behavior: "smooth",
+        });
+      }
+    }
   };
 
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      // If user is within 50px of bottom, enable auto-scroll
+      const isAtBottom = scrollHeight - scrollTop - clientHeight <= 50;
+      shouldAutoScrollRef.current = isAtBottom;
+    }
+  };
+
+  // Auto-scroll on new messages if user is at bottom
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isGenerating]);
+    if (shouldAutoScrollRef.current) {
+      // During generation, use instant scroll to prevent "fighting" and glitches
+      // This keeps the text anchored to the bottom firmly
+      scrollToBottom(true);
+    }
+  }, [messages]);
+
+  // Force scroll when generation starts
+  useEffect(() => {
+    if (isGenerating) {
+      shouldAutoScrollRef.current = true;
+      scrollToBottom(true);
+    }
+  }, [isGenerating]);
 
   return (
     <div
       ref={containerRef}
+      onScroll={handleScroll}
       className="flex-1 min-h-0 overflow-y-auto chat-messages-scrollbar pr-2"
     >
       <div className="flex flex-col gap-4 px-2 py-4 pb-6 w-full">
@@ -85,7 +121,10 @@ const ChatMessagesList: FC<ChatMessagesListProps> = ({
           </>
         )}
 
-        {isGenerating && <TypingIndicator />}
+        {/* Only show typing indicator if we are generating AND the last message is not an assistant message with content (meaning we are not yet streaming the response) */}
+        {isGenerating && (!messages.length || messages[messages.length - 1].role !== 'assistant' || !messages[messages.length - 1].content) && (
+          <TypingIndicator />
+        )}
 
         {error && (
           <div className="mt-2 w-full rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">

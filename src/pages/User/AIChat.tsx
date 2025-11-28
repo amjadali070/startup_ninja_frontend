@@ -98,11 +98,11 @@ const AIChat: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-  // Cleanup typing interval on unmount
+  // Cleanup typing animation on unmount
   useEffect(() => {
     return () => {
       if (typingIntervalRef.current) {
-        window.clearInterval(typingIntervalRef.current);
+        cancelAnimationFrame(typingIntervalRef.current);
       }
     };
   }, []);
@@ -215,31 +215,44 @@ const AIChat: FC = () => {
   };
 
   const typeWriterAppend = useCallback((fullText: string) => {
-    let index = 0;
-
     if (typingIntervalRef.current) {
-      window.clearInterval(typingIntervalRef.current);
+      cancelAnimationFrame(typingIntervalRef.current);
     }
 
-    typingIntervalRef.current = window.setInterval(() => {
-      index += 3; // type 3 chars per tick
+    let currentIndex = 0;
+    const totalLength = fullText.length;
+    let lastTime = performance.now();
+    const charsPerSecond = 2500;
+
+    const animate = (currentTime: number) => {
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+
+      const increment = (charsPerSecond * deltaTime) / 1000;
+      currentIndex += increment;
+
+      const sliceIndex = Math.min(Math.floor(currentIndex), totalLength);
 
       setMessages((prev) => {
         const next = [...prev];
         const last = next[next.length - 1];
         if (!last || last.role !== "assistant") return prev;
-        const slice = fullText.slice(0, index);
+        
+        if (last.content.length === sliceIndex) return prev;
+
+        const slice = fullText.slice(0, sliceIndex);
         next[next.length - 1] = { ...last, content: slice };
         return next;
       });
 
-      if (index >= fullText.length) {
-        if (typingIntervalRef.current) {
-          window.clearInterval(typingIntervalRef.current);
-          typingIntervalRef.current = null;
-        }
+      if (sliceIndex < totalLength) {
+        typingIntervalRef.current = requestAnimationFrame(animate);
+      } else {
+        typingIntervalRef.current = null;
       }
-    }, 16);
+    };
+
+    typingIntervalRef.current = requestAnimationFrame(animate);
   }, []);
 
   const handleComposerSubmit = useCallback(async () => {
