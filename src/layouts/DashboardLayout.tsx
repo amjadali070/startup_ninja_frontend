@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardTopbar from "../components/dashboard/DashboardTopbar";
 import { useAuth } from "../hooks/useAuth";
@@ -85,6 +85,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const displayName = profile.username || profile.email || "Ninja";
 
+  const location = useLocation();
+  const isChatbotVisible = !location.pathname.startsWith('/admin-dashboard');
+
   return (
     <>
       <div className="flex h-screen bg-[#07070C] text-white overflow-hidden">
@@ -104,7 +107,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
         </div>
       </div>
-      <Chatbot userProfilePicture={resolvedProfilePicture} />
+      {isChatbotVisible && <Chatbot userProfilePicture={resolvedProfilePicture} />}
     </>
   );
 };

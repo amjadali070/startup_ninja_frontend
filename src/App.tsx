@@ -21,9 +21,11 @@ import HomePage from "./pages/landing-page/HomePage.tsx";
 import LandingPage from "./pages/landing-page/LandingPage.tsx";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
+import UserManagement from "./pages/Admin/UserManagement.tsx";
 import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
 import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
+import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 
 function App() {
   return (
@@ -151,6 +153,22 @@ function App() {
             element={
               <AdminRoute>
                 <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/users"
+            element={
+              <AdminRoute>
+                <UserManagement />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/users/:userId"
+            element={
+              <AdminRoute>
+                <UserDetailsPage />
               </AdminRoute>
             }
           />

@@ -5,7 +5,7 @@ import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { CgHome } from "react-icons/cg";
 import { FaRegFolder } from "react-icons/fa6";
 import { PiCirclesThreeBold } from "react-icons/pi";
-import { FaRss } from "react-icons/fa";
+import { FaRss, FaUsers } from "react-icons/fa";
 import {
   FiMenu,
   FiX,
@@ -30,6 +30,7 @@ interface SidebarNavItem {
   icon: ReactNode;
   children?: SidebarSubNavItem[];
   admin: boolean;
+  end?: boolean;
 }
 
 interface DashboardSidebarProps {
@@ -43,11 +44,19 @@ const navItems: SidebarNavItem[] = [
     to: "/dashboard",
     icon: <CgHome className="w-5 h-5" />,
     admin: false,
+    end: true,
   },
   {
     label: "Dashboard",
     to: "/admin-dashboard",
     icon: <CgHome className="w-5 h-5" />,
+    admin: true,
+    end: true,
+  },
+  {
+    label: "User Management",
+    to: "/admin-dashboard/users",
+    icon: <FaUsers className="w-5 h-5" />,
     admin: true,
   },
   {
@@ -341,6 +350,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 >
                   <NavLink
                     to={item.to}
+                    end={item.end}
                     onClick={() => {
                       if (hasChildren) {
                         setExpandedItems((prev) => ({
