@@ -80,13 +80,15 @@ const Login: React.FC = () => {
           setShowEmailVerification(true);
           setError("");
         } else if (response.success && response.token) {
+          if (response?.user?.role === "admin") {
+            setError("Admins must login via the Admin Portal");
+            setLoading(false);
+            return;
+          }
+          
           setError("");
           login(response.user, response.token, response.refreshToken); // update context
-          if (response?.user?.role == "admin") {
-            navigate("/admin-dashboard");
-          } else {
-            navigate("/dashboard");
-          }
+          navigate("/dashboard");
         } else {
           setError(response.message || "Login failed");
         }

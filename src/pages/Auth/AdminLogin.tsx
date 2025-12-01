@@ -28,7 +28,6 @@ const AdminLoginPage: React.FC = () => {
       return;
     }
 
-
     setLoading(true);
 
     try {
@@ -36,13 +35,15 @@ const AdminLoginPage: React.FC = () => {
       const response = await authService.login(formData);
 
       if (response.success && response?.token) {
+        if (response?.user?.role !== 'admin') {
+          setError('Access denied. This portal is for administrators only.');
+          setLoading(false);
+          return;
+        }
+
         setError('');
         login(response.user, response.token);
-        if(response?.user?.role == 'admin'){
-          navigate('/admin-dashboard');
-        } else{
-          navigate('/dashboard');
-        }
+        navigate('/admin-dashboard');
       } else {
         setError(response.message || 'Login failed');
       }
