@@ -45,7 +45,7 @@ const ContactMain: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold mb-2 flex items-center">
+                <label className="text-sm font-semibold mb-2 flex items-center">
                   <FaUser className="mr-2" style={{ color: "#D23621" }} />
                   Name *
                 </label>

@@ -138,15 +138,19 @@ const Register: React.FC = () => {
     return !message;
   };
 
-  const applyServerFieldErrors = (errors?: Array<{ param: string; msg: string }>) => {
+  const applyServerFieldErrors = (errors?: Array<{ path?: string; param?: string; msg: string }>) => {
     if (!errors?.length) {
       return false;
     }
 
     const extracted: FormErrors = {};
-    errors.forEach(({ param, msg }) => {
-      if (isFieldName(param)) {
-        extracted[param] = msg;
+    errors.forEach(({ path, param, msg }) => {
+      const fieldName = path || param;
+      if (fieldName && isFieldName(fieldName)) {
+        // Only set if not already set (avoid duplicates)
+        if (!extracted[fieldName]) {
+          extracted[fieldName] = msg;
+        }
       }
     });
 
