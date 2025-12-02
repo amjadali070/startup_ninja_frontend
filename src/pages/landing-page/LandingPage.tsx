@@ -29,6 +29,10 @@ const pageComponents: Record<string, React.ComponentType> = {
 const LandingPage: React.FC = () => {
   const { page } = useParams<{ page: string }>();
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
+
   if (!page || !pageComponents[page]) {
     return <Navigate to="/" replace />;
   }
