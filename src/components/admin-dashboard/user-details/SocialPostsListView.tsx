@@ -18,7 +18,9 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
 }) => {
   if (socialPosts.length === 0) {
     return (
-      <div className="text-gray-400 text-center py-8">No social posts found</div>
+      <div className="text-gray-400 text-center py-8">
+        No social posts found
+      </div>
     );
   }
 
@@ -32,8 +34,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
           : null;
 
         // Get primary platform for card styling
-        const primaryPlatform =
-          post.platforms[0]?.toLowerCase() || "facebook";
+        const primaryPlatform = post.platforms[0]?.toLowerCase() || "facebook";
         const platformInfo =
           PLATFORM_META[primaryPlatform] || PLATFORM_META.facebook;
         const PlatformIcon = platformInfo.icon;
@@ -179,9 +180,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
                 )}
 
               <div className="flex items-center justify-between text-xs text-gray-500 border-t border-[#242424] pt-3 mt-auto">
-                <span>
-                  {new Date(post.scheduledAt).toLocaleDateString()}
-                </span>
+                <span>{new Date(post.scheduledAt).toLocaleDateString()}</span>
                 <button className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
                   View <FaArrowLeft className="rotate-180 text-xs" />
                 </button>

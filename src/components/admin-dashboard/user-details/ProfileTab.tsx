@@ -5,7 +5,6 @@ import {
   FaGlobe,
   FaBell,
   FaCog,
-  FaHistory,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
 

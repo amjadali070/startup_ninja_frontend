@@ -57,8 +57,7 @@ const WebsitesListView: React.FC<WebsitesListViewProps> = ({
                 0,
                 50
               )}
-              {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`
-                .length > 50
+              {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`.length > 50
                 ? "..."
                 : ""}
               <FaExternalLinkAlt className="text-xs" />

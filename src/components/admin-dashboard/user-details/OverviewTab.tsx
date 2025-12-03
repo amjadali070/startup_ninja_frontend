@@ -38,8 +38,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
               style={{
                 width: `${Math.min(
                   100,
-                  (user.usage.chatTokensUsed / user.usage.chatTokensLimit) *
-                    100
+                  (user.usage.chatTokensUsed / user.usage.chatTokensLimit) * 100
                 )}%`,
               }}
             ></div>

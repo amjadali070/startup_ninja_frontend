@@ -77,7 +77,9 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 Next Billing
               </p>
               <p className="text-white font-bold">
-                {new Date(user.subscription.nextBillingDate).toLocaleDateString()}
+                {new Date(
+                  user.subscription.nextBillingDate
+                ).toLocaleDateString()}
               </p>
             </div>
           </div>

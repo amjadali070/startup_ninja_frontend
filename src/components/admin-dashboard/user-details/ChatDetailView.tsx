@@ -37,8 +37,8 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
               {selectedChat.title}
             </h2>
             <p className="text-gray-400">
-              {user?.fullname || user?.username} •{" "}
-              {selectedChat.messageCount} messages • Created{" "}
+              {user?.fullname || user?.username} • {selectedChat.messageCount}{" "}
+              messages • Created{" "}
               {new Date(selectedChat.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -72,9 +72,7 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-xs font-medium ${
-                      message.role === "user"
-                        ? "text-red-100"
-                        : "text-gray-400"
+                      message.role === "user" ? "text-red-100" : "text-gray-400"
                     }`}
                   >
                     {message.role === "user"
@@ -83,9 +81,7 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
                   </span>
                   <span
                     className={`text-xs ${
-                      message.role === "user"
-                        ? "text-red-200"
-                        : "text-gray-500"
+                      message.role === "user" ? "text-red-200" : "text-gray-500"
                     }`}
                   >
                     {new Date(message.timestamp).toLocaleTimeString([], {
@@ -153,9 +149,7 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
                           children,
                           ...props
                         }: any) => {
-                          const match = /language-(\w+)/.exec(
-                            className || ""
-                          );
+                          const match = /language-(\w+)/.exec(className || "");
                           return !inline && match ? (
                             <pre className="bg-[#0A0A0A] border border-white/10 rounded-md my-2 overflow-x-auto">
                               <code className={className} {...props}>

@@ -28,7 +28,6 @@ interface EditUserViewProps {
 }
 
 const EditUserView: React.FC<EditUserViewProps> = ({
-  user,
   editForm,
   setEditForm,
   setViewingEditUser,

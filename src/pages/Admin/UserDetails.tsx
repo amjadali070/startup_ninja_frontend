@@ -15,18 +15,20 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import {
   PLAN_FEATURES,
-  UserProfileHeader,
-  TabNavigation,
-  OverviewTab,
-  ProfileTab,
-  SubscriptionTab,
-  ContentTab,
-  SecurityTab,
-  ManageResourcesView,
-  EditUserView,
-  ContentHistoryView,
-  PostDetailModal,
-} from "../../components/admin-dashboard/user-details";
+  PLATFORM_META,
+  WEB_BUILDER_SERVICE_URL,
+} from "../../utils/userDetailsConstants";
+import UserProfileHeader from "../../components/admin-dashboard/user-details/UserProfileHeader";
+import TabNavigation from "../../components/admin-dashboard/user-details/TabNavigation";
+import OverviewTab from "../../components/admin-dashboard/user-details/OverviewTab";
+import ProfileTab from "../../components/admin-dashboard/user-details/ProfileTab";
+import SubscriptionTab from "../../components/admin-dashboard/user-details/SubscriptionTab";
+import ContentTab from "../../components/admin-dashboard/user-details/ContentTab";
+import SecurityTab from "../../components/admin-dashboard/user-details/SecurityTab";
+import ManageResourcesView from "../../components/admin-dashboard/user-details/ManageResourcesView";
+import EditUserView from "../../components/admin-dashboard/user-details/EditUserView";
+import ContentHistoryView from "../../components/admin-dashboard/user-details/ContentHistoryView";
+import PostDetailModal from "../../components/admin-dashboard/user-details/PostDetailModal";
 
 const UserDetailsPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -441,24 +443,24 @@ const UserDetailsPage: React.FC = () => {
           <div className="flex justify-center items-center h-[60vh]">
             <LoadingSpinner />
           </div>
-        ) : viewingResources ? (
+        ) : viewingResources && user ? (
           <ManageResourcesView
             user={user}
             resourceForm={resourceForm}
             setResourceForm={setResourceForm}
-            onBack={() => setViewingResources(false)}
-            onSave={handleUpdateResources}
+            setViewingResources={setViewingResources}
+            handleUpdateResources={handleUpdateResources}
             toggleFeature={toggleFeature}
           />
-        ) : viewingEditUser ? (
+        ) : viewingEditUser && user ? (
           <EditUserView
             user={user}
             editForm={editForm}
             setEditForm={setEditForm}
-            onBack={() => setViewingEditUser(false)}
-            onSave={handleUpdateUser}
+            setViewingEditUser={setViewingEditUser}
+            handleUpdateUser={handleUpdateUser}
           />
-        ) : viewingContent ? (
+        ) : viewingContent && user ? (
           <ContentHistoryView
             user={user}
             viewingContent={viewingContent}
@@ -467,14 +469,13 @@ const UserDetailsPage: React.FC = () => {
             contentPage={contentPage}
             contentTotalPages={contentTotalPages}
             selectedChat={selectedChat}
-            selectedPost={selectedPost}
             setSelectedChat={setSelectedChat}
-            setSelectedPost={setSelectedPost}
-            onBack={closeContentHistory}
-            onPageChange={handleContentPageChange}
-            onManageResources={() => setViewingResources(true)}
-            onEditUser={() => setViewingEditUser(true)}
-            formatDate={formatDate}
+            handleContentPageChange={handleContentPageChange}
+            closeContentHistory={closeContentHistory}
+            setViewingResources={setViewingResources}
+            setViewingEditUser={setViewingEditUser}
+            PLATFORM_META={PLATFORM_META}
+            WEB_BUILDER_SERVICE_URL={WEB_BUILDER_SERVICE_URL}
           />
         ) : !user ? (
           <div className="text-center text-gray-400 mt-20">User not found</div>
@@ -497,7 +498,10 @@ const UserDetailsPage: React.FC = () => {
             </div>
 
             {/* Tabs */}
-            <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+            <TabNavigation
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+            />
 
             {/* Tab Content */}
             <div className="min-h-[400px]">
@@ -507,14 +511,9 @@ const UserDetailsPage: React.FC = () => {
               {activeTab === "profile" && (
                 <ProfileTab user={user} formatDate={formatDate} />
               )}
-              {activeTab === "subscription" && (
-                <SubscriptionTab user={user} formatDate={formatDate} />
-              )}
+              {activeTab === "subscription" && <SubscriptionTab user={user} />}
               {activeTab === "content" && (
-                <ContentTab
-                  user={user}
-                  onViewContent={handleViewContent}
-                />
+                <ContentTab user={user} handleViewContent={handleViewContent} />
               )}
               {activeTab === "security" && (
                 <SecurityTab user={user} formatDate={formatDate} />
@@ -527,9 +526,9 @@ const UserDetailsPage: React.FC = () => {
       {/* Post Detail Modal */}
       {selectedPost && (
         <PostDetailModal
-          post={selectedPost}
-          onClose={() => setSelectedPost(null)}
-          formatDate={formatDate}
+          selectedPost={selectedPost}
+          setSelectedPost={setSelectedPost}
+          PLATFORM_META={PLATFORM_META}
         />
       )}
     </DashboardLayout>

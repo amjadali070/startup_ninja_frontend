@@ -5,7 +5,8 @@ import {
   FaXTwitter,
 } from "react-icons/fa6";
 
-export const WEB_BUILDER_SERVICE_URL = import.meta.env.VITE_WEB_BUILDER_SERVICE_URL;
+export const WEB_BUILDER_SERVICE_URL = import.meta.env
+  .VITE_WEB_BUILDER_SERVICE_URL;
 
 export const PLATFORM_META: Record<
   string,
