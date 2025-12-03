@@ -4,7 +4,7 @@ export interface DashboardMetric {
   value: string | number;
   label: string;
   trendPercentage?: string;
-  trendType?: 'positive' | 'negative' | 'neutral';
+  trendType?: "positive" | "negative" | "neutral";
 }
 
 export interface DashboardStats {
@@ -45,7 +45,7 @@ export interface SystemAlert {
   id: string;
   message: string;
   timestamp: string;
-  severity?: 'info' | 'warning' | 'error';
+  severity?: "info" | "warning" | "error";
 }
 
 export interface UserListItem {
@@ -53,13 +53,13 @@ export interface UserListItem {
   username: string;
   email: string;
   fullname?: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   status: number;
-  loginType: 'Apple' | 'Microsoft' | 'Google' | 'Email';
+  loginType: "Apple" | "Microsoft" | "Google" | "Email";
   isEmailVerified: boolean;
   createdAt: string;
   updatedAt: string;
-  subscription?: 'Free' | 'Basic' | 'Pro' | 'Enterprise';
+  subscription?: "Free" | "Basic" | "Pro" | "Enterprise";
   profilePicture?: string;
 }
 
@@ -111,7 +111,7 @@ export interface SystemHealth {
 }
 
 export interface AnalyticsData {
-  type: 'daily' | 'weekly' | 'monthly';
+  type: "daily" | "weekly" | "monthly";
   date: string;
   metrics: {
     totalUsers: number;
@@ -142,7 +142,7 @@ export interface UserTransaction {
   date: string;
   amount: number;
   currency: string;
-  status: 'succeeded' | 'failed' | 'pending';
+  status: "succeeded" | "failed" | "pending";
   invoiceUrl?: string;
   description: string;
 }
@@ -187,15 +187,15 @@ export interface UserContentStats {
 }
 
 export interface UserSubscriptionDetails {
-  plan: 'Free' | 'Basic' | 'Pro' | 'Enterprise';
-  status: 'active' | 'canceled' | 'past_due';
+  plan: "Free" | "Basic" | "Pro" | "Enterprise";
+  status: "active" | "canceled" | "past_due";
   startDate: string;
   nextBillingDate: string;
   amount: number;
-  interval: 'month' | 'year';
+  interval: "month" | "year";
 }
 
-export interface ExtendedUserDetails extends Omit<UserDetails, 'subscription'> {
+export interface ExtendedUserDetails extends Omit<UserDetails, "subscription"> {
   subscription: UserSubscriptionDetails;
   usage: AIUsageStats;
   contentStats: UserContentStats;
@@ -203,4 +203,56 @@ export interface ExtendedUserDetails extends Omit<UserDetails, 'subscription'> {
   activityLogs: UserActivityLog[];
   loginSessions: LoginSession[];
   features: string[];
+}
+
+// Content Log Types
+export interface AIChat {
+  _id: string;
+  title: string;
+  messageCount: number;
+  lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: Array<{
+    role: "user" | "assistant";
+    content: string;
+    timestamp: string;
+  }>;
+}
+
+export interface SocialPost {
+  _id: string;
+  caption: string;
+  image?: {
+    originalname?: string;
+    mimetype?: string;
+    buffer?: string;
+  };
+  platforms: string[];
+  accounts: Array<{
+    platform: string;
+    name?: string;
+    username?: string;
+    profileImage?: string;
+  }>;
+  status: "scheduled" | "published" | "failed" | "cancelled";
+  scheduledAt: string;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Website {
+  _id: string;
+  websiteTitle: string;
+  websiteDescription?: string;
+  status: number;
+  publishedLink?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContentLogsResponse<T> {
+  data: T[];
+  pagination: PaginationInfo;
 }

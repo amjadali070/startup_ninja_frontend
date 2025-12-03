@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+// @ts-ignore - remark-gfm v4 ESM compatibility issue
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import {
   FaUser,
   FaEnvelope,
@@ -23,16 +28,65 @@ import {
   FaCog,
   FaExternalLinkAlt,
   FaTools,
+  FaSpinner,
+  FaClock,
 } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaXTwitter,
+} from "react-icons/fa6";
 import { adminService } from "../../services/admin";
 import { authService } from "../../services/auth";
 import { useAuth } from "../../hooks/useAuth";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import type {
   ExtendedUserDetails,
+  AIChat,
+  SocialPost,
+  Website,
 } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
+
+const WEB_BUILDER_SERVICE_URL = import.meta.env.VITE_WEB_BUILDER_SERVICE_URL;
+
+const PLATFORM_META: Record<
+  string,
+  { icon: React.ElementType; color: string; name: string; bgClass: string }
+> = {
+  facebook: {
+    icon: FaFacebook,
+    color: "#1877F2",
+    name: "Facebook",
+    bgClass: "bg-[#1877F2]/10",
+  },
+  instagram: {
+    icon: FaInstagram,
+    color: "#E4405F",
+    name: "Instagram",
+    bgClass: "bg-[#E4405F]/10",
+  },
+  x: {
+    icon: FaXTwitter,
+    color: "#000000",
+    name: "X",
+    bgClass: "bg-gray-800/20",
+  },
+  twitter: {
+    icon: FaXTwitter,
+    color: "#1DA1F2",
+    name: "Twitter",
+    bgClass: "bg-[#1DA1F2]/10",
+  },
+  linkedin: {
+    icon: FaLinkedin,
+    color: "#0A66C2",
+    name: "LinkedIn",
+    bgClass: "bg-[#0A66C2]/10",
+  },
+};
 
 const PLAN_FEATURES = {
   Free: [
@@ -77,15 +131,41 @@ const PLAN_FEATURES = {
 const UserDetailsPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user: currentUser, logout } = useAuth();
   const [user, setUser] = useState<ExtendedUserDetails | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Initialize state from URL parameters
   const [activeTab, setActiveTab] = useState<
     "overview" | "profile" | "subscription" | "content" | "security"
-  >("overview");
-  const [viewingContent, setViewingContent] = useState<string | null>(null);
-  const [viewingResources, setViewingResources] = useState(false);
-  const [viewingEditUser, setViewingEditUser] = useState(false);
+  >((searchParams.get("tab") as any) || "overview");
+  const [viewingContent, setViewingContent] = useState<string | null>(
+    searchParams.get("view") || null
+  );
+  const [viewingResources, setViewingResources] = useState(
+    searchParams.get("mode") === "resources"
+  );
+  const [viewingEditUser, setViewingEditUser] = useState(
+    searchParams.get("mode") === "edit"
+  );
+  const [selectedChat, setSelectedChat] = useState<AIChat | null>(null);
+  const [selectedPost, setSelectedPost] = useState<SocialPost | null>(null);
+
+  // Content data state
+  const [contentData, setContentData] = useState<{
+    aiChats: AIChat[];
+    socialPosts: SocialPost[];
+    websites: Website[];
+  }>({
+    aiChats: [],
+    socialPosts: [],
+    websites: [],
+  });
+  const [contentLoading, setContentLoading] = useState(false);
+  const [contentPage, setContentPage] = useState(1);
+  const [contentTotalPages, setContentTotalPages] = useState(1);
+
   const [resourceForm, setResourceForm] = useState({
     chatTokensLimit: 0,
     imageGenLimit: 0,
@@ -121,6 +201,40 @@ const UserDetailsPage: React.FC = () => {
     navigate("/settings");
   };
 
+  // Sync state changes to URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (activeTab !== "overview") {
+      params.set("tab", activeTab);
+    }
+
+    if (viewingContent) {
+      params.set("view", viewingContent);
+    }
+
+    if (viewingResources) {
+      params.set("mode", "resources");
+    } else if (viewingEditUser) {
+      params.set("mode", "edit");
+    }
+
+    setSearchParams(params, { replace: true });
+  }, [
+    activeTab,
+    viewingContent,
+    viewingResources,
+    viewingEditUser,
+    setSearchParams,
+  ]);
+
+  // Fetch content data when viewingContent changes (including on page load with URL params)
+  useEffect(() => {
+    if (viewingContent && userId && user) {
+      fetchContentData(viewingContent, contentPage);
+    }
+  }, [viewingContent, userId, user]);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (!userId) return;
@@ -133,6 +247,28 @@ const UserDetailsPage: React.FC = () => {
           const features =
             PLAN_FEATURES[plan as keyof typeof PLAN_FEATURES] ||
             PLAN_FEATURES.Free;
+
+          // Fetch actual content counts
+          const [aiChatsRes, socialPostsRes, websitesRes] = await Promise.all([
+            adminService.getUserAIChats(userId, { page: 1, limit: 1 }),
+            adminService.getUserSocialPosts(userId, { page: 1, limit: 1 }),
+            adminService.getUserWebsites(userId, { page: 1, limit: 1 }),
+          ]);
+
+          const totalChats =
+            aiChatsRes.success && aiChatsRes.data
+              ? aiChatsRes.data.pagination.total
+              : response.data.stats.totalChats || 0;
+
+          const totalPosts =
+            socialPostsRes.success && socialPostsRes.data
+              ? socialPostsRes.data.pagination.total
+              : response.data.stats.totalPosts || 0;
+
+          const totalWebsites =
+            websitesRes.success && websitesRes.data
+              ? websitesRes.data.pagination.total
+              : response.data.stats.totalWebsites || 0;
 
           const extendedUser: ExtendedUserDetails = {
             ...response.data.user,
@@ -166,31 +302,19 @@ const UserDetailsPage: React.FC = () => {
               ),
               imageGenLimit:
                 plan === "Enterprise" ? 500 : plan === "Pro" ? 200 : 20,
-              websiteUsed: Math.floor(
-                Math.random() *
-                  (plan === "Enterprise" ? 10 : plan === "Pro" ? 3 : 1)
-              ),
+              websiteUsed: totalWebsites,
               websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
-              socialPostsUsed: Math.floor(
-                Math.random() *
-                  (plan === "Enterprise" ? 500 : plan === "Pro" ? 50 : 5)
-              ),
+              socialPostsUsed: totalPosts,
               socialPostLimit:
                 plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
               periodStart: "2024-01-01",
               periodEnd: "2024-02-01",
             },
             contentStats: {
-              totalChats:
-                response.data.stats.totalChats ||
-                Math.floor(Math.random() * 20),
-              totalPosts:
-                response.data.stats.totalPosts ||
-                Math.floor(Math.random() * 10),
-              totalWebsites:
-                response.data.stats.totalWebsites ||
-                Math.floor(Math.random() * 3),
-              totalImages: Math.floor(Math.random() * 15),
+              totalChats: totalChats,
+              totalPosts: totalPosts,
+              totalWebsites: totalWebsites,
+              totalImages: 0, // Image generation not implemented yet
             },
             transactions: Array.from({ length: 5 }).map((_, i) => ({
               id: `txn_${Math.random().toString(36).substr(2, 9)}`,
@@ -286,12 +410,68 @@ const UserDetailsPage: React.FC = () => {
     });
   };
 
-  const handleViewContent = (type: string) => {
+  const handleViewContent = async (type: string) => {
     setViewingContent(type);
+    setContentPage(1);
+    await fetchContentData(type, 1);
+  };
+
+  const fetchContentData = async (type: string, page: number = 1) => {
+    if (!userId) return;
+
+    setContentLoading(true);
+    try {
+      if (type === "AI Chats") {
+        const response = await adminService.getUserAIChats(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({ ...prev, aiChats: response.data!.data }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "Social Posts") {
+        const response = await adminService.getUserSocialPosts(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({
+            ...prev,
+            socialPosts: response.data!.data,
+          }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "Websites") {
+        const response = await adminService.getUserWebsites(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({
+            ...prev,
+            websites: response.data!.data,
+          }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch content");
+    } finally {
+      setContentLoading(false);
+    }
+  };
+
+  const handleContentPageChange = async (newPage: number) => {
+    if (!viewingContent) return;
+    setContentPage(newPage);
+    await fetchContentData(viewingContent, newPage);
   };
 
   const closeContentHistory = () => {
     setViewingContent(null);
+    setSelectedChat(null);
+    setSelectedPost(null);
   };
 
   const handleUpdateResources = async () => {
@@ -701,37 +881,265 @@ const UserDetailsPage: React.FC = () => {
   const renderContentHistoryView = () => {
     if (!viewingContent) return null;
 
+    // Render detailed chat view
+    if (selectedChat) {
+      return (
+        <div className="p-4 sm:p-6 max-w-full mx-auto animate-fade-in">
+          <div className="mb-8">
+            <button
+              onClick={() => setSelectedChat(null)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+            >
+              <FaArrowLeft /> Back to AI Chats
+            </button>
+
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-[#1A1A1A] rounded-xl border border-[#242424]">
+                <FaRobot className="text-blue-500 text-2xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {selectedChat.title}
+                </h2>
+                <p className="text-gray-400">
+                  {user?.fullname || user?.username} •{" "}
+                  {selectedChat.messageCount} messages • Created{" "}
+                  {new Date(selectedChat.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#0D0D0D] rounded-xl border border-[#242424] p-6">
+            <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+              {selectedChat.messages.map((message, idx) => (
+                <div
+                  key={idx}
+                  className={`flex gap-3 ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {/* AI Avatar on the left */}
+                  {message.role === "assistant" && (
+                    <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                      <FaRobot className="text-white text-sm" />
+                    </div>
+                  )}
+
+                  {/* Message bubble */}
+                  <div
+                    className={`max-w-[75%] ${
+                      message.role === "user"
+                        ? "bg-red-600 text-white rounded-2xl rounded-tr-sm"
+                        : "bg-[#1A1A1A] text-gray-200 rounded-2xl rounded-tl-sm border border-[#2A2A2A]"
+                    } px-4 py-3`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className={`text-xs font-medium ${
+                          message.role === "user"
+                            ? "text-red-100"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {message.role === "user"
+                          ? user?.username || "User"
+                          : "AI Assistant"}
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          message.role === "user"
+                            ? "text-red-200"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    {message.role === "user" ? (
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {message.content}
+                      </p>
+                    ) : (
+                      <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:break-words [&_p]:break-words [&_li]:break-words">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeHighlight]}
+                          components={{
+                            h1: ({ node, ...props }) => (
+                              <h1
+                                className="text-base sm:text-lg font-bold mt-3 sm:mt-4 mb-2 text-white break-words"
+                                {...props}
+                              />
+                            ),
+                            h2: ({ node, ...props }) => (
+                              <h2
+                                className="text-sm sm:text-base font-bold mt-2 sm:mt-3 mb-2 text-white break-words"
+                                {...props}
+                              />
+                            ),
+                            h3: ({ node, ...props }) => (
+                              <h3
+                                className="text-sm font-semibold mt-2 sm:mt-3 mb-1.5 text-white break-words"
+                                {...props}
+                              />
+                            ),
+                            p: ({ node, ...props }) => (
+                              <p
+                                className="mb-2 last:mb-0 text-gray-200 break-words"
+                                {...props}
+                              />
+                            ),
+                            ul: ({ node, ...props }) => (
+                              <ul
+                                className="list-disc list-outside mb-2 space-y-1 text-gray-200 ml-3 sm:ml-4 pl-2 break-words"
+                                {...props}
+                              />
+                            ),
+                            ol: ({ node, ...props }) => (
+                              <ol
+                                className="list-decimal list-outside mb-2 space-y-1 text-gray-200 ml-3 sm:ml-4 pl-2 break-words"
+                                {...props}
+                              />
+                            ),
+                            li: ({ node, ...props }) => (
+                              <li
+                                className="text-gray-200 pl-1 leading-relaxed break-words"
+                                {...props}
+                              />
+                            ),
+                            code: ({
+                              node,
+                              inline,
+                              className,
+                              children,
+                              ...props
+                            }: any) => {
+                              const match = /language-(\w+)/.exec(
+                                className || ""
+                              );
+                              return !inline && match ? (
+                                <pre className="bg-[#0A0A0A] border border-white/10 rounded-md my-2 overflow-x-auto">
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                </pre>
+                              ) : (
+                                <code
+                                  className="bg-[#0A0A0A] border border-white/10 rounded px-1.5 py-0.5 text-xs text-[#DE0500] font-mono break-words"
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              );
+                            },
+                            blockquote: ({ node, ...props }) => (
+                              <blockquote
+                                className="border-l-4 border-white/20 pl-3 sm:pl-4 my-2 italic text-gray-400 break-words"
+                                {...props}
+                              />
+                            ),
+                            a: ({ node, ...props }) => (
+                              <a
+                                className="text-[#DE0500] hover:text-[#FF3B3B] underline break-words"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                {...props}
+                              />
+                            ),
+                            strong: ({ node, ...props }) => (
+                              <strong
+                                className="font-semibold text-white break-words"
+                                {...props}
+                              />
+                            ),
+                            em: ({ node, ...props }) => (
+                              <em
+                                className="italic text-gray-300 break-words"
+                                {...props}
+                              />
+                            ),
+                            hr: ({ node, ...props }) => (
+                              <hr className="border-white/10 my-4" {...props} />
+                            ),
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User Avatar on the right */}
+                  {message.role === "user" && (
+                    <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center flex-shrink-0">
+                      <FaUser className="text-white text-sm" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const getHistoryContent = () => {
+      if (contentLoading) {
+        return (
+          <div className="flex items-center justify-center py-16">
+            <LoadingSpinner />
+          </div>
+        );
+      }
+
       switch (viewingContent) {
         case "AI Chats":
+          if (contentData.aiChats.length === 0) {
+            return (
+              <div className="text-gray-400 text-center py-8">
+                No AI chats found
+              </div>
+            );
+          }
           return (
             <div className="space-y-4">
-              {Array.from({ length: 10 }).map((_, i) => (
+              {contentData.aiChats.map((chat) => (
                 <div
-                  key={i}
-                  className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] hover:border-[#444] transition-colors"
+                  key={chat._id}
+                  className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] hover:border-[#444] transition-colors cursor-pointer"
+                  onClick={() => setSelectedChat(chat)}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <h4 className="text-white font-semibold text-lg">
-                      Project Strategy Discussion
+                      {chat.title}
                     </h4>
                     <span className="text-sm text-gray-500">
-                      {new Date(Date.now() - i * 86400000).toLocaleDateString()}
+                      {new Date(chat.lastMessageAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-sm line-clamp-2 mb-4">
-                    User: How can I optimize my marketing funnel? AI: To
-                    optimize your marketing funnel, focus on these key areas:
-                    Awareness, Interest, Decision, and Action...
-                  </p>
+
+                  {/* Show last message preview */}
+                  {chat.messages.length > 0 && (
+                    <p className="text-gray-400 text-sm line-clamp-2 mb-4">
+                      {chat.messages[chat.messages.length - 1]?.content ||
+                        "No messages"}
+                    </p>
+                  )}
+
                   <div className="flex items-center gap-6 text-sm text-gray-500 border-t border-[#242424] pt-4">
                     <span className="flex items-center gap-2">
-                      <FaRobot className="text-blue-500" /> GPT-4
+                      <FaRobot className="text-blue-500" /> AI Chat
                     </span>
-                    <span>1,240 tokens used</span>
-                    <span>12 messages</span>
-                    <button className="ml-auto text-blue-400 hover:text-blue-300">
-                      View Full Chat
+                    <span>{chat.messageCount} messages</span>
+                    <span className="text-xs">
+                      Created: {new Date(chat.createdAt).toLocaleDateString()}
+                    </span>
+                    <button className="ml-auto text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                      View Full Chat <FaArrowLeft className="rotate-180" />
                     </button>
                   </div>
                 </div>
@@ -739,94 +1147,250 @@ const UserDetailsPage: React.FC = () => {
             </div>
           );
         case "Social Posts":
+          if (contentData.socialPosts.length === 0) {
+            return (
+              <div className="text-gray-400 text-center py-8">
+                No social posts found
+              </div>
+            );
+          }
           return (
-            <div className="space-y-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        i % 2 === 0
-                          ? "bg-blue-900/20 text-blue-400"
-                          : "bg-pink-900/20 text-pink-400"
-                      }`}
-                    >
-                      {i % 2 === 0 ? <FaShareAlt /> : <FaImage />}
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">
-                        {i % 2 === 0 ? "LinkedIn" : "Instagram"}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {contentData.socialPosts.map((post) => {
+                const imageSrc = post.image?.buffer
+                  ? `data:${post.image.mimetype || "image/jpeg"};base64,${
+                      post.image.buffer
+                    }`
+                  : null;
+
+                // Get primary platform for card styling
+                const primaryPlatform =
+                  post.platforms[0]?.toLowerCase() || "facebook";
+                const platformInfo =
+                  PLATFORM_META[primaryPlatform] || PLATFORM_META.facebook;
+                const PlatformIcon = platformInfo.icon;
+
+                return (
+                  <div
+                    key={post._id}
+                    className="bg-[#1A1A1A] rounded-xl border border-[#242424] hover:border-[#444] transition-colors cursor-pointer overflow-hidden flex flex-col"
+                    onClick={() => setSelectedPost(post)}
+                  >
+                    {imageSrc && (
+                      <div className="w-full h-48 overflow-hidden bg-black/50 relative">
+                        <img
+                          src={imageSrc}
+                          alt="Post image"
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Platform badge on image */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          {post.platforms.slice(0, 3).map((platform) => {
+                            const meta =
+                              PLATFORM_META[platform.toLowerCase()] ||
+                              PLATFORM_META.facebook;
+                            const Icon = meta.icon;
+                            return (
+                              <div
+                                key={platform}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center ${meta.bgClass} backdrop-blur-sm border border-white/10`}
+                                style={{ backgroundColor: `${meta.color}15` }}
+                              >
+                                <Icon size={14} style={{ color: meta.color }} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    <div className="p-4 flex flex-col flex-1">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center ${platformInfo.bgClass}`}
+                            style={{
+                              backgroundColor: `${platformInfo.color}20`,
+                            }}
+                          >
+                            <PlatformIcon
+                              className="text-sm"
+                              style={{ color: platformInfo.color }}
+                            />
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {post.platforms.map((platform, idx) => {
+                              const meta =
+                                PLATFORM_META[platform.toLowerCase()] ||
+                                PLATFORM_META.facebook;
+                              return (
+                                <React.Fragment key={platform}>
+                                  {idx > 0 && (
+                                    <span className="text-gray-500 text-xs">
+                                      ,
+                                    </span>
+                                  )}
+                                  <span
+                                    className="text-xs font-medium"
+                                    style={{ color: meta.color }}
+                                  >
+                                    {meta.name}
+                                  </span>
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            post.status === "published"
+                              ? "bg-green-500/20 text-green-400"
+                              : post.status === "scheduled"
+                              ? "bg-blue-500/20 text-blue-400"
+                              : post.status === "failed"
+                              ? "bg-red-500/20 text-red-400"
+                              : "bg-gray-500/20 text-gray-400"
+                          }`}
+                        >
+                          {post.status.charAt(0).toUpperCase() +
+                            post.status.slice(1)}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-300 text-sm mb-3 line-clamp-3 flex-1">
+                        {post.caption}
                       </p>
-                      <p className="text-gray-500 text-sm">
-                        Posted on{" "}
-                        {new Date(
-                          Date.now() - i * 86400000
-                        ).toLocaleDateString()}
-                      </p>
+
+                      {post.accounts &&
+                        Array.isArray(post.accounts) &&
+                        post.accounts.length > 0 && (
+                          <div className="flex gap-1 mb-3 flex-wrap">
+                            {post.accounts.slice(0, 2).map((account, idx) => {
+                              if (
+                                !account ||
+                                typeof account !== "object" ||
+                                !account.platform
+                              ) {
+                                return null;
+                              }
+                              const meta =
+                                PLATFORM_META[account.platform.toLowerCase()] ||
+                                PLATFORM_META.facebook;
+                              const Icon = meta.icon;
+
+                              // Use name if available, otherwise use platform name
+                              // Don't show username if it looks like an ID (all digits)
+                              let displayName = account.name;
+                              if (!displayName) {
+                                const username = account.username || "";
+                                // Check if username is just a numeric ID
+                                if (username && !/^\d+$/.test(username)) {
+                                  displayName = username;
+                                } else {
+                                  displayName = meta.name + " Account";
+                                }
+                              }
+
+                              return (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-1 text-xs rounded flex items-center gap-1"
+                                  style={{
+                                    backgroundColor: `${meta.color}15`,
+                                    color: meta.color,
+                                    border: `1px solid ${meta.color}30`,
+                                  }}
+                                >
+                                  <Icon size={10} />
+                                  {displayName}
+                                </span>
+                              );
+                            })}
+                            {post.accounts.length > 2 && (
+                              <span className="px-2 py-1 bg-[#2A2A2A] text-gray-400 text-xs rounded">
+                                +{post.accounts.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                      <div className="flex items-center justify-between text-xs text-gray-500 border-t border-[#242424] pt-3 mt-auto">
+                        <span>
+                          {new Date(post.scheduledAt).toLocaleDateString()}
+                        </span>
+                        <button className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                          View <FaArrowLeft className="rotate-180 text-xs" />
+                        </button>
+                      </div>
                     </div>
-                    <span className="ml-auto px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
-                      Published
-                    </span>
                   </div>
-                  <p className="text-gray-300 mb-4">
-                    Excited to announce our new product launch! 🚀 #startup
-                    #tech #innovation
-                  </p>
-                  {i % 2 !== 0 && (
-                    <div className="mb-4 rounded-lg overflow-hidden h-48 bg-gray-800">
-                      <img
-                        src={`https://picsum.photos/seed/${i + 50}/800/400`}
-                        alt="Post content"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="flex gap-6 text-sm text-gray-500 border-t border-[#242424] pt-4">
-                    <span>124 Likes</span>
-                    <span>45 Comments</span>
-                    <span>12 Shares</span>
-                    <button className="ml-auto text-blue-400 hover:text-blue-300">
-                      View Analytics
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           );
         case "Websites":
+          if (contentData.websites.length === 0) {
+            return (
+              <div className="text-gray-400 text-center py-8">
+                No websites found
+              </div>
+            );
+          }
           return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
+              {contentData.websites.map((website) => (
                 <div
-                  key={i}
+                  key={website._id}
                   className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] flex flex-col"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 bg-[#2A2A2A] rounded-lg flex items-center justify-center text-gray-500">
                       <FaGlobe className="text-2xl" />
                     </div>
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
-                      Live
+                    <span
+                      className={`px-2 py-1 text-xs rounded ${
+                        website.status === 1
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-gray-500/20 text-gray-400"
+                      }`}
+                    >
+                      {website.status === 1 ? "Active" : "Draft"}
                     </span>
                   </div>
                   <h4 className="text-white font-bold text-lg mb-1">
-                    Portfolio Site {i + 1}
+                    {website.websiteTitle}
                   </h4>
-                  <a
-                    href="#"
-                    className="text-blue-400 text-sm hover:underline flex items-center gap-1 mb-4"
-                  >
-                    portfolio-{i + 1}.startupninja.app{" "}
-                    <FaExternalLinkAlt className="text-xs" />
-                  </a>
+                  {website.websiteDescription && (
+                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                      {website.websiteDescription}
+                    </p>
+                  )}
+                  {website.publishedLink && (
+                    <a
+                      href={`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 text-sm hover:underline flex items-center gap-1 mb-4"
+                    >
+                      {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`.substring(
+                        0,
+                        50
+                      )}
+                      {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`
+                        .length > 50
+                        ? "..."
+                        : ""}
+                      <FaExternalLinkAlt className="text-xs" />
+                    </a>
+                  )}
                   <div className="mt-auto pt-4 border-t border-[#242424] flex justify-between text-sm text-gray-500">
-                    <span>Updated 2d ago</span>
-                    <button className="text-white hover:text-blue-400">
-                      Edit Site
-                    </button>
+                    <span>
+                      Updated:{" "}
+                      {new Date(website.updatedAt).toLocaleDateString()}
+                    </span>
+                    <span>
+                      Created:{" "}
+                      {new Date(website.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -834,31 +1398,8 @@ const UserDetailsPage: React.FC = () => {
           );
         case "Generated Images":
           return (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="group relative aspect-square bg-[#1A1A1A] rounded-xl overflow-hidden border border-[#242424]"
-                >
-                  <img
-                    src={`https://picsum.photos/seed/${i + 123}/500/500`}
-                    alt="Generated"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                    <p className="text-white text-sm line-clamp-3 mb-2">
-                      A futuristic city skyline with neon lights and flying
-                      cars, cyberpunk style
-                    </p>
-                    <div className="flex justify-between items-center text-xs text-gray-400">
-                      <span>1024x1024</span>
-                      <button className="text-blue-400 hover:text-white">
-                        Download
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="text-gray-400 text-center py-8">
+              Image generation history is not available yet
             </div>
           );
         default:
@@ -880,6 +1421,62 @@ const UserDetailsPage: React.FC = () => {
             <FaArrowLeft /> Back to User Details
           </button>
 
+          {/* User Profile Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6 bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] mb-6">
+            <div className="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center text-3xl text-white font-bold">
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.username}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                user?.username.charAt(0).toUpperCase()
+              )}
+            </div>
+
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white mb-1">
+                {user?.fullname || user?.username}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                <span className="flex items-center gap-1">
+                  <FaEnvelope /> {user?.email}
+                </span>
+                <span className="flex items-center gap-1">
+                  <FaUser /> {user?.role}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    user?.status === 1
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-red-500/20 text-red-400"
+                  }`}
+                >
+                  {user?.status === 1 ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setViewingResources(true)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
+              >
+                <FaTools /> Manage Resources
+              </button>
+              <button
+                onClick={() => setViewingEditUser(true)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+              >
+                Edit User
+              </button>
+              <button className="px-4 py-2 bg-[#2A2A2A] hover:bg-[#333] text-white rounded-lg border border-[#333] transition-colors font-medium">
+                Suspend
+              </button>
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-[#1A1A1A] rounded-xl border border-[#242424]">
               {viewingContent === "AI Chats" && (
@@ -896,18 +1493,37 @@ const UserDetailsPage: React.FC = () => {
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">
-                {viewingContent} History
-              </h1>
-              <p className="text-gray-400 text-sm">
-                Viewing all {viewingContent?.toLowerCase()} for{" "}
-                {user?.fullname || user?.username}
-              </p>
+              <h2 className="text-2xl font-bold text-white">
+                {viewingContent}
+              </h2>
             </div>
           </div>
         </div>
 
         {getHistoryContent()}
+
+        {/* Pagination */}
+        {contentTotalPages > 1 && !contentLoading && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <button
+              onClick={() => handleContentPageChange(contentPage - 1)}
+              disabled={contentPage === 1}
+              className="px-4 py-2 bg-[#1A1A1A] border border-[#242424] rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#444] transition-colors"
+            >
+              Previous
+            </button>
+            <span className="text-gray-400">
+              Page {contentPage} of {contentTotalPages}
+            </span>
+            <button
+              onClick={() => handleContentPageChange(contentPage + 1)}
+              disabled={contentPage === contentTotalPages}
+              className="px-4 py-2 bg-[#1A1A1A] border border-[#242424] rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#444] transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -1496,7 +2112,7 @@ const UserDetailsPage: React.FC = () => {
                 Reset Password
               </button>
             </div>
-            <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
+            {/* <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
               <div className="flex items-center gap-3">
                 <FaShieldAlt className="text-green-500" />
                 <div>
@@ -1509,7 +2125,7 @@ const UserDetailsPage: React.FC = () => {
               <button className="text-blue-400 text-sm hover:underline">
                 Enable
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -1646,7 +2262,12 @@ const UserDetailsPage: React.FC = () => {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => {
+                    setActiveTab(tab.id as any);
+                    setViewingContent(null);
+                    setSelectedChat(null);
+                    setSelectedPost(null);
+                  }}
                   className={`flex items-center gap-2 pb-4 px-2 text-sm font-medium transition-colors relative whitespace-nowrap ${
                     activeTab === tab.id
                       ? "text-red-500"
@@ -1673,6 +2294,227 @@ const UserDetailsPage: React.FC = () => {
           </>
         )}
       </div>
+      {selectedPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-xs"
+            onClick={() => setSelectedPost(null)}
+          />
+
+          <div className="relative w-full max-w-5xl max-h-[90vh] sm:max-h-[85vh] mx-auto bg-[#101014] border border-[#2c2c34] shadow-2xl rounded-xl overflow-hidden text-white transform transition-all duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-[#2c2c34]">
+              <h2 className="text-xl font-bold tracking-wider uppercase text-gray-200">
+                Post Insight
+              </h2>
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-[#1a1a1f]"
+                aria-label="Close"
+              >
+                <FaTimesCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-[#2c2c34] max-h-[78vh] sm:max-h-[75vh] overflow-y-auto lg:overflow-hidden">
+              <div className="lg:col-span-3 p-3 space-y-3">
+                <h3 className="text-lg font-semibold text-gray-200">
+                  Post Content
+                </h3>
+
+                <div className="p-2 space-y-4">
+                  {selectedPost.image?.buffer ? (
+                    <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center border-2 border-dotted border-gray-600">
+                      <img
+                        src={`data:${
+                          selectedPost.image.mimetype || "image/jpeg"
+                        };base64,${selectedPost.image.buffer}`}
+                        alt={
+                          selectedPost.caption
+                            ? selectedPost.caption.slice(0, 60)
+                            : "Post media"
+                        }
+                        className="w-full max-h-72 object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-40 bg-black/50 flex items-center justify-center rounded-md border-2 border-dotted border-gray-600">
+                      <span className="text-gray-500 text-sm">
+                        No visual media attached
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap break-words min-h-[40px] max-h-40 md:max-h-56 overflow-y-auto pr-1 pt-2">
+                    {selectedPost.caption || (
+                      <span className="text-gray-500 italic">
+                        No caption added.
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 p-6 space-y-4">
+                <div className="space-y-4 border-b border-gray-700/50 pb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-xs ring-1 transition-all ${
+                        selectedPost.status === "published"
+                          ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30"
+                          : selectedPost.status === "scheduled"
+                          ? "bg-cyan-500/10 text-cyan-400 ring-cyan-500/30"
+                          : selectedPost.status === "failed"
+                          ? "bg-rose-500/10 text-rose-400 ring-rose-500/30"
+                          : "bg-gray-500/10 text-gray-400 ring-gray-500/30"
+                      }`}
+                    >
+                      {selectedPost.status === "published" && (
+                        <FaCheckCircle className="w-3 h-3" />
+                      )}
+                      {selectedPost.status === "scheduled" && (
+                        <FaClock className="w-3 h-3" />
+                      )}
+                      {selectedPost.status === "failed" && (
+                        <FaTimesCircle className="w-3 h-3" />
+                      )}
+                      {selectedPost.status === "cancelled" && (
+                        <FaBell className="w-3 h-3" />
+                      )}
+                      <span className="uppercase tracking-widest">
+                        {selectedPost.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm font-light text-gray-300 flex items-center gap-2">
+                    <FaCog className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-gray-400">
+                      {selectedPost.status === "scheduled"
+                        ? "Scheduled at:"
+                        : "Published at:"}
+                    </span>
+                    <span className="font-semibold text-white">
+                      {new Date(
+                        selectedPost.publishedAt || selectedPost.scheduledAt
+                      ).toLocaleDateString()}{" "}
+                      at{" "}
+                      {new Date(
+                        selectedPost.publishedAt || selectedPost.scheduledAt
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-b border-gray-700/50 pb-4">
+                  <h3 className="text-lg font-semibold text-gray-200 mb-3">
+                    Target Platforms
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPost.platforms?.map((p) => {
+                      const platformMeta =
+                        PLATFORM_META[p.toLowerCase()] ||
+                        PLATFORM_META.facebook;
+                      const PlatformIcon = platformMeta.icon;
+                      return (
+                        <div
+                          key={p}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1f] rounded-full border"
+                          style={{
+                            borderColor: `${platformMeta.color}30`,
+                            backgroundColor: `${platformMeta.color}10`,
+                          }}
+                        >
+                          <PlatformIcon
+                            size={14}
+                            style={{ color: platformMeta.color }}
+                          />
+                          <span
+                            className="text-xs font-medium uppercase tracking-wider"
+                            style={{ color: platformMeta.color }}
+                          >
+                            {platformMeta.name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {selectedPost.accounts &&
+                  Array.isArray(selectedPost.accounts) &&
+                  selectedPost.accounts.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-200 mb-3">
+                        Accounts
+                      </h3>
+                      <div className="space-y-3">
+                        {selectedPost.accounts.map((acc, idx) => {
+                          const initials = (
+                            acc.name ||
+                            acc.username ||
+                            acc.platform ||
+                            "?"
+                          )
+                            .trim()
+                            .charAt(0)
+                            .toUpperCase();
+                          return (
+                            <div
+                              key={`${acc.platform}-${idx}`}
+                              className="flex items-center justify-between bg-[#1a1a1f] border border-[#2c2c34] rounded-lg p-3"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full border border-[#2c2c34] overflow-hidden bg-[#0f0f13] flex-shrink-0">
+                                  {acc.profileImage ? (
+                                    <img
+                                      src={acc.profileImage}
+                                      alt={
+                                        acc.username || acc.name || "Account"
+                                      }
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="text-gray-300 text-sm font-semibold">
+                                      {initials}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-white text-sm truncate">
+                                    {acc.name ||
+                                      acc.username ||
+                                      "Unknown account"}
+                                  </div>
+                                  <div className="text-gray-400 text-xs truncate">
+                                    {acc.username
+                                      ? `@${acc.username.replace(/^@/, "")}`
+                                      : acc.platform}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <FaShareAlt
+                                  size={14}
+                                  className="text-blue-400"
+                                />
+                                <span className="text-gray-400 text-xs uppercase tracking-wider">
+                                  {acc.platform}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
