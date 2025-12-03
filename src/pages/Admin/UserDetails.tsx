@@ -244,28 +244,7 @@ const UserDetailsPage: React.FC = () => {
               ).toISOString(),
               details: "Successful operation",
             })),
-            loginSessions: [
-              {
-                id: "sess_1",
-                device: "Desktop (Windows)",
-                browser: "Chrome",
-                ip: "192.168.1.1",
-                lastActive: new Date().toISOString(),
-                isCurrent: true,
-                location: "New York, USA",
-              },
-              {
-                id: "sess_2",
-                device: "Mobile (iPhone)",
-                browser: "Safari",
-                ip: "10.0.0.1",
-                lastActive: new Date(
-                  Date.now() - 24 * 60 * 60 * 1000
-                ).toISOString(),
-                isCurrent: false,
-                location: "New York, USA",
-              },
-            ],
+            loginSessions: response.data.loginSessions || [],
             features: features,
           };
           setUser(extendedUser);

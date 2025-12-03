@@ -97,58 +97,82 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
       </div>
 
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
-        <h3 className="text-white font-semibold mb-6">Login Sessions</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[#242424]">
-                <th className="pb-3 text-gray-400 font-medium text-sm">
-                  Device
-                </th>
-                <th className="pb-3 text-gray-400 font-medium text-sm">
-                  Location
-                </th>
-                <th className="pb-3 text-gray-400 font-medium text-sm">
-                  IP Address
-                </th>
-                <th className="pb-3 text-gray-400 font-medium text-sm">
-                  Last Active
-                </th>
-                <th className="pb-3 text-gray-400 font-medium text-sm">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {user.loginSessions.map((session) => (
-                <tr
-                  key={session.id}
-                  className="border-b border-[#242424] last:border-0"
-                >
-                  <td className="py-4 text-white text-sm">
-                    {session.device} ({session.browser})
-                  </td>
-                  <td className="py-4 text-gray-300 text-sm">
-                    {session.location}
-                  </td>
-                  <td className="py-4 text-gray-300 text-sm">{session.ip}</td>
-                  <td className="py-4 text-gray-300 text-sm">
-                    {formatDate(session.lastActive)}
-                  </td>
-                  <td className="py-4">
-                    {session.isCurrent ? (
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">
-                        Current
-                      </span>
-                    ) : (
-                      <span className="text-gray-500 text-sm">Inactive</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-white font-semibold">Login Sessions</h3>
+          <div className="text-sm text-gray-400">
+            {user.loginSessions?.length || 0} active session(s)
+          </div>
         </div>
+        {user.loginSessions && user.loginSessions.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-[#242424]">
+                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                    Device & Browser
+                  </th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm">OS</th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                    Location
+                  </th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                    IP Address
+                  </th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                    Last Active
+                  </th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {user.loginSessions.map((session) => (
+                  <tr
+                    key={session.id}
+                    className="border-b border-[#242424] last:border-0"
+                  >
+                    <td className="py-4 text-white text-sm">
+                      <div>{session.device}</div>
+                      {session.browser && (
+                        <div className="text-gray-400 text-xs mt-0.5">
+                          {session.browser}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-4 text-gray-300 text-sm">
+                      {(session as any).os || "Unknown"}
+                    </td>
+                    <td className="py-4 text-gray-300 text-sm">
+                      {session.location || "Unknown"}
+                    </td>
+                    <td className="py-4 text-gray-300 font-mono text-xs">
+                      {session.ip}
+                    </td>
+                    <td className="py-4 text-gray-300 text-sm">
+                      {formatDate(session.lastActive)}
+                    </td>
+                    <td className="py-4">
+                      {session.isCurrent ? (
+                        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-md text-xs font-medium">
+                          Current Session
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-md text-xs font-medium">
+                          Active
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-400">
+            No active login sessions found
+          </div>
+        )}
       </div>
     </div>
   );

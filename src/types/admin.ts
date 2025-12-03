@@ -78,6 +78,7 @@ export interface UserStats {
 export interface UserWithStats {
   user: UserDetails;
   stats: UserStats;
+  loginSessions?: LoginSession[];
 }
 
 export interface PaginationInfo {
