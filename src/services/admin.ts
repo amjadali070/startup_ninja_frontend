@@ -392,4 +392,27 @@ export const adminService = {
       };
     }
   },
+  
+
+  /**
+   * Reset User Password
+   */
+  async resetUserPassword(
+    userId: string, 
+    password: string
+  ): Promise<AdminApiResponse<void>> {
+    try {
+      const response = await apiClient.post<AdminApiResponse<void>>(
+        `/admin/users/${userId}/reset-password`,
+        { password }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to reset password",
+        error: error.message,
+      };
+    }
+  },
 };

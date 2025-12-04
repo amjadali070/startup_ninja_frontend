@@ -105,23 +105,25 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
         </div>
         {user.loginSessions && user.loginSessions.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[900px]">
               <thead>
                 <tr className="border-b border-[#242424]">
-                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
                     Device & Browser
                   </th>
-                  <th className="pb-3 text-gray-400 font-medium text-sm">OS</th>
-                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
+                    OS
+                  </th>
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
                     Location
                   </th>
-                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
                     IP Address
                   </th>
-                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
                     Last Active
                   </th>
-                  <th className="pb-3 text-gray-400 font-medium text-sm">
+                  <th className="pb-3 text-gray-400 font-medium text-sm whitespace-nowrap px-4">
                     Status
                   </th>
                 </tr>
@@ -132,7 +134,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
                     key={session.id}
                     className="border-b border-[#242424] last:border-0"
                   >
-                    <td className="py-4 text-white text-sm">
+                    <td className="py-4 text-white text-sm whitespace-nowrap px-4">
                       <div>{session.device}</div>
                       {session.browser && (
                         <div className="text-gray-400 text-xs mt-0.5">
@@ -140,19 +142,19 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
                         </div>
                       )}
                     </td>
-                    <td className="py-4 text-gray-300 text-sm">
+                    <td className="py-4 text-gray-300 text-sm whitespace-nowrap px-4">
                       {(session as any).os || "Unknown"}
                     </td>
-                    <td className="py-4 text-gray-300 text-sm">
+                    <td className="py-4 text-gray-300 text-sm whitespace-nowrap px-4">
                       {session.location || "Unknown"}
                     </td>
-                    <td className="py-4 text-gray-300 font-mono text-xs">
+                    <td className="py-4 text-gray-300 font-mono text-xs whitespace-nowrap px-4">
                       {session.ip}
                     </td>
-                    <td className="py-4 text-gray-300 text-sm">
+                    <td className="py-4 text-gray-300 text-sm whitespace-nowrap px-4">
                       {formatDate(session.lastActive)}
                     </td>
-                    <td className="py-4">
+                    <td className="py-4 whitespace-nowrap px-4">
                       {session.isCurrent ? (
                         <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-md text-xs font-medium">
                           Current Session
