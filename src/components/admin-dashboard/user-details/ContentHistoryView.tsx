@@ -17,6 +17,7 @@ import SocialPostsListView from "./SocialPostsListView";
 import WebsitesListView from "./WebsitesListView";
 import WebsiteAnalyticsView from "./WebsiteAnalyticsView";
 import SingleWebsiteAnalyticsView from "./SingleWebsiteAnalyticsView";
+import PostDetailModal from "./PostDetailModal";
 import type {
   ExtendedUserDetails,
   AIChat,
@@ -65,6 +66,7 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
   WEB_BUILDER_SERVICE_URL,
 }) => {
   const [selectedWebsiteId, setSelectedWebsiteId] = React.useState<string | null>(null);
+  const [selectedPost, setSelectedPost] = React.useState<SocialPost | null>(null);
 
   if (!viewingContent) return null;
 
@@ -113,7 +115,7 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
         return (
           <SocialPostsListView
             socialPosts={contentData.socialPosts}
-            setSelectedPost={() => {}} // This will be passed from parent
+            setSelectedPost={setSelectedPost}
             PLATFORM_META={PLATFORM_META}
           />
         );
@@ -142,6 +144,13 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
 
   return (
     <div className="p-4 sm:p-6 max-w-full mx-auto animate-fade-in">
+      {selectedPost && (
+        <PostDetailModal
+          selectedPost={selectedPost}
+          setSelectedPost={setSelectedPost}
+          PLATFORM_META={PLATFORM_META}
+        />
+      )}
       <div className="mb-8">
         <button
           onClick={closeContentHistory}
