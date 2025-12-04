@@ -157,9 +157,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
                         <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-md text-xs font-medium">
                           Current Session
                         </span>
-                      ) : (
+                      ) : session.isActive ? (
                         <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-md text-xs font-medium">
                           Active
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-gray-500/20 text-gray-400 rounded-md text-xs font-medium">
+                          Inactive
                         </span>
                       )}
                     </td>

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { authService } from '../services/auth';
 
 // Replace 'any' with your actual user type if available
 export type User = any;
@@ -41,9 +42,19 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 
   const logout = useCallback(async () => {
     try {
-      // console.log('AuthProvider logout called' , user);
-      // const userData = { user: { userId: user?.id } };
-      // await authService.logout(userData);
+      if (user?.id) {
+        const userData = { user: { userId: user.id } };
+        await authService.logout(userData);
+      } else {
+        // If no user ID, still try to call logout to clear backend session if token exists
+        // The service expects an object with user.userId, so we'll pass a dummy one or handle it
+        // But since we have the token, the backend should be able to identify the session.
+        // Let's pass a dummy object to satisfy the typescript definition if needed, 
+        // or better, just pass what we have.
+        // Actually, looking at authService.logout signature: userData: { user: { userId: string } }
+        // We should try to pass it if possible.
+        await authService.logout({ user: { userId: user?.id || '' } });
+      }
     } catch (error) {
       console.error('AuthProvider logout failed:', error);
     } finally {
@@ -53,7 +64,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
       setToken(null);
       setUser(null);
     }
-  }, []);
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: !!user }}>

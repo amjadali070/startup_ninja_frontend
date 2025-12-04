@@ -1,39 +1,29 @@
-import React from 'react';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../layouts/DashboardLayout';
-import AdminDashboardLayout from '../../layouts/AdminDashboardLayout.tsx';
-import { authService } from '../../services/auth.ts';
+import React from "react";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../../layouts/DashboardLayout";
+import AdminDashboardLayout from "../../layouts/AdminDashboardLayout.tsx";
 
 const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
-
 
   const handleLogout = async () => {
     try {
-      const userData = {
-        user: {
-          userId: user?.id || '',
-        }
-      }
-      await authService.logout(userData);
       logout();
-      // navigate('/login', { replace: true });
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
       logout();
-      // navigate('/login', { replace: true });
     }
   };
 
   const handleOpenSettings = () => {
-    navigate('/settings');
+    navigate("/settings");
   };
 
   return (
-    <DashboardLayout 
-      activePath="/admin-dashboard" 
+    <DashboardLayout
+      activePath="/admin-dashboard"
       title="Admin Dashboard"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}

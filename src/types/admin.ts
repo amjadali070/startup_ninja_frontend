@@ -164,6 +164,7 @@ export interface LoginSession {
   ip: string;
   lastActive: string;
   isCurrent: boolean;
+  isActive: boolean;
   location?: string;
 }
 
