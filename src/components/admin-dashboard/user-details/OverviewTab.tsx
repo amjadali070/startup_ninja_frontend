@@ -176,23 +176,29 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
         <h3 className="text-white font-semibold mb-4">Recent Activity</h3>
         <div className="space-y-4">
-          {user.activityLogs.slice(0, 5).map((log) => (
-            <div
-              key={log.id}
-              className="flex items-start gap-4 pb-4 border-b border-[#242424] last:border-0 last:pb-0"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center flex-shrink-0">
-                <FaHistory className="text-gray-400 text-xs" />
+          {user.activityLogs.length > 0 ? (
+            user.activityLogs.slice(0, 5).map((log) => (
+              <div
+                key={log.id}
+                className="flex items-start gap-4 pb-4 border-b border-[#242424] last:border-0 last:pb-0"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center flex-shrink-0">
+                  <FaHistory className="text-gray-400 text-xs" />
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{log.action}</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    {formatDate(log.timestamp)}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">{log.details}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-white text-sm font-medium">{log.action}</p>
-                <p className="text-gray-400 text-xs mt-1">
-                  {formatDate(log.timestamp)}
-                </p>
-                <p className="text-gray-500 text-xs mt-1">{log.details}</p>
-              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-4 text-sm">
+              No Recent Activity
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

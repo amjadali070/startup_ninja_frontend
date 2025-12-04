@@ -7,9 +7,14 @@ import { toast } from "react-hot-toast";
 interface SecurityTabProps {
   user: ExtendedUserDetails;
   formatDate: (dateString: string) => string;
+  onUpdate?: () => void;
 }
 
-const SecurityTab: React.FC<SecurityTabProps> = ({ user, formatDate }) => {
+const SecurityTab: React.FC<SecurityTabProps> = ({
+  user,
+  formatDate,
+  onUpdate,
+}) => {
   const [showResetForm, setShowResetForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,6 +45,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({ user, formatDate }) => {
         setConfirmPassword("");
         setShowNewPassword(false);
         setShowConfirmPassword(false);
+        if (onUpdate) {
+          onUpdate();
+        }
       } else {
         toast.error(response.message || "Failed to reset password");
       }
@@ -48,6 +56,38 @@ const SecurityTab: React.FC<SecurityTabProps> = ({ user, formatDate }) => {
     } finally {
       setIsResetting(false);
     }
+  };
+
+  const getLastPasswordChangeText = () => {
+    const passwordUpdateLog = user.activityLogs.find(
+      (log) => log.action === "Password Update"
+    );
+
+    if (!passwordUpdateLog) {
+      return "Never changed";
+    }
+
+    const date = new Date(passwordUpdateLog.timestamp);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 60) {
+      if (diffMinutes < 1) return "Changed just now";
+      return `Changed ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+    }
+
+    if (diffHours < 24) {
+      return `Changed ${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+    }
+
+    if (diffDays === 1) return "Changed yesterday";
+    if (diffDays < 30) return `Changed ${diffDays} days ago`;
+    if (diffDays < 365)
+      return `Changed ${Math.floor(diffDays / 30)} months ago`;
+    return `Changed ${Math.floor(diffDays / 365)} years ago`;
   };
 
   return (
@@ -62,7 +102,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({ user, formatDate }) => {
                 <div>
                   <p className="text-white font-medium">Password</p>
                   <p className="text-gray-400 text-xs">
-                    Last changed 3 months ago
+                    {getLastPasswordChangeText()}
                   </p>
                 </div>
               </div>
@@ -158,26 +198,32 @@ const SecurityTab: React.FC<SecurityTabProps> = ({ user, formatDate }) => {
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
         <h3 className="text-white font-semibold mb-6">Activity Logs</h3>
         <div className="space-y-4">
-          {user.activityLogs.map((log) => (
-            <div
-              key={log.id}
-              className="flex items-start gap-4 pb-4 border-b border-[#242424] last:border-0 last:pb-0"
-            >
-              <div className="w-2 h-2 mt-2 rounded-full bg-gray-500"></div>
-              <div className="flex-1">
-                <div className="flex justify-between">
-                  <p className="text-white text-sm font-medium">{log.action}</p>
-                  <span className="text-gray-500 text-xs">
-                    {formatDate(log.timestamp)}
-                  </span>
+          {user.activityLogs.length > 0 ? (
+            user.activityLogs.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-start gap-4 pb-4 border-b border-[#242424] last:border-0 last:pb-0"
+              >
+                <div className="w-2 h-2 mt-2 rounded-full bg-gray-500"></div>
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <p className="text-white text-sm font-medium">{log.action}</p>
+                    <span className="text-gray-500 text-xs">
+                      {formatDate(log.timestamp)}
+                    </span>
+                  </div>
+                  <p className="text-gray-400 text-xs mt-1">
+                    IP: {log.ip} • {log.userAgent}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">{log.details}</p>
                 </div>
-                <p className="text-gray-400 text-xs mt-1">
-                  IP: {log.ip} • {log.userAgent}
-                </p>
-                <p className="text-gray-500 text-xs mt-1">{log.details}</p>
               </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-4 text-sm">
+              No Activity Logs
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

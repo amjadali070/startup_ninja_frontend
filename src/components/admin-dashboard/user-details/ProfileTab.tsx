@@ -2,9 +2,6 @@ import React from "react";
 import {
   FaCheckCircle,
   FaTimesCircle,
-  FaGlobe,
-  FaBell,
-  FaCog,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
 
@@ -70,37 +67,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
       </div>
 
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
-        <h3 className="text-white font-semibold mb-6">Preferences</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-center gap-3">
-            <FaGlobe className="text-gray-400" />
-            <div>
-              <p className="text-gray-500 text-xs">Language</p>
-              <p className="text-white text-sm">English (US)</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <FaBell className="text-gray-400" />
-            <div>
-              <p className="text-gray-500 text-xs">Notifications</p>
-              <p className="text-white text-sm">Enabled</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <FaCog className="text-gray-400" />
-            <div>
-              <p className="text-gray-500 text-xs">Theme</p>
-              <p className="text-white text-sm">Dark Mode</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-white font-semibold">Login Sessions</h3>
           <div className="text-sm text-gray-400">
-            {user.loginSessions?.length || 0} active session(s)
+            {user.loginSessions?.length || 0} session(s)
           </div>
         </div>
         {user.loginSessions && user.loginSessions.length > 0 ? (

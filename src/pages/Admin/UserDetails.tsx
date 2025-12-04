@@ -137,145 +137,146 @@ const UserDetailsPage: React.FC = () => {
     }
   }, [viewingContent, userId, user]);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (!userId) return;
-      try {
-        setLoading(true);
-        const response = await adminService.getUserById(userId);
+  const fetchUser = React.useCallback(async () => {
+    if (!userId) return;
+    try {
+      setLoading(true);
+      const response = await adminService.getUserById(userId);
 
-        if (response.success && response.data) {
-          const plan = response.data.user.subscription || "Free";
-          const features =
-            PLAN_FEATURES[plan as keyof typeof PLAN_FEATURES] ||
-            PLAN_FEATURES.Free;
+      if (response.success && response.data) {
+        const plan = response.data.user.subscription || "Free";
+        const features =
+          PLAN_FEATURES[plan as keyof typeof PLAN_FEATURES] ||
+          PLAN_FEATURES.Free;
 
-          // Fetch actual content counts
-          const [aiChatsRes, socialPostsRes, websitesRes] = await Promise.all([
-            adminService.getUserAIChats(userId, { page: 1, limit: 1 }),
-            adminService.getUserSocialPosts(userId, { page: 1, limit: 1 }),
-            adminService.getUserWebsites(userId, { page: 1, limit: 1 }),
-          ]);
+        // Fetch actual content counts
+        const [aiChatsRes, socialPostsRes, websitesRes] = await Promise.all([
+          adminService.getUserAIChats(userId, { page: 1, limit: 1 }),
+          adminService.getUserSocialPosts(userId, { page: 1, limit: 1 }),
+          adminService.getUserWebsites(userId, { page: 1, limit: 1 }),
+        ]);
 
-          const totalChats =
-            aiChatsRes.success && aiChatsRes.data
-              ? aiChatsRes.data.pagination.total
-              : response.data.stats.totalChats || 0;
+        const totalChats =
+          aiChatsRes.success && aiChatsRes.data
+            ? aiChatsRes.data.pagination.total
+            : response.data.stats.totalChats || 0;
 
-          const totalPosts =
-            socialPostsRes.success && socialPostsRes.data
-              ? socialPostsRes.data.pagination.total
-              : response.data.stats.totalPosts || 0;
+        const totalPosts =
+          socialPostsRes.success && socialPostsRes.data
+            ? socialPostsRes.data.pagination.total
+            : response.data.stats.totalPosts || 0;
 
-          const totalWebsites =
-            websitesRes.success && websitesRes.data
-              ? websitesRes.data.pagination.total
-              : response.data.stats.totalWebsites || 0;
+        const totalWebsites =
+          websitesRes.success && websitesRes.data
+            ? websitesRes.data.pagination.total
+            : response.data.stats.totalWebsites || 0;
 
-          const extendedUser: ExtendedUserDetails = {
-            ...response.data.user,
-            subscription: {
-              plan: plan,
-              status: "active",
-              startDate: "2024-01-01",
-              nextBillingDate: "2024-02-01",
-              amount:
-                plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
-              interval: "month",
-            },
-            usage: {
-              chatTokensUsed: Math.floor(
-                Math.random() *
-                  (plan === "Enterprise"
-                    ? 150000
-                    : plan === "Pro"
-                    ? 80000
-                    : 8000)
-              ),
-              chatTokensLimit:
-                plan === "Enterprise"
-                  ? 200000
+        const extendedUser: ExtendedUserDetails = {
+          ...response.data.user,
+          subscription: {
+            plan: plan,
+            status: "active",
+            startDate: "2024-01-01",
+            nextBillingDate: "2024-02-01",
+            amount:
+              plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
+            interval: "month",
+          },
+          usage: {
+            chatTokensUsed: Math.floor(
+              Math.random() *
+                (plan === "Enterprise"
+                  ? 150000
                   : plan === "Pro"
-                  ? 100000
-                  : 10000,
-              imageGenUsed: Math.floor(
-                Math.random() *
-                  (plan === "Enterprise" ? 400 : plan === "Pro" ? 150 : 15)
-              ),
-              imageGenLimit:
-                plan === "Enterprise" ? 500 : plan === "Pro" ? 200 : 20,
-              websiteUsed: totalWebsites,
-              websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
-              socialPostsUsed: totalPosts,
-              socialPostLimit:
-                plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
-              periodStart: "2024-01-01",
-              periodEnd: "2024-02-01",
-            },
-            contentStats: {
-              totalChats: totalChats,
-              totalPosts: totalPosts,
-              totalWebsites: totalWebsites,
-              totalImages: 0,
-            },
-            transactions: Array.from({ length: 5 }).map((_, i) => ({
-              id: `txn_${Math.random().toString(36).substr(2, 9)}`,
-              date: new Date(
-                Date.now() - i * 30 * 24 * 60 * 60 * 1000
-              ).toISOString(),
-              amount:
-                plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
-              currency: "USD",
-              status: "succeeded",
-              description: `${plan} Plan Subscription`,
-            })),
-            activityLogs:
-              response.data.activities?.map((activity) => ({
-                id: activity._id,
-                action: activity.activityType
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase()), // Format: PASSWORD_UPDATE -> Password Update
-                ip: activity.ipAddress,
-                userAgent: activity.device,
-                timestamp: activity.createdAt,
-                details: activity.details,
-              })) || [],
-            loginSessions: response.data.loginSessions || [],
-            features: features,
-          };
-          setUser(extendedUser);
-
-          setResourceForm({
-            chatTokensLimit: extendedUser.usage.chatTokensLimit,
-            imageGenLimit: extendedUser.usage.imageGenLimit,
+                  ? 80000
+                  : 8000)
+            ),
+            chatTokensLimit:
+              plan === "Enterprise"
+                ? 200000
+                : plan === "Pro"
+                ? 100000
+                : 10000,
+            imageGenUsed: Math.floor(
+              Math.random() *
+                (plan === "Enterprise" ? 400 : plan === "Pro" ? 150 : 15)
+            ),
+            imageGenLimit:
+              plan === "Enterprise" ? 500 : plan === "Pro" ? 200 : 20,
+            websiteUsed: totalWebsites,
             websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
+            socialPostsUsed: totalPosts,
             socialPostLimit:
               plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
-            features: features,
-          });
+            periodStart: "2024-01-01",
+            periodEnd: "2024-02-01",
+          },
+          contentStats: {
+            totalChats: totalChats,
+            totalPosts: totalPosts,
+            totalWebsites: totalWebsites,
+            totalImages: 0,
+          },
+          transactions: Array.from({ length: 5 }).map((_, i) => ({
+            id: `txn_${Math.random().toString(36).substr(2, 9)}`,
+            date: new Date(
+              Date.now() - i * 30 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+            amount:
+              plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
+            currency: "USD",
+            status: "succeeded",
+            description: `${plan} Plan Subscription`,
+          })),
+          activityLogs:
+            response.data.activities?.map((activity) => ({
+              id: activity._id,
+              action: activity.activityType
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase()), // Format: PASSWORD_UPDATE -> Password Update
+              ip: activity.ipAddress,
+              userAgent: activity.device,
+              timestamp: activity.createdAt,
+              details: activity.details,
+            })) || [],
+          loginSessions: response.data.loginSessions || [],
+          features: features,
+        };
+        setUser(extendedUser);
 
-          setEditForm({
-            fullname: extendedUser.fullname || "",
-            email: extendedUser.email || "",
-            phoneNumber: extendedUser.phoneNumber || "",
-            country: extendedUser.country || "",
-            role: extendedUser.role || "user",
-            status: extendedUser.status,
-          });
-        } else {
-          toast.error(response.message || "Failed to fetch user details");
-          navigate("/admin-dashboard/users");
-        }
-      } catch (error: any) {
-        toast.error(error.message || "Failed to fetch user details");
+        setResourceForm({
+          chatTokensLimit: extendedUser.usage.chatTokensLimit,
+          imageGenLimit: extendedUser.usage.imageGenLimit,
+          websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
+          socialPostLimit:
+            plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
+          features: features,
+        });
+
+        setEditForm({
+          fullname: extendedUser.fullname || "",
+          email: extendedUser.email || "",
+          phoneNumber: extendedUser.phoneNumber || "",
+          country: extendedUser.country || "",
+          role: extendedUser.role || "user",
+          status: extendedUser.status,
+        });
+      } else {
+        toast.error(response.message || "Failed to fetch user details");
         navigate("/admin-dashboard/users");
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchUser();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch user details");
+      navigate("/admin-dashboard/users");
+    } finally {
+      setLoading(false);
+    }
   }, [userId, navigate]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -491,7 +492,11 @@ const UserDetailsPage: React.FC = () => {
                 <ContentTab user={user} handleViewContent={handleViewContent} />
               )}
               {activeTab === "security" && (
-                <SecurityTab user={user} formatDate={formatDate} />
+                <SecurityTab
+                  user={user}
+                  formatDate={formatDate}
+                  onUpdate={fetchUser}
+                />
               )}
             </div>
           </>
