@@ -39,6 +39,8 @@ class ApiClient {
   private csrfToken: string | null = null;
   private isRefreshing: boolean = false;
   private refreshSubscribers: Array<(token: string) => void> = [];
+  private clientIp: string | null = null;
+  private clientIpPromise: Promise<string | null> | null = null;
 
   constructor() {
     this.baseURL =
@@ -77,7 +79,7 @@ class ApiClient {
   private setupInterceptors(): void {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
-      (config) => {
+      async (config) => {
         // Add auth token if available
         const token = this.getToken();
         if (token) {
@@ -93,6 +95,9 @@ class ApiClient {
         ) {
           config.headers["X-CSRF-Token"] = this.csrfToken;
         }
+
+        // Attach client IP header (best effort)
+        await this.addClientIpHeader(config);
 
         // Add request timestamp for debugging
         config.metadata = { startTime: new Date() };
@@ -204,10 +209,10 @@ class ApiClient {
                   // Refresh failed - clear tokens and notify user
                   this.clearAuthToken();
                   localStorage.removeItem("refreshToken");
-                  
+
                   // Dispatch session expired event for the modal
                   window.dispatchEvent(new Event("session-expired"));
-                  
+
                   // Optional: still reject so the calling code knows it failed
                   return Promise.reject(refreshError);
                 } finally {
@@ -261,6 +266,76 @@ class ApiClient {
         return Promise.reject(error);
       }
     );
+  }
+
+  private getCachedClientIp(): string | null {
+    if (this.clientIp) return this.clientIp;
+    if (typeof window === "undefined") return null;
+    try {
+      const stored = window.sessionStorage?.getItem("client-ip");
+      if (stored) {
+        this.clientIp = stored;
+        return stored;
+      }
+    } catch (error) {
+      // Ignore storage errors (private mode, etc.)
+    }
+    return null;
+  }
+
+  private cacheClientIp(ip: string) {
+    this.clientIp = ip;
+    if (typeof window === "undefined") return;
+    try {
+      window.sessionStorage?.setItem("client-ip", ip);
+    } catch (error) {
+      // Ignore storage errors
+    }
+  }
+
+  private async resolveClientIp(): Promise<string | null> {
+    const cached = this.getCachedClientIp();
+    if (cached) {
+      return cached;
+    }
+
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    if (!this.clientIpPromise) {
+      this.clientIpPromise = fetch("https://api.ipify.org?format=json")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data?.ip) {
+            this.cacheClientIp(data.ip);
+            return data.ip;
+          }
+          return null;
+        })
+        .catch(() => null)
+        .finally(() => {
+          this.clientIpPromise = null;
+        });
+    }
+
+    const ip = await this.clientIpPromise;
+    if (ip) {
+      this.cacheClientIp(ip);
+    }
+    return ip;
+  }
+
+  private async addClientIpHeader(config: AxiosRequestConfig): Promise<void> {
+    try {
+      const ip = await this.resolveClientIp();
+      if (ip) {
+        config.headers = config.headers || {};
+        config.headers["X-User-IP"] = ip;
+      }
+    } catch (error) {
+      // Silent fail – IP header is best-effort only
+    }
   }
 
   private getToken(): string | null {

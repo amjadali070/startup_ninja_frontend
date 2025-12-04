@@ -149,7 +149,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user, formatDate }) => {
                       {session.location || "Unknown"}
                     </td>
                     <td className="py-4 text-gray-300 font-mono text-xs whitespace-nowrap px-4">
-                      {session.ip}
+                      {session.ip || "Unknown"}
                     </td>
                     <td className="py-4 text-gray-300 text-sm whitespace-nowrap px-4">
                       {formatDate(session.lastActive)}
