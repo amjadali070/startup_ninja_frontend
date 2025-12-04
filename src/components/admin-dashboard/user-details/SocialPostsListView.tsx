@@ -25,7 +25,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
       {socialPosts.map((post) => {
         const imageSrc = post.image?.buffer
           ? `data:${post.image.mimetype || "image/jpeg"};base64,${
@@ -46,7 +46,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
             onClick={() => setSelectedPost(post)}
           >
             {imageSrc && (
-              <div className="w-full h-48 overflow-hidden bg-black/50 relative">
+              <div className="w-full h-32 overflow-hidden bg-black/50 relative">
                 <img
                   src={imageSrc}
                   alt="Post image"
@@ -62,27 +62,27 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
                     return (
                       <div
                         key={platform}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center ${meta.bgClass} backdrop-blur-sm border border-white/10`}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center ${meta.bgClass} backdrop-blur-sm border border-white/10`}
                         style={{ backgroundColor: `${meta.color}15` }}
                       >
-                        <Icon size={14} style={{ color: meta.color }} />
+                        <Icon size={12} style={{ color: meta.color }} />
                       </div>
                     );
                   })}
                 </div>
               </div>
             )}
-            <div className="p-4 flex flex-col flex-1">
+            <div className="p-3 flex flex-col flex-1">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${platformInfo.bgClass}`}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center ${platformInfo.bgClass}`}
                     style={{
                       backgroundColor: `${platformInfo.color}20`,
                     }}
                   >
                     <PlatformIcon
-                      className="text-sm"
+                      className="text-xs"
                       style={{ color: platformInfo.color }}
                     />
                   </div>
@@ -122,7 +122,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
                 </span>
               </div>
 
-              <p className="text-gray-300 text-sm mb-3 line-clamp-3 flex-1">
+              <p className="text-gray-300 text-xs mb-2 line-clamp-3 flex-1">
                 {post.caption}
               </p>
 
