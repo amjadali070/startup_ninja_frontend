@@ -50,12 +50,21 @@ const ContentTab: React.FC<ContentTabProps> = ({ user, handleViewContent }) => {
           {user.contentStats.totalWebsites}
         </h3>
         <p className="text-gray-400 text-sm mt-1">Websites</p>
-        <button
-          onClick={() => handleViewContent("Websites")}
-          className="mt-4 text-blue-400 text-sm hover:underline"
-        >
-          View Sites
-        </button>
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => handleViewContent("Websites")}
+            className="text-blue-400 text-sm hover:underline"
+          >
+            View Sites
+          </button>
+          {/* <span className="text-gray-600">|</span> */}
+          {/* <button
+            onClick={() => handleViewContent("Website Analytics")}
+            className="text-green-400 text-sm hover:underline"
+          >
+            Analytics
+          </button> */}
+        </div>
       </div>
 
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] flex flex-col items-center text-center">

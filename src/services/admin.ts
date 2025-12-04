@@ -13,6 +13,8 @@ import type {
   AIChat,
   SocialPost,
   Website,
+  WebsiteAnalytics,
+  SingleWebsiteAnalytics,
   ContentLogsResponse,
 } from "../types/admin";
 
@@ -341,6 +343,51 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to fetch websites",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get User's Website Analytics
+   * Returns detailed analytics including storage usage
+   */
+  async getUserWebsiteAnalytics(
+    userId: string
+  ): Promise<AdminApiResponse<WebsiteAnalytics>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<WebsiteAnalytics>>(
+        `/admin/users/${userId}/website-analytics`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Failed to fetch website analytics",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get Single Website Analytics
+   * Returns detailed analytics for a specific website
+   */
+  async getSingleWebsiteAnalytics(
+    websiteId: string
+  ): Promise<AdminApiResponse<SingleWebsiteAnalytics>> {
+    try {
+      const response = await apiClient.get<
+        AdminApiResponse<SingleWebsiteAnalytics>
+      >(`/admin/websites/${websiteId}/analytics`);
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "Failed to fetch single website analytics",
         error: error.message,
       };
     }

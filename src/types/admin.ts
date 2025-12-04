@@ -254,6 +254,103 @@ export interface Website {
   updatedAt: string;
 }
 
+export interface WebsiteAnalytics {
+  totalWebsites: number;
+  publishedWebsites: number;
+  draftWebsites: number;
+  totalStorageBytes: number;
+  totalStorageMB: string;
+  totalStorageGB: string;
+  storageBreakdown: {
+    galleryFiles: { count: number; sizeBytes: number; sizeMB: string };
+    documents: { count: number; sizeBytes: number; sizeMB: string };
+    websiteData: { count: number; sizeBytes: number; sizeMB: string };
+    websitePreviews: { count: number; sizeBytes: number; sizeMB: string };
+  };
+  fileTypeBreakdown: {
+    [key: string]: { count: number; sizeBytes: number; sizeMB: string };
+  };
+  websitesList: Array<{
+    id: string;
+    title: string;
+    status: "published" | "draft";
+    dataSize: number;
+    hasPreview: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  lastUpdated: string;
+}
+
+export interface SingleWebsiteAnalytics {
+  websiteInfo: {
+    id: string;
+    title: string;
+    description?: string;
+    status: "published" | "draft";
+    publishedLink?: string;
+    publishedAt?: string;
+    daysPublished?: number | null;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+  };
+  storage: {
+    totalBytes: number;
+    totalMB: string;
+    breakdown: {
+      websiteData: { sizeBytes: number; sizeMB: string };
+      documents: {
+        count: number;
+        sizeBytes: number;
+        sizeMB: string;
+        files: Array<{
+          name: string;
+          type: string;
+          size: number;
+          uploadedAt: string;
+        }>;
+      };
+      galleryAssets: {
+        count: number;
+        sizeBytes: number;
+        sizeMB: string;
+        files: Array<{
+          name: string;
+          type: string;
+          size: number;
+          path: string;
+          uploadedAt: string;
+        }>;
+      };
+      preview: { sizeBytes: number; sizeMB: string };
+    };
+  };
+  assets: {
+    totalCount: number;
+    byType: {
+      [key: string]: { count: number; totalSize: number };
+    };
+    recentAssets: Array<{
+      name: string;
+      type: string;
+      size: number;
+      uploadedAt: string;
+      source: "document" | "gallery";
+      path?: string;
+    }>;
+  };
+  pages: {
+    count: number;
+    list: Array<{
+      name: string;
+      path: string;
+      sections: number;
+    }>;
+  };
+  lastUpdated: string;
+}
+
 export interface ContentLogsResponse<T> {
   data: T[];
   pagination: PaginationInfo;

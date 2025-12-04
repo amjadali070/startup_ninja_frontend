@@ -8,12 +8,15 @@ import {
   FaShareAlt,
   FaGlobe,
   FaImage,
+  FaChartBar,
 } from "react-icons/fa";
 import LoadingSpinner from "../../LoadingSpinner";
 import ChatDetailView from "./ChatDetailView";
 import AIChatsListView from "./AIChatsListView";
 import SocialPostsListView from "./SocialPostsListView";
 import WebsitesListView from "./WebsitesListView";
+import WebsiteAnalyticsView from "./WebsiteAnalyticsView";
+import SingleWebsiteAnalyticsView from "./SingleWebsiteAnalyticsView";
 import type {
   ExtendedUserDetails,
   AIChat,
@@ -61,7 +64,22 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
   PLATFORM_META,
   WEB_BUILDER_SERVICE_URL,
 }) => {
+  const [selectedWebsiteId, setSelectedWebsiteId] = React.useState<string | null>(null);
+
   if (!viewingContent) return null;
+
+  // Render single website analytics view
+  if (selectedWebsiteId) {
+    return (
+      <div className="p-4 sm:p-6 max-w-full mx-auto animate-fade-in">
+        <SingleWebsiteAnalyticsView
+          websiteId={selectedWebsiteId}
+          onBack={() => setSelectedWebsiteId(null)}
+          WEB_BUILDER_SERVICE_URL={WEB_BUILDER_SERVICE_URL}
+        />
+      </div>
+    );
+  }
 
   // Render detailed chat view
   if (selectedChat) {
@@ -104,8 +122,11 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
           <WebsitesListView
             websites={contentData.websites}
             WEB_BUILDER_SERVICE_URL={WEB_BUILDER_SERVICE_URL}
+            onSelectWebsite={setSelectedWebsiteId}
           />
         );
+      case "Website Analytics":
+        return <WebsiteAnalyticsView userId={user._id} />;
       case "Generated Images":
         return (
           <div className="text-gray-400 text-center py-8">
@@ -195,6 +216,9 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
             )}
             {viewingContent === "Websites" && (
               <FaGlobe className="text-green-500 text-2xl" />
+            )}
+            {viewingContent === "Website Analytics" && (
+              <FaChartBar className="text-green-500 text-2xl" />
             )}
             {viewingContent === "Generated Images" && (
               <FaImage className="text-purple-500 text-2xl" />
