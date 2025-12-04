@@ -75,10 +75,23 @@ export interface UserStats {
   totalChats: number;
 }
 
+export interface UserActivity {
+  _id: string;
+  userId: string;
+  activityType: string;
+  details: string;
+  ipAddress: string;
+  device: string;
+  location: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserWithStats {
   user: UserDetails;
   stats: UserStats;
   loginSessions?: LoginSession[];
+  activities?: UserActivity[];
 }
 
 export interface PaginationInfo {

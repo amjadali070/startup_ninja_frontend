@@ -229,21 +229,17 @@ const UserDetailsPage: React.FC = () => {
               status: "succeeded",
               description: `${plan} Plan Subscription`,
             })),
-            activityLogs: Array.from({ length: 8 }).map((_, i) => ({
-              id: `log_${Math.random().toString(36).substr(2, 9)}`,
-              action: [
-                "Login",
-                "Password Update",
-                "Profile Update",
-                "API Key Created",
-              ][Math.floor(Math.random() * 4)],
-              ip: "192.168.1.1",
-              userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-              timestamp: new Date(
-                Date.now() - i * 2 * 24 * 60 * 60 * 1000
-              ).toISOString(),
-              details: "Successful operation",
-            })),
+            activityLogs:
+              response.data.activities?.map((activity) => ({
+                id: activity._id,
+                action: activity.activityType
+                  .replace(/_/g, " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase()), // Format: PASSWORD_UPDATE -> Password Update
+                ip: activity.ipAddress,
+                userAgent: activity.device,
+                timestamp: activity.createdAt,
+                details: activity.details,
+              })) || [],
             loginSessions: response.data.loginSessions || [],
             features: features,
           };
