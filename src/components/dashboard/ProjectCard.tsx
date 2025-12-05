@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProjectCardProps {
+  websiteId: string;
   title: string;
-  category: string;
+  category?: string;
   status: 'Draft' | 'Live' | 'Paused';
-  progress: number;
   lastUpdated: string;
 }
 
@@ -27,16 +27,13 @@ const statusStyles: Record<ProjectCardProps['status'], { badge: string; dot: str
   },
 };
 
-const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, lastUpdated }) => {
-  const clampedProgress = Math.min(Math.max(progress, 0), 100);
+const ProjectCard: FC<ProjectCardProps> = ({ websiteId, title, category = 'Website Builder', status, lastUpdated }) => {
+  const navigate = useNavigate();
   const statusTheme = statusStyles[status];
-  const progressFillRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (progressFillRef.current) {
-      progressFillRef.current.style.width = `${clampedProgress}%`;
-    }
-  }, [clampedProgress]);
+  const handleContinue = () => {
+    navigate(`/ai-tools/web-builder?websiteId=${websiteId}`);
+  };
 
   return (
     <div className="relative w-full">
@@ -52,22 +49,6 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
               </span>
             </div>
             <p className="font-plus-jakarta text-xs text-white/60">{category}</p>
-            <div className="flex flex-col gap-1.5 pt-1">
-              <span className="font-plus-jakarta text-[10px] uppercase tracking-[0.2em] text-white/50">{clampedProgress}% Complete</span>
-              <div
-                role="progressbar"
-                aria-valuenow={clampedProgress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${clampedProgress}% complete`}
-                className="relative h-2.5 w-full overflow-hidden rounded-full bg-white/10"
-              >
-                <div
-                  ref={progressFillRef}
-                  className="absolute inset-y-0 left-0 w-0 rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] shadow-[0px_4px_16px_rgba(229,0,0,0.35)] transition-[width] duration-300 ease-out"
-                />
-              </div>
-            </div>
           </div>
 
           <div className="flex w-full flex-col items-start justify-between gap-3 md:h-full md:w-auto md:min-w-[160px] md:items-end">
@@ -76,6 +57,7 @@ const ProjectCard: FC<ProjectCardProps> = ({ title, category, status, progress, 
             </span>
             <button
               type="button"
+              onClick={handleContinue}
               className="inline-flex h-[40px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] font-plus-jakarta text-xs font-semibold text-white shadow-[0px_5.33px_20px_rgba(229,0,0,0.35)] transition-transform duration-200 hover:scale-[1.01] md:w-[160px]"
             >
               Continue Building

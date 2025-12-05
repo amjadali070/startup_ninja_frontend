@@ -8,22 +8,12 @@ import ChangePassword, { ChangePasswordFormState } from '../components/settings/
 import LanguageRegionForm, { LanguageRegionFormState } from '../components/settings/LanguageRegionForm';
 import PaymentMethodCard, { PaymentMethod } from '../components/settings/PaymentMethodCard';
 import DeleteAccountForm from '../components/settings/DeleteAccountForm';
-import CurrentPlanCard, { PlanDetails } from '../components/settings/CurrentPlanCard';
+import CurrentPlanCard from '../components/settings/CurrentPlanCard';
 import SettingsHeader from '../components/settings/SettingsHeader';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { authService } from '../services/auth';
-import { userService, type UserProfile } from '../services/user';
+import { userService, type UserProfile, type Subscription } from '../services/user';
 import { resolveProfilePictureUrl } from '../utils/profile';
-
-const defaultPlanDetails: PlanDetails = {
-  name: 'Skilled Ninja',
-  price: '$49/month',
-  status: 'active',
-  renewalDate: 'Renews on 15 Nov 2025',
-  tokensUsed: 192_450,
-  tokensLimit: 250_000,
-  tokensRemaining: 57_550,
-};
 
 const defaultPaymentMethod: PaymentMethod = {
   id: '1',
@@ -39,6 +29,7 @@ const Settings: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -126,14 +117,20 @@ const Settings: FC = () => {
       return;
     }
 
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const response = await userService.getProfile();
-        if (response.success && response.user) {
-          setProfile(response.user);
+        // Fetch profile, subscription, and preferences in parallel
+        const [profileRes, subscriptionRes, preferencesRes] = await Promise.all([
+          userService.getProfile(),
+          userService.getSubscription(),
+          userService.getPreferences()
+        ]);
+
+        if (profileRes.success && profileRes.user) {
+          setProfile(profileRes.user);
           const hydratedForm: ProfileFormState = {
-            username: response.user.username ?? '',
-            email: response.user.email ?? '',
+            username: profileRes.user.username ?? '',
+            email: profileRes.user.email ?? '',
             company: '',
             jobTitle: '',
             location: '',
@@ -145,21 +142,35 @@ const Settings: FC = () => {
           setProfileImageDraft(null);
           setError(null);
         } else {
-          if (response.message === 'User not found') {
+          if (profileRes.message === 'User not found') {
             await logout();
             navigate('/login', { replace: true });
           }
-          setError(response.message || 'Unable to load profile.');
+          setError(profileRes.message || 'Unable to load profile.');
+        }
+
+        // Set subscription data
+        if (subscriptionRes.success && subscriptionRes.data) {
+          setSubscription(subscriptionRes.data);
+        }
+
+        // Set preferences data
+        if (preferencesRes.success && preferencesRes.data) {
+          setLanguageRegionForm({
+            language: preferencesRes.data.language,
+            timezone: preferencesRes.data.timezone,
+            dateFormat: preferencesRes.data.dateFormat,
+          });
         }
       } catch (err) {
-        console.error('Settings profile fetch failed:', err);
-        setError('Unable to load profile.');
+        console.error('Settings data fetch failed:', err);
+        setError('Unable to load settings.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchData();
   }, [logout, navigate]);
 
   const handleLogout = async () => {
@@ -314,11 +325,17 @@ const Settings: FC = () => {
     setIsSavingLanguageRegion(true);
 
     try {
-      // Here you would typically call an API to update language and region settings
-      // For now, we'll just simulate the update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await userService.updatePreferences({
+        language: languageRegionForm.language,
+        timezone: languageRegionForm.timezone,
+        dateFormat: languageRegionForm.dateFormat,
+      });
       
-      toast.success('Language and region settings updated successfully.');
+      if (response.success) {
+        toast.success('Language and region settings updated successfully.');
+      } else {
+        toast.error(response.message || 'Failed to update preferences.');
+      }
     } catch (err) {
       console.error('Language region update failed:', err);
       toast.error('Failed to update language and region settings. Please try again.');
@@ -331,15 +348,17 @@ const Settings: FC = () => {
     setIsDeletingAccount(true);
 
     try {
-      // Here you would typically call an API to delete the account
-      // For now, we'll just simulate the deletion process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await userService.deleteAccount();
       
-      toast.success('Account deleted successfully.');
-      
-      // Logout and redirect after successful deletion
-      await logout();
-      navigate('/login', { replace: true });
+      if (response.success) {
+        toast.success('Account deleted successfully.');
+        
+        // Logout and redirect after successful deletion
+        await logout();
+        navigate('/login', { replace: true });
+      } else {
+        toast.error(response.message || 'Failed to delete account.');
+      }
     } catch (err) {
       console.error('Account deletion failed:', err);
       toast.error('Failed to delete account. Please try again.');
@@ -438,7 +457,15 @@ const Settings: FC = () => {
 
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <CurrentPlanCard
-                  plan={defaultPlanDetails}
+                  plan={{
+                    name: subscription?.plan || 'Free',
+                    price: subscription?.amount ? `$${subscription.amount}/${subscription.interval}` : 'Free',
+                    status: (subscription?.status || 'active') as 'active' | 'inactive' | 'cancelled',
+                    renewalDate: subscription?.nextBillingDate ? `Renews on ${new Date(subscription.nextBillingDate).toLocaleDateString()}` : 'N/A',
+                    tokensUsed: subscription?.tokensUsed || 0,
+                    tokensLimit: subscription?.tokensLimit || 10000,
+                    tokensRemaining: subscription?.tokensRemaining || 10000,
+                  }}
                   onUpgradePlan={handleUpgradePlan}
                   onViewBillingHistory={handleViewBillingHistory}
                   onCancelSubscription={handleCancelSubscription}
