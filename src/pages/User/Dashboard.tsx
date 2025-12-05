@@ -11,7 +11,9 @@ import NinjaAssistantCard from "../../components/dashboard/NinjaAssistantCard.ts
 import ProjectCard from "../../components/dashboard/ProjectCard.tsx";
 import TokenUsageCard from "../../components/dashboard/TokenUsageCard.tsx";
 import { userService, type TokenUsage } from "../../services/user.ts";
-import WebBuilderService, { type WebsiteProject } from "../../services/web-builder/WebBuilderService.ts";
+import WebBuilderService, {
+  type WebsiteProject,
+} from "../../services/web-builder/WebBuilderService.ts";
 
 interface QuickActionConfig {
   title: string;
@@ -22,10 +24,10 @@ interface QuickActionConfig {
 }
 
 const assistantSuggestions = [
-  "Want to create a pitch deck based on your last doc?",
-  "Try AI Image Generator to design your brand's logo.",
-  "Schedule your next social campaign with AI.",
-  "Generate hero section visuals for your landing page.",
+  "Help me write a compelling value proposition for my startup",
+  "Generate 10 creative marketing ideas for a new product launch",
+  "What are the key metrics I should track for my SaaS business?",
+  "Write a professional email to potential investors",
 ];
 
 // Helper function to get relative time
@@ -34,13 +36,13 @@ const getRelativeTime = (dateString: string): string => {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 60) return "Just now";
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
   return date.toLocaleDateString();
 };
-
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -79,10 +81,14 @@ const Dashboard: React.FC = () => {
         if (response.success && response.data) {
           // Filter draft projects and get the 2 most recent
           const draftProjects = response.data
-            .filter(project => project.status === 0) // status 0 = draft
-            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .filter((project) => project.status === 0) // status 0 = draft
+            .sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime()
+            )
             .slice(0, 2);
-          
+
           setRecentProjects(draftProjects);
         }
       } catch (error) {
@@ -150,56 +156,64 @@ const Dashboard: React.FC = () => {
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
-      <main className="flex-1 mt-6 px-6 pb-16 md:px-10 xl:px-14">
-        <div className="space-y-6">
+      <main className="flex-1 mt-4 px-4 pb-12 sm:mt-6 sm:px-6 md:px-8 lg:px-10 xl:px-14 sm:pb-16">
+        <div className="space-y-4 sm:space-y-6">
           <WelcomeBanner name={user.username || user.email || "Ninja"} />
 
-          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {/* Quick Actions Grid - 1 col mobile, 2 cols small tablet, 4 cols large screens */}
+          <section className="grid gap-4 sm:gap-5 grid-cols-1 min-[500px]:grid-cols-2 xl:grid-cols-4">
             {quickActions.map((action) => (
               <QuickActionCard key={action.title} {...action} />
             ))}
           </section>
 
-          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[360px_minmax(0,1fr)_360px] xl:items-stretch xl:pb-2">
-            <div className="flex h-full w-full">
+          {/* Main Content Grid - Single column until large tablet, then 2 cols, then 3 cols on xl */}
+          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] xl:items-stretch xl:pb-2">
+            {/* Ninja Assistant Card */}
+            <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
               <NinjaAssistantCard suggestions={assistantSuggestions} />
             </div>
 
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-6 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-8">
+            {/* Ongoing Projects Card */}
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-4 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
               <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
               <div className="relative z-10 flex h-full flex-col">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-plus-jakarta text-[20px] font-semibold leading-[26px] text-white sm:text-[22px] sm:leading-[28px]">
+                    <h3 className="font-plus-jakarta text-lg font-semibold leading-tight text-white sm:text-[20px] sm:leading-[26px] lg:text-[22px] lg:leading-[28px]">
                       Ongoing Projects
                     </h3>
-                    <p className="mt-1 font-plus-jakarta text-[13px] text-white/55">
+                    <p className="mt-1 font-plus-jakarta text-xs text-white/55 sm:text-[13px]">
                       Keep track of your workspace progress in real time.
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-8 flex flex-1 flex-col justify-start gap-6">
+                <div className="mt-6 sm:mt-8 flex flex-1 flex-col justify-start gap-4 sm:gap-6">
                   {loadingProjects ? (
                     <div className="flex items-center justify-center py-8">
-                      <div className="text-white/50">Loading projects...</div>
+                      <div className="text-white/50 text-sm">
+                        Loading projects...
+                      </div>
                     </div>
                   ) : recentProjects.length > 0 ? (
                     recentProjects.map((project: WebsiteProject) => (
                       <ProjectCard
                         key={project._id}
                         websiteId={project._id}
-                        title={project.websiteTitle || 'Untitled Project'}
-                        status={project.publishedLink ? 'Live' : 'Draft'}
+                        title={project.websiteTitle || "Untitled Project"}
+                        status={project.publishedLink ? "Live" : "Draft"}
                         lastUpdated={getRelativeTime(project.updatedAt)}
                       />
                     ))
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <p className="text-white/60 text-sm">No draft projects yet</p>
+                      <p className="text-white/60 text-sm">
+                        No draft projects yet
+                      </p>
                       <button
-                        onClick={() => navigate('/ai-tools/web-builder')}
-                        className="mt-4 text-xs text-[#FF3B3B] hover:text-[#E50000]"
+                        onClick={() => navigate("/ai-tools/web-builder")}
+                        className="mt-4 text-xs text-[#FF3B3B] hover:text-[#E50000] transition-colors"
                       >
                         Create your first website →
                       </button>
@@ -209,16 +223,17 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex h-full w-full">
+            {/* Token Usage Card */}
+            <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
               {loadingTokens ? (
                 <div className="flex h-full w-full items-center justify-center rounded-[12px] border-[1.33px] border-[#191919] bg-[#0D0D0D]">
-                  <div className="text-white/50">Loading...</div>
+                  <div className="text-white/50 text-sm">Loading...</div>
                 </div>
               ) : tokenUsage ? (
-                <TokenUsageCard 
-                  used={tokenUsage.chatTokensUsed} 
-                  limit={tokenUsage.chatTokensLimit} 
-                  resetInHours={tokenUsage.resetInHours} 
+                <TokenUsageCard
+                  used={tokenUsage.chatTokensUsed}
+                  limit={tokenUsage.chatTokensLimit}
+                  resetInHours={tokenUsage.resetInHours}
                 />
               ) : (
                 <TokenUsageCard used={0} limit={10000} resetInHours={24} />

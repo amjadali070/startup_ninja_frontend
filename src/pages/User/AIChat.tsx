@@ -107,6 +107,19 @@ const AIChat: FC = () => {
     };
   }, []);
 
+  // Handle prompt from URL parameter (from Ninja Assistant)
+  useEffect(() => {
+    const promptFromUrl = searchParams.get('prompt');
+    if (promptFromUrl && !currentChatId && messages.length === 0 && !isGenerating && !prompt) {
+      // Set the prompt from URL (pre-fill input field)
+      setPrompt(promptFromUrl);
+      // Remove prompt from URL to avoid re-triggering
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('prompt');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, currentChatId, messages.length, isGenerating, prompt, setSearchParams]);
+
   const loadUserChats = useCallback(
     async (shouldRestoreFromUrl = true) => {
       try {

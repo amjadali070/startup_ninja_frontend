@@ -17,7 +17,7 @@ const TokenUsageCard: FC<TokenUsageCardProps> = ({ used, limit, resetInHours }) 
 
   return (
   <div className="flex h-full w-full flex-col rounded-[12px] border-[1.33px] border-[#191919] px-4 pb-6 pt-5 text-center shadow-[0px_10px_35px_rgba(0,0,0,0.35)] sm:px-6 sm:pb-8 sm:pt-7">
-      <h3 className="font-plus-jakarta text-lg font-semibold leading-[24px] text-white sm:text-[20px] sm:leading-[26px]">Tokens Usage</h3>
+      <h3 className="font-plus-jakarta text-lg font-semibold leading-[24px] text-white sm:text-[20px] sm:leading-[26px]">AI Tokens Usage</h3>
 
       <div className="mt-6 flex justify-center sm:mt-8">
         <div className="relative w-full max-w-[180px] sm:max-w-[200px] lg:max-w-[220px]">
