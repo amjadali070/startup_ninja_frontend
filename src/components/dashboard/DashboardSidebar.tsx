@@ -60,6 +60,12 @@ const navItems: SidebarNavItem[] = [
     admin: true,
   },
   {
+    label: "API Management",
+    to: "/admin-dashboard/api-management",
+    icon: <HiOutlineCog6Tooth className="w-5 h-5" />,
+    admin: true,
+  },
+  {
     label: "AI Tools",
     to: "/ai-tools",
     icon: <PiMagicWandBold className="w-5 h-5" />,

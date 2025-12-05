@@ -16,6 +16,8 @@ import type {
   WebsiteAnalytics,
   SingleWebsiteAnalytics,
   ContentLogsResponse,
+  APIProvider,
+  APIUsageData,
 } from "../types/admin";
 
 /**
@@ -411,6 +413,123 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to reset password",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get OpenAI API Balance
+   */
+  async getOpenAIBalance(): Promise<AdminApiResponse<APIProvider>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<APIProvider>>(
+        "/admin/api-management/openai/balance"
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch OpenAI balance",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get OpenAI API Usage
+   */
+  async getOpenAIUsage(): Promise<AdminApiResponse<APIUsageData>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<APIUsageData>>(
+        "/admin/api-management/openai/usage"
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch OpenAI usage",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Add API Balance Credit
+   */
+  async addAPIBalanceCredit(
+    provider: string,
+    creditAmount: number,
+    notes?: string
+  ): Promise<AdminApiResponse<any>> {
+    try {
+      const response = await apiClient.post<AdminApiResponse<any>>(
+        "/admin/api-management/balance/credit",
+        { provider, creditAmount, notes }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to add balance credit",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get API Balance History
+   */
+  async getAPIBalanceHistory(provider: string): Promise<AdminApiResponse<any[]>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<any[]>>(
+        `/admin/api-management/balance/history/${provider}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch balance history",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Update API Balance Credit
+   */
+  async updateAPIBalanceCredit(
+    id: string,
+    data: { creditAmount?: number; notes?: string; isActive?: boolean }
+  ): Promise<AdminApiResponse<any>> {
+    try {
+      const response = await apiClient.put<AdminApiResponse<any>>(
+        `/admin/api-management/balance/credit/${id}`,
+        data
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update balance credit",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Delete API Balance Credit
+   */
+  async deleteAPIBalanceCredit(id: string): Promise<AdminApiResponse<void>> {
+    try {
+      const response = await apiClient.delete<AdminApiResponse<void>>(
+        `/admin/api-management/balance/credit/${id}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to delete balance credit",
         error: error.message,
       };
     }

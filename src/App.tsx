@@ -22,6 +22,8 @@ import LandingPage from "./pages/landing-page/LandingPage.tsx";
 import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
 import UserManagement from "./pages/Admin/UserManagement.tsx";
+import APIManagement from "./pages/Admin/APIManagement.tsx";
+import BalanceHistory from "./pages/Admin/BalanceHistory.tsx";
 import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
 import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
@@ -169,6 +171,22 @@ function App() {
             element={
               <AdminRoute>
                 <UserDetailsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/api-management"
+            element={
+              <AdminRoute>
+                <APIManagement />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/balance-history/:provider"
+            element={
+              <AdminRoute>
+                <BalanceHistory />
               </AdminRoute>
             }
           />

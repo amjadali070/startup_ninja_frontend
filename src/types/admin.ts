@@ -368,3 +368,36 @@ export interface ContentLogsResponse<T> {
   data: T[];
   pagination: PaginationInfo;
 }
+
+// API Management Types
+export interface APIProvider {
+  id: string;
+  name: 'Google Gemini' | 'OpenAI';
+  balance: number;
+  currency: string;
+  status: 'active' | 'inactive' | 'error';
+  lastUpdated: string;
+}
+
+export interface APIUsageData {
+  providerId: string;
+  totalRequests: number;
+  totalTokens: number;
+  totalCost: number;
+  requestsToday: number;
+  tokensToday: number;
+  costToday: number;
+  usageHistory: {
+    date: string;
+    requests: number;
+    tokens: number;
+    cost: number;
+  }[];
+}
+
+export interface APIBalance {
+  providerId: string;
+  currentBalance: number;
+  currency: string;
+  lastChecked: string;
+}
