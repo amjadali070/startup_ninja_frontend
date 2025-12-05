@@ -16,11 +16,15 @@ export const useAdminDashboard = () => {
   const [realtimeUsage, setRealtimeUsage] = useState<RealtimeUsageData | null>(null);
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true); // Track if this is the first load
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      setLoading(true);
+      // Only show loading spinner on initial load, not on auto-refresh
+      if (initialLoad) {
+        setLoading(true);
+      }
       setError(null);
 
       console.log('🔄 Fetching admin dashboard data...');
@@ -67,17 +71,14 @@ export const useAdminDashboard = () => {
       setError(err.message || 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
+      setInitialLoad(false); 
     }
-  }, []);
+  }, [initialLoad]);
 
   useEffect(() => {
     fetchDashboardData();
-
-    // Refresh data every 30 seconds
-    const interval = setInterval(fetchDashboardData, 30000);
-
-    return () => clearInterval(interval);
-  }, [fetchDashboardData]);
+    return () => {};
+  }, []); 
 
   return {
     stats,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
@@ -8,18 +8,18 @@ const AdminDashboard: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       logout();
     } catch (error) {
       console.error("Logout failed:", error);
       logout();
     }
-  };
+  }, [logout]);
 
-  const handleOpenSettings = () => {
+  const handleOpenSettings = useCallback(() => {
     navigate("/settings");
-  };
+  }, [navigate]);
 
   return (
     <DashboardLayout

@@ -24,6 +24,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSettings,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation(); // MUST be at top before any conditional returns
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,7 +57,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     };
 
     fetchProfile();
-  }, [logout, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty array - only run once on mount
 
   if (loading) {
     return <LoadingSpinner fullscreen variant="dark" />;
@@ -84,8 +86,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   }
 
   const displayName = profile.username || profile.email || "Ninja";
-
-  const location = useLocation();
   const isChatbotVisible = !location.pathname.startsWith('/admin-dashboard');
 
   return (
