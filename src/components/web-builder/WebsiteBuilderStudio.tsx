@@ -1031,7 +1031,7 @@ const WebsiteBuilderStudio: FC = () => {
             selected: "desktop",
           },
           licenseKey:
-            "7560c2162e0840c48d8436e090b0d1c275fbab9659b54ebc83f4123cc00162da",
+            import.meta.env.VITE_WEBSITE_BUILDER_LICENSE_KEY,
           theme: "dark",
           customTheme: {
             default: {
