@@ -5,7 +5,6 @@ import {
   FiTrash2,
   FiEdit3,
   FiToggleLeft,
-  FiToggleRight,
   FiDollarSign,
 } from "react-icons/fi";
 

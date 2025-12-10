@@ -5,7 +5,7 @@ import { FiPlus, FiCalendar, FiActivity, FiTrendingUp } from "react-icons/fi";
 
 interface APIProviderCardProps {
   id: string;
-  name: "OpenAI" | "Google Gemini";
+  name: "OpenAI" | "Google Gemini" | "GrapesJS";
   icon: IconType;
   totalBalance: number;
   usedBalance: number;
@@ -19,7 +19,7 @@ interface APIProviderCardProps {
   costToday: number;
   color: string;
   creditsCount: number;
-  onAddCredit: (provider: "OpenAI" | "Gemini") => void;
+  onAddCredit: (provider: "OpenAI" | "Gemini" | "GrapesJS") => void;
 }
 
 const APIProviderCard: React.FC<APIProviderCardProps> = ({
@@ -40,7 +40,8 @@ const APIProviderCard: React.FC<APIProviderCardProps> = ({
   onAddCredit,
 }) => {
   const navigate = useNavigate();
-  const providerId = id === "openai" ? "OpenAI" : "Gemini";
+  const providerId =
+    id === "openai" ? "OpenAI" : id === "gemini" ? "Gemini" : "GrapesJS";
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-[#242424] bg-[#1A1A1A] p-6 transition-all duration-300 hover:bg-[#151515]">

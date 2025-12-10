@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 
 interface AddCreditModalProps {
   isOpen: boolean;
-  provider: "OpenAI" | "Gemini";
+  provider: "OpenAI" | "Gemini" | "GrapesJS";
   onClose: () => void;
   onSubmit: (
-    provider: "OpenAI" | "Gemini",
+    provider: "OpenAI" | "Gemini" | "GrapesJS",
     amount: number,
     notes: string
   ) => Promise<void>;

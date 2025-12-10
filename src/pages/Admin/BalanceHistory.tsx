@@ -32,7 +32,20 @@ const BalanceHistory: React.FC = () => {
   const [togglingCredit, setTogglingCredit] = useState<any>(null);
   const [isToggling, setIsToggling] = useState(false);
 
-  const providerName = provider === "openai" ? "OpenAI" : "Gemini";
+  const getProviderName = (provider: string | undefined) => {
+    switch (provider?.toLowerCase()) {
+      case "openai":
+        return "OpenAI";
+      case "gemini":
+        return "Gemini";
+      case "grapesjs":
+        return "GrapesJS";
+      default:
+        return provider || "Unknown";
+    }
+  };
+
+  const providerName = getProviderName(provider);
 
   const handleLogout = async () => {
     try {
