@@ -5,6 +5,7 @@ import { adminService } from "../../services/admin";
 import type { UserListItem, PaginationInfo } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
+import AlertModal from "./AlertModal";
 
 const UserAvatar: React.FC<{ user: UserListItem }> = ({ user }) => {
   const [imgError, setImgError] = useState(false);
@@ -52,6 +53,9 @@ const UserManagementTable: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [subscriptionFilter, setSubscriptionFilter] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<UserListItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -88,19 +92,29 @@ const UserManagementTable: React.FC = () => {
     subscriptionFilter,
   ]);
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+  const handleDelete = async (user: UserListItem) => {
+    setDeletingUser(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingUser) return;
 
     try {
-      const response = await adminService.deleteUser(userId);
+      setIsDeleting(true);
+      const response = await adminService.deleteUser(deletingUser._id);
       if (response.success) {
         toast.success("User deleted successfully");
+        setShowDeleteModal(false);
+        setDeletingUser(null);
         fetchUsers();
       } else {
         toast.error(response.message || "Failed to delete user");
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to delete user");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -317,10 +331,11 @@ const UserManagementTable: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(user._id);
+                          handleDelete(user);
                         }}
                         className="p-2 hover:bg-red-600/20 rounded transition-colors"
                         title="Delete user"
+                        aria-label="Delete user"
                       >
                         <FaTrash className="text-red-400 text-sm" />
                       </button>
@@ -423,6 +438,37 @@ const UserManagementTable: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Delete User Modal */}
+      <AlertModal
+        isOpen={showDeleteModal}
+        type="danger"
+        action="delete"
+        title="Delete User"
+        message={
+          deletingUser ? (
+            <>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-white">
+                {deletingUser.fullname || deletingUser.username}
+              </span>{" "}
+              (<span className="text-white/70">{deletingUser.email}</span>)?
+              This action cannot be undone and will permanently remove all user
+              data.
+            </>
+          ) : (
+            ""
+          )
+        }
+        confirmText="Delete User"
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingUser(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </div>
   );
 };
