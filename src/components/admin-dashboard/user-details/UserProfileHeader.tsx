@@ -12,7 +12,7 @@ interface UserProfileHeaderProps {
 const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
   user,
   onManageResources,
-  onEditUser,
+  // onEditUser,
   onSuspend,
 }) => {
   return (
@@ -59,12 +59,12 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
         >
           <FaTools /> Manage Resources
         </button>
-        <button
+        {/* <button
           onClick={onEditUser}
           className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
         >
           Edit User
-        </button>
+        </button> */}
         <button
           onClick={onSuspend}
           className="px-4 py-2 bg-[#2A2A2A] hover:bg-[#333] text-white rounded-lg border border-[#333] transition-colors font-medium"
