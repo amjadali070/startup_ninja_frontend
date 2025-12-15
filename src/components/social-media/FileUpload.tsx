@@ -76,9 +76,12 @@ const SelectGeminiImageModal: React.FC<{
                 const filename = img.localPath
                   ? img.localPath.split("/").pop()
                   : "";
-                const serviceUrl =
-                  import.meta.env.VITE_IMAGINATIVE_SERVICE_URL ||
-                  "http://localhost:3007";
+                let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
+                if (!serviceUrl) {
+                   // Fallback to API Gateway URL if service URL is not explicitly set
+                   const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+                   serviceUrl = apiBase.replace(/\/api\/?$/, '');
+                }
                 const src = filename
                   ? `${serviceUrl}/api/imaginative/image/${filename}`
                   : img.imageUrl;

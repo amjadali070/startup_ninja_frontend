@@ -62,31 +62,37 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
         </h1>
 
         {/* Controls Row */}
-        <div className="flex flex-wrap gap-4 mb-4">
-          <select 
-            value={aspectRatio}
-            onChange={(e) => setAspectRatio(e.target.value)}
-            className="bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626]"
-          >
-            <option value="1:1">Square (1:1)</option>
-            <option value="16:9">Widescreen (16:9)</option>
-            <option value="4:3">Standard (4:3)</option>
-            <option value="3:4">Portrait (3:4)</option>
-            <option value="9:16">Story (9:16)</option>
-          </select>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
+          <div className="w-full sm:w-auto">
+            <label className="block text-xs text-gray-400 mb-1.5 ml-1">Aspect Ratio</label>
+            <select 
+              value={aspectRatio}
+              onChange={(e) => setAspectRatio(e.target.value)}
+              className="w-full sm:w-auto bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626] transition-colors"
+            >
+              <option value="1:1">Square (1:1)</option>
+              <option value="16:9">Widescreen (16:9)</option>
+              <option value="4:3">Standard (4:3)</option>
+              <option value="3:4">Portrait (3:4)</option>
+              <option value="9:16">Story (9:16)</option>
+            </select>
+          </div>
 
-          <select 
-            value={style}
-            onChange={(e) => setStyle(e.target.value)}
-            className="bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626]"
-          >
-            <option value="photorealistic">Photorealistic</option>
-            <option value="anime">Anime</option>
-            <option value="digital-art">Digital Art</option>
-            <option value="oil-painting">Oil Painting</option>
-            <option value="sketch">Sketch</option>
-            <option value="cyberpunk">Cyberpunk</option>
-          </select>
+          <div className="w-full sm:w-auto">
+            <label className="block text-xs text-gray-400 mb-1.5 ml-1">Art Style</label>
+            <select 
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              className="w-full sm:w-auto bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626] transition-colors"
+            >
+              <option value="photorealistic">Photorealistic</option>
+              <option value="anime">Anime</option>
+              <option value="digital-art">Digital Art</option>
+              <option value="oil-painting">Oil Painting</option>
+              <option value="sketch">Sketch</option>
+              <option value="cyberpunk">Cyberpunk</option>
+            </select>
+          </div>
         </div>
 
         {/* Text Area Container */}
@@ -124,7 +130,7 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
           <button
             onClick={handleGenerate}
             disabled={!prompt.trim() || isGenerating}
-            className={`inline-flex items-center justify-center 
+            className={`w-full sm:w-auto inline-flex items-center justify-center 
               gap-2 
               px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-3.5 
               bg-[#DE0500] 

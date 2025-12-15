@@ -32,7 +32,7 @@ const ImageDetailModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
       <div 
-        className="relative w-full max-w-4xl max-h-[90vh] bg-[#151515] border border-[#242424] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] bg-[#151515] border border-[#242424] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200"
         onClick={e => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -44,22 +44,22 @@ const ImageDetailModal: React.FC<{
         </button>
 
         {/* Image Section */}
-        <div className="w-full md:w-2/3 bg-black/50 flex items-center justify-center p-4 md:p-8 checkered-bg">
+        <div className="w-full md:w-2/3 h-[40%] md:h-auto bg-black/50 flex items-center justify-center p-4 md:p-8 checkered-bg shrink-0">
           <img 
             src={image.src} 
             alt={image.alt} 
-            className="max-w-full max-h-[50vh] md:max-h-[80vh] object-contain rounded-lg shadow-lg"
+            className="w-full h-full object-contain rounded-lg shadow-lg"
           />
         </div>
 
         {/* Details Section */}
-        <div className="w-full md:w-1/3 p-5 md:p-6 flex flex-col bg-[#151515] border-t md:border-t-0 md:border-l border-[#242424]">
-          <div className="mb-4">
+        <div className="w-full md:w-1/3 h-[60%] md:h-auto p-5 md:p-6 flex flex-col bg-[#151515] border-t md:border-t-0 md:border-l border-[#242424] overflow-hidden">
+          <div className="mb-4 shrink-0">
             <h3 className="text-lg md:text-xl font-bold text-white mb-1 font-plus-jakarta">Image Details</h3>
             <p className="text-xs text-gray-500 font-plus-jakarta">{image.createdAt}</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto mb-4 pr-2 custom-scrollbar min-h-0">
             <div className="flex justify-between items-center mb-2">
               <h4 className="text-sm font-semibold text-gray-300 font-plus-jakarta">Prompt</h4>
               <button 
@@ -70,13 +70,13 @@ const ImageDetailModal: React.FC<{
               </button>
             </div>
             <div className="p-3 bg-[#0D0D0D] rounded-xl border border-[#242424] hover:border-[#333] transition-colors group">
-              <p className="text-sm text-gray-300 leading-relaxed font-plus-jakarta selection:bg-red-900/30 selection:text-red-200">
+              <p className="text-sm text-gray-300 leading-relaxed font-plus-jakarta selection:bg-red-900/30 selection:text-red-200 break-words">
                 {image.prompt}
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3 mt-auto pt-4 border-t border-[#242424]">
+          <div className="flex gap-3 mt-auto pt-4 border-t border-[#242424] shrink-0">
             <button
                 onClick={() => onDownload(image.src, `generated-image-${image.id}.png`)}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#242424] hover:bg-[#2a2a2a] text-white rounded-xl transition-all font-medium text-sm border border-transparent hover:border-[#333]"
@@ -164,7 +164,14 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     return images.map((img) => {
       // Construct URL using service URL to avoid backend absolute path issues
       const filename = img.localPath ? img.localPath.split('/').pop() : '';
-      const serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL || 'http://localhost:3007';
+      
+      let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
+      if (!serviceUrl) {
+         // Fallback to API Gateway URL if service URL is not explicitly set
+         const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+         serviceUrl = apiBase.replace(/\/api\/?$/, '');
+      }
+      
       const src = filename 
         ? `${serviceUrl}/api/imaginative/image/${filename}` 
         : img.imageUrl;
@@ -196,17 +203,17 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
           loading="lazy"
         />
 
-        {/* Hover Actions - Only buttons now, no text */}
-        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Actions - Visible on mobile, hover on desktop */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <button 
             onClick={(e) => {
               e.stopPropagation();
               handleDownload(image.src, `generated-image-${image.id}.png`);
             }}
-            className="pointer-events-auto p-1.5 bg-black/50 hover:bg-black/80 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-sm"
+            className="pointer-events-auto p-1 sm:p-1.5 bg-black/60 hover:bg-black/80 text-white hover:text-white rounded-full transition-colors backdrop-blur-sm shadow-sm"
             title="Download"
           >
-            <FiDownload size={14} />
+            <FiDownload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
           
           <button 
@@ -214,10 +221,10 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
               e.stopPropagation();
               handleDelete(image.id);
             }}
-            className="pointer-events-auto p-1.5 bg-black/50 hover:bg-black/80 text-white/70 hover:text-red-500 rounded-full transition-colors backdrop-blur-sm"
+            className="pointer-events-auto p-1 sm:p-1.5 bg-black/60 hover:bg-black/80 text-white/90 hover:text-red-500 rounded-full transition-colors backdrop-blur-sm shadow-sm"
             title="Delete"
           >
-            <FiTrash2 size={14} />
+            <FiTrash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
       </div>
@@ -250,14 +257,14 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
         </p>
       </div>
 
-      <div className="columns-2 gap-3 md:columns-3 lg:columns-4">
+      <div className="columns-3 gap-2 md:columns-4 lg:columns-5 space-y-2">
         {pageItems.map((image) => (
           <ImageCard key={image.id} image={image} />
         ))}
       </div>
 
       {total > 0 && (
-        <div className="flex items-center justify-end mt-4 text-sm text-gray-300">
+        <div className="flex items-center justify-center sm:justify-end mt-4 text-sm text-gray-300">
           <div className="flex items-center gap-4">
             <span>
               {page} of {totalPages}
