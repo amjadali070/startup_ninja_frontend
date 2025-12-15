@@ -1,28 +1,47 @@
 import React, { useState } from 'react';
-import { RiAiGenerate2 } from "react-icons/ri";
 import { GiNinjaStar } from "react-icons/gi";
+import { imageGenService } from "../../services/imageGenService";
+import { toast } from "react-hot-toast";
 
+interface CreateImagesProps {
+  onImageGenerated?: () => void;
+}
 
-const CreateImages: React.FC = () => {
+const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const maxCharacters = 280;
+  const [aspectRatio, setAspectRatio] = useState('1:1');
+  const [style, setStyle] = useState('photorealistic');
+
+  const maxCharacters = 4000; // Updated to match backend limit
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isGenerating) return;
     
     setIsGenerating(true);
-    // TODO: Implement image generation logic
-    setTimeout(() => {
+    try {
+      await imageGenService.generateImage({
+        prompt,
+        aspectRatio,
+        style
+      });
+      toast.success("Image generated successfully!");
+      setPrompt('');
+      if (onImageGenerated) {
+        onImageGenerated();
+      }
+    } catch (error) {
+      console.error("Generation failed:", error);
+      toast.error("Failed to generate image. Please try again.");
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    if (value.length <= maxCharacters) {
-      setPrompt(value);
-    }
+    // Allow typing and pasting by truncating to max limit
+    setPrompt(value.slice(0, maxCharacters));
   };
 
   return (
@@ -42,6 +61,34 @@ const CreateImages: React.FC = () => {
           Create Images
         </h1>
 
+        {/* Controls Row */}
+        <div className="flex flex-wrap gap-4 mb-4">
+          <select 
+            value={aspectRatio}
+            onChange={(e) => setAspectRatio(e.target.value)}
+            className="bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626]"
+          >
+            <option value="1:1">Square (1:1)</option>
+            <option value="16:9">Widescreen (16:9)</option>
+            <option value="4:3">Standard (4:3)</option>
+            <option value="3:4">Portrait (3:4)</option>
+            <option value="9:16">Story (9:16)</option>
+          </select>
+
+          <select 
+            value={style}
+            onChange={(e) => setStyle(e.target.value)}
+            className="bg-[#0D0D0D] text-white/70 border border-[#242424] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626]"
+          >
+            <option value="photorealistic">Photorealistic</option>
+            <option value="anime">Anime</option>
+            <option value="digital-art">Digital Art</option>
+            <option value="oil-painting">Oil Painting</option>
+            <option value="sketch">Sketch</option>
+            <option value="cyberpunk">Cyberpunk</option>
+          </select>
+        </div>
+
         {/* Text Area Container */}
         <div className="relative bg-[#0D0D0D] rounded-xl">
           <textarea
@@ -59,7 +106,7 @@ const CreateImages: React.FC = () => {
               resize-none 
               focus:outline-none focus:border-[#DC2626] 
               transition-colors duration-200"
-            rows={6}
+            rows={4}
           />
           
           {/* Character Count */}
@@ -77,7 +124,7 @@ const CreateImages: React.FC = () => {
           <button
             onClick={handleGenerate}
             disabled={!prompt.trim() || isGenerating}
-            className="inline-flex items-center justify-center 
+            className={`inline-flex items-center justify-center 
               gap-2 
               px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-3.5 
               bg-[#DE0500] 
@@ -86,34 +133,19 @@ const CreateImages: React.FC = () => {
               text-xs sm:text-sm lg:text-sm 
               font-medium 
               rounded-lg
-              transition-all duration-200"
+              transition-all duration-200
+              ${(!prompt.trim() || isGenerating) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <GiNinjaStar className="w-4 h-4 sm:w-4.5 sm:h-4.5 flex-shrink-0" />
+            {isGenerating ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+            ) : (
+              <GiNinjaStar className="w-4 h-4 sm:w-4.5 sm:h-4.5 flex-shrink-0" />
+            )}
             <span className="whitespace-nowrap">
               {isGenerating ? 'Generating...' : 'Generate Image'}
             </span>
           </button>
 
-          <button
-            onClick={() => {/* TODO: Implement generate prompt logic */}}
-            disabled={isGenerating}
-            className="inline-flex items-center justify-center 
-              gap-2 
-              px-4 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-3.5 
-              bg-[#FFFFF010] 
-              hover:bg-[#FFFFF010]/10 
-              disabled:bg-[#666666] disabled:border-[#666666] disabled:cursor-not-allowed 
-              text-[white] hover:text-white 
-              text-xs sm:text-sm lg:text-sm 
-              font-medium 
-              rounded-lg
-              transition-all duration-200"
-          >
-            <RiAiGenerate2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 flex-shrink-0" />
-            <span className="whitespace-nowrap">
-              Generate Prompt
-            </span>
-          </button>
         </div>
       </div>
     </div>
