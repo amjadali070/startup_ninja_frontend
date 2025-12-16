@@ -1,27 +1,46 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FC, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import DashboardLayout from '../layouts/DashboardLayout';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ProfileIdentityForm, { ProfileFormState } from '../components/settings/ProfileIdentityForm';
-import ChangePassword, { ChangePasswordFormState } from '../components/settings/ChangePassword';
-import LanguageRegionForm, { LanguageRegionFormState } from '../components/settings/LanguageRegionForm';
-import PaymentMethodCard, { PaymentMethod } from '../components/settings/PaymentMethodCard';
-import DeleteAccountForm from '../components/settings/DeleteAccountForm';
-import CurrentPlanCard from '../components/settings/CurrentPlanCard';
-import SettingsHeader from '../components/settings/SettingsHeader';
-import { useAuth } from '../hooks/useAuth.tsx';
-import { authService } from '../services/auth';
-import { userService, type UserProfile, type Subscription } from '../services/user';
-import { resolveProfilePictureUrl } from '../utils/profile';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FC,
+  type FormEvent,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import DashboardLayout from "../layouts/DashboardLayout";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ProfileIdentityForm, {
+  ProfileFormState,
+} from "../components/settings/ProfileIdentityForm";
+import ChangePassword, {
+  ChangePasswordFormState,
+} from "../components/settings/ChangePassword";
+import LanguageRegionForm, {
+  LanguageRegionFormState,
+} from "../components/settings/LanguageRegionForm";
+import PaymentMethodCard, {
+  PaymentMethod,
+} from "../components/settings/PaymentMethodCard";
+import DeleteAccountForm from "../components/settings/DeleteAccountForm";
+import CurrentPlanCard from "../components/settings/CurrentPlanCard";
+import { useAuth } from "../hooks/useAuth.tsx";
+import { authService } from "../services/auth";
+import {
+  userService,
+  type UserProfile,
+  type Subscription,
+} from "../services/user";
+import { resolveProfilePictureUrl } from "../utils/profile";
 
 const defaultPaymentMethod: PaymentMethod = {
-  id: '1',
-  cardNumber: '4242424242424242',
-  expiryDate: '12/25',
-  cardType: 'mastercard',
-  bankName: 'Mezzan Bank',
-  cardholderName: 'ABD MALIK',
+  id: "1",
+  cardNumber: "4242424242424242",
+  expiryDate: "12/25",
+  cardType: "mastercard",
+  bankName: "Mezzan Bank",
+  cardholderName: "ABD MALIK",
   isDefault: true,
 };
 
@@ -35,47 +54,51 @@ const Settings: FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
-    username: '',
-    email: '',
-    company: '',
-    jobTitle: '',
-    location: '',
-    timezone: 'UTC',
-    bio: '',
+    username: "",
+    email: "",
+    company: "",
+    jobTitle: "",
+    location: "",
+    timezone: "UTC",
+    bio: "",
   });
 
   const [profileBaseline, setProfileBaseline] = useState<ProfileFormState>({
-    username: '',
-    email: '',
-    company: '',
-    jobTitle: '',
-    location: '',
-    timezone: 'UTC',
-    bio: '',
+    username: "",
+    email: "",
+    company: "",
+    jobTitle: "",
+    location: "",
+    timezone: "UTC",
+    bio: "",
   });
 
-  const [changePasswordForm, setChangePasswordForm] = useState<ChangePasswordFormState>({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
+  const [changePasswordForm, setChangePasswordForm] =
+    useState<ChangePasswordFormState>({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
 
-  const [languageRegionForm, setLanguageRegionForm] = useState<LanguageRegionFormState>({
-    language: 'English',
-    timezone: 'PST (Pacific Standard Time)',
-    dateFormat: 'MM/DD/YY',
-  });
+  const [languageRegionForm, setLanguageRegionForm] =
+    useState<LanguageRegionFormState>({
+      language: "English",
+      timezone: "PST (Pacific Standard Time)",
+      dateFormat: "MM/DD/YY",
+    });
 
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isSavingLanguageRegion, setIsSavingLanguageRegion] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
-  const [profileImageDraft, setProfileImageDraft] = useState<string | null>(null);
+  const [profileImageDraft, setProfileImageDraft] = useState<string | null>(
+    null
+  );
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
   const previousImageUrlRef = useRef<string | null>(null);
 
   const resolvedProfilePicture = useMemo(() => {
-    if (profileImageDraft === '') {
+    if (profileImageDraft === "") {
       return null;
     }
 
@@ -84,19 +107,28 @@ const Settings: FC = () => {
     }
 
     const fallbackUser = authService.getUser?.() ?? null;
-    const fallbackPicture = fallbackUser?.profilePicture ?? fallbackUser?.picture ?? null;
+    const fallbackPicture =
+      fallbackUser?.profilePicture ?? fallbackUser?.picture ?? null;
     return resolveProfilePictureUrl(profile?.profilePicture ?? fallbackPicture);
   }, [profile?.profilePicture, profileImageDraft]);
 
   useEffect(() => {
     const previousUrl = previousImageUrlRef.current;
-    if (previousUrl && previousUrl !== profileImageDraft && previousUrl.startsWith('blob:')) {
+    if (
+      previousUrl &&
+      previousUrl !== profileImageDraft &&
+      previousUrl.startsWith("blob:")
+    ) {
       URL.revokeObjectURL(previousUrl);
     }
 
-    if (profileImageDraft && profileImageDraft !== '' && profileImageDraft.startsWith('blob:')) {
+    if (
+      profileImageDraft &&
+      profileImageDraft !== "" &&
+      profileImageDraft.startsWith("blob:")
+    ) {
       previousImageUrlRef.current = profileImageDraft;
-    } else if (profileImageDraft === '') {
+    } else if (profileImageDraft === "") {
       previousImageUrlRef.current = null;
     }
   }, [profileImageDraft]);
@@ -104,7 +136,7 @@ const Settings: FC = () => {
   useEffect(() => {
     return () => {
       const previousUrl = previousImageUrlRef.current;
-      if (previousUrl && previousUrl.startsWith('blob:')) {
+      if (previousUrl && previousUrl.startsWith("blob:")) {
         URL.revokeObjectURL(previousUrl);
       }
     };
@@ -113,40 +145,42 @@ const Settings: FC = () => {
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       setLoading(false);
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
       return;
     }
 
     const fetchData = async () => {
       try {
         // Fetch profile, subscription, and preferences in parallel
-        const [profileRes, subscriptionRes, preferencesRes] = await Promise.all([
-          userService.getProfile(),
-          userService.getSubscription(),
-          userService.getPreferences()
-        ]);
+        const [profileRes, subscriptionRes, preferencesRes] = await Promise.all(
+          [
+            userService.getProfile(),
+            userService.getSubscription(),
+            userService.getPreferences(),
+          ]
+        );
 
         if (profileRes.success && profileRes.user) {
           setProfile(profileRes.user);
           const hydratedForm: ProfileFormState = {
-            username: profileRes.user.username ?? '',
-            email: profileRes.user.email ?? '',
-            company: '',
-            jobTitle: '',
-            location: '',
-            timezone: 'UTC',
-            bio: '',
+            username: profileRes.user.username ?? "",
+            email: profileRes.user.email ?? "",
+            company: "",
+            jobTitle: "",
+            location: "",
+            timezone: "UTC",
+            bio: "",
           };
           setProfileForm(hydratedForm);
           setProfileBaseline(hydratedForm);
           setProfileImageDraft(null);
           setError(null);
         } else {
-          if (profileRes.message === 'User not found') {
+          if (profileRes.message === "User not found") {
             await logout();
-            navigate('/login', { replace: true });
+            navigate("/login", { replace: true });
           }
-          setError(profileRes.message || 'Unable to load profile.');
+          setError(profileRes.message || "Unable to load profile.");
         }
 
         // Set subscription data
@@ -163,8 +197,8 @@ const Settings: FC = () => {
           });
         }
       } catch (err) {
-        console.error('Settings data fetch failed:', err);
-        setError('Unable to load settings.');
+        console.error("Settings data fetch failed:", err);
+        setError("Unable to load settings.");
       } finally {
         setLoading(false);
       }
@@ -177,18 +211,20 @@ const Settings: FC = () => {
     try {
       await logout();
     } catch (err) {
-      console.error('Settings logout failed:', err);
+      console.error("Settings logout failed:", err);
     } finally {
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   };
 
   const handleOpenSettings = () => {
-    navigate('/settings');
+    navigate("/settings");
   };
 
   const handleProfileChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = event.target;
     setProfileForm((prev: any) => ({
@@ -200,7 +236,7 @@ const Settings: FC = () => {
   const handleProfileReset = () => {
     setProfileForm(profileBaseline);
     setProfileImageDraft(null);
-    toast.success('Profile changes reverted.');
+    toast.success("Profile changes reverted.");
   };
 
   const handleProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -223,13 +259,13 @@ const Settings: FC = () => {
         };
         setProfileForm(updatedForm);
         setProfileBaseline(updatedForm);
-        toast.success('Profile updated successfully.');
+        toast.success("Profile updated successfully.");
       } else {
-        toast.error(response.message || 'Failed to update profile.');
+        toast.error(response.message || "Failed to update profile.");
       }
     } catch (err) {
-      console.error('Profile update failed:', err);
-      toast.error('Something went wrong while saving your profile.');
+      console.error("Profile update failed:", err);
+      toast.error("Something went wrong while saving your profile.");
     } finally {
       setIsSavingProfile(false);
     }
@@ -240,18 +276,20 @@ const Settings: FC = () => {
     try {
       const objectUrl = URL.createObjectURL(file);
       setProfileImageDraft(objectUrl);
-      toast.success('Profile image updated. Save your profile to apply the change.');
+      toast.success(
+        "Profile image updated. Save your profile to apply the change."
+      );
     } catch (err) {
-      console.error('Profile image selection failed:', err);
-      toast.error('Unable to load the selected image.');
+      console.error("Profile image selection failed:", err);
+      toast.error("Unable to load the selected image.");
     } finally {
       setIsUpdatingAvatar(false);
     }
   };
 
   const handleProfileImageRemove = () => {
-    setProfileImageDraft('');
-    toast.success('Profile image removed. Save your profile to confirm.');
+    setProfileImageDraft("");
+    toast.success("Profile image removed. Save your profile to confirm.");
   };
 
   const handleChangePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -262,42 +300,49 @@ const Settings: FC = () => {
     }));
   };
 
-  const handleChangePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleChangePasswordSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     setIsUpdatingPassword(true);
 
     try {
       // Validate passwords match
-      if (changePasswordForm.newPassword !== changePasswordForm.confirmPassword) {
-        toast.error('New passwords do not match.');
+      if (
+        changePasswordForm.newPassword !== changePasswordForm.confirmPassword
+      ) {
+        toast.error("New passwords do not match.");
         return;
       }
 
       // Validate password strength
       if (changePasswordForm.newPassword.length < 6) {
-        toast.error('New password must be at least 6 characters long.');
+        toast.error("New password must be at least 6 characters long.");
         return;
       }
 
       // Call the API to update the password
       const response = await authService.changePassword({
         currentPassword: changePasswordForm.currentPassword,
-        newPassword: changePasswordForm.newPassword
+        newPassword: changePasswordForm.newPassword,
       });
 
       if (response.success) {
-        toast.success('Password updated successfully.');
+        toast.success("Password updated successfully.");
         setChangePasswordForm({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
         });
       } else {
-        toast.error(response.message || 'Failed to update password.');
+        toast.error(response.message || "Failed to update password.");
       }
     } catch (err: any) {
-      console.error('Password update failed:', err);
-      toast.error(err?.response?.data?.message || 'Failed to update password. Please try again.');
+      console.error("Password update failed:", err);
+      toast.error(
+        err?.response?.data?.message ||
+          "Failed to update password. Please try again."
+      );
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -305,14 +350,16 @@ const Settings: FC = () => {
 
   const handleChangePasswordReset = () => {
     setChangePasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
-    toast.success('Password form reset.');
+    toast.success("Password form reset.");
   };
 
-  const handleLanguageRegionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageRegionChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     const { name, value } = event.target;
     setLanguageRegionForm((prev) => ({
       ...prev,
@@ -320,7 +367,9 @@ const Settings: FC = () => {
     }));
   };
 
-  const handleLanguageRegionSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleLanguageRegionSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     setIsSavingLanguageRegion(true);
 
@@ -330,15 +379,17 @@ const Settings: FC = () => {
         timezone: languageRegionForm.timezone,
         dateFormat: languageRegionForm.dateFormat,
       });
-      
+
       if (response.success) {
-        toast.success('Language and region settings updated successfully.');
+        toast.success("Language and region settings updated successfully.");
       } else {
-        toast.error(response.message || 'Failed to update preferences.');
+        toast.error(response.message || "Failed to update preferences.");
       }
     } catch (err) {
-      console.error('Language region update failed:', err);
-      toast.error('Failed to update language and region settings. Please try again.');
+      console.error("Language region update failed:", err);
+      toast.error(
+        "Failed to update language and region settings. Please try again."
+      );
     } finally {
       setIsSavingLanguageRegion(false);
     }
@@ -349,59 +400,61 @@ const Settings: FC = () => {
 
     try {
       const response = await userService.deleteAccount();
-      
+
       if (response.success) {
-        toast.success('Account deleted successfully.');
-        
+        toast.success("Account deleted successfully.");
+
         // Logout and redirect after successful deletion
         await logout();
-        navigate('/login', { replace: true });
+        navigate("/login", { replace: true });
       } else {
-        toast.error(response.message || 'Failed to delete account.');
+        toast.error(response.message || "Failed to delete account.");
       }
     } catch (err) {
-      console.error('Account deletion failed:', err);
-      toast.error('Failed to delete account. Please try again.');
+      console.error("Account deletion failed:", err);
+      toast.error("Failed to delete account. Please try again.");
     } finally {
       setIsDeletingAccount(false);
     }
   };
 
   const handleViewBillingHistory = () => {
-    toast('Billing history will be available soon.');
+    toast("Billing history will be available soon.");
   };
 
   const handleCancelSubscription = () => {
-    toast('Subscription cancellation will be available soon.');
+    toast("Subscription cancellation will be available soon.");
   };
 
   const handleUpgradePlan = () => {
-    toast.success('A success specialist will reach out about upgrading your plan.');
+    toast.success(
+      "A success specialist will reach out about upgrading your plan."
+    );
   };
 
   const handleEditPaymentMethod = (paymentMethod: PaymentMethod) => {
-    console.log('Editing payment method:', paymentMethod.id);
-    toast('Payment method editing will be available soon.');
+    console.log("Editing payment method:", paymentMethod.id);
+    toast("Payment method editing will be available soon.");
   };
 
   const handleAddPaymentMethod = () => {
-    toast('Add payment method functionality will be available soon.');
+    toast("Add payment method functionality will be available soon.");
   };
 
   const createdAtDisplay = useMemo(() => {
     if (!profile?.createdAt) {
-      return 'Recently joined';
+      return "Recently joined";
     }
 
     try {
       return new Intl.DateTimeFormat(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
+        month: "short",
+        day: "numeric",
+        year: "numeric",
       }).format(new Date(profile.createdAt));
     } catch (err) {
-      console.error('Failed to format createdAt date:', err);
-      return 'Recently joined';
+      console.error("Failed to format createdAt date:", err);
+      return "Recently joined";
     }
   }, [profile?.createdAt]);
 
@@ -410,17 +463,15 @@ const Settings: FC = () => {
   }
 
   return (
-    <DashboardLayout 
-      activePath="/settings" 
-      title="Settings"
+    <DashboardLayout
+      activePath="/settings"
+      title="Account & workspace settings"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-full px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 xs:py-5 sm:py-6 md:py-8">
           <div className="space-y-8">
-            <SettingsHeader/>
-
             {error ? (
               <div className="rounded-3xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm text-red-200">
                 {error}
@@ -430,7 +481,9 @@ const Settings: FC = () => {
             <div className="grid gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-6">
               <div className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <ProfileIdentityForm
-                  displayName={profile?.username || profileForm.username || 'Startup Ninja'}
+                  displayName={
+                    profile?.username || profileForm.username || "Startup Ninja"
+                  }
                   createdAt={createdAtDisplay}
                   profileForm={profileForm}
                   isSaving={isSavingProfile}
@@ -440,7 +493,11 @@ const Settings: FC = () => {
                   profileImageUrl={resolvedProfilePicture ?? undefined}
                   isUpdatingImage={isUpdatingAvatar}
                   onProfileImageSelect={handleProfileImageSelect}
-                  onProfileImageRemove={resolvedProfilePicture ? handleProfileImageRemove : undefined}
+                  onProfileImageRemove={
+                    resolvedProfilePicture
+                      ? handleProfileImageRemove
+                      : undefined
+                  }
                 />
                 <ChangePassword
                   form={changePasswordForm}
@@ -458,10 +515,19 @@ const Settings: FC = () => {
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <CurrentPlanCard
                   plan={{
-                    name: subscription?.plan || 'Free',
-                    price: subscription?.amount ? `$${subscription.amount}/${subscription.interval}` : 'Free',
-                    status: (subscription?.status || 'active') as 'active' | 'inactive' | 'cancelled',
-                    renewalDate: subscription?.nextBillingDate ? `Renews on ${new Date(subscription.nextBillingDate).toLocaleDateString()}` : 'N/A',
+                    name: subscription?.plan || "Free",
+                    price: subscription?.amount
+                      ? `$${subscription.amount}/${subscription.interval}`
+                      : "Free",
+                    status: (subscription?.status || "active") as
+                      | "active"
+                      | "inactive"
+                      | "cancelled",
+                    renewalDate: subscription?.nextBillingDate
+                      ? `Renews on ${new Date(
+                          subscription.nextBillingDate
+                        ).toLocaleDateString()}`
+                      : "N/A",
                     tokensUsed: subscription?.tokensUsed || 0,
                     tokensLimit: subscription?.tokensLimit || 10000,
                     tokensRemaining: subscription?.tokensRemaining || 10000,
