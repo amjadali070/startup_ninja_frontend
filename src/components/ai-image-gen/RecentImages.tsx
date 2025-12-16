@@ -12,6 +12,7 @@ import {
   GeneratedImage,
 } from "../../services/imageGenService";
 import { toast } from "react-hot-toast";
+import AlertModal from "../admin-dashboard/AlertModal";
 
 type RecentImagesProps = {
   shouldRefresh?: boolean;
@@ -148,19 +149,34 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     fetchImages();
   }, [fetchImages, shouldRefresh]);
 
-  const handleDelete = async (imageId: string) => {
-    if (!window.confirm("Are you sure you want to delete this image?")) return;
+  
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (imageId: string) => {
+    setImageToDelete(imageId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!imageToDelete) return;
 
     try {
-      await imageGenService.deleteImage(imageId);
+      setIsDeleting(true);
+      await imageGenService.deleteImage(imageToDelete);
       toast.success("Image deleted");
-      if (selectedImage && selectedImage.id === imageId) {
+      if (selectedImage && selectedImage.id === imageToDelete) {
         setSelectedImage(null);
       }
       fetchImages(); // Refresh list
     } catch (error) {
       console.error("Failed to delete image:", error);
       toast.error("Failed to delete image");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      setImageToDelete(null);
     }
   };
 
@@ -248,7 +264,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(image.id);
+              handleDeleteClick(image.id);
             }}
             className="pointer-events-auto p-1 sm:p-1.5 bg-black/60 hover:bg-black/80 text-white/90 hover:text-red-500 rounded-full transition-colors backdrop-blur-sm shadow-sm"
             title="Delete"
@@ -355,10 +371,25 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
         <ImageDetailModal
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
           onDownload={handleDownload}
         />
       )}
+
+      {/* Alert Modal for Deletion */}
+      <AlertModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone."
+        type="danger"
+        action="delete"
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </div>
   );
 };

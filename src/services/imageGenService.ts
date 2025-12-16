@@ -6,7 +6,7 @@ export interface GeneratedImage {
   prompt: string;
   modelUsed: string;
   imageUrl: string;
-  localPath: string;
+  localPath: string | null;
   parameters: {
     aspectRatio: string;
     style: string;
