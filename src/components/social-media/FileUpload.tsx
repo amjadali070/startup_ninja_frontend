@@ -74,14 +74,31 @@ const SelectGeminiImageModal: React.FC<{
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {images.map((img) => {
                 const filename = img.localPath
-                  ? img.localPath.split("/").pop()
+                  ? img.localPath.split(/[/\\]/).pop()
                   : "";
+                
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
-                if (!serviceUrl) {
-                   // Fallback to API Gateway URL if service URL is not explicitly set
-                   const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-                   serviceUrl = apiBase.replace(/\/api\/?$/, '');
+
+                // If we are in production but the configured URL is localhost, ignore it
+                if (!isLocal && serviceUrl && (serviceUrl.includes('localhost') || serviceUrl.includes('127.0.0.1'))) {
+                    serviceUrl = undefined;
                 }
+
+                if (!serviceUrl) {
+                   if (isLocal) {
+                       const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+                       serviceUrl = apiBase.replace(/\/api\/?$/, '');
+                   } else {
+                       const apiBase = import.meta.env.VITE_API_BASE_URL;
+                       if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
+                           serviceUrl = apiBase.replace(/\/api\/?$/, '');
+                       } else {
+                           serviceUrl = 'https://startup-ninja-backend-6c0u.onrender.com';
+                       }
+                   }
+                }
+                
                 const src = filename
                   ? `${serviceUrl}/api/imaginative/image/${filename}`
                   : img.imageUrl;

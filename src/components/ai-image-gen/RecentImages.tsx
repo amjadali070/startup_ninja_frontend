@@ -163,13 +163,33 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const preparedImages: PreparedImageItem[] = useMemo(() => {
     return images.map((img) => {
       // Construct URL using service URL to avoid backend absolute path issues
-      const filename = img.localPath ? img.localPath.split('/').pop() : '';
+      // Handle both forward and backward slashes for filename extraction
+      const filename = img.localPath ? img.localPath.split(/[/\\]/).pop() : '';
       
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
+      
+      // If we are in production but the configured URL is localhost, ignore it
+      if (!isLocal && serviceUrl && (serviceUrl.includes('localhost') || serviceUrl.includes('127.0.0.1'))) {
+          serviceUrl = undefined;
+      }
+
       if (!serviceUrl) {
-         // Fallback to API Gateway URL if service URL is not explicitly set
-         const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-         serviceUrl = apiBase.replace(/\/api\/?$/, '');
+         // Fallback logic
+         if (isLocal) {
+            // In local dev, use env var or default to localhost:5000
+             const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+             serviceUrl = apiBase.replace(/\/api\/?$/, '');
+         } else {
+             // In production, force the production backend if env var is missing/wrong
+             // Use the VITE_API_BASE_URL if it's set and not localhost, otherwise hardcode the known production URL
+             const apiBase = import.meta.env.VITE_API_BASE_URL;
+             if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
+                 serviceUrl = apiBase.replace(/\/api\/?$/, '');
+             } else {
+                 serviceUrl = 'https://startup-ninja-backend-6c0u.onrender.com';
+             }
+         }
       }
       
       const src = filename 
