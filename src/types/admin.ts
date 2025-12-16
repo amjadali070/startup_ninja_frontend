@@ -401,3 +401,63 @@ export interface APIBalance {
   currency: string;
   lastChecked: string;
 }
+
+// OpenAI Detailed Usage Types
+export interface OpenAIBucketResult {
+  object: string;
+  num_model_requests: number;
+  project_id?: string;
+  user_id?: string;
+  api_key_id?: string;
+  model?: string;
+  batch?: boolean;
+  service_tier?: string;
+  // Completions specific
+  input_tokens?: number;
+  output_tokens?: number;
+  input_cached_tokens?: number;
+  input_audio_tokens?: number;
+  output_audio_tokens?: number;
+  // Images specific
+  images?: number;
+  size?: string;
+  source?: string;
+  // Audio specific
+  characters?: number;
+  seconds?: number;
+  // Costs specific
+  amount?: { value: number; currency: string; };
+  line_item?: string;
+}
+
+export interface OpenAIUsageBucket {
+  object: string;
+  start_time: number;
+  end_time: number;
+  results: OpenAIBucketResult[];
+}
+
+export interface OpenAIUsagePage {
+  object: string;
+  data: OpenAIUsageBucket[];
+  has_more: boolean;
+  next_page?: string;
+}
+
+export interface OpenAIUsageBreakdown {
+  source: 'openai' | 'fallback';
+  timeRange: {
+    start: string;
+    end: string;
+  };
+  completions?: OpenAIUsagePage;
+  images?: OpenAIUsagePage;
+  costs?: OpenAIUsagePage;
+  summary: {
+    totalRequests: number;
+    totalTokens: number;
+    totalImages: number;
+    totalCost: number;
+    currency: string;
+  };
+}

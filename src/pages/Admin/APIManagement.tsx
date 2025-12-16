@@ -8,7 +8,6 @@ import { adminService } from "../../services/admin";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
 import APIProviderCard from "../../components/admin-dashboard/APIProviderCard";
-import APISummaryStats from "../../components/admin-dashboard/APISummaryStats";
 import AddCreditModal from "../../components/admin-dashboard/AddCreditModal";
 
 const APIManagement: React.FC = () => {
@@ -195,8 +194,8 @@ const APIManagement: React.FC = () => {
       name: "OpenAI" as const,
       icon: SiOpenai,
       totalBalance: openaiHistory?.summary?.totalCredit || 0,
-      usedBalance: openaiHistory?.summary?.totalUsed || 0,
-      balance: openaiHistory?.summary?.totalRemaining || 0,
+      usedBalance: openaiData?.totalCost || 0,
+      balance: Math.max(0, (openaiHistory?.summary?.totalCredit || 0) - (openaiData?.totalCost || 0)),
       currency: openaiData?.currency || "USD",
       status: (openaiData?.status || "active") as
         | "active"
@@ -266,15 +265,7 @@ const APIManagement: React.FC = () => {
             ))}
           </div>
 
-          {/* Summary Stats */}
-          <APISummaryStats
-            totalBalance={apiProviders.reduce((sum, p) => sum + p.balance, 0)}
-            todayRequests={apiProviders.reduce(
-              (sum, p) => sum + p.requestsToday,
-              0
-            )}
-            todayCost={apiProviders.reduce((sum, p) => sum + p.costToday, 0)}
-          />
+
         </div>
       </main>
 

@@ -18,6 +18,7 @@ import type {
   ContentLogsResponse,
   APIProvider,
   APIUsageData,
+  OpenAIUsageBreakdown,
 } from "../types/admin";
 
 /**
@@ -449,6 +450,33 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to fetch OpenAI usage",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get OpenAI Usage Breakdown
+   */
+  async getOpenAIUsageBreakdown(params?: {
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+  }): Promise<AdminApiResponse<OpenAIUsageBreakdown>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.startTime) queryParams.append("startTime", params.startTime.toString());
+      if (params?.endTime) queryParams.append("endTime", params.endTime.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+      const response = await apiClient.get<AdminApiResponse<OpenAIUsageBreakdown>>(
+        `/admin/api-management/openai/detailed-usage?${queryParams.toString()}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch OpenAI usage breakdown",
         error: error.message,
       };
     }
