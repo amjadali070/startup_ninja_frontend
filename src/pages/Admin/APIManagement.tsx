@@ -7,7 +7,8 @@ import { FiCode } from "react-icons/fi";
 import { adminService } from "../../services/admin";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
-import APIProviderCard from "../../components/admin-dashboard/APIProviderCard";
+import GenericProviderCard from "../../components/admin-dashboard/APIProviderCard";
+import OpenAIProviderCard from "../../components/admin-dashboard/OpenAIProviderCard";
 import AddCreditModal from "../../components/admin-dashboard/AddCreditModal";
 
 const APIManagement: React.FC = () => {
@@ -253,16 +254,31 @@ const APIManagement: React.FC = () => {
 
           {/* API Provider Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {apiProviders.map((provider) => (
-              <APIProviderCard
-                key={provider.id}
-                {...provider}
-                onAddCredit={(providerName) => {
-                  setSelectedProvider(providerName);
-                  setShowAddCreditModal(true);
-                }}
-              />
-            ))}
+            {apiProviders.map((provider) => {
+              if (provider.id === "openai") {
+                 return (
+                  <OpenAIProviderCard
+                    key={provider.id}
+                    {...provider}
+                    name="OpenAI"
+                    onAddCredit={(providerName) => {
+                      setSelectedProvider(providerName);
+                      setShowAddCreditModal(true);
+                    }}
+                  />
+                 );
+              }
+              return (
+                <GenericProviderCard
+                  key={provider.id}
+                  {...provider}
+                  onAddCredit={(providerName: any) => {
+                    setSelectedProvider(providerName);
+                    setShowAddCreditModal(true);
+                  }}
+                />
+              );
+            })}
           </div>
 
 

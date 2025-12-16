@@ -22,7 +22,7 @@ interface APIProviderCardProps {
   onAddCredit: (provider: "OpenAI" | "Gemini" | "GrapesJS") => void;
 }
 
-const APIProviderCard: React.FC<APIProviderCardProps> = ({
+const GenericProviderCard: React.FC<APIProviderCardProps> = ({
   id,
   name,
   icon: Icon,
@@ -174,4 +174,4 @@ const APIProviderCard: React.FC<APIProviderCardProps> = ({
   );
 };
 
-export default APIProviderCard;
+export default GenericProviderCard;
