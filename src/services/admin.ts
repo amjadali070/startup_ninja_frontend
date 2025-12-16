@@ -440,10 +440,17 @@ export const adminService = {
   /**
    * Get OpenAI API Usage
    */
-  async getOpenAIUsage(): Promise<AdminApiResponse<APIUsageData>> {
+  async getOpenAIUsage(params?: {
+    startTime?: number;
+    endTime?: number;
+  }): Promise<AdminApiResponse<APIUsageData>> {
     try {
+      const queryParams = new URLSearchParams();
+      if (params?.startTime) queryParams.append("startTime", params.startTime.toString());
+      if (params?.endTime) queryParams.append("endTime", params.endTime.toString());
+
       const response = await apiClient.get<AdminApiResponse<APIUsageData>>(
-        "/admin/api-management/openai/usage"
+        `/admin/api-management/openai/usage?${queryParams.toString()}`
       );
       return response;
     } catch (error: any) {

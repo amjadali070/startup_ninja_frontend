@@ -40,12 +40,53 @@ const APIManagement: React.FC = () => {
     navigate("/settings");
   };
 
+  const [openAIDateRange, setOpenAIDateRange] = useState({
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+  });
+
+  const [openAILoading, setOpenAILoading] = useState(false);
+
+  const fetchOpenAIUsage = async (start?: string, end?: string) => {
+      // Use provided params or current state or defaults
+      setOpenAILoading(true);
+      const startDateStr = start || openAIDateRange.startDate;
+      const endDateStr = end || openAIDateRange.endDate;
+
+      const startTime = Math.floor(new Date(startDateStr).getTime() / 1000);
+      const endTime = Math.floor(new Date(endDateStr).setHours(23, 59, 59, 999) / 1000); // End of day
+
+      try {
+        const openaiUsageRes = await adminService.getOpenAIUsage({ startTime, endTime });
+
+        if (openaiUsageRes.success && openaiUsageRes.data) {
+             setOpenaiData((prev: any) => ({
+                 ...prev,
+                 ...openaiUsageRes.data,
+             }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch specific OpenAI usage", err);
+      } finally {
+        setOpenAILoading(false);
+      }
+  };
+
+  const handleOpenAIDateRangeChange = (start: string, end: string) => {
+      setOpenAIDateRange({ startDate: start, endDate: end });
+      fetchOpenAIUsage(start, end);
+  };
+
   const fetchAPIData = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // Fetch OpenAI, Gemini, and GrapesJS data
+      // For OpenAI Usage, use the current date range state
+      const startTime = Math.floor(new Date(openAIDateRange.startDate).getTime() / 1000);
+      const endTime = Math.floor(new Date(openAIDateRange.endDate).setHours(23, 59, 59, 999) / 1000);
+
       const [
         openaiBalanceRes,
         openaiUsageRes,
@@ -54,7 +95,7 @@ const APIManagement: React.FC = () => {
         grapesjsHistoryRes,
       ] = await Promise.all([
         adminService.getOpenAIBalance(),
-        adminService.getOpenAIUsage(),
+        adminService.getOpenAIUsage({ startTime, endTime }),
         adminService.getAPIBalanceHistory("OpenAI"),
         adminService.getAPIBalanceHistory("Gemini"),
         adminService.getAPIBalanceHistory("GrapesJS"),
@@ -265,6 +306,10 @@ const APIManagement: React.FC = () => {
                       setSelectedProvider(providerName);
                       setShowAddCreditModal(true);
                     }}
+                    startDate={openAIDateRange.startDate}
+                    endDate={openAIDateRange.endDate}
+                    onDateRangeChange={handleOpenAIDateRangeChange}
+                    loading={openAILoading}
                   />
                  );
               }
