@@ -39,7 +39,7 @@ const AIImageGen: FC = () => {
   return (
     <DashboardLayout
       activePath="/ai-tools/image-gen"
-      title="Imagenative Image"
+      title="Imagenative Ninja"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >

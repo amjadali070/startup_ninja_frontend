@@ -61,7 +61,7 @@ const SelectGeminiImageModal: React.FC<{
 
         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
           {loading ? (
-            <LoadingSpinner variant="dark" />
+            <LoadingSpinner variant="dark" size="small" />
           ) : images.length === 0 ? (
             <div className="text-center py-10 text-gray-500">
               No generated images found.
@@ -78,9 +78,11 @@ const SelectGeminiImageModal: React.FC<{
                   : "";
                 let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
                 if (!serviceUrl) {
-                   // Fallback to API Gateway URL if service URL is not explicitly set
-                   const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-                   serviceUrl = apiBase.replace(/\/api\/?$/, '');
+                  // Fallback to API Gateway URL if service URL is not explicitly set
+                  const apiBase =
+                    import.meta.env.VITE_API_BASE_URL ||
+                    "http://localhost:5000/api";
+                  serviceUrl = apiBase.replace(/\/api\/?$/, "");
                 }
                 const src = filename
                   ? `${serviceUrl}/api/imaginative/image/${filename}`

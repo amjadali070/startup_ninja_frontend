@@ -6,6 +6,7 @@ import {
   FiDownload,
   FiX,
   FiCopy,
+  FiImage,
 } from "react-icons/fi";
 import {
   imageGenService,
@@ -237,131 +238,130 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
 
   const ImageCard = ({ image }: { image: PreparedImageItem }) => (
     <article
-      className="group relative mb-4 break-inside-avoid overflow-hidden rounded-xl border border-[#242424] bg-[#151515] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-red-600/50 hover:shadow-xl cursor-pointer"
+      className="group relative overflow-hidden rounded-2xl bg-[#121212] border border-[#242424] hover:border-gray-700 cursor-pointer"
       onClick={() => setSelectedImage(image)}
     >
-      <div className="relative w-full aspect-square">
-        <img
-          src={image.src}
-          alt={image.alt}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+        <div className="relative h-full w-full rounded-2xl bg-[#121212] overflow-hidden">
+            <div className="relative w-full aspect-square overflow-hidden">
+                <img
+                src={image.src}
+                alt={image.alt}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                />
 
-        {/* Actions - Visible on mobile, hover on desktop */}
-        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload(image.src, `generated-image-${image.id}.png`);
-            }}
-            className="pointer-events-auto p-1 sm:p-1.5 bg-black/60 hover:bg-black/80 text-white hover:text-white rounded-full transition-colors backdrop-blur-sm shadow-sm"
-            title="Download"
-          >
-            <FiDownload className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          </button>
+                {/* Overlay only on hover for text legibility */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteClick(image.id);
-            }}
-            className="pointer-events-auto p-1 sm:p-1.5 bg-black/60 hover:bg-black/80 text-white/90 hover:text-red-500 rounded-full transition-colors backdrop-blur-sm shadow-sm"
-            title="Delete"
-          >
-            <FiTrash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          </button>
-        </div>
+                {/* Actions */}
+                <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button
+                    onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(image.src, `generated-image-${image.id}.png`);
+                    }}
+                    className="p-2 bg-black/60 hover:bg-[#333] text-white rounded-xl backdrop-blur-md border border-white/10"
+                    title="Download"
+                >
+                    <FiDownload className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                    onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(image.id);
+                    }}
+                    className="p-2 bg-black/60 hover:bg-red-500/20 text-white hover:text-red-400 rounded-xl backdrop-blur-md border border-white/10 hover:border-red-500/30"
+                    title="Delete"
+                >
+                    <FiTrash2 className="w-3.5 h-3.5" />
+                </button>
+                </div>
+
+                {/* Prompt Preview on Hover */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <p className="text-xs text-gray-200 line-clamp-2 font-medium drop-shadow-md">
+                        {image.prompt}
+                    </p>
+                </div>
+            </div>
       </div>
     </article>
   );
 
   if (loading && images.length === 0) {
     return (
-      <div className="text-white/50 text-center py-10 animate-pulse">
-        Loading your masterpieces...
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <div className="h-8 w-8 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-400 font-medium">Loading your gallery...</p>
       </div>
     );
   }
 
   if (!loading && images.length === 0) {
     return (
-      <div className="text-white/50 text-center py-10">
-        No images generated yet. Create something amazing!
+      <div className="flex flex-col items-center justify-center py-20 text-center border border-[#242424] rounded-2xl bg-[#121212] border-dashed">
+        <div className="p-4 bg-[#1E1E1E] rounded-full mb-4">
+            <FiImage className="w-8 h-8 text-gray-600" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">No images yet</h3>
+        <p className="text-gray-500 text-sm max-w-xs mx-auto">
+            Your creative journey starts here. Use the generator above to create your first masterpiece!
+        </p>
       </div>
     );
   }
 
   return (
     <div className="w-full">
-      <div className="mb-3 sm:mb-4 lg:mb-5">
-        <h2
-          className="text-white 
-          text-base sm:text-lg md:text-xl lg:text-[20px] 
-          font-bold 
-          mb-1 sm:mb-2 
-          leading-tight font-plus-jakarta"
-        >
-          Your Recent Images
-        </h2>
-        <p
-          className="text-[#9CA3AF] 
-          text-xs sm:text-sm md:text-base lg:text-[14px] 
-          font-normal 
-          leading-relaxed font-plus-jakarta lg:leading-[21px]"
-        >
-          Manage and track all your created images
-        </p>
+      <div className="flex items-end justify-between mb-6 border-b border-[#242424] pb-4">
+        <div>
+            <h2 className="text-xl font-bold text-white mb-1 font-plus-jakarta tracking-tight">
+             Library
+            </h2>
+            <p className="text-sm text-gray-400 font-medium">
+            {total} {total === 1 ? 'masterpiece' : 'masterpieces'} created
+            </p>
+        </div>
+        
+        {/* Simple Pagination Indicator */}
+        {total > 0 && (
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Page {page} of {totalPages}
+            </div>
+        )}
       </div>
 
-      <div className="columns-3 gap-2 md:columns-4 lg:columns-5 space-y-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {pageItems.map((image) => (
           <ImageCard key={image.id} image={image} />
         ))}
       </div>
 
-      {total > 0 && (
-        <div className="flex items-center justify-center sm:justify-end mt-4 text-sm text-gray-300">
-          <div className="flex items-center gap-4">
-            <span>
-              {page} of {totalPages}
-            </span>
-            <div className="flex items-center gap-2">
+      {total > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-center mt-10">
+          <div className="flex items-center gap-2 bg-[#121212] border border-[#242424] p-1.5 rounded-xl shadow-xl">
               <button
                 aria-label="Previous page"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
-                style={
-                  page > 1
-                    ? {
-                        background:
-                          "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
-                        boxShadow: "0px 10.67px 22.22px 0px #7F1D1D80",
-                      }
-                    : {}
-                }
+                className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#242424] disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               >
                 <FiChevronLeft className="w-5 h-5" />
               </button>
+              
+              <div className="px-4 text-sm font-bold text-white">
+                  {page} <span className="text-gray-600 font-normal mx-1">/</span> {totalPages}
+              </div>
+
               <button
                 aria-label="Next page"
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="p-1.5 rounded-md text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:bg-[#FFFFFF0D] border border-[#FFFFFF1A]"
-                style={
-                  page < totalPages
-                    ? {
-                        background:
-                          "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
-                        boxShadow: "0px 10.67px 22.22px 0px #7F1D1D80",
-                      }
-                    : {}
-                }
+                className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#242424] disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               >
                 <FiChevronRight className="w-5 h-5" />
               </button>
-            </div>
           </div>
         </div>
       )}
@@ -376,17 +376,17 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
         />
       )}
 
-      {/* Alert Modal for Deletion */}
+      {/* Alert Modal for Deletion UI is handled by parent/state */}
       <AlertModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Image"
-        message="Are you sure you want to delete this image? This action cannot be undone."
+        title="Delete Artwork"
+        message="Are you sure you want to delete this artwork? This action cannot be undone and the image will be lost forever."
         type="danger"
         action="delete"
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText="Delete Forever"
+        cancelText="Keep it"
         isLoading={isDeleting}
         loadingText="Deleting..."
       />

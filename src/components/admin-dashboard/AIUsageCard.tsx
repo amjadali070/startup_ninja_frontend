@@ -144,4 +144,3 @@ const AIUsageCard: React.FC<AIUsageCardProps> = () => {
 };
 
 export default AIUsageCard;
-export { AIUsageCard };
