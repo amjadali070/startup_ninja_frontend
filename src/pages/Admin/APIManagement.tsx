@@ -9,6 +9,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
 import GenericProviderCard from "../../components/admin-dashboard/APIProviderCard";
 import OpenAIProviderCard from "../../components/admin-dashboard/OpenAIProviderCard";
+import GeminiProviderCard from "../../components/admin-dashboard/GeminiProviderCard";
 import AddCreditModal from "../../components/admin-dashboard/AddCreditModal";
 
 const APIManagement: React.FC = () => {
@@ -45,16 +46,21 @@ const APIManagement: React.FC = () => {
     endDate: new Date().toISOString().split('T')[0],
   });
 
+  const [geminiDateRange, setGeminiDateRange] = useState({
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+  });
+
   const [openAILoading, setOpenAILoading] = useState(false);
+  const [geminiLoading, setGeminiLoading] = useState(false);
 
   const fetchOpenAIUsage = async (start?: string, end?: string) => {
-      // Use provided params or current state or defaults
       setOpenAILoading(true);
       const startDateStr = start || openAIDateRange.startDate;
       const endDateStr = end || openAIDateRange.endDate;
 
       const startTime = Math.floor(new Date(startDateStr).getTime() / 1000);
-      const endTime = Math.floor(new Date(endDateStr).setHours(23, 59, 59, 999) / 1000); // End of day
+      const endTime = Math.floor(new Date(endDateStr).setHours(23, 59, 59, 999) / 1000);
 
       try {
         const openaiUsageRes = await adminService.getOpenAIUsage({ startTime, endTime });
@@ -72,9 +78,38 @@ const APIManagement: React.FC = () => {
       }
   };
 
+  const fetchGeminiUsage = async (start?: string, end?: string) => {
+      setGeminiLoading(true);
+      const startDateStr = start || geminiDateRange.startDate;
+      const endDateStr = end || geminiDateRange.endDate;
+
+      const startTime = Math.floor(new Date(startDateStr).getTime() / 1000);
+      const endTime = Math.floor(new Date(endDateStr).setHours(23, 59, 59, 999) / 1000);
+
+      try {
+        const geminiUsageRes = await adminService.getGeminiUsage({ startTime, endTime });
+
+        if (geminiUsageRes.success && geminiUsageRes.data) {
+             setGeminiData((prev: any) => ({
+                 ...prev,
+                 ...geminiUsageRes.data,
+             }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch specific Gemini usage", err);
+      } finally {
+        setGeminiLoading(false);
+      }
+  };
+
   const handleOpenAIDateRangeChange = (start: string, end: string) => {
       setOpenAIDateRange({ startDate: start, endDate: end });
       fetchOpenAIUsage(start, end);
+  };
+
+  const handleGeminiDateRangeChange = (start: string, end: string) => {
+      setGeminiDateRange({ startDate: start, endDate: end });
+      fetchGeminiUsage(start, end);
   };
 
   const fetchAPIData = async () => {
@@ -82,20 +117,25 @@ const APIManagement: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch OpenAI, Gemini, and GrapesJS data
-      // For OpenAI Usage, use the current date range state
       const startTime = Math.floor(new Date(openAIDateRange.startDate).getTime() / 1000);
       const endTime = Math.floor(new Date(openAIDateRange.endDate).setHours(23, 59, 59, 999) / 1000);
+      
+      const gStartTime = Math.floor(new Date(geminiDateRange.startDate).getTime() / 1000);
+      const gEndTime = Math.floor(new Date(geminiDateRange.endDate).setHours(23, 59, 59, 999) / 1000);
 
       const [
         openaiBalanceRes,
         openaiUsageRes,
+        geminiBalanceRes,
+        geminiUsageRes,
         openaiHistoryRes,
         geminiHistoryRes,
         grapesjsHistoryRes,
       ] = await Promise.all([
         adminService.getOpenAIBalance(),
         adminService.getOpenAIUsage({ startTime, endTime }),
+        adminService.getGeminiBalance(),
+        adminService.getGeminiUsage({ startTime: gStartTime, endTime: gEndTime }),
         adminService.getAPIBalanceHistory("OpenAI"),
         adminService.getAPIBalanceHistory("Gemini"),
         adminService.getAPIBalanceHistory("GrapesJS"),
@@ -120,17 +160,21 @@ const APIManagement: React.FC = () => {
       }
 
       // Gemini data
+      if (geminiBalanceRes.success && geminiBalanceRes.data) {
+         const balance = geminiBalanceRes.data;
+         const usage = 
+           geminiUsageRes.success && geminiUsageRes.data
+             ? geminiUsageRes.data
+             : null;
+             
+        setGeminiData({
+           ...balance,
+           ...usage,
+        });
+      }
+
       if (geminiHistoryRes.success && geminiHistoryRes.data) {
         setGeminiHistory(geminiHistoryRes.data);
-        // Set gemini data from history
-        const historyData = geminiHistoryRes.data as any;
-        setGeminiData({
-          totalBalance: historyData.summary?.totalCredit || 0,
-          usedBalance: historyData.summary?.totalUsed || 0,
-          currentBalance: historyData.summary?.totalRemaining || 0,
-          currency: "USD",
-          status: "active",
-        });
       }
 
       // GrapesJS data
@@ -213,19 +257,19 @@ const APIManagement: React.FC = () => {
       id: "gemini",
       name: "Google Gemini" as const,
       icon: SiGoogle,
-      totalBalance: geminiHistory?.summary?.totalCredit || 0,
-      usedBalance: geminiHistory?.summary?.totalUsed || 0,
-      balance: geminiHistory?.summary?.totalRemaining || 0,
+      totalBalance: geminiData?.totalBalance || 0,
+      usedBalance: geminiData?.usedBalance || 0,
+      balance: geminiData?.currentBalance || 0,
       currency: "USD",
       status: (geminiData?.status || "active") as
         | "active"
         | "inactive"
         | "error",
-      totalRequests: 0,
-      totalTokens: 0,
-      requestsToday: 0,
-      tokensToday: 0,
-      costToday: 0,
+      totalRequests: geminiData?.totalRequests || 0,
+      totalTokens: geminiData?.totalTokens || 0,
+      requestsToday: geminiData?.requestsToday || 0,
+      tokensToday: geminiData?.tokensToday || 0,
+      costToday: geminiData?.costToday || 0,
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-blue-500/10",
       borderColor: "border-blue-500/30",
@@ -310,6 +354,23 @@ const APIManagement: React.FC = () => {
                     endDate={openAIDateRange.endDate}
                     onDateRangeChange={handleOpenAIDateRangeChange}
                     loading={openAILoading}
+                  />
+                 );
+              }
+              if (provider.id === "gemini") {
+                 return (
+                  <GeminiProviderCard
+                    key={provider.id}
+                    {...provider}
+                    name="Google Gemini"
+                    onAddCredit={(providerName) => {
+                      setSelectedProvider(providerName);
+                      setShowAddCreditModal(true);
+                    }}
+                    startDate={geminiDateRange.startDate}
+                    endDate={geminiDateRange.endDate}
+                    onDateRangeChange={handleGeminiDateRangeChange}
+                    loading={geminiLoading}
                   />
                  );
               }

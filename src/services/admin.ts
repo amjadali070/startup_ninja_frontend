@@ -490,6 +490,49 @@ export const adminService = {
   },
 
   /**
+   * Get Gemini API Balance
+   */
+  async getGeminiBalance(): Promise<AdminApiResponse<APIProvider>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<APIProvider>>(
+        "/admin/api-management/gemini/balance"
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch Gemini balance",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get Gemini API Usage
+   */
+  async getGeminiUsage(params?: {
+    startTime?: number;
+    endTime?: number;
+  }): Promise<AdminApiResponse<APIUsageData>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.startTime) queryParams.append("startTime", params.startTime.toString());
+      if (params?.endTime) queryParams.append("endTime", params.endTime.toString());
+
+      const response = await apiClient.get<AdminApiResponse<APIUsageData>>(
+        `/admin/api-management/gemini/usage?${queryParams.toString()}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch Gemini usage",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
    * Add API Balance Credit
    */
   async addAPIBalanceCredit(
