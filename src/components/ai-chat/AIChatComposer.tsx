@@ -30,10 +30,8 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Focus input when generation finishes
   useEffect(() => {
     if (!isGenerating && !isSubmitting) {
-      // Use a small timeout to ensure state updates have propagated and DOM is ready
       const timeoutId = setTimeout(() => {
         textareaRef.current?.focus();
       }, 10);
@@ -110,21 +108,6 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-1 text-white/45 sm:flex-nowrap sm:gap-2">
-            {/* <button
-              type="button"
-              aria-label="Attach file"
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/5 hover:text-white"
-            >
-              <FiPaperclip className="h-[14px] w-[14px]" />
-            </button>
-            <button
-              type="button"
-              aria-label="Voice input"
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/5 hover:text-white"
-            >
-              <PiWaveformBold className="h-[14px] w-[14px]" />
-            </button> */}
-
             <button
               type="button"
               onClick={handleSubmit}

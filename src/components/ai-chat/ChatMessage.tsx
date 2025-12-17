@@ -2,6 +2,7 @@ import { useState, type FC } from "react";
 import ReactMarkdown from "react-markdown";
 // @ts-ignore - remark-gfm v4 ESM compatibility issue
 import remarkGfm from "remark-gfm";
+import { MdCopyAll, MdCheck } from "react-icons/md";
 import rehypeHighlight from "rehype-highlight";
 import { ChatMessage as ChatMessageType } from "../../types/ai-content";
 import "highlight.js/styles/github-dark.css";
@@ -15,13 +16,28 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
   const isUser = message.role === "user";
   const [userImageError, setUserImageError] = useState(false);
   const [ninjaImageError, setNinjaImageError] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyResponse = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
+  };
 
   if (!isUser && !message.content) {
     return null;
   }
 
   return (
-    <div className={`flex gap-2 sm:gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+    <div
+      className={`flex gap-2 sm:gap-3 ${
+        isUser ? "flex-row-reverse" : "flex-row"
+      }`}
+    >
       {/* Avatar */}
       <div className="flex-shrink-0">
         {isUser ? (
@@ -63,18 +79,32 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
         } max-w-[85%] sm:max-w-[75%] md:max-w-[70%] lg:max-w-[65%]`}
       >
         <div
-          className={`rounded-lg px-3 sm:px-4 py-2 sm:py-3 break-words overflow-wrap-anywhere ${
+          className={`relative rounded-lg px-3 sm:px-4 py-2 sm:py-3 break-words overflow-wrap-anywhere ${
             isUser
               ? "bg-[#DE0500] text-white rounded-tr-sm"
-              : "bg-[#1A1A1A] border border-white/10 text-white/90 rounded-tl-sm"
+              : "bg-[#1A1A1A] border border-white/10 text-white/90 rounded-tl-sm pr-10"
           }`}
         >
+          {/* Copy button for AI responses */}
+          {!isUser && (
+            <button
+              onClick={handleCopyResponse}
+              className="absolute top-2 right-2 p-1.5 rounded hover:bg-white/10 transition-colors group z-10"
+              title={isCopied ? "Copied!" : "Copy response"}
+            >
+              {isCopied ? (
+                <MdCheck className="h-4 w-4 text-green-500" />
+              ) : (
+                <MdCopyAll className="h-4 w-4 text-white/50 group-hover:text-white/80" />
+              )}
+            </button>
+          )}
           {isUser ? (
             <p className="text-sm whitespace-pre-wrap leading-relaxed break-words overflow-wrap-anywhere">
               {message.content}
             </p>
           ) : (
-            <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:break-words [&_p]:break-words [&_li]:break-words">
+            <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:break-words [&_p]:break-words [&_li]:break-words pr-6">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
@@ -98,7 +128,10 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                     />
                   ),
                   p: ({ node, ...props }) => (
-                    <p className="mb-2 last:mb-0 text-white/90 break-words" {...props} />
+                    <p
+                      className="mb-2 last:mb-0 text-white/90 break-words"
+                      {...props}
+                    />
                   ),
                   ul: ({ node, ...props }) => (
                     <ul
@@ -156,10 +189,16 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
                     />
                   ),
                   strong: ({ node, ...props }) => (
-                    <strong className="font-semibold text-white break-words" {...props} />
+                    <strong
+                      className="font-semibold text-white break-words"
+                      {...props}
+                    />
                   ),
                   em: ({ node, ...props }) => (
-                    <em className="italic text-white/90 break-words" {...props} />
+                    <em
+                      className="italic text-white/90 break-words"
+                      {...props}
+                    />
                   ),
                   hr: ({ node, ...props }) => (
                     <hr className="border-white/10 my-4" {...props} />
@@ -180,12 +219,14 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, userProfilePicture }) => {
               })}
             </span>
             {message.source && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                message.source === 'dataset' 
-                  ? 'bg-green-500/10 text-green-500 border-green-500/20' 
-                  : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-              }`}>
-                {message.source === 'dataset' ? 'Cached' : 'AI'}
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                  message.source === "dataset"
+                    ? "bg-green-500/10 text-green-500 border-green-500/20"
+                    : "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                }`}
+              >
+                {message.source === "dataset" ? "Cached" : "AI"}
               </span>
             )}
           </div>

@@ -109,16 +109,29 @@ const AIChat: FC = () => {
 
   // Handle prompt from URL parameter (from Ninja Assistant)
   useEffect(() => {
-    const promptFromUrl = searchParams.get('prompt');
-    if (promptFromUrl && !currentChatId && messages.length === 0 && !isGenerating && !prompt) {
+    const promptFromUrl = searchParams.get("prompt");
+    if (
+      promptFromUrl &&
+      !currentChatId &&
+      messages.length === 0 &&
+      !isGenerating &&
+      !prompt
+    ) {
       // Set the prompt from URL (pre-fill input field)
       setPrompt(promptFromUrl);
       // Remove prompt from URL to avoid re-triggering
       const newParams = new URLSearchParams(searchParams);
-      newParams.delete('prompt');
+      newParams.delete("prompt");
       setSearchParams(newParams);
     }
-  }, [searchParams, currentChatId, messages.length, isGenerating, prompt, setSearchParams]);
+  }, [
+    searchParams,
+    currentChatId,
+    messages.length,
+    isGenerating,
+    prompt,
+    setSearchParams,
+  ]);
 
   const loadUserChats = useCallback(
     async (shouldRestoreFromUrl = true) => {
@@ -250,7 +263,7 @@ const AIChat: FC = () => {
         const next = [...prev];
         const last = next[next.length - 1];
         if (!last || last.role !== "assistant") return prev;
-        
+
         if (last.content.length === sliceIndex) return prev;
 
         const slice = fullText.slice(0, sliceIndex);
@@ -498,7 +511,7 @@ const AIChat: FC = () => {
   return (
     <DashboardLayout
       activePath="/ai-tools/chat"
-      title="Ninja Chat"
+      title="Ninja Assistant"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
