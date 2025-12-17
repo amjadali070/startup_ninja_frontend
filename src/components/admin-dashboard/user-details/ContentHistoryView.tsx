@@ -12,6 +12,7 @@ import ChatDetailView from "./ChatDetailView";
 import AIChatsListView from "./AIChatsListView";
 import SocialPostsListView from "./SocialPostsListView";
 import WebsitesListView from "./WebsitesListView";
+import GeneratedImagesListView from "./GeneratedImagesListView";
 import WebsiteAnalyticsView from "./WebsiteAnalyticsView";
 import SingleWebsiteAnalyticsView from "./SingleWebsiteAnalyticsView";
 import PostDetailModal from "./PostDetailModal";
@@ -21,6 +22,7 @@ import type {
   AIChat,
   SocialPost,
   Website,
+  GeneratedImage,
 } from "../../../types/admin";
 
 interface ContentHistoryViewProps {
@@ -33,6 +35,7 @@ interface ContentHistoryViewProps {
     aiChats: AIChat[];
     socialPosts: SocialPost[];
     websites: Website[];
+    generatedImages: GeneratedImage[];
   };
   contentPage: number;
   contentTotalPages: number;
@@ -132,11 +135,7 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
       case "Website Analytics":
         return <WebsiteAnalyticsView userId={user._id} />;
       case "Generated Images":
-        return (
-          <div className="text-gray-400 text-center py-8">
-            Image generation history is not available yet
-          </div>
-        );
+        return <GeneratedImagesListView images={contentData.generatedImages} />;
       default:
         return (
           <div className="text-gray-400 text-center py-8">No content found</div>
@@ -168,7 +167,7 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
           onEditUser={() => setViewingEditUser(true)}
         />
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mt-4">
           <div className="p-3 bg-[#1A1A1A] rounded-xl border border-[#242424]">
             {viewingContent === "AI Chats" && (
               <FaRobot className="text-blue-500 text-2xl" />

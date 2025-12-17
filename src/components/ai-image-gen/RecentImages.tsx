@@ -14,6 +14,7 @@ import {
 } from "../../services/imageGenService";
 import { toast } from "react-hot-toast";
 import AlertModal from "../admin-dashboard/AlertModal";
+import LoadingSpinner from "../LoadingSpinner";
 
 type RecentImagesProps = {
   shouldRefresh?: boolean;
@@ -129,26 +130,47 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const [selectedImage, setSelectedImage] = useState<PreparedImageItem | null>(
     null
   );
-  const pageSize = 12;
+  const pageSize = 15;
 
-  const fetchImages = useCallback(async () => {
+  /* Server-side Pagination State */
+  const [paginationInfo, setPaginationInfo] = useState<{
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+  }>({ currentPage: 1, totalPages: 1, totalCount: 0 });
+
+  const fetchImages = useCallback(async (pageNum: number) => {
     try {
       setLoading(true);
-      const data = await imageGenService.getHistory();
-      // Ensure we're setting an array, defaulting to empty if undefined
-      const imageList = Array.isArray(data) ? data : (data as any).data || [];
-      setImages(imageList);
+      const data: any = await imageGenService.getHistory(pageNum, pageSize);
+      
+      // Handle the nested data structure depending on how axios/apiClient returns it
+      // Based on provided JSON: { success: true, data: [...], pagination: {...} }
+      
+      const responseData = data.data || [];
+      const paginationData = data.pagination || { 
+        currentPage: 1, 
+        totalPages: 1, 
+        totalCount: responseData.length 
+      };
+
+      setImages(responseData);
+      setPaginationInfo({
+        currentPage: paginationData.currentPage,
+        totalPages: paginationData.totalPages,
+        totalCount: paginationData.totalCount
+      });
+      
     } catch (error) {
       console.error("Failed to fetch images:", error);
-      // Don't show toast on initial load error to avoid annoyance if it's just empty
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageSize]);
 
   useEffect(() => {
-    fetchImages();
-  }, [fetchImages, shouldRefresh]);
+    fetchImages(page);
+  }, [fetchImages, page, shouldRefresh]);
 
   
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
@@ -170,7 +192,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
       if (selectedImage && selectedImage.id === imageToDelete) {
         setSelectedImage(null);
       }
-      fetchImages(); // Refresh list
+      fetchImages(page); // Refresh list
     } catch (error) {
       console.error("Failed to delete image:", error);
       toast.error("Failed to delete image");
@@ -229,12 +251,12 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     });
   }, [images]);
 
-  const total = preparedImages.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const pageItems = preparedImages.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // Use pagination info from server
+  const total = paginationInfo.totalCount;
+  const totalPages = paginationInfo.totalPages;
+  
+  // Directly use preparedImages as they are already the page items
+  const pageItems = preparedImages;
 
   const ImageCard = ({ image }: { image: PreparedImageItem }) => (
     <article
@@ -289,11 +311,10 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     </article>
   );
 
-  if (loading && images.length === 0) {
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 space-y-4">
-        <div className="h-8 w-8 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-400 font-medium">Loading your gallery...</p>
+      <div className="flex items-center justify-center py-20">
+        <LoadingSpinner size="medium" />
       </div>
     );
   }

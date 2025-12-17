@@ -11,6 +11,7 @@ import type {
   SystemHealth,
   AnalyticsData,
   AIChat,
+  GeneratedImage,
   SocialPost,
   Website,
   WebsiteAnalytics,
@@ -269,6 +270,44 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to fetch AI chats",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get User's Generated Images History
+   */
+  async getUserGeneratedImages(
+    userId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<AdminApiResponse<ContentLogsResponse<GeneratedImage>>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+      const response = await apiClient.get<
+        AdminApiResponse<{ images: GeneratedImage[]; pagination: any }>
+      >(`/admin/users/${userId}/generated-images?${queryParams.toString()}`);
+
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: {
+            data: response.data.images,
+            pagination: response.data.pagination,
+          },
+        };
+      }
+      return response as any;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch generated images",
         error: error.message,
       };
     }

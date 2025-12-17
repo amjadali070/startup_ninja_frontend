@@ -10,6 +10,7 @@ import type {
   AIChat,
   SocialPost,
   Website,
+  GeneratedImage,
 } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -59,10 +60,12 @@ const UserDetailsPage: React.FC = () => {
     aiChats: AIChat[];
     socialPosts: SocialPost[];
     websites: Website[];
+    generatedImages: GeneratedImage[];
   }>({
     aiChats: [],
     socialPosts: [],
     websites: [],
+    generatedImages: [],
   });
   const [contentLoading, setContentLoading] = useState(false);
   const [contentPage, setContentPage] = useState(1);
@@ -130,7 +133,6 @@ const UserDetailsPage: React.FC = () => {
     setSearchParams,
   ]);
 
-  // Fetch content data when viewingContent changes (including on page load with URL params)
   useEffect(() => {
     if (viewingContent && userId && user) {
       fetchContentData(viewingContent, contentPage);
@@ -150,10 +152,11 @@ const UserDetailsPage: React.FC = () => {
           PLAN_FEATURES.Free;
 
         // Fetch actual content counts
-        const [aiChatsRes, socialPostsRes, websitesRes] = await Promise.all([
+        const [aiChatsRes, socialPostsRes, websitesRes, generatedImagesRes] = await Promise.all([
           adminService.getUserAIChats(userId, { page: 1, limit: 1 }),
           adminService.getUserSocialPosts(userId, { page: 1, limit: 1 }),
           adminService.getUserWebsites(userId, { page: 1, limit: 1 }),
+          adminService.getUserGeneratedImages(userId, { page: 1, limit: 1 }),
         ]);
 
         const totalChats =
@@ -170,6 +173,11 @@ const UserDetailsPage: React.FC = () => {
           websitesRes.success && websitesRes.data
             ? websitesRes.data.pagination.total
             : response.data.stats.totalWebsites || 0;
+
+        const totalImages =
+          generatedImagesRes.success && generatedImagesRes.data
+            ? generatedImagesRes.data.pagination.total
+            : response.data.stats.totalImages || 0;
 
         const extendedUser: ExtendedUserDetails = {
           ...response.data.user,
@@ -215,7 +223,7 @@ const UserDetailsPage: React.FC = () => {
             totalChats: totalChats,
             totalPosts: totalPosts,
             totalWebsites: totalWebsites,
-            totalImages: 0,
+            totalImages: totalImages,
           },
           transactions: Array.from({ length: 5 }).map((_, i) => ({
             id: `txn_${Math.random().toString(36).substr(2, 9)}`,
@@ -329,6 +337,18 @@ const UserDetailsPage: React.FC = () => {
           setContentData((prev) => ({
             ...prev,
             websites: response.data!.data,
+          }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "Generated Images") {
+        const response = await adminService.getUserGeneratedImages(userId, {
+          page,
+          limit: 32,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({
+            ...prev,
+            generatedImages: response.data!.data,
           }));
           setContentTotalPages(response.data.pagination.pages);
         }

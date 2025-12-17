@@ -325,6 +325,12 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                 onChange={handleInputChange}
                 disabled={isGenerating}
                 placeholder="Describe your imagination... (e.g., A cybernetic samurai meditating in a neon-lit zen garden)"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
                 className="w-full min-h-[120px] bg-transparent rounded-xl p-4 text-gray-200 text-base leading-relaxed placeholder:text-gray-600 resize-none focus:outline-none disabled:opacity-50"
               />
               <div className="flex justify-between items-center px-4 py-2 border-t border-[#1F1F1F]">

@@ -73,6 +73,7 @@ export interface UserStats {
   totalPosts: number;
   totalWebsites: number;
   totalChats: number;
+  totalImages?: number;
 }
 
 export interface UserActivity {
@@ -233,6 +234,28 @@ export interface AIChat {
     content: string;
     timestamp: string;
   }>;
+}
+
+export interface GeneratedImage {
+  _id: string;
+  userId: string;
+  prompt: string;
+  modelUsed: string;
+  imageUrl: string;
+  localPath?: string;
+  parameters: {
+    aspectRatio?: string;
+    style?: string;
+    negativePrompt?: string;
+  };
+  tokensUsed?: {
+    input: number;
+    output: number;
+    total: number;
+  };
+  cost: number;
+  cached: boolean;
+  createdAt: string;
 }
 
 export interface SocialPost {
