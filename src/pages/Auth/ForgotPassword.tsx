@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { authService } from '../../services/auth';
@@ -13,7 +13,6 @@ interface ForgotPasswordForm {
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const navigate = useNavigate();
   
   const {
     register,

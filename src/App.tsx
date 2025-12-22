@@ -35,6 +35,7 @@ import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
 import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
+import ComingSoon from "./pages/ComingSoon.tsx";
 
 function App() {
   return (
@@ -116,6 +117,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects"
+            element={
+              <ProtectedRoute>
+                <ComingSoon title="Projects" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <ProtectedRoute>
+                <ComingSoon title="Templates" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <ComingSoon title="Community Feed" />
               </ProtectedRoute>
             }
           />

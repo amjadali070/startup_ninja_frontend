@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -53,8 +53,6 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
-
-  const password = watch('password');
 
   if (!token) return null;
 
