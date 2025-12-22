@@ -1,4 +1,5 @@
-import { useRef, type ChangeEvent, type FC, type FormEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type FC, type FormEvent } from 'react';
+import { FiEdit2 } from 'react-icons/fi';
 
 export type ProfileFormState = {
   username: string;
@@ -31,12 +32,14 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
   isSaving,
   onChange,
   onSubmit,
-  onReset,
+
   profileImageUrl,
   isUpdatingImage = false,
   onProfileImageSelect,
   onProfileImageRemove,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+
   const initials = displayName
     .split(' ')
     .map((segment) => segment[0])
@@ -64,6 +67,11 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
 
   const handleRemoveImage = () => {
     onProfileImageRemove?.();
+  };
+
+  const handleSave = (e: FormEvent<HTMLFormElement>) => {
+    onSubmit(e);
+    setIsEditing(false);
   };
 
   return (
@@ -136,20 +144,33 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
       </div>
 
       {/* Form Section */}
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSave}>
         {/* Form Fields */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xs:gap-4 mb-4 xs:mb-5 sm:mb-6">
           {/* Display Name Field */}
           <div>
             <label className="block text-white text-sm xs:text-base font-medium mb-2">Display Name</label>
-            <input
-              type="text"
-              name="username"
-              value={profileForm.username}
-              onChange={onChange}
-              placeholder="Enter display name"
-              className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                name="username"
+                value={profileForm.username}
+                onChange={onChange}
+                placeholder="Enter display name"
+                disabled={!isEditing}
+                className={`w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 pr-10 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base ${
+                  !isEditing ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setIsEditing(!isEditing)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                title={isEditing ? "Cancel editing" : "Edit display name"}
+              >
+                <FiEdit2 className={`w-4 h-4 ${isEditing ? 'text-red-500' : ''}`} />
+              </button>
+            </div>
           </div>
           
           {/* Primary Email Field */}
@@ -161,7 +182,8 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
               value={profileForm.email}
               onChange={onChange}
               placeholder="Enter email address"
-              className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base"
+              className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base cursor-not-allowed"
+              disabled
             />
           </div>
         </div>
@@ -172,22 +194,17 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
         </p>
         
         {/* Action Buttons */}
-        <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#FF1A1A] hover:to-[#A00000] text-white text-xs xs:text-sm font-bold rounded-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg"
-          >
-            {isSaving ? 'Saving…' : 'Save profile'}
-          </button>
-          <button
-            type="button"
-            onClick={onReset}
-            className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-[#FFFFFF0D] border border-[#FFFFFF1A] text-white text-xs xs:text-sm font-medium rounded-lg hover:bg-white/5 transition-colors"
-          >
-            Reset
-          </button>
-        </div>
+        {isEditing && (
+          <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="px-4 xs:px-5 py-2.5 xs:py-3.5 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#FF1A1A] hover:to-[#A00000] text-white text-xs xs:text-sm font-bold rounded-lg transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg"
+            >
+              {isSaving ? 'Saving…' : 'Save profile'}
+            </button>
+          </div>
+        )}
       </form>
     </section>
   );

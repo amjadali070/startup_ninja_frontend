@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type FC, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export type ChangePasswordFormState = {
@@ -154,6 +155,15 @@ const ChangePassword: FC<ChangePasswordProps> = ({
           >
             Reset
           </button>
+        </div>
+        
+        <div className="mt-4 text-right">
+          <Link 
+            to="/forgot-password" 
+            className="text-xs xs:text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            Forgot your password? <span className="text-red-500 hover:underline">Reset here</span>
+          </Link>
         </div>
       </form>
     </section>

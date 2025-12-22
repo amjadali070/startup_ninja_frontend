@@ -1,8 +1,15 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import PublicLayout from "./layouts/PublicLayout";
+import FrontLayout from "./layouts/FrontLayout";
 import Login from "./pages/Auth/Login.tsx";
 import Register from "./pages/Auth/Register.tsx";
+import ForgotPassword from "./pages/Auth/ForgotPassword.tsx";
+import ResetPassword from "./pages/Auth/ResetPassword.tsx";
+import VerifyEmail from "./pages/Auth/VerifyEmail.tsx";
+import TermsOfService from "./pages/Legal/TermsOfService.tsx";
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy.tsx";
+import NotFound from "./pages/NotFound.tsx";
 import Dashboard from "./pages/User/Dashboard.tsx";
 import AdminLogin from "./pages/Auth/AdminLogin.tsx";
 import AIChat from "./pages/User/AIChat.tsx";
@@ -35,10 +42,22 @@ function App() {
       <div className="min-h-screen bg-[#0D0D0D]">
         <ScrollToTop />
         <Routes>
-          {/* Public Routes with Layout */}
+          {/* Public Routes with Layout (Restricted to non-authenticated users) */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/:page" element={<LandingPage />} />
+          </Route>
+
+          {/* Legal Routes (Accessible to everyone) */}
+          <Route
+            element={
+              <FrontLayout>
+                <Outlet />
+              </FrontLayout>
+            }
+          >
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
           </Route>
 
           {/* Auth Routes (No Layout) */}
@@ -55,6 +74,30 @@ function App() {
             element={
               <PublicRoute>
                 <Register />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPassword />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/verify-email"
+            element={
+              <PublicRoute>
+                <VerifyEmail />
               </PublicRoute>
             }
           />
@@ -190,6 +233,9 @@ function App() {
               </AdminRoute>
             }
           />
+
+          {/* Fallback 404 Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
 
         <Toaster
