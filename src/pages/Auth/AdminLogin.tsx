@@ -31,7 +31,7 @@ const AdminLoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const formData = { email, password };
+      const formData = { email, password, rememberMe };
       const response = await authService.login(formData);
 
       if (response.success && response?.token) {

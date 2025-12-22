@@ -21,6 +21,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [verificationData, setVerificationData] = useState<{
     userId: string;
@@ -66,7 +67,7 @@ const Login: React.FC = () => {
       setLoading(true);
 
       try {
-        const response = await authService.login(formData);
+        const response = await authService.login({ ...formData, rememberMe });
         if (
           response.success &&
           response.requiresEmailVerification &&
@@ -294,6 +295,24 @@ const Login: React.FC = () => {
                     )}
                   </button>
                 </div>
+              </div>
+            )}
+
+            {showPasswordStep && (
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-600 bg-[#333333] text-red-600 focus:ring-red-500/20 focus:ring-offset-0 transition-colors duration-200 cursor-pointer"
+                />
+                <label 
+                  htmlFor="remember-me" 
+                  className="ml-2 text-[11px] sm:text-[12px] text-gray-400 hover:text-gray-300 cursor-pointer select-none transition-colors duration-200"
+                >
+                  Remember me
+                </label>
               </div>
             )}
 

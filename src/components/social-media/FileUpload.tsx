@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
-import { FiUploadCloud, FiX, FiEdit2, FiImage } from "react-icons/fi";
+import { FiUploadCloud, FiX, FiEdit2, FiImage, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { usePost } from "./PostContext";
 import { IMAGE_SIZE_LIMIT_MB } from "../../constants/platforms";
 import {
@@ -20,22 +20,35 @@ const SelectGeminiImageModal: React.FC<{
 }> = ({ onClose, onSelect }) => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 12;
+
+  const fetchImages = async (pageNum: number) => {
+    try {
+      setLoading(true);
+      const data: any = await imageGenService.getHistory(pageNum, pageSize);
+      
+      const responseData = data.data || [];
+      const paginationData = data.pagination || { 
+        currentPage: 1, 
+        totalPages: 1, 
+        totalCount: responseData.length 
+      };
+
+      setImages(responseData);
+      setTotalPages(paginationData.totalPages);
+    } catch (error) {
+      console.error("Failed to fetch images:", error);
+      toast.error("Failed to load Gemini images");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const data = await imageGenService.getHistory();
-        const imageList = Array.isArray(data) ? data : (data as any).data || [];
-        setImages(imageList);
-      } catch (error) {
-        console.error("Failed to fetch images:", error);
-        toast.error("Failed to load Gemini images");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchImages();
-  }, []);
+    fetchImages(page);
+  }, [page]);
 
   return (
     <div
@@ -43,35 +56,38 @@ const SelectGeminiImageModal: React.FC<{
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-3xl max-h-[80vh] bg-[#151515] border border-[#242424] rounded-2xl flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-3xl bg-[#151515] border border-[#242424] rounded-2xl flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: '90vh' }}
       >
-        <div className="p-4 border-b border-[#242424] flex justify-between items-center">
-          <h3 className="text-white font-bold font-plus-jakarta">
-            Select from Imaginative Ninja
-          </h3>
+        <div className="p-4 border-b border-[#242424] flex justify-between items-center bg-[#1a1a1a] rounded-t-2xl">
+          <div>
+            <h3 className="text-white font-bold font-plus-jakarta text-lg">
+              Select from Imaginative Ninja
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">Click an image to select it</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white"
+            className="p-2 hover:bg-[#2a2a2a] rounded-full text-gray-400 hover:text-white transition-colors"
             aria-label="Close modal"
           >
             <FiX size={20} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar min-h-[400px] flex flex-col">
           {loading ? (
-            <LoadingSpinner variant="dark" size="small" />
-          ) : images.length === 0 ? (
-            <div className="text-center py-10 text-gray-500">
-              No generated images found.
+            <div className="flex-1 flex items-center justify-center">
+              <LoadingSpinner variant="dark" size="small" />
             </div>
           ) : images.length === 0 ? (
-            <div className="text-center py-10 text-gray-500">
-              No generated images found.
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-3">
+              <FiImage className="w-10 h-10 opacity-20" />
+              <p>No generated images found.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.map((img) => {
                 const filename = img.localPath
                   ? img.localPath.split("/").pop()
@@ -91,21 +107,57 @@ const SelectGeminiImageModal: React.FC<{
                 return (
                   <div
                     key={img._id}
-                    className="aspect-square rounded-lg overflow-hidden border border-[#242424] hover:border-red-500 cursor-pointer transition-all"
+                    className="group relative aspect-square rounded-xl overflow-hidden border border-[#242424] hover:border-red-500 cursor-pointer transition-all hover:shadow-lg hover:shadow-red-900/10"
                     onClick={() => onSelect(src)}
                   >
                     <img
                       src={src}
                       alt={img.prompt}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="absolute bottom-0 left-0 right-0 p-3">
+                        <p className="text-xs text-white line-clamp-2 font-medium">{img.prompt}</p>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
           )}
         </div>
+        
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+            <div className="p-4 border-t border-[#242424] bg-[#1a1a1a] rounded-b-2xl flex justify-center">
+             <div className="flex items-center gap-2 bg-[#121212] border border-[#242424] p-1.5 rounded-xl">
+                 <button
+                   disabled={page <= 1}
+                   onClick={() => setPage((p) => Math.max(1, p - 1))}
+                   className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-[#242424] disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                   aria-label="Previous page"
+                   title="Previous page"
+                 >
+                   <FiChevronLeft className="w-5 h-5" />
+                 </button>
+                 
+                 <div className="px-4 text-sm font-bold text-white">
+                     {page} <span className="text-gray-600 font-normal mx-1">/</span> {totalPages}
+                 </div>
+
+                 <button
+                   disabled={page >= totalPages}
+                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                   className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-[#242424] disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                   aria-label="Next page"
+                   title="Next page"
+                 >
+                   <FiChevronRight className="w-5 h-5" />
+                 </button>
+             </div>
+            </div>
+        )}
       </div>
     </div>
   );
