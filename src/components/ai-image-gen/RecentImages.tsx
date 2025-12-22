@@ -130,9 +130,18 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const [selectedImage, setSelectedImage] = useState<PreparedImageItem | null>(
     null
   );
-  const pageSize = 15;
+  
+  const [pageSize, setPageSize] = useState(window.innerWidth >= 1024 ? 10 : 8);
 
-  /* Server-side Pagination State */
+  useEffect(() => {
+    const handleResize = () => {
+      setPageSize(window.innerWidth >= 1024 ? 10 : 8);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [paginationInfo, setPaginationInfo] = useState<{
     currentPage: number;
     totalPages: number;
@@ -143,10 +152,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     try {
       setLoading(true);
       const data: any = await imageGenService.getHistory(pageNum, pageSize);
-      
-      // Handle the nested data structure depending on how axios/apiClient returns it
-      // Based on provided JSON: { success: true, data: [...], pagination: {...} }
-      
+ 
       const responseData = data.data || [];
       const paginationData = data.pagination || { 
         currentPage: 1, 
@@ -353,7 +359,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {pageItems.map((image) => (
           <ImageCard key={image.id} image={image} />
         ))}

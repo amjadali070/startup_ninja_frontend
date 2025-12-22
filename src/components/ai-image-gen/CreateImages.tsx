@@ -128,27 +128,27 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
         </div>
 
         <div className="p-5 sm:p-6 space-y-6">
-          {/* Controls Row */}
-          <div className="flex flex-wrap gap-6">
+          {/* Controls Row - Grid on mobile for side-by-side */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 sm:gap-6">
             {/* Aspect Ratio Custom Select */}
-            <div className="space-y-1.5 custom-select-container relative z-20">
+            <div className="space-y-1.5 custom-select-container relative z-20 col-span-1">
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 <FiMaximize className="w-3 h-3 text-gray-500" />
                 Aspect Ratio
               </label>
-              <div className="relative w-fit">
+              <div className="relative w-full sm:w-fit">
                 <button
                   type="button"
                   onClick={() =>
                     setOpenSelect(openSelect === "aspect" ? null : "aspect")
                   }
-                  className={`w-auto min-w-[220px] bg-[#0D0D0D] text-left text-gray-200 border rounded-xl px-4 py-3 text-sm flex items-center justify-between transition-colors hover:border-gray-600 ${
+                  className={`w-full sm:w-auto sm:min-w-[220px] bg-[#0D0D0D] text-left text-gray-200 border rounded-xl px-4 py-3 text-sm flex items-center justify-between transition-colors hover:border-gray-600 ${
                     openSelect === "aspect"
                       ? "border-gray-500"
                       : "border-[#242424]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
                     {(() => {
                       const selected = aspectRatioOptions.find(
                         (opt) => opt.value === aspectRatio
@@ -156,14 +156,16 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                       const Icon = selected?.icon;
                       return (
                         <>
-                          {Icon && <Icon className="w-4 h-4 text-gray-400" />}
+                          {Icon && (
+                            <Icon className="w-4 h-4 text-gray-400 shrink-0" />
+                          )}
                           <span className="truncate">{selected?.label}</span>
                         </>
                       );
                     })()}
                   </div>
                   <svg
-                    className={`w-2.5 h-2.5 text-gray-500 transition-transform ${
+                    className={`w-2.5 h-2.5 text-gray-500 transition-transform shrink-0 ml-2 ${
                       openSelect === "aspect" ? "rotate-180" : ""
                     }`}
                     width="10"
@@ -183,7 +185,7 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                 </button>
 
                 {openSelect === "aspect" && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1A1A1A] border border-[#333] rounded-xl shadow-xl overflow-hidden py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1A1A1A] border border-[#333] rounded-xl shadow-xl overflow-hidden py-1 z-30 animate-in fade-in zoom-in-95 duration-100 min-w-[200px]">
                     {aspectRatioOptions.map((opt) => (
                       <button
                         key={opt.value}
@@ -200,16 +202,16 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                       >
                         <div className="flex items-center gap-3">
                           <opt.icon
-                            className={`w-4 h-4 ${
+                            className={`w-4 h-4 shrink-0 ${
                               aspectRatio === opt.value
                                 ? "text-[#DC2626]"
                                 : "text-gray-500 group-hover:text-gray-300"
                             }`}
                           />
-                          <span>{opt.label}</span>
+                          <span className="truncate">{opt.label}</span>
                         </div>
                         {aspectRatio === opt.value && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)] shrink-0" />
                         )}
                       </button>
                     ))}
@@ -219,24 +221,24 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
             </div>
 
             {/* Art Style Custom Select */}
-            <div className="space-y-1.5 custom-select-container relative z-10">
+            <div className="space-y-1.5 custom-select-container relative z-10 release-w-full col-span-1">
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 <FiLayers className="w-3 h-3 text-gray-500" />
                 Art Style
               </label>
-              <div className="relative w-fit">
+              <div className="relative w-full sm:w-fit">
                 <button
                   type="button"
                   onClick={() =>
                     setOpenSelect(openSelect === "style" ? null : "style")
                   }
-                  className={`w-auto min-w-[220px] bg-[#0D0D0D] text-left text-gray-200 border rounded-xl px-4 py-3 text-sm flex items-center justify-between transition-colors hover:border-gray-600 ${
+                  className={`w-full sm:w-auto sm:min-w-[220px] bg-[#0D0D0D] text-left text-gray-200 border rounded-xl px-4 py-3 text-sm flex items-center justify-between transition-colors hover:border-gray-600 ${
                     openSelect === "style"
                       ? "border-gray-500"
                       : "border-[#242424]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
                     {(() => {
                       const selected = styleOptions.find(
                         (opt) => opt.value === style
@@ -244,14 +246,16 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                       const Icon = selected?.icon;
                       return (
                         <>
-                          {Icon && <Icon className="w-4 h-4 text-gray-400" />}
+                          {Icon && (
+                            <Icon className="w-4 h-4 text-gray-400 shrink-0" />
+                          )}
                           <span className="truncate">{selected?.label}</span>
                         </>
                       );
                     })()}
                   </div>
                   <svg
-                    className={`w-2.5 h-2.5 text-gray-500 transition-transform ${
+                    className={`w-2.5 h-2.5 text-gray-500 transition-transform shrink-0 ml-2 ${
                       openSelect === "style" ? "rotate-180" : ""
                     }`}
                     width="10"
@@ -271,7 +275,7 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                 </button>
 
                 {openSelect === "style" && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1A1A1A] border border-[#333] rounded-xl shadow-xl overflow-hidden py-1 z-30 animate-in fade-in zoom-in-95 duration-100 max-h-[240px] overflow-y-auto custom-scrollbar">
+                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1A1A1A] border border-[#333] rounded-xl shadow-xl overflow-hidden py-1 z-30 animate-in fade-in zoom-in-95 duration-100 max-h-[240px] overflow-y-auto custom-scrollbar min-w-[200px]">
                     {styleOptions.map((opt) => (
                       <button
                         key={opt.value}
@@ -288,16 +292,16 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                       >
                         <div className="flex items-center gap-3">
                           <opt.icon
-                            className={`w-4 h-4 ${
+                            className={`w-4 h-4 shrink-0 ${
                               style === opt.value
                                 ? "text-[#DC2626]"
                                 : "text-gray-500 group-hover:text-gray-300"
                             }`}
                           />
-                          <span>{opt.label}</span>
+                          <span className="truncate">{opt.label}</span>
                         </div>
                         {style === opt.value && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)] shrink-0" />
                         )}
                       </button>
                     ))}
@@ -331,7 +335,7 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
                     handleGenerate();
                   }
                 }}
-                className="w-full min-h-[120px] bg-transparent rounded-xl p-4 text-gray-200 text-base leading-relaxed placeholder:text-gray-600 resize-none focus:outline-none disabled:opacity-50"
+                className="w-full min-h-[160px] bg-transparent rounded-xl p-4 text-gray-200 text-base leading-relaxed placeholder:text-gray-600 resize-none focus:outline-none disabled:opacity-50"
               />
               <div className="flex justify-between items-center px-4 py-2 border-t border-[#1F1F1F]">
                 <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">
