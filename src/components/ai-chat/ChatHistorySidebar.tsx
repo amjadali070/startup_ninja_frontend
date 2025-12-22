@@ -80,14 +80,14 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
       {/* Sidebar */}
       <aside
         className={`
-          flex-shrink-0 w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#0A0A0A]/50 backdrop-blur-sm
+          flex-shrink-0 w-full sm:w-80 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#0A0A0A] sm:bg-[#0A0A0A]/95 backdrop-blur-xl
           transition-all duration-300 ease-in-out transform
           ${
             isOpen
               ? "translate-x-0 opacity-100 pointer-events-auto lg:mr-0"
               : "translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-0 lg:pointer-events-none lg:-mr-80"
           }
-          fixed lg:relative inset-y-0 right-0 top-16 lg:top-0 z-20
+          fixed lg:relative inset-y-0 right-0 top-0 lg:top-0 z-50 lg:z-20
           flex flex-col
         `}
         aria-hidden={!isOpen}

@@ -519,7 +519,18 @@ const AIChat: FC = () => {
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
-            className="fixed top-20 right-4 z-30 lg:top-24 lg:right-4 h-10 w-10 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/5 transition-colors shadow-lg"
+            className="absolute top-4 right-4 z-30 lg:hidden h-10 w-10 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/5 transition-colors shadow-lg"
+            aria-label="Open chat history"
+          >
+            <FaHistory className="h-5 w-5" />
+          </button>
+        )}
+
+        {/* Desktop Sidebar Toggle - Positioned differently */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="hidden lg:flex fixed top-24 right-4 z-30 h-10 w-10 rounded-lg bg-[#1A1A1A] border border-white/10 items-center justify-center text-white/70 hover:text-white hover:bg-white/5 transition-colors shadow-lg"
             aria-label="Open chat history"
           >
             <FaHistory className="h-5 w-5" />
@@ -546,7 +557,7 @@ const AIChat: FC = () => {
           </div>
 
           {messages.length === 0 && !isGenerating && (
-            <section className="flex-shrink-0 grid w-full gap-[24px] mt-4 md:grid-cols-2 lg:grid-cols-3">
+            <section className="flex-shrink-0 grid w-full gap-2 sm:gap-6 mt-4 grid-cols-3">
               {quickActions.map((action) => (
                 <AIChatQuickActionCard
                   key={action.title}

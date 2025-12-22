@@ -91,14 +91,14 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
           className="min-h-[70px] w-full flex-1 resize-none border-none bg-transparent text-base leading-6 text-white/70 placeholder:text-white/25 focus:outline-none sm:min-h-[100px] sm:text-lg"
         />
 
-        <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-1">
+        <div className="flex items-center justify-between gap-2 pt-2">
+          <div className="flex items-center gap-1">
             {onNewChat && (
               <button
                 type="button"
                 onClick={onNewChat}
                 disabled={disabled}
-                className="inline-flex items-center gap-2 rounded-[14px] border border-[#FF0600] px-3 py-1.5 text-xs font-semibold text-[#FF0600] shadow-[0_12px_30px_rgba(222,5,0,0.25)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FF0600]/10"
+                className="inline-flex items-center gap-2 rounded-[14px] border border-[#FF0600] px-3 py-2 sm:py-1.5 text-xs font-semibold text-[#FF0600] shadow-[0_12px_30px_rgba(222,5,0,0.25)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FF0600]/10"
                 aria-label="New chat"
               >
                 <FaPlus className="h-3.5 w-3.5" />
@@ -107,13 +107,13 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-1 text-white/45 sm:flex-nowrap sm:gap-2">
+          <div className="flex items-center justify-end gap-2 text-white/45">
             <button
               type="button"
               onClick={handleSubmit}
               disabled={disabled || !prompt.trim()}
               aria-label="Send message"
-              className="ml-1 flex h-10 w-10 items-center justify-center rounded-full bg-[#DE0500] text-white shadow-[0_20px_40px_rgba(222,5,0,0.45)] transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+              className="ml-1 flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#DE0500] text-white shadow-[0_20px_40px_rgba(222,5,0,0.45)] transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {disabled ? (
                 <GiNinjaStar className="h-4 w-4 animate-spin" />

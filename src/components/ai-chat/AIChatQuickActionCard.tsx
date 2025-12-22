@@ -12,7 +12,7 @@ const AIChatQuickActionCard: FC<AIChatQuickActionCardProps> = ({ title, descript
   const Component = onClick ? 'button' : 'div';
   const renderedIcon = isValidElement(icon)
     ? cloneElement(icon, {
-        className: `${icon.props.className ?? ''} h-[22px] w-[22px] text-[#B91C1C]`.trim(),
+        className: `${icon.props.className ?? ''} h-4 w-4 sm:h-[22px] sm:w-[22px] text-[#B91C1C]`.trim(),
       })
     : icon;
 
@@ -20,16 +20,16 @@ const AIChatQuickActionCard: FC<AIChatQuickActionCardProps> = ({ title, descript
     <Component
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-  className="group relative flex h-full min-h-[130px] w-full flex-col justify-between rounded-[8px] border-[1.33px] border-white/10 bg-[#08080B] px-4 py-4 text-left transition-all duration-300 hover:-translate-y-1 hover:bg-[linear-gradient(143.82deg,_rgba(129,_0,_0,_0.5)_-18.07%,_rgba(58,_0,_0,_0.5)_4.29%,_rgba(29,_0,_0,_0.25)_56.47%,_rgba(13,_12,_13,_0.5)_101.2%)] hover:shadow-[0_24px_70px_rgba(255,56,56,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3838]/80"
+  className="group relative flex h-full min-h-[85px] sm:min-h-[130px] w-full flex-col justify-between sm:items-start items-center rounded-[8px] border-[1.33px] border-white/10 bg-[#08080B] px-1.5 py-2 sm:px-4 sm:py-4 text-center sm:text-left transition-all duration-300 hover:-translate-y-1 hover:bg-[linear-gradient(143.82deg,_rgba(129,_0,_0,_0.5)_-18.07%,_rgba(58,_0,_0,_0.5)_4.29%,_rgba(29,_0,_0,_0.25)_56.47%,_rgba(13,_12,_13,_0.5)_101.2%)] hover:shadow-[0_24px_70px_rgba(255,56,56,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3838]/80"
     >
-      <div className="flex h-8 w-8 items-center justify-center">
-        <span className="flex h-7 w-7 items-center justify-center text-[#B91C1C]">
+      <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center mb-1 sm:mb-0">
+        <span className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center text-[#B91C1C]">
           {renderedIcon}
         </span>
       </div>
-      <div className="flex flex-col gap-2">
-        <h3 className="font-plus-jakarta text-lg font-semibold leading-snug text-white">{title}</h3>
-        <p className="text-xs leading-relaxed text-white/55">{description}</p>
+      <div className="flex flex-col gap-1 sm:gap-2 w-full">
+        <h3 className="font-plus-jakarta text-[10px] xs:text-xs sm:text-lg font-semibold leading-tight text-white line-clamp-2">{title}</h3>
+        <p className="hidden sm:block text-xs leading-relaxed text-white/55">{description}</p>
       </div>
     </Component>
   );
