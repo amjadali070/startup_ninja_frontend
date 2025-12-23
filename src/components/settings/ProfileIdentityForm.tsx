@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type FC, type FormEvent } from 'react';
-import { FiEdit2 } from 'react-icons/fi';
+import { FaEdit } from 'react-icons/fa';
 
 export type ProfileFormState = {
   username: string;
@@ -75,7 +75,15 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
   };
 
   return (
-    <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
+    <section className="relative rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
+      <button
+        type="button"
+        onClick={() => setIsEditing(!isEditing)}
+        className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors sm:right-6 sm:top-6"
+        title={isEditing ? "Cancel editing" : "Edit profile"}
+      >
+        <FaEdit className={`h-5 w-5 ${isEditing ? 'text-red-500' : ''}`} />
+      </button>
       {/* Header Section */}
       <div className="mb-4 xs:mb-5 sm:mb-6">
         <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-3 xs:mb-4">Profile & identity</h3>
@@ -108,32 +116,34 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
             <div className="text-white text-sm xs:text-base">{createdAt}</div>
             
             {/* Action Buttons */}
-            <div className="flex flex-col xs:flex-row gap-2 mt-2 xs:mt-3">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <button
-                type="button"
-                onClick={handleFileButtonClick}
-                disabled={isUpdatingImage}
-                className="px-2 xs:px-3 py-1 xs:py-1.5 text-xs font-medium text-white border border-white/10 rounded-lg bg-transparent hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isUpdatingImage ? 'Updating…' : 'Upload Image'}
-              </button>
-              {onProfileImageRemove && (
+            {isEditing && (
+              <div className="mt-2 flex flex-col gap-2 xs:mt-3 xs:flex-row">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
                 <button
                   type="button"
-                  onClick={handleRemoveImage}
-                  className="px-2 xs:px-3 py-1 xs:py-1.5 text-xs font-medium text-white border border-white/10 rounded-lg bg-transparent hover:bg-white/5 transition-colors"
+                  onClick={handleFileButtonClick}
+                  disabled={isUpdatingImage}
+                  className="rounded-lg border border-white/10 bg-transparent px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60 xs:px-3 xs:py-1.5"
                 >
-                  Remove
+                  {isUpdatingImage ? "Updating…" : "Upload Image"}
                 </button>
-              )}
-            </div>
+                {onProfileImageRemove && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="rounded-lg border border-white/10 bg-transparent px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-white/5 xs:px-3 xs:py-1.5"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
         
@@ -158,18 +168,10 @@ const ProfileIdentityForm: FC<ProfileIdentityFormProps> = ({
                 onChange={onChange}
                 placeholder="Enter display name"
                 disabled={!isEditing}
-                className={`w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 xs:py-3 pr-10 text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none text-sm xs:text-base ${
-                  !isEditing ? 'opacity-70 cursor-not-allowed' : ''
+                className={`w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-gray-400 focus:border-white/20 focus:outline-none xs:text-base xs:py-3 ${
+                  !isEditing ? "cursor-not-allowed opacity-70" : ""
                 }`}
               />
-              <button
-                type="button"
-                onClick={() => setIsEditing(!isEditing)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                title={isEditing ? "Cancel editing" : "Edit display name"}
-              >
-                <FiEdit2 className={`w-4 h-4 ${isEditing ? 'text-red-500' : ''}`} />
-              </button>
             </div>
           </div>
           

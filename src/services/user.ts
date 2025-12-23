@@ -91,9 +91,13 @@ export const userService = {
   /**
    * Update the current user's profile
    */
-  async updateProfile(data: UpdateProfileRequest): Promise<UserProfileResponse> {
+  async updateProfile(data: UpdateProfileRequest | FormData): Promise<UserProfileResponse> {
     try {
-      const response = await apiClient.put<UserProfileResponse>('/user/profile', data);
+      const config = data instanceof FormData 
+        ? { headers: { "Content-Type": "multipart/form-data" } } 
+        : undefined;
+
+      const response = await apiClient.put<UserProfileResponse>('/user/profile', data, config);
       
       // Update local storage if successful
       if (response.success && response.user) {

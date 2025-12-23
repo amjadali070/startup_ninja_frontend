@@ -94,6 +94,7 @@ const Settings: FC = () => {
   const [profileImageDraft, setProfileImageDraft] = useState<string | null>(
     null
   );
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
   const previousImageUrlRef = useRef<string | null>(null);
 
@@ -236,6 +237,7 @@ const Settings: FC = () => {
   const handleProfileReset = () => {
     setProfileForm(profileBaseline);
     setProfileImageDraft(null);
+    setSelectedImageFile(null);
     toast.success("Profile changes reverted.");
   };
 
@@ -244,14 +246,25 @@ const Settings: FC = () => {
     setIsSavingProfile(true);
 
     try {
-      const payload = {
-        username: profileForm.username,
-        email: profileForm.email,
-      };
+      let payload: any;
+      
+      if (selectedImageFile) {
+        const formData = new FormData();
+        formData.append('username', profileForm.username);
+        formData.append('email', profileForm.email);
+        formData.append('profilePicture', selectedImageFile);
+        payload = formData;
+      } else {
+        payload = {
+          username: profileForm.username,
+          email: profileForm.email,
+        };
+      }
 
       const response = await userService.updateProfile(payload);
       if (response.success && response.user) {
         setProfile(response.user);
+        setSelectedImageFile(null); // Clear selected file after success
         const updatedForm: ProfileFormState = {
           ...profileForm,
           username: response.user.username ?? profileForm.username,
@@ -276,6 +289,7 @@ const Settings: FC = () => {
     try {
       const objectUrl = URL.createObjectURL(file);
       setProfileImageDraft(objectUrl);
+      setSelectedImageFile(file);
       toast.success(
         "Profile image updated. Save your profile to apply the change."
       );
@@ -289,6 +303,7 @@ const Settings: FC = () => {
 
   const handleProfileImageRemove = () => {
     setProfileImageDraft("");
+    setSelectedImageFile(null);
     toast.success("Profile image removed. Save your profile to confirm.");
   };
 
