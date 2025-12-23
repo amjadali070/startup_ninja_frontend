@@ -1,6 +1,3 @@
-import React from 'react';
-import PublicLayout from '../../layouts/PublicLayout';
-
 const TermsOfService = () => {
   return (
     <div className="bg-[#0D0D0D] min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8 font-plus-jakarta">
