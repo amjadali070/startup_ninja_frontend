@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {  FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt } from 'react-icons/fa';
 import { FiX } from 'react-icons/fi';
 import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
 import { PLATFORM_BY_ID } from '../../constants/platforms';
+import LoadingSpinner from '../LoadingSpinner';
 
 // Reusing existing types and utilities
 export type ModalPost = {
@@ -13,7 +14,7 @@ export type ModalPost = {
   publishedAt?: string;
   status: 'scheduled' | 'published' | 'failed' | 'cancelled';
   results?: Record<string, any>;
-  image?: { originalname?: string; mimetype?: string; buffer?: string } | null;
+  image?: { originalname?: string; mimetype?: string; buffer?: string; url?: string; key?: string } | null;
   accounts?: Array<{
     platform: string;
     name?: string;
@@ -66,18 +67,33 @@ const PostStatusBadge: React.FC<{ status: ModalPost['status'] }> = ({ status }) 
 const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
 
   const imageSrc = useMemo(() => {
-    // ... (logic remains the same)
     if (!post) return null;
-    const ig = (post.results as any)?.instagram?.response?.data;
-    if (ig?.imageUrl) return ig.imageUrl as string;
-    const fb = (post.results as any)?.facebook?.response?.imageUrl;
-    if (fb) return fb as string;
+    
+    // 1. Prefer S3/Stored URL if available
+    if (post.image?.url) return post.image.url;
+
+    // 2. Fallback to Buffer (Legacy)
     if (post.image?.buffer) {
       const mime = post.image.mimetype || 'image/jpeg';
       return `data:${mime};base64,${post.image.buffer}`;
     }
+
+    // 3. Fallback to platform specific results
+    const ig = (post.results as any)?.instagram?.response?.data;
+    if (ig?.imageUrl) return ig.imageUrl as string;
+    const fb = (post.results as any)?.facebook?.response?.imageUrl;
+    if (fb) return fb as string;
+
     return null;
   }, [post]);
+
+  const [imgLoading, setImgLoading] = useState(true);
+
+  useEffect(() => {
+    if (imageSrc) {
+      setImgLoading(true);
+    }
+  }, [imageSrc]);
 
   if (!post) return null;
 
@@ -108,12 +124,19 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
             <div className="p-2 space-y-4">
                 
                 {imageSrc ? (
-                  <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center border-2 border-dotted border-gray-600" style={{ borderStyle: 'dotted', borderSpacing: '4px' }}>
+                  <div className="relative w-full rounded-md overflow-hidden bg-black/40 flex items-center justify-center border-2 border-dotted border-gray-600 min-h-[150px]" style={{ borderStyle: 'dotted', borderSpacing: '4px' }}>
+                    {imgLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10">
+                        <LoadingSpinner size="small" variant="dark" />
+                      </div>
+                    )}
                     <img
                       src={imageSrc}
                       alt={post.caption ? post.caption.slice(0, 60) : 'Post media'}
-                      className="w-full max-h-72 object-contain" 
+                      className={`w-full max-h-72 object-contain transition-opacity duration-300 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}
                       loading="lazy"
+                      onLoad={() => setImgLoading(false)}
+                      onError={() => setImgLoading(false)}
                     />
                   </div>
                 ) : (
