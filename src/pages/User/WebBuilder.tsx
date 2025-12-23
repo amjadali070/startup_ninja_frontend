@@ -325,7 +325,7 @@ const WebBuilder: FC = () => {
                       />
 
                       <div className="relative z-10">
-                        {!hasWebsiteData ? (
+                        {!hasWebsiteData || !site.websitePreview ? (
                           <img
                             src="/images/no-preview.png"
                             alt={site.title}
@@ -333,7 +333,14 @@ const WebBuilder: FC = () => {
                           />
                         ) : (
                           <img
-                            src={"http://localhost:3004" + site.websitePreview}
+                            src={
+                              site.websitePreview.startsWith("http")
+                                ? site.websitePreview
+                                : `${
+                                    WEB_BUILDER_SERVICE_URL ||
+                                    "http://localhost:3004"
+                                  }${site.websitePreview}`
+                            }
                             alt={site.title}
                             className="preview-website-img"
                           />
@@ -425,7 +432,9 @@ const WebBuilder: FC = () => {
                               onClick={() =>
                                 isPublished &&
                                 window.open(
-                                  `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
+                                  site.publishedLink.startsWith("http")
+                                    ? site.publishedLink
+                                    : `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
                                   "_blank"
                                 )
                               }
