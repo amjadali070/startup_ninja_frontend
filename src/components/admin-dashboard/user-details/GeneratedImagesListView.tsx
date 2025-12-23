@@ -41,10 +41,10 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
                 {image.prompt}
               </p>
               <div className="flex items-center justify-between text-xs text-gray-300">
-                <span className="flex items-center gap-1">
+                {/* <span className="flex items-center gap-1">
                   <FaRobot className="text-purple-400" />
                   {image.modelUsed.split("/").pop() || "AI"}
-                </span>
+                </span> */}
                 <span>{new Date(image.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -108,7 +108,9 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">Model</h4>
-                    <p className="text-white text-sm">{selectedImage.modelUsed}</p>
+                    <p className="text-white text-sm">Imagenative Ninja</p>
+                    {/* <p className="text-white text-sm">{selectedImage.modelUsed}</p> */}
+
                   </div>
                   <div>
                     <h4 className="text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">Dimensions</h4>
