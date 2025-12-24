@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaDownload, FaRobot, FaMagic } from "react-icons/fa";
+import { FaDownload, FaMagic } from "react-icons/fa";
 import type { GeneratedImage } from "../../../types/admin";
 
 interface GeneratedImagesListViewProps {
