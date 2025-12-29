@@ -1,44 +1,46 @@
 import { FaCheckCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 const plans = [
+
     {
-        title: "Basic",
-        price: "$20",
+        title: "Startup",
+        price: "$9",
         subtitle: "/monthly",
-        description: "Advanced tools for growing team.",
+        description: "For beginners starting out.",
         features: [
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
+            "50 AI Chat messages/mo",
+            "20 Image Generations/mo",
+            "3 Website projects",
+            "Basic Social scheduling",
+            "Standard support",
         ],
         highlighted: false,
     },
     {
         title: "Pro",
-        price: "$20",
+        price: "$29",
         subtitle: "/monthly",
-        description: "Advanced tools for growing team.",
+        description: "For growing businesses.",
         features: [
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
+            "500 AI Chat messages/mo",
+            "100 Image Generations/mo",
+            "10 Website projects",
+            "Full Social Media Pro",
+            "Priority support",
         ],
         highlighted: true,
     },
     {
         title: "Enterprise",
-        price: "Let’s Talk",
-        description: "Advanced tools for growing team.",
+        price: "$99",
+        subtitle: "/monthly",
+        description: "For large teams.",
         features: [
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
-            "Collaborate with up to 10 teammates",
+            "Unlimited AI Chat",
+            "1000 Image Generations/mo",
+            "50 Website projects",
+            "Team management",
+            "Dedicated support",
         ],
         highlighted: false,
     },
@@ -103,6 +105,19 @@ export default function PricingSection() {
                         </div>
                     </div>
                 ))}
+            </div>
+            
+            <div className="mt-16 text-center max-w-2xl mx-auto px-6 py-8 rounded-2xl bg-gradient-to-b from-[#1a0f0f] to-transparent border border-red-900/20">
+                <h3 className="text-xl font-bold mb-2 text-white">Just getting started?</h3>
+                <p className="text-gray-400 mb-6">Explore the basics with our <span className="text-red-500 font-semibold">Free</span> plan.</p>
+                <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-400 mb-6">
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 10 AI Chat msg/mo</span>
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 5 Image Gen/mo</span>
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 1 Website Project</span>
+                </div>
+                <Link to="/register" className="text-white underline decoration-red-600 underline-offset-4 hover:text-red-500 transition-colors">
+                    Start for free
+                </Link>
             </div>
         </section>
     );

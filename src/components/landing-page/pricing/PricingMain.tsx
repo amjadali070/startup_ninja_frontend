@@ -8,33 +8,32 @@ const PricingMain: React.FC = () => {
   );
 
   const plans = [
+
     {
-      name: "Starter",
+      name: "Startup",
       tagline: "For beginners just starting out",
-      price: { monthly: 0, annual: 0 },
+      price: { monthly: 9, annual: 7 },
       features: [
-        { text: "Limited AI Chat access", included: true },
-        { text: "50 AI credits/month", included: true },
-        { text: "Basic Image Generation", included: true },
-        { text: "1 Website project", included: true },
+        { text: "50 AI Chat messages/mo", included: true },
+        { text: "20 Image Generations/mo", included: true },
+        { text: "3 Website projects", included: true },
         { text: "Startup Ninja subdomain", included: true },
         { text: "Basic Social Media scheduling", included: true },
         { text: "Custom domain", included: false },
         { text: "Priority support", included: false },
         { text: "Team collaboration", included: false },
       ],
-      cta: "START FREE",
+      cta: "GET STARTED",
       popular: false,
     },
     {
-      name: "Founder",
+      name: "Pro",
       tagline: "For solopreneurs building their dream",
       price: { monthly: 29, annual: 24 },
       features: [
-        { text: "Unlimited AI Chat", included: true },
-        { text: "500 AI credits/month", included: true },
-        { text: "Advanced Image Generation", included: true },
-        { text: "Unlimited website projects", included: true },
+        { text: "500 AI Chat messages/mo", included: true },
+        { text: "100 Image Generations/mo", included: true },
+        { text: "10 Website projects", included: true },
         { text: "Custom domain support", included: true },
         { text: "Full Social Media Pro access", included: true },
         { text: "Priority email support", included: true },
@@ -45,19 +44,18 @@ const PricingMain: React.FC = () => {
       popular: true,
     },
     {
-      name: "Agency",
+      name: "Enterprise",
       tagline: "For agencies and growing teams",
       price: { monthly: 99, annual: 82 },
       features: [
-        { text: "Everything in Founder", included: true },
-        { text: "2000 AI credits/month", included: true },
+        { text: "Unlimited AI Chat", included: true },
+        { text: "1000 AI credits/month", included: true },
+        { text: "50 Website projects", included: true },
         { text: "White-label options", included: true },
-        { text: "Team management (up to 10 users)", included: true },
+        { text: "Team management", included: true },
         { text: "Advanced analytics", included: true },
         { text: "Priority phone support", included: true },
-        { text: "Custom integrations", included: true },
         { text: "Dedicated account manager", included: true },
-        { text: "SLA guarantee", included: true },
       ],
       cta: "CONTACT SALES",
       popular: false,
@@ -251,6 +249,19 @@ const PricingMain: React.FC = () => {
                 </ul>
               </div>
             ))}
+          </div>
+          
+          <div className="mt-16 bg-[#151515] border border-[#333] rounded-lg p-6 max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+             <div className="text-center md:text-left">
+                <h3 className="text-xl font-bold mb-2">Not ready to commit?</h3>
+                <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">Free Plan</span>. Includes basic access to all tools.</p>
+             </div>
+             <Link
+                to="/register"
+                className="px-6 py-3 rounded-lg border border-[#333] hover:bg-[#222] transition-colors font-semibold whitespace-nowrap"
+             >
+                Start for Free
+             </Link>
           </div>
         </div>
       </section>
