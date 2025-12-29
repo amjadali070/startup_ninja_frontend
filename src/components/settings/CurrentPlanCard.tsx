@@ -6,6 +6,7 @@ import PlanDetails, { PlanLimits, PlanUsage } from './PlanDetails';
 interface SubscriptionData {
   plan: string;
   status: 'active' | 'inactive' | 'cancelled';
+  cancelAtPeriodEnd?: boolean;
   nextBillingDate?: string;
   usage?: {
     ai_chat_messages: number;
@@ -25,6 +26,7 @@ export type PlanDetailsType = {
   name: string;
   price: string;
   status: 'active' | 'inactive' | 'cancelled';
+  isCanceling?: boolean;
   renewalDate: string;
   usage: PlanUsage;
   limits: PlanLimits;
@@ -60,6 +62,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       name: planName || 'Free Plan',
       price: price,
       status: subscription.status || 'active',
+      isCanceling: subscription.cancelAtPeriodEnd,
       renewalDate: subscription.nextBillingDate 
         ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
         : 'N/A',
@@ -79,13 +82,24 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
     );
   }
 
+  // Determine badge style
+  let badgeClass = "bg-[#00E01A0D] text-[#00E01A] border-[#00E01A80]";
+  let statusText: string = planDetails.status;
+
+  if (planDetails.isCanceling) {
+      badgeClass = "bg-amber-500/10 text-amber-500 border-amber-500/50";
+      statusText = "Cancels Soon";
+  } else if (planDetails.status === 'inactive' || planDetails.status === 'cancelled') {
+      badgeClass = "bg-gray-500/10 text-gray-400 border-gray-500/50";
+  }
+
   return (
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
         <div className="text-gray-400 text-xs xs:text-sm">Current Plan</div>
-        <div className="bg-[#00E01A0D] text-[#00E01A] text-xs font-medium px-2 py-1 rounded border border-[#00E01A80] capitalize">
-          {planDetails.status}
+        <div className={`text-xs font-medium px-2 py-1 rounded border capitalize ${badgeClass}`}>
+          {statusText}
         </div>
       </div>
 
@@ -99,7 +113,12 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       <div className="mb-4 xs:mb-5 sm:mb-6">
         <h4 className="text-white text-sm xs:text-base font-bold font-plus-jakarta mb-2">Plan Summary</h4>
         <p className="text-gray-400 text-xs xs:text-sm mb-3 xs:mb-4">
-            {planDetails.name === 'Free' ? 'Free Forever' : `Renews on ${planDetails.renewalDate}`}
+            {planDetails.name === 'Free' 
+                ? 'Free Forever' 
+                : planDetails.isCanceling 
+                    ? `Access ends on ${planDetails.renewalDate}`
+                    : `Renews on ${planDetails.renewalDate}`
+            }
         </p>
         
         {/* Usages from PlanDetails */}
@@ -127,8 +146,8 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
           </button>
         </div>
         
-        {/* Cancel Subscription Link */}
-        {planDetails.name !== 'Free' && (
+        {/* Cancel Subscription Link (Hide if already canceling or Free) */}
+        {planDetails.name !== 'Free' && !planDetails.isCanceling && planDetails.status === 'active' && (
             <button
             type="button"
             onClick={onCancelSubscription}

@@ -461,8 +461,21 @@ const Settings: FC = () => {
     navigate('/billing-history');
   };
 
-  const handleCancelSubscription = () => {
-    toast("Subscription cancellation will be available soon.");
+  const handleCancelSubscription = async () => {
+    if (confirm("Are you sure you want to cancel your subscription? It will remain active until the end of the billing period, but will not renew.")) {
+        const loadingId = toast.loading("Processing cancellation...");
+        try {
+            const response = await subscriptionService.cancelSubscription();
+            if (response.success) {
+                toast.success("Subscription cancelled successfully.", { id: loadingId });
+                refreshSubscription();
+            } else {
+                toast.error(response.message || "Failed to cancel subscription", { id: loadingId });
+            }
+        } catch (error) {
+            toast.error("An error occurred during cancellation", { id: loadingId });
+        }
+    }
   };
 
   const handleUpgradePlan = () => {
@@ -554,6 +567,7 @@ const Settings: FC = () => {
                   onChange={handleChangePasswordChange}
                   onSubmit={handleChangePasswordSubmit}
                   onReset={handleChangePasswordReset}
+                  onLogout={async () => { await logout(); }}
                 />
                 <DeleteAccountForm
                   onDeleteAccount={handleDeleteAccount}

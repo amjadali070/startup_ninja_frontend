@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { FiX, FiCreditCard, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { subscriptionService } from '../../services/subscription';
+import { StripeWrapper } from '../payment/StripeWrapper';
+import { 
+  useStripe, 
+  useElements, 
+  CardNumberElement, 
+  CardExpiryElement, 
+  CardCvcElement 
+} from '@stripe/react-stripe-js';
 
 interface SavedCard {
   id: string;
@@ -22,7 +30,7 @@ interface UpgradePlanModalProps {
   onSuccess: () => void;
 }
 
-const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
+const UpgradePlanModalContent: React.FC<UpgradePlanModalProps> = ({
   isOpen,
   onClose,
   onBack,
@@ -30,15 +38,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
   billingCycle = 'monthly',
   onSuccess
 }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [cards, setCards] = useState<SavedCard[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<string>('');
   const [useNewCard, setUseNewCard] = useState(false);
   
   const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -71,20 +78,6 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
     }
   };
 
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\s/g, '');
-    const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
-    return formatted;
-  };
-
-  const formatExpiry = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4);
-    }
-    return cleaned;
-  };
-
   const handleUpgrade = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -94,15 +87,27 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
       
       // If user wants to use a new card, add it first
       if (useNewCard) {
+        if (!stripe || !elements) return;
+        
+        const cardElement = elements.getElement(CardNumberElement);
+        if (!cardElement) throw new Error("Card element not found");
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+             type: 'card',
+             card: cardElement,
+             billing_details: { name: cardName }
+        });
+
+        if (error) throw new Error(error.message);
+
+        // Add to backend
         const cardRes = await subscriptionService.addPaymentMethod({
-          cardNumber: cardNumber.replace(/\s/g, ''), 
-          expiryDate: expiry, 
-          cvc, 
+          paymentMethodId: paymentMethod.id,
           cardholderName: cardName
         });
         
         if (!cardRes.success) throw new Error(cardRes.message);
-        paymentMethodId = cardRes.paymentMethodId;
+        paymentMethodId = cardRes.paymentMethodId; // Updated backend returns this
       } else {
         // Use selected existing card
         paymentMethodId = selectedCardId;
@@ -132,6 +137,16 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
   if (!isOpen) return null;
 
   const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200";
+  const elementOptions = {
+      style: {
+          base: {
+              fontSize: '16px',
+              color: '#ffffff',
+              '::placeholder': { color: '#6b7280' },
+          },
+          invalid: { color: '#ef4444' },
+      },
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -234,48 +249,29 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
         {useNewCard && (
           <form onSubmit={handleUpgrade} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Card Number</label>
-              <div className="relative">
-                <FiCreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"/>
-                <input 
-                  type="text" 
-                  placeholder="1234 5678 9012 3456" 
-                  value={cardNumber} 
-                  onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                  maxLength={19}
-                  className={inputClass + " pl-12"} 
-                  required 
-                />
+            <label className="block text-sm font-medium text-gray-300 mb-2">Card Number</label>
+            <div className="relative">
+              <div className={inputClass + " flex items-center"}>
+                  <CardNumberElement options={elementOptions} className="w-full" />
               </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
-                <input 
-                  type="text" 
-                  placeholder="MM/YY" 
-                  value={expiry} 
-                  onChange={e => setExpiry(formatExpiry(e.target.value))}
-                  maxLength={5}
-                  className={inputClass} 
-                  required 
-                />
-              </div>
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">CVC</label>
-                <input 
-                  type="text" 
-                  placeholder="123" 
-                  value={cvc} 
-                  onChange={e => setCvc(e.target.value.replace(/\D/g, '').slice(0,3))}
-                  maxLength={3}
-                  className={inputClass} 
-                  required 
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
+               <div className={inputClass}>
+                  <CardExpiryElement options={elementOptions} />
+               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">CVC</label>
+               <div className={inputClass}>
+                  <CardCvcElement options={elementOptions} />
+               </div>
+            </div>
+          </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Cardholder Name</label>
@@ -291,7 +287,7 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
             
             <button 
               type="submit" 
-              disabled={loading} 
+              disabled={loading || !stripe} 
               className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-green-600/20 hover:shadow-green-600/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -343,6 +339,14 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({
       </div>
     </div>
   );
+};
+
+const UpgradePlanModal: React.FC<UpgradePlanModalProps> = (props) => {
+    return (
+        <StripeWrapper>
+            <UpgradePlanModalContent {...props} />
+        </StripeWrapper>
+    );
 };
 
 export default UpgradePlanModal;

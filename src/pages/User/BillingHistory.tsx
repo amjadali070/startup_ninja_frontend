@@ -115,7 +115,7 @@ const BillingHistory: React.FC = () => {
       onLogout={handleLogout}
     >
       <div className="min-h-screen bg-black p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full mx-auto">
           {/* Header */}
           <div className="mb-8">
             <button

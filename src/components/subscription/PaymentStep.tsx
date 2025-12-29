@@ -1,58 +1,61 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { FiCreditCard, FiLock } from 'react-icons/fi';
+import { FiLock } from 'react-icons/fi';
 import { subscriptionService } from '../../services/subscription';
+import { StripeWrapper } from '../payment/StripeWrapper';
+import { 
+  useStripe, 
+  useElements, 
+  CardNumberElement, 
+  CardExpiryElement, 
+  CardCvcElement 
+} from '@stripe/react-stripe-js';
 
 interface PaymentStepProps {
   planName: string;
   billingCycle: string;
 }
 
-const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => {
+const PaymentStepContent: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => {
   const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
   const [loading, setLoading] = useState(false);
-  
   const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
-
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\s/g, '');
-    const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
-    return formatted;
-  };
-
-  const formatExpiry = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4);
-    }
-    return cleaned;
-  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!stripe || !elements) return;
+    
     setLoading(true);
     
     try {
+        const cardElement = elements.getElement(CardNumberElement);
+        if (!cardElement) throw new Error("Card element not found");
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+             type: 'card',
+             card: cardElement,
+             billing_details: { name: cardName }
+        });
+
+        if (error) throw new Error(error.message);
+
+        // 1. Add Payment Method to Backend (Saves it to DB)
         const cardRes = await subscriptionService.addPaymentMethod({
-            cardNumber: cardNumber.replace(/\s/g, ''), 
-            expiryDate: expiry, 
-            cvc, 
+            paymentMethodId: paymentMethod.id,
             cardholderName: cardName
         });
         
         if (!cardRes.success) throw new Error(cardRes.message);
+        const dbPaymentMethodId = cardRes.paymentMethodId;
         
-        const paymentMethodId = cardRes.paymentMethodId;
-        
-        // Purchase the subscription
+        // 2. Purchase Subscription using the saved card
         const subRes = await subscriptionService.purchaseSubscription({
             plan: planName,
             billingCycle,
-            paymentMethodId
+            paymentMethodId: dbPaymentMethodId
         });
         
         if (subRes.success) {
@@ -69,6 +72,16 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
   };
 
   const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200";
+  const elementOptions = {
+    style: {
+        base: {
+            fontSize: '16px',
+            color: '#ffffff',
+            '::placeholder': { color: '#6b7280' },
+        },
+        invalid: { color: '#ef4444' },
+    },
+  };
 
   return (
     <div className="w-full bg-gradient-to-br from-[#0a0a0a] to-black rounded-2xl p-6 lg:p-8 border border-white/10">
@@ -81,44 +94,25 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
              <div>
                <label className="block text-sm font-medium text-gray-300 mb-2">Card Number</label>
                <div className="relative">
-                 <FiCreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"/>
-                 <input 
-                   type="text" 
-                   placeholder="1234 5678 9012 3456" 
-                   value={cardNumber} 
-                   onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                   maxLength={19}
-                   className={inputClass + " pl-12"} 
-                   required 
-                 />
+                 <div className={inputClass + " flex items-center"}>
+                    <CardNumberElement options={elementOptions} className="w-full" />
+                 </div>
                </div>
              </div>
              
              <div className="grid grid-cols-2 gap-4">
                  <div>
                      <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
-                     <input 
-                       type="text" 
-                       placeholder="MM/YY" 
-                       value={expiry} 
-                       onChange={e => setExpiry(formatExpiry(e.target.value))}
-                       maxLength={5}
-                       className={inputClass} 
-                       required 
-                     />
+                     <div className={inputClass}>
+                        <CardExpiryElement options={elementOptions} />
+                     </div>
                  </div>
 
                  <div>
                      <label className="block text-sm font-medium text-gray-300 mb-2">CVC</label>
-                     <input 
-                       type="text" 
-                       placeholder="123" 
-                       value={cvc} 
-                       onChange={e => setCvc(e.target.value.replace(/\D/g, '').slice(0,3))}
-                       maxLength={3}
-                       className={inputClass} 
-                       required 
-                     />
+                     <div className={inputClass}>
+                        <CardCvcElement options={elementOptions} />
+                     </div>
                  </div>
              </div>
              
@@ -136,7 +130,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
              
              <button 
                type="submit" 
-               disabled={loading} 
+               disabled={loading || !stripe} 
                className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-green-600/20 hover:shadow-green-600/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
              >
                {loading ? (
@@ -162,6 +156,14 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
         </form>
     </div>
   );
+};
+
+const PaymentStep: React.FC<PaymentStepProps> = (props) => {
+    return (
+        <StripeWrapper>
+            <PaymentStepContent {...props} />
+        </StripeWrapper>
+    );
 };
 
 export default PaymentStep;

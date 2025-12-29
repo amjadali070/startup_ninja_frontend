@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FC, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export type ChangePasswordFormState = {
@@ -14,6 +14,7 @@ interface ChangePasswordProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
+  onLogout?: () => Promise<void>;
 }
 
 const ChangePassword: FC<ChangePasswordProps> = ({
@@ -22,7 +23,9 @@ const ChangePassword: FC<ChangePasswordProps> = ({
   onChange,
   onSubmit,
   onReset,
+  onLogout
 }) => {
+  const navigate = useNavigate();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -39,6 +42,13 @@ const ChangePassword: FC<ChangePasswordProps> = ({
         setShowConfirmPassword(!showConfirmPassword);
         break;
     }
+  };
+
+  const handleForgotPassword = async () => {
+     if (onLogout) {
+         await onLogout();
+     }
+     navigate('/forgot-password');
   };
 
   return (
@@ -158,12 +168,13 @@ const ChangePassword: FC<ChangePasswordProps> = ({
         </div>
         
         <div className="mt-4 text-right">
-          <Link 
-            to="/forgot-password" 
+          <button 
+            type="button"
+            onClick={handleForgotPassword}
             className="text-xs xs:text-sm text-gray-400 hover:text-white transition-colors"
           >
             Forgot your password? <span className="text-red-500 hover:underline">Reset here</span>
-          </Link>
+          </button>
         </div>
       </form>
     </section>

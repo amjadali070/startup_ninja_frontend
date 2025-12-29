@@ -20,12 +20,7 @@ export const subscriptionService = {
   /**
    * Add a payment method (card)
    */
-  async addPaymentMethod(cardDetails: { 
-    cardNumber: string, 
-    expiryDate: string, 
-    cvc: string, 
-    cardholderName: string 
-  }): Promise<any> {
+  async addPaymentMethod(cardDetails: any): Promise<any> {
     try {
       const response = await apiClient.post('/user/payment/add-card', cardDetails);
       return response;
@@ -117,6 +112,21 @@ export const subscriptionService = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to fetch transaction history'
+      };
+    }
+  },
+
+  /**
+   * Cancel Subscription
+   */
+  async cancelSubscription(): Promise<any> {
+    try {
+      const response = await apiClient.post('/user/payment/cancel-subscription', {});
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to cancel subscription'
       };
     }
   },

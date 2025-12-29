@@ -2,6 +2,14 @@ import { type FC, useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { FiX, FiCreditCard, FiTrash2, FiCheck } from 'react-icons/fi';
 import { subscriptionService } from '../../services/subscription';
+import { StripeWrapper } from '../payment/StripeWrapper';
+import { 
+  useStripe, 
+  useElements, 
+  CardNumberElement, 
+  CardExpiryElement, 
+  CardCvcElement 
+} from '@stripe/react-stripe-js';
 
 export type PaymentMethod = {
   id: string;
@@ -73,7 +81,7 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
   };
 
   const getCardIcon = (brand: string) => {
-    const brandLower = brand.toLowerCase();
+    const brandLower = brand?.toLowerCase() || '';
     if (brandLower.includes('visa')) return '💳';
     if (brandLower.includes('mastercard')) return '💳';
     if (brandLower.includes('amex') || brandLower.includes('american')) return '💳';
@@ -177,56 +185,59 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
 
       {/* Add Card Modal */}
       {showAddCardModal && (
-        <AddCardModal
-          isOpen={showAddCardModal}
-          onClose={() => setShowAddCardModal(false)}
-          onSuccess={() => {
-            fetchCards();
-            onRefresh?.();
-          }}
-        />
+        <StripeWrapper>
+            <AddCardModalContent
+                onClose={() => setShowAddCardModal(false)}
+                onSuccess={() => {
+                    fetchCards();
+                    onRefresh?.();
+                }}
+            />
+        </StripeWrapper>
       )}
     </>
   );
 };
 
-// Add Card Modal Component
-interface AddCardModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+// Internal component to use Stripe hooks
+interface AddCardModalContentProps {
+    onClose: () => void;
+    onSuccess: () => void;
 }
 
-const AddCardModal: FC<AddCardModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const AddCardModalContent: FC<AddCardModalContentProps> = ({ onClose, onSuccess }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const [loading, setLoading] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
   const [cardholderName, setCardholderName] = useState('');
-
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\s/g, '');
-    const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
-    return formatted;
-  };
-
-  const formatExpiry = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      return cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4);
-    }
-    return cleaned;
-  };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!stripe || !elements) return;
+
     setLoading(true);
 
     try {
+      const cardElement = elements.getElement(CardNumberElement); // Retrieve based on number
+      if (!cardElement) return;
+
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+        billing_details: {
+            name: cardholderName,
+        }
+      });
+
+      if (error) {
+         toast.error(error.message || 'Payment processing failed');
+         setLoading(false);
+         return;
+      }
+
+      // Send to backend
       const response = await subscriptionService.addPaymentMethod({
-        cardNumber: cardNumber.replace(/\s/g, ''),
-        expiryDate: expiry,
-        cvc,
+        paymentMethodId: paymentMethod.id,
         cardholderName
       });
 
@@ -244,67 +255,55 @@ const AddCardModal: FC<AddCardModalProps> = ({ isOpen, onClose, onSuccess }) => 
     }
   };
 
-  if (!isOpen) return null;
-
   const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200";
+  const elementOptions = {
+      style: {
+          base: {
+              fontSize: '16px',
+              color: '#ffffff',
+              '::placeholder': {
+                  color: '#6b7280',
+              },
+          },
+          invalid: {
+              color: '#ef4444',
+          },
+      },
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="w-full max-w-md bg-gradient-to-br from-[#0a0a0a] to-black rounded-2xl p-6 lg:p-8 border border-white/10">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Add Payment Method</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
             <FiX size={24} />
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Card Number</label>
             <div className="relative">
-              <FiCreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                maxLength={19}
-                className={inputClass + " pl-12"}
-                required
-              />
+              <div className={inputClass + " flex items-center"}>
+                  <CardNumberElement options={elementOptions} className="w-full" />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                value={expiry}
-                onChange={e => setExpiry(formatExpiry(e.target.value))}
-                maxLength={5}
-                className={inputClass}
-                required
-              />
+               <div className={inputClass}>
+                  <CardExpiryElement options={elementOptions} />
+               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">CVC</label>
-              <input
-                type="text"
-                placeholder="123"
-                value={cvc}
-                onChange={e => setCvc(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                maxLength={3}
-                className={inputClass}
-                required
-              />
+               <div className={inputClass}>
+                  <CardCvcElement options={elementOptions} />
+               </div>
             </div>
           </div>
 
@@ -322,7 +321,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !stripe}
             className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Adding Card...' : 'Add Card'}
