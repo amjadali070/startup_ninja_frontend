@@ -462,7 +462,6 @@ const Settings: FC = () => {
   };
 
   const handleCancelSubscription = async () => {
-    if (confirm("Are you sure you want to cancel your subscription? It will remain active until the end of the billing period, but will not renew.")) {
         const loadingId = toast.loading("Processing cancellation...");
         try {
             const response = await subscriptionService.cancelSubscription();
@@ -475,7 +474,6 @@ const Settings: FC = () => {
         } catch (error) {
             toast.error("An error occurred during cancellation", { id: loadingId });
         }
-    }
   };
 
   const handleUpgradePlan = () => {

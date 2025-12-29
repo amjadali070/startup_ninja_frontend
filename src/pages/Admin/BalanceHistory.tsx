@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import BalanceSummaryCards from "../../components/admin-dashboard/BalanceSummaryCards";
 import BalanceHistoryTable from "../../components/admin-dashboard/BalanceHistoryTable";
 import EditCreditModal from "../../components/admin-dashboard/EditCreditModal";
-import AlertModal from "../../components/admin-dashboard/AlertModal";
+import AlertModal from "../../components/AlertModal";
 
 const BalanceHistory: React.FC = () => {
   const navigate = useNavigate();

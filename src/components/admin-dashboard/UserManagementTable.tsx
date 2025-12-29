@@ -5,7 +5,7 @@ import { adminService } from "../../services/admin";
 import type { UserListItem, PaginationInfo } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
-import AlertModal from "./AlertModal";
+import AlertModal from "../AlertModal";
 
 const UserAvatar: React.FC<{ user: UserListItem }> = ({ user }) => {
   const [imgError, setImgError] = useState(false);

@@ -13,7 +13,7 @@ import {
   GeneratedImage,
 } from "../../services/imageGenService";
 import { toast } from "react-hot-toast";
-import AlertModal from "../admin-dashboard/AlertModal";
+import AlertModal from "../AlertModal";
 import LoadingSpinner from "../LoadingSpinner";
 
 type RecentImagesProps = {

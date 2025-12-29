@@ -10,6 +10,7 @@ import {
   CardExpiryElement, 
   CardCvcElement 
 } from '@stripe/react-stripe-js';
+import AlertModal from '../AlertModal';
 
 export type PaymentMethod = {
   id: string;
@@ -29,6 +30,11 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
   const [cards, setCards] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
+  
+  // Alert Modal State
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchCards();
@@ -63,20 +69,30 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
     }
   };
 
-  const handleDeleteCard = async (cardId: string) => {
-    if (!confirm('Are you sure you want to delete this card?')) return;
+  const initDeleteCard = (cardId: string) => {
+      setSelectedCardId(cardId);
+      setShowAlert(true);
+  };
 
+  const handleDeleteConfirmed = async () => {
+    if (!selectedCardId) return;
+    
+    setIsDeleting(true);
     try {
-      const response = await subscriptionService.deleteCard(cardId);
+      const response = await subscriptionService.deleteCard(selectedCardId);
       if (response.success) {
         toast.success('Card deleted successfully');
         fetchCards();
         onRefresh?.();
+        setShowAlert(false);
+        setSelectedCardId(null);
       } else {
         toast.error(response.message || 'Failed to delete card');
       }
     } catch (error) {
       toast.error('Failed to delete card');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -161,7 +177,7 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
                       </button>
                     )}
                     <button
-                      onClick={() => handleDeleteCard(card.id)}
+                      onClick={() => initDeleteCard(card.id)}
                       className="text-xs text-red-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-500/10"
                       title="Delete card"
                     >
@@ -195,6 +211,21 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
             />
         </StripeWrapper>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AlertModal
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        onConfirm={handleDeleteConfirmed}
+        title="Delete Payment Method"
+        message="Are you sure you want to delete this payment method? This action cannot be undone."
+        type="danger"
+        action="delete"
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </>
   );
 };

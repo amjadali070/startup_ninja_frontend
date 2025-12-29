@@ -1,6 +1,7 @@
-import { type FC, useMemo } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { FaRocket, FaArrowRight } from 'react-icons/fa';
 import PlanDetails, { PlanLimits, PlanUsage } from './PlanDetails';
+import AlertModal from '../AlertModal';
 
 // Define the subscription data interface matching what's passed from parent
 interface SubscriptionData {
@@ -36,7 +37,7 @@ interface CurrentPlanCardProps {
   subscription: SubscriptionData | null;
   onUpgradePlan: () => void;
   onViewBillingHistory: () => void;
-  onCancelSubscription: () => void;
+  onCancelSubscription: () => Promise<void> | void;
 }
 
 const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
@@ -45,6 +46,8 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
   onViewBillingHistory,
   onCancelSubscription,
 }) => {
+  const [showCancelAlert, setShowCancelAlert] = useState(false);
+  const [isProcessingCancel, setIsProcessingCancel] = useState(false);
   
   const planDetails: PlanDetailsType | null = useMemo(() => {
     if (!subscription) return null;
@@ -93,7 +96,20 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       badgeClass = "bg-gray-500/10 text-gray-400 border-gray-500/50";
   }
 
+  const handleConfirmCancel = async () => {
+      setIsProcessingCancel(true);
+      try {
+          await onCancelSubscription();
+          setShowCancelAlert(false);
+      } catch (error) {
+          console.error("Cancel failed", error);
+      } finally {
+          setIsProcessingCancel(false);
+      }
+  };
+
   return (
+    <>
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
@@ -150,7 +166,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         {planDetails.name !== 'Free' && !planDetails.isCanceling && planDetails.status === 'active' && (
             <button
             type="button"
-            onClick={onCancelSubscription}
+            onClick={() => setShowCancelAlert(true)}
             className="flex items-center justify-center xs:justify-start gap-1 text-gray-400 text-xs xs:text-sm underline hover:text-white transition-colors"
             >
             Cancel Subscription
@@ -159,6 +175,22 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         )}
       </div>
     </section>
+
+    {/* Cancel Confirmation Modal */}
+    <AlertModal
+        isOpen={showCancelAlert}
+        onClose={() => setShowCancelAlert(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Subscription"
+        message="Are you sure you want to cancel your subscription? It will remain active until the end of the billing period, but will not renew."
+        type="danger"
+        action="delete"
+        confirmText="Yes, Cancel"
+        cancelText="No, Keep It"
+        isLoading={isProcessingCancel}
+        loadingText="Cancelling..."
+    />
+    </>
   );
 };
 
