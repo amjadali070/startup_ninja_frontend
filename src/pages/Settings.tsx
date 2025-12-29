@@ -530,10 +530,8 @@ const Settings: FC = () => {
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <CurrentPlanCard
                   plan={{
-                    name: subscription?.plan || "Free",
-                    price: subscription?.amount
-                      ? `$${subscription.amount}/${subscription.interval}`
-                      : "Free",
+                    name: subscription?.plan || "Startup",
+                    price: (subscription as any)?.planId === 'enterprise' ? '$99/month' : (subscription as any)?.planId === 'pro' ? '$29/month' : 'Free',
                     status: (subscription?.status || "active") as
                       | "active"
                       | "inactive"
@@ -543,9 +541,9 @@ const Settings: FC = () => {
                           subscription.nextBillingDate
                         ).toLocaleDateString()}`
                       : "N/A",
-                    tokensUsed: subscription?.tokensUsed || 0,
-                    tokensLimit: subscription?.tokensLimit || 10000,
-                    tokensRemaining: subscription?.tokensRemaining || 10000,
+                    tokensUsed: (subscription as any)?.usage?.ai_chat_messages ?? 0,
+                    tokensLimit: (subscription as any)?.limits?.ai_chat_messages ?? 50,
+                    tokensRemaining: (subscription as any)?.remaining?.ai_chat_messages ?? 50,
                   }}
                   onUpgradePlan={handleUpgradePlan}
                   onViewBillingHistory={handleViewBillingHistory}
