@@ -204,7 +204,7 @@ const PricingMain: React.FC = () => {
                 </div>
 
                 <Link
-                  to={plan.price.monthly === 0 ? "/register" : "/register"}
+                  to={plan.price.monthly === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
                   className={`block w-full py-4 rounded-lg font-bold text-center mb-8 transition-all duration-300 ${
                     plan.popular
                       ? "hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"

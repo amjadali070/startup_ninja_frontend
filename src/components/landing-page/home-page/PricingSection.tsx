@@ -86,8 +86,12 @@ export default function PricingSection() {
                         </div>
                         <p className="text-gray-300 mb-6">{plan.description}</p>
 
-                        <Link to="/pricing" className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition">
-                            OUR PROCESS
+                        <Link 
+                            to={`/buy-subscription?plan=${plan.title}&billing=monthly`}
+                            state={{ from: 'pricing' }}
+                            className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition"
+                        >
+                            GET STARTED
                         </Link>
 
                         <div className="border-t border-red-900/50 pt-6">

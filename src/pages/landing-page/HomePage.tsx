@@ -93,7 +93,9 @@ const HomePage: React.FC = () => {
           <img src="/images/banner-info.gif" alt="Banner Mockup" className="object-cover w-full max-w-6xl" />
         </section>
       </section>
-      <PricingSection />
+      <div id="pricing">
+        <PricingSection />
+      </div>
       <LatestNewsSection />
       <BusinessSection />
     </>
