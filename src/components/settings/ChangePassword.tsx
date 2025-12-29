@@ -15,6 +15,7 @@ interface ChangePasswordProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onReset: () => void;
   onLogout?: () => Promise<void>;
+  onRequestReset?: () => Promise<void>;
 }
 
 const ChangePassword: FC<ChangePasswordProps> = ({
@@ -23,7 +24,8 @@ const ChangePassword: FC<ChangePasswordProps> = ({
   onChange,
   onSubmit,
   onReset,
-  onLogout
+  onLogout,
+  onRequestReset
 }) => {
   const navigate = useNavigate();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -44,11 +46,14 @@ const ChangePassword: FC<ChangePasswordProps> = ({
     }
   };
 
-  const handleForgotPassword = async () => {
-     if (onLogout) {
-         await onLogout();
+  const handleRequestResetClick = async () => {
+     if (onRequestReset) {
+         await onRequestReset();
+     } else {
+         // Fallback if no specific handler provided (public route method)
+         if (onLogout) await onLogout();
+         navigate('/forgot-password');
      }
-     navigate('/forgot-password');
   };
 
   return (
@@ -170,7 +175,7 @@ const ChangePassword: FC<ChangePasswordProps> = ({
         <div className="mt-4 text-right">
           <button 
             type="button"
-            onClick={handleForgotPassword}
+            onClick={handleRequestResetClick}
             className="text-xs xs:text-sm text-gray-400 hover:text-white transition-colors"
           >
             Forgot your password? <span className="text-red-500 hover:underline">Reset here</span>

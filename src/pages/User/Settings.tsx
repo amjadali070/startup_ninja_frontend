@@ -512,6 +512,25 @@ const Settings: FC = () => {
     }
   }, [profile?.createdAt]);
 
+  const handleRequestPasswordReset = async () => {
+    if (!profile?.email) {
+        toast.error("Email address not found in profile.");
+        return;
+    }
+    const loadingId = toast.loading("Sending password reset email...");
+    try {
+        const response = await authService.forgotPassword(profile.email);
+        if (response.success) {
+            toast.success("Reset link sent! Please check your email inbox (and spam).", { id: loadingId });
+        } else {
+            toast.error(response.message || "Failed to send reset email.", { id: loadingId });
+        }
+    } catch (err: any) {
+        console.error("Forgot password API failed:", err);
+        toast.error("An error occurred while sending the reset email.", { id: loadingId });
+    }
+  };
+
   // Cast prop as any if needed to avoid TS strict check during refactor
   const currentPlanProps: any = {
       subscription,
@@ -561,13 +580,15 @@ const Settings: FC = () => {
                       : undefined
                   }
                 />
-                <ChangePassword
+
+                  <ChangePassword
                   form={changePasswordForm}
                   isUpdating={isUpdatingPassword}
                   onChange={handleChangePasswordChange}
                   onSubmit={handleChangePasswordSubmit}
                   onReset={handleChangePasswordReset}
                   onLogout={async () => { await logout(); }}
+                  onRequestReset={handleRequestPasswordReset}
                 />
                 <DeleteAccountForm
                   onDeleteAccount={handleDeleteAccount}
