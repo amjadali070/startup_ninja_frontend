@@ -254,7 +254,7 @@ const PricingMain: React.FC = () => {
           <div className="mt-16 bg-[#151515] border border-[#333] rounded-lg p-6 max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
              <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2">Not ready to commit?</h3>
-                <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">Free Plan</span>. Includes basic access to all tools.</p>
+                <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">Free Plan</span>. Includes 15 AI Messages, 5 Images, and 1 Website.</p>
              </div>
              <Link
                 to="/register"

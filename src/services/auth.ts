@@ -211,5 +211,18 @@ export const authService = {
         message: error.response?.data?.message || 'Failed to reset password'
       };
     }
+  },
+  
+  async getSubscription(): Promise<any> {
+    try {
+      const response = await apiClient.get('/user/subscription');
+      return response;
+    } catch (error: any) {
+      console.error('Failed to fetch subscription:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch subscription details'
+      };
+    }
   }
 };

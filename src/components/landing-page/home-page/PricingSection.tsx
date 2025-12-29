@@ -111,9 +111,10 @@ export default function PricingSection() {
                 <h3 className="text-xl font-bold mb-2 text-white">Just getting started?</h3>
                 <p className="text-gray-400 mb-6">Explore the basics with our <span className="text-red-500 font-semibold">Free</span> plan.</p>
                 <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-400 mb-6">
-                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 10 AI Chat msg/mo</span>
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 15 AI Chat msg/mo</span>
                     <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 5 Image Gen/mo</span>
-                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 1 Website Project</span>
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 10 Social Posts/mo</span>
+                    <span className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> 1 Hosted Website</span>
                 </div>
                 <Link to="/register" className="text-white underline decoration-red-600 underline-offset-4 hover:text-red-500 transition-colors">
                     Start for free

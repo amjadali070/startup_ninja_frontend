@@ -30,7 +30,6 @@ import { authService } from "../services/auth";
 import {
   userService,
   type UserProfile,
-  type Subscription,
 } from "../services/user";
 import { resolveProfilePictureUrl } from "../utils/profile";
 
@@ -48,7 +47,6 @@ const Settings: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -152,11 +150,9 @@ const Settings: FC = () => {
 
     const fetchData = async () => {
       try {
-        // Fetch profile, subscription, and preferences in parallel
-        const [profileRes, subscriptionRes, preferencesRes] = await Promise.all(
+        const [profileRes, preferencesRes] = await Promise.all(
           [
             userService.getProfile(),
-            userService.getSubscription(),
             userService.getPreferences(),
           ]
         );
@@ -184,10 +180,7 @@ const Settings: FC = () => {
           setError(profileRes.message || "Unable to load profile.");
         }
 
-        // Set subscription data
-        if (subscriptionRes.success && subscriptionRes.data) {
-          setSubscription(subscriptionRes.data);
-        }
+
 
         // Set preferences data
         if (preferencesRes.success && preferencesRes.data) {
@@ -529,22 +522,6 @@ const Settings: FC = () => {
 
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <CurrentPlanCard
-                  plan={{
-                    name: subscription?.plan || "Startup",
-                    price: (subscription as any)?.planId === 'enterprise' ? '$99/month' : (subscription as any)?.planId === 'pro' ? '$29/month' : 'Free',
-                    status: (subscription?.status || "active") as
-                      | "active"
-                      | "inactive"
-                      | "cancelled",
-                    renewalDate: subscription?.nextBillingDate
-                      ? `Renews on ${new Date(
-                          subscription.nextBillingDate
-                        ).toLocaleDateString()}`
-                      : "N/A",
-                    tokensUsed: (subscription as any)?.usage?.ai_chat_messages ?? 0,
-                    tokensLimit: (subscription as any)?.limits?.ai_chat_messages ?? 50,
-                    tokensRemaining: (subscription as any)?.remaining?.ai_chat_messages ?? 50,
-                  }}
                   onUpgradePlan={handleUpgradePlan}
                   onViewBillingHistory={handleViewBillingHistory}
                   onCancelSubscription={handleCancelSubscription}
