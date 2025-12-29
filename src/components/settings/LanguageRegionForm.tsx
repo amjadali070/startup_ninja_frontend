@@ -25,17 +25,14 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
       {/* Header Section */}
       <div className="mb-2 xs:mb-1 sm:mb-1">
         <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-2">
-          Language & Region
+           Timezone
         </h3>
-        <p className="text-gray-400 text-xs xs:text-sm">
-          Set your language and regional preferences
-        </p>
       </div>
 
       {/* Form Section */}
       <form onSubmit={onSubmit}>
         {/* Language Field */}
-        <div className="mb-3 xs:mb-4">
+        {/* <div className="mb-3 xs:mb-4">
           <label
             htmlFor="language"
             className="block text-white text-sm xs:text-base font-bold mb-2"
@@ -65,7 +62,7 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
               <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Timezone Field */}
         <div className="mb-3 xs:mb-4">
@@ -73,7 +70,7 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
             htmlFor="timezone"
             className="block text-white text-sm xs:text-base font-bold mb-2"
           >
-            Timezone
+           
           </label>
           <div className="relative">
             <select
@@ -114,7 +111,7 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
           </div>
         </div>
 
-        {/* Date Format Field */}
+        {/* Date Format Field
         <div className="mb-4 xs:mb-6">
           <label
             htmlFor="dateFormat"
@@ -143,7 +140,7 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
               <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Action Button */}
         <div className="flex gap-2 xs:gap-3">

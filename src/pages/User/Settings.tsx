@@ -9,29 +9,48 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import DashboardLayout from "../layouts/DashboardLayout";
-import LoadingSpinner from "../components/LoadingSpinner";
+import DashboardLayout from "../../layouts/DashboardLayout.tsx";
+import LoadingSpinner from "../../components/LoadingSpinner.tsx";
 import ProfileIdentityForm, {
   ProfileFormState,
-} from "../components/settings/ProfileIdentityForm";
+} from "../../components/settings/ProfileIdentityForm.tsx";
 import ChangePassword, {
   ChangePasswordFormState,
-} from "../components/settings/ChangePassword";
+} from "../../components/settings/ChangePassword.tsx";
 import LanguageRegionForm, {
   LanguageRegionFormState,
-} from "../components/settings/LanguageRegionForm";
+} from "../../components/settings/LanguageRegionForm.tsx";
 import PaymentMethodCard, {
   PaymentMethod,
-} from "../components/settings/PaymentMethodCard";
-import DeleteAccountForm from "../components/settings/DeleteAccountForm";
-import CurrentPlanCard from "../components/settings/CurrentPlanCard";
-import { useAuth } from "../hooks/useAuth.tsx";
-import { authService } from "../services/auth";
+} from "../../components/settings/PaymentMethodCard.tsx";
+import DeleteAccountForm from "../../components/settings/DeleteAccountForm.tsx";
+import CurrentPlanCard from "../../components/settings/CurrentPlanCard.tsx";
+import PlansOverview from "../../components/settings/PlansOverview.tsx";
+import { useAuth } from "../../hooks/useAuth.tsx";
+import { authService } from "../../services/auth.ts";
 import {
   userService,
   type UserProfile,
-} from "../services/user";
-import { resolveProfilePictureUrl } from "../utils/profile";
+} from "../../services/user.ts";
+import { resolveProfilePictureUrl } from "../../utils/profile.ts";
+
+interface SubscriptionData {
+  plan: string;
+  status: 'active' | 'inactive' | 'cancelled';
+  nextBillingDate?: string;
+  usage?: {
+    ai_chat_messages: number;
+    generated_images: number;
+    social_posts: number;
+    websites: number;
+  };
+  limits?: {
+    ai_chat_messages: number;
+    generated_images: number;
+    social_posts: number;
+    websites: number;
+  };
+}
 
 const defaultPaymentMethod: PaymentMethod = {
   id: "1",
@@ -47,6 +66,7 @@ const Settings: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -150,10 +170,11 @@ const Settings: FC = () => {
 
     const fetchData = async () => {
       try {
-        const [profileRes, preferencesRes] = await Promise.all(
+        const [profileRes, preferencesRes, subscriptionRes] = await Promise.all(
           [
             userService.getProfile(),
             userService.getPreferences(),
+            authService.getSubscription(),
           ]
         );
 
@@ -180,9 +201,10 @@ const Settings: FC = () => {
           setError(profileRes.message || "Unable to load profile.");
         }
 
+        if (subscriptionRes.success && subscriptionRes.data) {
+             setSubscription(subscriptionRes.data as SubscriptionData);
+        }
 
-
-        // Set preferences data
         if (preferencesRes.success && preferencesRes.data) {
           setLanguageRegionForm({
             language: preferencesRes.data.language,
@@ -449,6 +471,11 @@ const Settings: FC = () => {
     toast("Add payment method functionality will be available soon.");
   };
 
+  const handleSelectPlan = (planName: string) => {
+      // Implement plan selection logic here, e.g., redirect to payment or show modal
+      toast.success(`You selected ${planName}. Integration coming soon!`);
+  };
+
   const createdAtDisplay = useMemo(() => {
     if (!profile?.createdAt) {
       return "Recently joined";
@@ -466,6 +493,14 @@ const Settings: FC = () => {
     }
   }, [profile?.createdAt]);
 
+  // Cast prop as any if needed to avoid TS strict check during refactor
+  const currentPlanProps: any = {
+      subscription,
+      onUpgradePlan: handleUpgradePlan,
+      onViewBillingHistory: handleViewBillingHistory,
+      onCancelSubscription: handleCancelSubscription
+  };
+
   if (loading) {
     return <LoadingSpinner fullscreen />;
   }
@@ -479,7 +514,7 @@ const Settings: FC = () => {
     >
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-full px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 xs:py-5 sm:py-6 md:py-8">
-          <div className="space-y-8">
+          <div className="space-y-6">
             {error ? (
               <div className="rounded-3xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm text-red-200">
                 {error}
@@ -521,11 +556,7 @@ const Settings: FC = () => {
               </div>
 
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
-                <CurrentPlanCard
-                  onUpgradePlan={handleUpgradePlan}
-                  onViewBillingHistory={handleViewBillingHistory}
-                  onCancelSubscription={handleCancelSubscription}
-                />
+                <CurrentPlanCard {...currentPlanProps} />
                 <PaymentMethodCard
                   paymentMethod={defaultPaymentMethod}
                   onEdit={handleEditPaymentMethod}
@@ -539,6 +570,12 @@ const Settings: FC = () => {
                 />
               </aside>
             </div>
+
+            {/* Plans Overview Section */}
+            <PlansOverview 
+                currentPlan={subscription?.plan || 'Free'} 
+                onSelectPlan={handleSelectPlan} 
+            />
           </div>
         </div>
       </main>

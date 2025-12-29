@@ -1,75 +1,75 @@
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useMemo } from 'react';
 import { FaRocket, FaArrowRight } from 'react-icons/fa';
-import { authService } from '../../services/auth';
-import toast from 'react-hot-toast';
+import PlanDetails, { PlanLimits, PlanUsage } from './PlanDetails';
 
-export type PlanDetails = {
+// Define the subscription data interface matching what's passed from parent
+interface SubscriptionData {
+  plan: string;
+  status: 'active' | 'inactive' | 'cancelled';
+  nextBillingDate?: string;
+  usage?: {
+    ai_chat_messages: number;
+    generated_images: number;
+    social_posts: number;
+    websites: number;
+  };
+  limits?: {
+    ai_chat_messages: number;
+    generated_images: number;
+    social_posts: number;
+    websites: number;
+  };
+}
+
+export type PlanDetailsType = {
   name: string;
   price: string;
   status: 'active' | 'inactive' | 'cancelled';
   renewalDate: string;
-  tokensUsed: number;
-  tokensLimit: number;
-  tokensRemaining: number;
+  usage: PlanUsage;
+  limits: PlanLimits;
 };
 
 interface CurrentPlanCardProps {
+  subscription: SubscriptionData | null;
   onUpgradePlan: () => void;
   onViewBillingHistory: () => void;
   onCancelSubscription: () => void;
 }
 
 const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
+  subscription,
   onUpgradePlan,
   onViewBillingHistory,
   onCancelSubscription,
 }) => {
-  const [loading, setLoading] = useState(true);
-  const [plan, setPlan] = useState<PlanDetails>({
-    name: 'Loading...',
-    price: '$0.00',
-    status: 'active',
-    renewalDate: '-',
-    tokensUsed: 0,
-    tokensLimit: 100,
-    tokensRemaining: 0
-  });
+  
+  const planDetails: PlanDetailsType | null = useMemo(() => {
+    if (!subscription) return null;
 
-  useEffect(() => {
-    fetchSubscriptionDetails();
-  }, []);
+    // Map backend data to UI model
+    const planName = subscription.plan;
+    
+    // Price logic - simplified for now
+    let price = '$0.00';
+    if (planName === 'Startup') price = '$9.00';
+    else if (planName === 'Pro') price = '$29.00';
+    else if (planName === 'Enterprise') price = '$99.00';
 
-  const fetchSubscriptionDetails = async () => {
-    try {
-      setLoading(true);
-      const res: any = await authService.getSubscription();
-      if (res.success && res.data) {
-        const { plan: planName, nextBillingDate, limits, usage, status } = res.data;
-        
-        // Map backend data to UI model
-        setPlan({
-          name: planName || 'Free Plan', // Fallback
-          price: planName === 'Free' ? '$0.00' : (planName === 'Startup' ? '$9.00' : (planName === 'Pro' ? '$29.00' : '$99.00')),
-          status: status || 'active',
-          renewalDate: nextBillingDate 
-            ? new Date(nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-            : 'N/A',
-          tokensUsed: usage?.ai_chat_messages || 0,
-          tokensLimit: limits?.ai_chat_messages || 10,
-          tokensRemaining: Math.max(0, (limits?.ai_chat_messages || 10) - (usage?.ai_chat_messages || 0))
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load subscription:', error);
-      toast.error('Could not load plan details');
-    } finally {
-      setLoading(false);
-    }
-  };
+    return {
+      name: planName || 'Free Plan',
+      price: price,
+      status: subscription.status || 'active',
+      renewalDate: subscription.nextBillingDate 
+        ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        : 'N/A',
+      usage: subscription.usage || { ai_chat_messages: 0, generated_images: 0, social_posts: 0, websites: 0 },
+      limits: subscription.limits || { ai_chat_messages: 10, generated_images: 5, social_posts: 10, websites: 1 }
+    };
+  }, [subscription]);
 
-  const tokensPercentage = Math.min(100, Math.max(0, (plan.tokensUsed / plan.tokensLimit) * 100));
-
-  if (loading) {
+  // Loading state if subscription data hasn't arrived
+  if (!planDetails) {
     return (
       <section className="rounded-xl border border-white/10 bg-[#151515] p-6 animate-pulse">
         <div className="h-6 bg-gray-800 rounded w-1/3 mb-4"></div>
@@ -85,49 +85,25 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       <div className="flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
         <div className="text-gray-400 text-xs xs:text-sm">Current Plan</div>
         <div className="bg-[#00E01A0D] text-[#00E01A] text-xs font-medium px-2 py-1 rounded border border-[#00E01A80] capitalize">
-          {plan.status}
+          {planDetails.status}
         </div>
       </div>
 
       {/* Plan Details */}
       <div className="mb-4 xs:mb-5 sm:mb-6">
-        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-1">{plan.name}</h3>
-        <p className="text-gray-400 text-sm">{plan.price} / month</p>
+        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-1">{planDetails.name}</h3>
+        <p className="text-gray-400 text-sm">{planDetails.price} / month</p>
       </div>
 
       {/* Plan Summary */}
       <div className="mb-4 xs:mb-5 sm:mb-6">
         <h4 className="text-white text-sm xs:text-base font-bold font-plus-jakarta mb-2">Plan Summary</h4>
         <p className="text-gray-400 text-xs xs:text-sm mb-3 xs:mb-4">
-            {plan.name === 'Free' ? 'Free Forever' : `Renews on ${plan.renewalDate}`}
+            {planDetails.name === 'Free' ? 'Free Forever' : `Renews on ${planDetails.renewalDate}`}
         </p>
         
-        {/* AI Tokens Section */}
-        <div>
-          <div className="text-gray-400 text-xs xs:text-sm mb-2">AI Chat Messages</div>
-          <div className="relative">
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-500 ${tokensPercentage > 90 ? 'bg-red-500' : 'bg-green-500'}`}
-                style={{ width: `${tokensPercentage}%` }}
-              />
-            </div>
-            
-            {/* Usage Stats */}
-            <div className="flex justify-between items-start">
-              <div></div>
-              <div className="text-right">
-                <div className="text-white text-xs xs:text-sm font-medium">
-                  {plan.tokensUsed.toLocaleString()} / {plan.tokensLimit === 999999 ? 'Unlimited' : plan.tokensLimit.toLocaleString()}
-                </div>
-                <div className="text-gray-400 text-xs">
-                  {plan.tokensLimit === 999999 ? '∞' : plan.tokensRemaining.toLocaleString()} Remaining
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Usages from PlanDetails */}
+        <PlanDetails usage={planDetails.usage} limits={planDetails.limits} />
       </div>
 
       {/* Action Buttons */}
@@ -152,7 +128,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         </div>
         
         {/* Cancel Subscription Link */}
-        {plan.name !== 'Free' && (
+        {planDetails.name !== 'Free' && (
             <button
             type="button"
             onClick={onCancelSubscription}

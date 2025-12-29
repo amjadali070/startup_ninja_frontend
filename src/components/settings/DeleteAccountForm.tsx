@@ -40,7 +40,7 @@ const DeleteAccountForm: FC<DeleteAccountFormProps> = ({
             type="button"
             onClick={handleDeleteClick}
             disabled={isDeleting}
-            className="px-4 xs:px-5 py-2 xs:py-2.5 bg-red-900/20 border border-[#DE0500] text-[#DE0500] text-xs xs:text-sm font-medium rounded-lg hover:bg-red-900/30 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            className="px-4 xs:px-5 py-4 xs:py-4 bg-red-900/20 border border-[#DE0500] text-[#DE0500] text-xs xs:text-sm font-medium rounded-lg hover:bg-red-900/30 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             Delete Account
           </button>
