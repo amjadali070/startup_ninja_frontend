@@ -211,42 +211,5 @@ export const authService = {
         message: error.response?.data?.message || 'Failed to reset password'
       };
     }
-  },
-  
-  async getSubscription(): Promise<any> {
-    try {
-      const response = await apiClient.get('/user/subscription');
-      return response;
-    } catch (error: any) {
-      console.error('Failed to fetch subscription:', error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to fetch subscription details'
-      };
-    }
-  },
-
-  async addPaymentMethod(cardDetails: { cardNumber: string, expiryDate: string, cvc: string, cardholderName: string }): Promise<any> {
-      try {
-        const response = await apiClient.post('/user/payment/add-card', cardDetails);
-        return response;
-      } catch (error: any) {
-        return {
-          success: false,
-          message: error.response?.data?.message || 'Failed to add payment method'
-        };
-      }
-  },
-
-  async purchaseSubscription(data: { plan: string, billingCycle: string, paymentMethodId?: string }): Promise<any> {
-    try {
-      const response = await apiClient.post('/user/payment/purchase', data);
-      return response;
-    } catch (error: any) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to purchase subscription'
-      };
-    }
   }
 };

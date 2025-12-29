@@ -20,14 +20,16 @@ import ChangePassword, {
 import LanguageRegionForm, {
   LanguageRegionFormState,
 } from "../../components/settings/LanguageRegionForm.tsx";
-import PaymentMethodCard, {
-  PaymentMethod,
-} from "../../components/settings/PaymentMethodCard.tsx";
+import PaymentMethodCard from "../../components/settings/PaymentMethodCard.tsx";
 import DeleteAccountForm from "../../components/settings/DeleteAccountForm.tsx";
 import CurrentPlanCard from "../../components/settings/CurrentPlanCard.tsx";
 import PlansOverview from "../../components/settings/PlansOverview.tsx";
+import PlanSelectionModal from "../../components/settings/PlanSelectionModal.tsx";
+import UpgradePlanModal from "../../components/settings/UpgradePlanModal.tsx";
+
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { authService } from "../../services/auth.ts";
+import { subscriptionService } from "../../services/subscription.ts";
 import {
   userService,
   type UserProfile,
@@ -52,16 +54,6 @@ interface SubscriptionData {
   };
 }
 
-const defaultPaymentMethod: PaymentMethod = {
-  id: "1",
-  cardNumber: "4242424242424242",
-  expiryDate: "12/25",
-  cardType: "mastercard",
-  bankName: "Mezzan Bank",
-  cardholderName: "ABD MALIK",
-  isDefault: true,
-};
-
 const Settings: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -70,6 +62,12 @@ const Settings: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Modal states
+  const [showPlanSelectionModal, setShowPlanSelectionModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const [selectedPlan, setSelectedPlan] = useState<string>('');
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
     username: "",
@@ -174,7 +172,7 @@ const Settings: FC = () => {
           [
             userService.getProfile(),
             userService.getPreferences(),
-            authService.getSubscription(),
+            subscriptionService.getSubscription(),
           ]
         );
 
@@ -222,6 +220,17 @@ const Settings: FC = () => {
 
     fetchData();
   }, [logout, navigate]);
+
+  const refreshSubscription = async () => {
+    try {
+      const subscriptionRes = await subscriptionService.getSubscription();
+      if (subscriptionRes.success && subscriptionRes.data) {
+        setSubscription(subscriptionRes.data as SubscriptionData);
+      }
+    } catch (err) {
+      console.error("Failed to refresh subscription:", err);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -449,7 +458,7 @@ const Settings: FC = () => {
   };
 
   const handleViewBillingHistory = () => {
-    toast("Billing history will be available soon.");
+    navigate('/billing-history');
   };
 
   const handleCancelSubscription = () => {
@@ -457,23 +466,20 @@ const Settings: FC = () => {
   };
 
   const handleUpgradePlan = () => {
-    toast.success(
-      "A success specialist will reach out about upgrading your plan."
-    );
+    // Show plan selection modal first
+    setShowPlanSelectionModal(true);
   };
 
-  const handleEditPaymentMethod = (paymentMethod: PaymentMethod) => {
-    console.log("Editing payment method:", paymentMethod.id);
-    toast("Payment method editing will be available soon.");
-  };
-
-  const handleAddPaymentMethod = () => {
-    toast("Add payment method functionality will be available soon.");
+  const handlePlanSelected = (planName: string) => {
+    // Close plan selection modal and open upgrade modal with selected plan
+    setShowPlanSelectionModal(false);
+    setSelectedPlan(planName);
+    setShowUpgradeModal(true);
   };
 
   const handleSelectPlan = (planName: string) => {
-      // Implement plan selection logic here, e.g., redirect to payment or show modal
-      toast.success(`You selected ${planName}. Integration coming soon!`);
+    setSelectedPlan(planName);
+    setShowUpgradeModal(true);
   };
 
   const createdAtDisplay = useMemo(() => {
@@ -557,11 +563,7 @@ const Settings: FC = () => {
 
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <CurrentPlanCard {...currentPlanProps} />
-                <PaymentMethodCard
-                  paymentMethod={defaultPaymentMethod}
-                  onEdit={handleEditPaymentMethod}
-                  onAddPaymentMethod={handleAddPaymentMethod}
-                />
+                <PaymentMethodCard onRefresh={refreshSubscription} />
                 <LanguageRegionForm
                   form={languageRegionForm}
                   isSaving={isSavingLanguageRegion}
@@ -579,6 +581,30 @@ const Settings: FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Modals */}
+      <PlanSelectionModal
+        isOpen={showPlanSelectionModal}
+        onClose={() => setShowPlanSelectionModal(false)}
+        currentPlan={subscription?.plan || 'Free'}
+        onSelectPlan={handlePlanSelected}
+      />
+
+      <UpgradePlanModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onBack={() => {
+          setShowUpgradeModal(false);
+          setShowPlanSelectionModal(true);
+        }}
+        planName={selectedPlan}
+        billingCycle="monthly"
+        onSuccess={() => {
+          refreshSubscription();
+        }}
+      />
+
+
     </DashboardLayout>
   );
 };

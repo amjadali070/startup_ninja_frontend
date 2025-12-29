@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { FiCreditCard, FiLock } from 'react-icons/fi';
-import { authService } from '../../services/auth';
+import { subscriptionService } from '../../services/subscription';
 
 interface PaymentStepProps {
   planName: string;
@@ -37,7 +37,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
     setLoading(true);
     
     try {
-        const cardRes = await authService.addPaymentMethod({
+        const cardRes = await subscriptionService.addPaymentMethod({
             cardNumber: cardNumber.replace(/\s/g, ''), 
             expiryDate: expiry, 
             cvc, 
@@ -48,7 +48,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ planName, billingCycle }) => 
         
         const paymentMethodId = cardRes.paymentMethodId;
         
-        const subRes = await authService.purchaseSubscription({
+        // Purchase the subscription
+        const subRes = await subscriptionService.purchaseSubscription({
             plan: planName,
             billingCycle,
             paymentMethodId

@@ -28,6 +28,7 @@ import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/landing-page/HomePage.tsx";
 import LandingPage from "./pages/landing-page/LandingPage.tsx";
 import Settings from "./pages/User/Settings.tsx";
+import BillingHistory from "./pages/User/BillingHistory.tsx";
 import AdminDashboard from "./pages/Admin/AdminDashboard.tsx";
 import UserManagement from "./pages/Admin/UserManagement.tsx";
 import APIManagement from "./pages/Admin/APIManagement.tsx";
@@ -215,6 +216,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing-history"
+            element={
+              <ProtectedRoute>
+                <BillingHistory />
               </ProtectedRoute>
             }
           />
