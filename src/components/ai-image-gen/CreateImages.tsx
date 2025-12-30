@@ -80,9 +80,10 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
       if (onImageGenerated) {
         onImageGenerated();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generation failed:", error);
-      toast.error("Failed to generate image. Please try again.");
+      const msg = error.response?.data?.message || "Failed to generate image. Please try again.";
+      toast.error(msg);
     } finally {
       setIsGenerating(false);
     }

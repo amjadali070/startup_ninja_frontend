@@ -211,5 +211,38 @@ export const authService = {
         message: error.response?.data?.message || 'Failed to reset password'
       };
     }
+  },
+
+  async checkUsageLimit(feature: string, increment: boolean = false, count: number = 1): Promise<{
+    success: boolean;
+    allowed: boolean;
+    limit: number | boolean | string;
+    message?: string;
+    currentUsage?: number;
+  }> {
+    try {
+      const response = await apiClient.post<{success: boolean; allowed: boolean; limit: any; message?: string; currentUsage?: number}>('/user/check-limit', {
+        feature,
+        increment,
+        count
+      });
+      return response;
+    } catch (error: any) {
+         if (error.response?.status === 403) {
+             return {
+                 success: false,
+                 allowed: false,
+                 limit: error.response.data.limit,
+                 message: error.response.data.message,
+                 currentUsage: error.response.data.currentUsage
+             };
+         }
+        return {
+            success: false,
+            allowed: false,
+            limit: 0,
+            message: 'Failed to check limit'
+        };
+    }
   }
 };

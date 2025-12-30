@@ -32,6 +32,7 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
         l.multi_page_website ? "Multipage Website" : "",
         `${l.facebook_page_connect === -1 ? 'Unlimited' : l.facebook_page_connect} Facebook Page Connect`,
         `${l.chat_bot_messages === -1 ? 'Unlimited' : l.chat_bot_messages} AI Chatbot Support Message`,
+        `${l.web_builder_sessions === -1 ? 'Unlimited' : l.web_builder_sessions} Web Builder Sessions`,
       ].filter(feature => feature !== "");
 
       await onUpdate(plan._id, { 
@@ -104,6 +105,7 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
         limits: [
             { key: 'website_creation', label: 'Created Sites', type: 'number' },
             { key: 'website_hosting', label: 'Hosted Sites', type: 'number' },
+            { key: 'web_builder_sessions', label: 'Builder Sessions', type: 'number' },
             { key: 'single_page_website', label: 'Single Page', type: 'boolean' },
             { key: 'multi_page_website', label: 'Multi Page', type: 'boolean' },
         ] as const
@@ -117,34 +119,34 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
       {/* Header Section */}
-      <div className="p-8 pb-6 border-b border-white/5 bg-white/[0.01]">
+      <div className="p-5 pb-4 border-b border-white/5 bg-white/[0.01]">
         <div className="flex justify-between items-start">
             <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-2xl font-bold text-white font-plus-jakarta tracking-tight">{plan.name}</h3>
-                    {plan.isPopular && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-red-600 to-red-500 text-white uppercase tracking-wider shadow-lg shadow-red-900/40">Popular</span>}
+                <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold text-white font-plus-jakarta tracking-tight">{plan.name}</h3>
+                    {plan.isPopular && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gradient-to-r from-red-600 to-red-500 text-white uppercase tracking-wider shadow-lg shadow-red-900/40">Popular</span>}
                 </div>
-                <p className="text-gray-400 text-sm leading-relaxed max-w-[90%]">{plan.description}</p>
+                <p className="text-gray-400 text-xs leading-relaxed max-w-[95%] min-h-[40px]">{plan.description}</p>
             </div>
             <div className="text-right">
                 {isEditing ? (
                     <div className="flex flex-col items-end gap-1">
-                        <label className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Monthly Price</label>
+                        <label className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Price/mo</label>
                         <div className="relative group/price">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/price:text-white transition-colors">$</span>
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/price:text-white transition-colors text-xs">$</span>
                             <input 
                                 type="number"
                                 value={editedPlan.price}
                                 onChange={(e) => setEditedPlan({...editedPlan, price: parseFloat(e.target.value)})}
-                                className="w-24 pl-5 pr-2 py-2 bg-[#0A0A0A] border border-gray-800 rounded-lg text-white font-bold text-right focus:border-red-500 focus:ring-1 focus:ring-red-900/40 outline-none transition-all"
+                                className="w-20 pl-4 pr-1 py-1 bg-[#0A0A0A] border border-gray-800 rounded text-white font-bold text-right text-sm focus:border-red-500 outline-none transition-all"
                             />
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <div className="flex items-baseline justify-end gap-1">
-                            <span className="text-3xl font-bold font-space-grotesk text-white">${plan.price}</span>
-                            <span className="text-gray-500 text-sm font-medium">/mo</span>
+                        <div className="flex items-baseline justify-end gap-0.5">
+                            <span className="text-2xl font-bold font-space-grotesk text-white">${plan.price}</span>
+                            <span className="text-gray-500 text-xs font-medium">/mo</span>
                         </div>
                     </div>
                 )}
@@ -153,34 +155,31 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
       </div>
 
       {/* Scrollable Content Area */}
-      <div className="flex-grow p-8 space-y-8">
+      <div className="flex-grow p-4 space-y-6">
          
          {limitGroups.map((group, idx) => (
              <div key={idx}>
-                 <div className="flex items-center gap-2 mb-4">
-                     <span className="p-1.5 rounded-md bg-white/5 border border-white/5">{group.icon}</span>
-                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{group.title}</h4>
+                 <div className="flex items-center gap-2 mb-3">
+                     <span className="p-1 rounded bg-white/5 border border-white/5 text-xs">{group.icon}</span>
+                     <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{group.title}</h4>
                  </div>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                 <div className="grid grid-cols-1 gap-2">
                      {group.limits.map((limit: any) => {
                          const key = limit.key as keyof PlanLimit;
                          return (
-                         <div key={key} className="bg-[#0F0F0F] rounded-lg p-3 border border-gray-800/50 hover:border-gray-700 transition-colors flex flex-col justify-center min-h-[72px]">
-                             <label className="text-[11px] text-gray-500 font-semibold uppercase tracking-wide mb-1 block">{limit.label}</label>
+                         <div key={key} className="bg-[#0F0F0F] rounded-lg px-3 py-2 border border-gray-800/50 hover:border-gray-700 transition-colors flex items-center justify-between min-h-[40px]">
+                             <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide mr-2">{limit.label}</label>
                              {isEditing ? (
                                  limit.type === 'boolean' ? (
-                                    <div className="flex items-center justify-between">
-                                        <label className="relative inline-flex items-center cursor-pointer mt-1">
+                                    <div className="flex items-center justify-end">
+                                        <label className="relative inline-flex items-center cursor-pointer">
                                             <input 
                                                 type="checkbox" 
                                                 className="sr-only peer"
                                                 checked={(!!editedPlan.limits && !!editedPlan.limits[key]) || false}
                                                 onChange={(e) => handleLimitChange(key, e.target.checked)}
                                             />
-                                            <div className="w-9 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600 peer-checked:after:bg-white"></div>
-                                            <span className="ml-2 text-xs font-medium text-gray-300 min-w-[50px]">
-                                                {editedPlan.limits && editedPlan.limits[key] ? 'On' : 'Off'}
-                                            </span>
+                                            <div className="w-7 h-4 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600 peer-checked:after:bg-white"></div>
                                         </label>
                                     </div>
                                  ) : (
@@ -188,19 +187,19 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
                                         type="number"
                                         value={editedPlan.limits ? (editedPlan.limits[key] as number) : 0}
                                         onChange={(e) => handleLimitChange(key, parseInt(e.target.value))}
-                                        className="w-full bg-[#161616] border border-gray-800 rounded px-2 py-1.5 text-sm text-white font-medium focus:border-red-500 outline-none transition-colors placeholder-gray-700"
+                                        className="w-16 bg-[#161616] border border-gray-800 rounded px-1.5 py-0.5 text-xs text-white text-right font-medium focus:border-red-500 outline-none transition-colors"
                                         placeholder="0"
                                      />
                                  )
                              ) : (
-                                 <div className="text-white font-medium text-[15px] truncate">
+                                 <div className="text-white font-medium text-xs truncate">
                                      {limit.type === 'boolean' ? (
-                                         <span className={`inline-flex items-center gap-1.5 ${editedPlan.limits && editedPlan.limits[key] ? "text-green-400" : "text-gray-600"}`}>
-                                             <span className={`w-1.5 h-1.5 rounded-full ${editedPlan.limits && editedPlan.limits[key] ? "bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]" : "bg-gray-600"}`}></span>
-                                             {editedPlan.limits && editedPlan.limits[key] ? 'Enabled' : 'Disabled'}
+                                         <span className={`inline-flex items-center gap-1 ${editedPlan.limits && editedPlan.limits[key] ? "text-green-400" : "text-gray-600"}`}>
+                                             <span className={`w-1 h-1 rounded-full ${editedPlan.limits && editedPlan.limits[key] ? "bg-green-400" : "bg-gray-600"}`}></span>
+                                             {editedPlan.limits && editedPlan.limits[key] ? 'On' : 'Off'}
                                          </span>
                                      ) : (
-                                         (editedPlan.limits && editedPlan.limits[key]) === -1 ? 'Unlimited' : ((editedPlan.limits && editedPlan.limits[key]) || 0).toLocaleString()
+                                         (editedPlan.limits && editedPlan.limits[key]) === -1 ? 'Unlim.' : ((editedPlan.limits && editedPlan.limits[key]) || 0).toLocaleString()
                                      )}
                                  </div>
                              )}
@@ -212,31 +211,31 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
       </div>
 
       {/* Actions */}
-      <div className="p-8 pt-0 mt-auto">
-        <div className="pt-6 border-t border-white/5">
+      <div className="p-4 pt-0 mt-auto">
+        <div className="pt-4 border-t border-white/5">
             {isEditing ? (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                     <button 
                         onClick={handleCancel}
                         disabled={loading}
-                        className="w-full px-4 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-all"
+                        className="w-full px-3 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-all"
                     >
                         Cancel
                     </button>
                     <button 
                         onClick={handleSave}
                         disabled={loading}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition-all shadow-lg shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                <span>Saving...</span>
+                                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Saving</span>
                             </>
                         ) : (
                             <>
-                                <FiCheck size={18} />
-                                <span>Save Changes</span>
+                                <FiCheck size={14} />
+                                <span>Save</span>
                             </>
                         )}
                     </button>
@@ -244,10 +243,10 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
             ) : (
                 <button 
                     onClick={() => setIsEditing(true)}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-white/20 text-white rounded-xl text-sm font-bold transition-all group"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-white/20 text-white rounded-lg text-xs font-bold transition-all group"
                 >
-                    <FiEdit2 className="text-gray-500 group-hover:text-red-500 transition-colors" size={16} />
-                    <span>Edit Plan Config</span>
+                    <FiEdit2 className="text-gray-500 group-hover:text-red-500 transition-colors" size={14} />
+                    <span>Edit Plan</span>
                 </button>
             )}
         </div>
@@ -323,7 +322,7 @@ const PlanManagement: React.FC = () => {
                    </div>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-20">
                     {plans.map(plan => (
                         <PlanCard key={plan._id} plan={plan} onUpdate={handleUpdatePlan} />
                     ))}

@@ -11,6 +11,7 @@ export interface PlanLimit {
   multi_page_website: boolean;
   facebook_page_connect: number;
   chat_bot_messages: number;
+  web_builder_sessions: number;
 }
 
 export interface Plan {

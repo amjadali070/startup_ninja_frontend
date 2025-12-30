@@ -1,4 +1,5 @@
 import { useEffect, useState, type FC } from "react";
+import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAuth } from "../../hooks/useAuth";
@@ -96,6 +97,26 @@ const WebBuilder: FC = () => {
         ? text.slice(0, limit) + "..."
         : text
       : "No description";
+
+  const handleEditWebsite = async (siteId: string) => {
+      const loadingToast = toast.loading("Checking session limits...");
+      try {
+        const response = await authService.checkUsageLimit('web_builder_sessions', true);
+        toast.dismiss(loadingToast);
+        
+        if (response.allowed) {
+            window.open(
+                `/ai-tools/web-builder/new-website?id=${siteId}`,
+                "_blank"
+            );
+        } else {
+             toast.error(response.message || "You have reached your limit for Web Builder sessions. Please upgrade your plan.");
+        }
+      } catch (error) {
+          toast.dismiss(loadingToast);
+          toast.error("Failed to check limits. Please try again.");
+      }
+  };
 
   const PreviewModal = () => {
     const [animateIn, setAnimateIn] = useState(false);
@@ -386,12 +407,7 @@ const WebBuilder: FC = () => {
                             {/* Edit */}
                             <button
                               title="Edit Website"
-                              onClick={() =>
-                                window.open(
-                                  `/ai-tools/web-builder/new-website?id=${site._id}`,
-                                  "_blank"
-                                )
-                              }
+                              onClick={() => handleEditWebsite(site._id)}
                               className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:shadow-lg text-white text-sm font-medium px-3 py-2 rounded-md"
                             >
                               <FiEdit2 className="w-4 h-4" />

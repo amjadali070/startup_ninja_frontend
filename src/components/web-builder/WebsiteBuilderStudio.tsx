@@ -1411,7 +1411,7 @@ const WebsiteBuilderStudio: FC = () => {
                             });
                           },
                         },
-                        // Assets Button - Replace your existing assets button with this:
+                        
                         {
                           id: "openAssetsButtonId",
                           type: "button",
