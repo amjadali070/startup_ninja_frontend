@@ -5,17 +5,40 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { authService } from '../../services/auth.ts';
 import { planService, Plan, PlanLimit } from '../../services/plan.ts';
 import { toast } from 'react-hot-toast';
-import { FiSave, FiEdit2 } from 'react-icons/fi';
+import {FiEdit2, FiCheck } from 'react-icons/fi';
 
 const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<Plan>) => Promise<void> }> = ({ plan, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPlan, setEditedPlan] = useState<Plan>(plan);
   const [loading, setLoading] = useState(false);
 
+  // Reset edited state when prop changes or editing is cancelled
+  useEffect(() => {
+    setEditedPlan(plan);
+  }, [plan, isEditing]);
+
   const handleSave = async () => {
     setLoading(true);
     try {
-      await onUpdate(plan._id, { limits: editedPlan.limits, price: editedPlan.price }); // Only update limits/price for now
+      // Auto-generate features based on limits to keep them in sync
+      const l = editedPlan.limits;
+      const generatedFeatures = [
+        `${l.ai_chat_messages === -1 ? 'Unlimited' : l.ai_chat_messages} AI Chat messages`,
+        `${l.chat_bot_messages === -1 ? 'Unlimited' : l.chat_bot_messages} Chat bot messages`,
+        `${l.social_posts === -1 ? 'Unlimited' : l.social_posts} Social media posts`,
+        `${l.generated_images === -1 ? 'Unlimited' : l.generated_images} Image generations`,
+        `${l.website_sessions === -1 ? 'Unlimited' : l.website_sessions} Website sessions`,
+        `${l.social_accounts === -1 ? 'Unlimited' : l.social_accounts} Social media accounts`,
+        `${l.pager_websites === -1 ? 'Unlimited' : l.pager_websites} Pager websites`,
+        `${l.hosted_websites === -1 ? 'Unlimited' : l.hosted_websites} Hosted websites`,
+        l.multi_pages ? "Multi-page support" : "Single-page support"
+      ];
+
+      await onUpdate(plan._id, { 
+        limits: editedPlan.limits, 
+        price: editedPlan.price,
+        features: generatedFeatures
+      });
       setIsEditing(false);
       toast.success(`${plan.name} updated successfully`);
     } catch (error) {
@@ -23,6 +46,11 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedPlan(plan);
   };
 
   const handleLimitChange = (key: keyof PlanLimit, value: number | boolean) => {
@@ -48,61 +76,122 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
   ];
 
   return (
-    <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-6 flex flex-col h-full">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-          <p className="text-gray-400 text-sm">{plan.description}</p>
+    <div className="bg-[#141414] border border-gray-800 rounded-2xl p-8 flex flex-col h-full hover:border-red-500/30 transition-all duration-300 shadow-lg">
+      
+      {/* Header Section */}
+      <div className="flex justify-between items-start mb-6 pb-6 border-b border-gray-800">
+        <div className="flex-1">
+          <h3 className="text-2xl font-bold text-white font-plus-jakarta tracking-tight">{plan.name}</h3>
+          <p className="text-gray-400 text-sm mt-1">{plan.description}</p>
         </div>
-        {!isEditing ? (
-          <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-white p-2 bg-white/5 rounded-lg">
-            <FiEdit2 size={18} />
-          </button>
-        ) : (
-          <button onClick={handleSave} disabled={loading} className="text-green-500 hover:text-green-400 p-2 bg-green-500/10 rounded-lg">
-             {loading ? <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" /> : <FiSave size={18} />}
-          </button>
-        )}
+        <div className="text-right pl-4">
+          {isEditing ? (
+             <div className="flex flex-col items-end gap-1">
+                 <label className="text-xs text-gray-500 uppercase font-semibold">Price</label>
+                 <div className="relative">
+                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                     <input 
+                        type="number"
+                        value={editedPlan.price}
+                        onChange={(e) => setEditedPlan({...editedPlan, price: parseFloat(e.target.value)})}
+                        className="w-24 pl-6 pr-3 py-2 bg-[#0A0A0A] border border-gray-700 rounded-lg text-white font-bold focus:border-red-500 outline-none transition-colors text-right"
+                     />
+                 </div>
+             </div>
+          ) : (
+            <div>
+               <span className="text-3xl font-bold font-space-grotesk text-white">${plan.price}</span>
+               <span className="text-gray-500 text-sm ml-1 font-medium">/mo</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-4 flex-grow">
-         {/* Price */}
-         <div className="border-b border-white/10 pb-4 mb-4">
-            <label className="block text-xs font-semibold text-gray-400 uppercase mb-1">Price ($)</label>
-            <input 
-                type="number" 
-                value={editedPlan.price}
-                disabled={!isEditing}
-                onChange={(e) => setEditedPlan({...editedPlan, price: parseFloat(e.target.value)})}
-                className="w-full bg-black/20 border border-white/10 rounded px-3 py-2 text-white disabled:opacity-50 disabled:cursor-not-allowed focus:border-red-500 outline-none"
-             />
-         </div>
-
-         {/* Limits Grid */}
-         <div className="grid grid-cols-1 gap-3">
+      {/* Limits Grid */}
+      <div className="flex-grow">
+         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Plan Limits & Features</h4>
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
              {limitsConfig.map((limit) => (
-                 <div key={limit.key} className="flex justify-between items-center group">
-                     <span className="text-sm text-gray-400 group-hover:text-gray-300">{limit.label}</span>
-                     {limit.type === 'boolean' ? (
-                         <input 
-                            type="checkbox"
-                            checked={!!editedPlan.limits[limit.key]}
-                            disabled={!isEditing}
-                            onChange={(e) => handleLimitChange(limit.key, e.target.checked)}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-red-600 focus:ring-red-500 disabled:opacity-50"
-                         />
+                 <div key={limit.key} className="bg-[#0F0F0F] rounded-xl p-4 border border-gray-800/50 flex flex-col justify-center">
+                     <label className="text-xs text-gray-400 font-medium mb-2 block">{limit.label}</label>
+                     {isEditing ? (
+                         limit.type === 'boolean' ? (
+                            <div className="flex items-center h-10">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only peer"
+                                        checked={!!editedPlan.limits[limit.key]}
+                                        onChange={(e) => handleLimitChange(limit.key, e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                    <span className="ml-3 text-sm font-medium text-gray-300">
+                                        {editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                </label>
+                            </div>
+                         ) : (
+                             <input 
+                                type="number"
+                                value={editedPlan.limits[limit.key] as number}
+                                onChange={(e) => handleLimitChange(limit.key, parseInt(e.target.value))}
+                                className="w-full bg-[#1A1A1A] border border-gray-700 rounded-lg px-3 py-2 text-white font-medium focus:border-red-500 outline-none transition-colors"
+                             />
+                         )
                      ) : (
-                         <input 
-                            type="number"
-                            value={editedPlan.limits[limit.key] as number}
-                            disabled={!isEditing}
-                            onChange={(e) => handleLimitChange(limit.key, parseInt(e.target.value))}
-                            className="w-24 bg-black/20 border border-white/10 rounded px-2 py-1 text-sm text-right text-white disabled:opacity-50 focus:border-red-500 outline-none"
-                         />
+                         <div className="text-white font-semibold text-lg truncate">
+                             {limit.type === 'boolean' ? (
+                                 <span className={editedPlan.limits[limit.key] ? "text-green-400" : "text-gray-500"}>
+                                     {editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
+                                 </span>
+                             ) : (
+                                 (editedPlan.limits[limit.key] as number) === -1 ? 'Unlimited' : (editedPlan.limits[limit.key] || 0).toLocaleString()
+                             )}
+                         </div>
                      )}
                  </div>
              ))}
          </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-8 pt-6 border-t border-gray-800">
+        {isEditing ? (
+            <div className="flex items-center justify-end gap-3">
+                <button 
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                    Cancel
+                </button>
+                <button 
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semi-bold transition-all shadow-lg hover:shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loading ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Saving...</span>
+                        </>
+                    ) : (
+                        <>
+                            <FiCheck size={18} />
+                            <span>Save Changes</span>
+                        </>
+                    )}
+                </button>
+            </div>
+        ) : (
+            <button 
+                onClick={() => setIsEditing(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#1A1A1A] hover:bg-[#252525] border border-gray-700 hover:border-gray-600 text-white rounded-xl text-sm font-medium transition-all group"
+            >
+                <FiEdit2 className="text-gray-400 group-hover:text-red-500 transition-colors" size={16} />
+                <span>Edit This Plan</span>
+            </button>
+        )}
       </div>
     </div>
   );
@@ -133,7 +222,7 @@ const PlanManagement: React.FC = () => {
 
   const handleUpdatePlan = async (id: string, updates: Partial<Plan>) => {
       await planService.updatePlan(id, updates);
-      fetchPlans(); // Refresh
+      fetchPlans();
   };
 
   const handleLogout = async () => {
@@ -154,19 +243,19 @@ const PlanManagement: React.FC = () => {
       onLogout={handleLogout}
       onSettings={() => navigate('/settings')}
     >
-      <main className="flex-1 overflow-y-auto">
-        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-white">Subscription Plans</h1>
-                <p className="text-gray-400 cursor-text">Manage pricing and feature limits for all subscription tiers.</p>
+      <main className="flex-1 overflow-y-auto bg-black">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-white font-plus-jakarta">Subscription Plans</h1>
+                <p className="text-gray-400 mt-2 text-lg">Manage pricing and feature access for all subscription tiers.</p>
             </div>
 
             {loading ? (
-                <div className="flex justify-center py-12">
-                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
+                <div className="flex justify-center py-20">
+                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-800 border-t-red-600" />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-20">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-20">
                     {plans.map(plan => (
                         <PlanCard key={plan._id} plan={plan} onUpdate={handleUpdatePlan} />
                     ))}

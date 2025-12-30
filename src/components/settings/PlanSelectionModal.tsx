@@ -26,7 +26,9 @@ const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
         try {
             const response = await planService.getAllPlans();
             if (response.success && response.data) {
-                setPlans(response.data);
+                // Filter out free plan as requested
+                const paidPlans = response.data.filter((p: Plan) => p.price > 0 && p.key !== 'free' && p.name.toLowerCase() !== 'free plan');
+                setPlans(paidPlans);
             }
         } catch (error) {
             console.error(error);

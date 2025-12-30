@@ -16,7 +16,9 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
             try {
                 const response = await planService.getAllPlans();
                 if (response.success && response.data) {
-                    setPlans(response.data);
+                    // Filter out free plan as requested
+                    const paidPlans = response.data.filter((p: Plan) => p.price > 0 && p.key !== 'free' && p.name.toLowerCase() !== 'free plan');
+                    setPlans(paidPlans);
                 }
             } catch (err) {
                 console.error("Failed to load plans", err);
@@ -30,34 +32,10 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
     const getButtonState = (plan: Plan) => {
         const isCurrent = plan.name.toLowerCase() === currentPlan.toLowerCase();
         
-        // Simple price parsing to determine hierarchy, or use 'key' if ordered
-        // Logic: Free < Startup < Pro < Enterprise
-        // Using keys: free, startup, pro, enterprise to find index
-        // Or using price check
-        const order = ['free', 'startup', 'basic', 'pro', 'standard', 'enterprise']; // Added extra keys just in case
-        // Normalize key
-        const planKey = plan.key || plan.name.toLowerCase().replace(' plan',''); 
-        const currentKey = currentPlan.toLowerCase().replace(' plan','');
-        
-        // Find index logic - robust fallback to price
-        let currentIndex = order.indexOf(currentKey);
-        let planIndex = order.indexOf(planKey);
-
-        if (currentIndex === -1 || planIndex === -1) {
-             // Fallback to price comparison if keys don't match known order
-             // Assuming fetchPlans returns sorted by price
-             // Need to know current plan price?
-             // Simplification: if not current, check if plan.price > 0 and current is Free?
-             // Hard to know Upgrade/Downgrade without full context of current plan price.
-             // But usually price is the indicator.
-        }
-
         if (isCurrent) {
             return { text: "Current Plan", disabled: true, style: "bg-white/5 text-gray-400 cursor-default border border-white/5" };
         }
         
-        // Basic heuristic: Upgrade if plan price > current plan price? 
-        // We lack current plan price here unless we find it in the list.
         const currentPlanObj = plans.find(p => p.name.toLowerCase() === currentPlan.toLowerCase() || p.key === currentPlan.toLowerCase());
         const currentPrice = currentPlanObj ? currentPlanObj.price : 0;
         
@@ -142,13 +120,16 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
 
                     {/* Action Button */}
                     <div className="flex justify-end md:justify-end mt-2 md:mt-0">
-                        <button
-                            onClick={() => onSelectPlan(plan.name)}
-                            disabled={buttonState.disabled}
-                            className={`w-full md:w-auto px-4 py-2 rounded-lg text-xs font-bold transition-all ${buttonState.style}`}
-                        >
-                            {buttonState.text}
-                        </button>
+                        {buttonState.text !== "Downgrade" && (
+                            <button
+                                onClick={() => onSelectPlan(plan.name)}
+                                disabled={buttonState.disabled}
+                                className={`w-full md:w-auto px-4 py-2 rounded-lg text-xs font-bold transition-all ${buttonState.style}`}
+                            >
+                                {buttonState.text}
+                            </button>
+                        )}
+                        {/* Downgrade button hidden as requested */}
                     </div>
                 </div>
             </div>
