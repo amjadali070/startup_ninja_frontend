@@ -89,9 +89,13 @@ const SelectGeminiImageModal: React.FC<{
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.map((img) => {
-                const filename = img.localPath
-                  ? img.localPath.split("/").pop()
-                  : "";
+                let filename = "";
+                if (img.localPath) {
+                    filename = img.localPath.split(/[/\\]/).pop() || "";
+                } else if (img.imageUrl) {
+                    filename = img.imageUrl.split('/').pop() || "";
+                }
+
                 let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
                 if (!serviceUrl) {
                   // Fallback to API Gateway URL if service URL is not explicitly set
@@ -100,18 +104,19 @@ const SelectGeminiImageModal: React.FC<{
                     "http://localhost:5000/api";
                   serviceUrl = apiBase.replace(/\/api\/?$/, "");
                 }
-                const src = filename
-                  ? `${serviceUrl}/api/imaginative/image/${filename}`
-                  : img.imageUrl;
-
+                
+                // My new logic: ALWAYS use proxy if we have a filename, because direct S3 fails CORS.
+                const proxySrc = filename ? `${serviceUrl}/api/imaginative/image/${filename}` : "";
+                const srcWithCorsHandling = proxySrc || img.imageUrl;
+                
                 return (
                   <div
                     key={img._id}
                     className="group relative aspect-square rounded-xl overflow-hidden border border-[#242424] hover:border-red-500 cursor-pointer transition-all hover:shadow-lg hover:shadow-red-900/10"
-                    onClick={() => onSelect(src)}
+                    onClick={() => onSelect(srcWithCorsHandling)}
                   >
                     <img
-                      src={src}
+                      src={srcWithCorsHandling}
                       alt={img.prompt}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
