@@ -30,7 +30,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle, pla
         const monthlyPrice = plan.price;
         const annualMonthlyPrice = plan.discountPrice || plan.price; // Cost per month when billed annually
 
-        const amount = billingCycle === 'annual' ? (annualMonthlyPrice * 12) : monthlyPrice; // Total to pay NOW? Or per month display?
         // Layout shows "Billed yearly" -> "Amount".
         // Original code: "startup: { monthly: 9, annual: 90 }"
         // If billing='annual', amount=90.

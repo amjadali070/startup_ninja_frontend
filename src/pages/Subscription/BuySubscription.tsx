@@ -15,7 +15,6 @@ const BuySubscription: React.FC = () => {
   const billingCycle = searchParams.get('billing') || 'monthly';
   
   const [step, setStep] = useState(isAuthenticated ? 2 : 1);
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   useEffect(() => {
@@ -23,8 +22,6 @@ const BuySubscription: React.FC = () => {
         try {
             const response = await planService.getAllPlans();
             if (response.success && response.data) {
-                setPlans(response.data);
-                
                 // Try to find the plan
                 const found = response.data.find(p => 
                     p.name.toLowerCase() === planName.toLowerCase() || 
@@ -38,9 +35,6 @@ const BuySubscription: React.FC = () => {
     };
     fetchPlans();
   }, [planName]);
-  
-  // If plans loaded but no selection (e.g. invalid param), fallback or wait?
-  // We'll pass null to OrderSummary and let it handle loading or fallback
   
   useEffect(() => {
     if (isAuthenticated) setStep(2);
