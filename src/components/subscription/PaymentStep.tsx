@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { FiLock } from 'react-icons/fi';
+import { FaStripe, FaCcVisa, FaCcMastercard, FaCcAmex, FaCcDiscover } from 'react-icons/fa';
 import { subscriptionService } from '../../services/subscription';
 import { StripeWrapper } from '../payment/StripeWrapper';
 import { 
@@ -149,9 +150,23 @@ const PaymentStepContent: React.FC<PaymentStepProps> = ({ planName, billingCycle
                )}
              </button>
 
-             <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
-               <FiLock className="text-green-500" />
-               <span>Secured by 256-bit SSL encryption</span>
+             <div className="flex flex-col items-center gap-3 mt-6 pt-6 border-t border-white/5">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                   <FiLock className="text-green-500" />
+                   <span>Secured by 256-bit SSL encryption</span>
+                </div>
+                
+                <div className="flex items-center gap-3 text-gray-400 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
+                    <FaCcVisa size={24} />
+                    <FaCcMastercard size={24} />
+                    <FaCcAmex size={24} />
+                    <FaCcDiscover size={24} />
+                </div>
+                
+                <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+                    <span>Powered by</span>
+                    <FaStripe size={38} className="text-[#6772E5] mt-0.5" />
+                </div>
              </div>
         </form>
     </div>
