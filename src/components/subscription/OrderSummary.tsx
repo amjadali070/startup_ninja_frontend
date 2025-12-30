@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiCheck, FiArrowLeft, FiShield, FiClock, FiRefreshCw } from 'react-icons/fi';
+import { Plan } from '../../services/plan';
 
 interface OrderSummaryProps {
   planName: string;
   billingCycle: string;
+  plan?: Plan | null;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle, plan }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,13 +26,36 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle }) =
   };
 
   const getPriceDetails = () => {
+    if (plan) {
+        const monthlyPrice = plan.price;
+        const annualMonthlyPrice = plan.discountPrice || plan.price; // Cost per month when billed annually
+
+        const amount = billingCycle === 'annual' ? (annualMonthlyPrice * 12) : monthlyPrice; // Total to pay NOW? Or per month display?
+        // Layout shows "Billed yearly" -> "Amount".
+        // Original code: "startup: { monthly: 9, annual: 90 }"
+        // If billing='annual', amount=90.
+        // My plan data annualMonthlyPrice = 19.99 (Example). Total = 239.88.
+        
+        // Let's stick to "Amount to charge now".
+        // If monthly, charge monthlyPrice.
+        // If annual, charge annualMonthlyPrice * 12.
+        
+        const chargeAmount = billingCycle === 'annual' ? (annualMonthlyPrice * 12) : monthlyPrice;
+        
+        const savings = billingCycle === 'annual' ? ((monthlyPrice * 12) - chargeAmount) : 0;
+        
+        return { amount: parseFloat(chargeAmount.toFixed(2)), savings: parseFloat(savings.toFixed(2)) };
+    }
+
+    // Fallback
     const prices: Record<string, { monthly: number; annual: number }> = {
       startup: { monthly: 9, annual: 90 },
       pro: { monthly: 29, annual: 290 },
-      enterprise: { monthly: 99, annual: 990 }
+      enterprise: { monthly: 99, annual: 990 },
+      basic: { monthly: 24.99, annual: 239.88 }
     };
     
-    const planKey = planName.toLowerCase();
+    const planKey = planName.toLowerCase().replace(' plan', '');
     const price = prices[planKey] || prices.pro;
     const amount = billingCycle === 'annual' ? price.annual : price.monthly;
     const savings = billingCycle === 'annual' ? (price.monthly * 12 - price.annual) : 0;
@@ -40,7 +65,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle }) =
 
   const { amount, savings } = getPriceDetails();
 
-  const features = [
+  const features = plan ? (plan.features || []) : [
     'Unlimited AI generations',
     'Priority support',
     'Advanced analytics',

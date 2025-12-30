@@ -37,6 +37,7 @@ import WebBuilder from "./pages/User/WebBuilder.tsx";
 import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.tsx";
 import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
+import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 
 function App() {
@@ -266,6 +267,14 @@ function App() {
             element={
               <AdminRoute>
                 <BalanceHistory />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/plans"
+            element={
+              <AdminRoute>
+                <PlanManagement />
               </AdminRoute>
             }
           />

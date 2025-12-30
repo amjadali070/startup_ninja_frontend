@@ -93,6 +93,10 @@ export interface UserWithStats {
   stats: UserStats;
   loginSessions?: LoginSession[];
   activities?: UserActivity[];
+  subscription?: UserSubscriptionDetails;
+  usage?: AIUsageStats;
+  features?: string[];
+  transactions?: UserTransaction[];
 }
 
 export interface PaginationInfo {

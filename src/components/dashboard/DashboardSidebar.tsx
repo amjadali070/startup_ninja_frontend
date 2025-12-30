@@ -14,6 +14,7 @@ import {
   FiGlobe,
   FiChevronLeft,
   FiChevronRight,
+  FiCreditCard,
 } from "react-icons/fi";
 import { RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -57,6 +58,12 @@ const navItems: SidebarNavItem[] = [
     label: "User Management",
     to: "/admin-dashboard/users",
     icon: <FaUsers className="w-5 h-5" />,
+    admin: true,
+  },
+  {
+    label: "Plan Management",
+    to: "/admin-dashboard/plans",
+    icon: <FiCreditCard className="w-5 h-5" />,
     admin: true,
   },
   {

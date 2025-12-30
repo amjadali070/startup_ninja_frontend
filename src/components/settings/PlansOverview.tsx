@@ -1,72 +1,6 @@
-import { type FC } from 'react';
+import { type FC, useEffect, useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
-
-export type Plan = {
-  name: string;
-  price: string;
-  interval: string;
-  description: string;
-  features: string[];
-  isPopular?: boolean;
-};
-
-const plans: Plan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    interval: "forever",
-    description: "Essential tools for hobbyists.",
-    features: [
-      "15 AI Chat messages/mo", 
-      "5 Image Generations/mo", 
-      "1 Hosted Website", 
-      "10 Social Posts/mo", 
-      "Community Support", 
-    ],
-  },
-  {
-    name: "Startup",
-    price: "$9",
-    interval: "month",
-    description: "Perfect for early-stage startups.",
-    features: [
-      "50 AI Chat messages/mo", 
-      "20 Image Generations/mo", 
-      "3 Website projects", 
-      "Basic Social scheduling", 
-      "Standard Support", 
-    ],
-  },
-  {
-    name: "Pro",
-    price: "$29",
-    interval: "month",
-    isPopular: true,
-    description: "Power tools for growth.",
-    features: [
-      "500 AI Chat messages/mo", 
-      "100 Image Generations/mo", 
-      "10 Website projects", 
-      "Full Social Media Pro", 
-      "Priority Support",
-      "Custom Domain", 
-    ],
-  },
-  {
-    name: "Enterprise",
-    price: "$99",
-    interval: "month",
-    description: "For scaling teams and agencies.",
-    features: [
-      "Unlimited AI Chat", 
-      "1000 Image Generations/mo", 
-      "50 Website projects", 
-      "Team Management", 
-      "Dedicated Support", 
-      "White-label Options", 
-    ],
-  },
-];
+import { planService, Plan } from '../../services/plan';
 
 interface PlansOverviewProps {
     currentPlan: string;
@@ -74,21 +8,60 @@ interface PlansOverviewProps {
 }
 
 const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) => {
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                const response = await planService.getAllPlans();
+                if (response.success && response.data) {
+                    setPlans(response.data);
+                }
+            } catch (err) {
+                console.error("Failed to load plans", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPlans();
+    }, []);
 
     const getButtonState = (plan: Plan) => {
         const isCurrent = plan.name.toLowerCase() === currentPlan.toLowerCase();
         
-        // Simple price parsing to determine hierarchy 
+        // Simple price parsing to determine hierarchy, or use 'key' if ordered
         // Logic: Free < Startup < Pro < Enterprise
-        const order = ['free', 'startup', 'pro', 'enterprise'];
-        const currentIndex = order.indexOf(currentPlan.toLowerCase());
-        const planIndex = order.indexOf(plan.name.toLowerCase());
+        // Using keys: free, startup, pro, enterprise to find index
+        // Or using price check
+        const order = ['free', 'startup', 'basic', 'pro', 'standard', 'enterprise']; // Added extra keys just in case
+        // Normalize key
+        const planKey = plan.key || plan.name.toLowerCase().replace(' plan',''); 
+        const currentKey = currentPlan.toLowerCase().replace(' plan','');
         
+        // Find index logic - robust fallback to price
+        let currentIndex = order.indexOf(currentKey);
+        let planIndex = order.indexOf(planKey);
+
+        if (currentIndex === -1 || planIndex === -1) {
+             // Fallback to price comparison if keys don't match known order
+             // Assuming fetchPlans returns sorted by price
+             // Need to know current plan price?
+             // Simplification: if not current, check if plan.price > 0 and current is Free?
+             // Hard to know Upgrade/Downgrade without full context of current plan price.
+             // But usually price is the indicator.
+        }
+
         if (isCurrent) {
             return { text: "Current Plan", disabled: true, style: "bg-white/5 text-gray-400 cursor-default border border-white/5" };
         }
         
-        if (planIndex > currentIndex) {
+        // Basic heuristic: Upgrade if plan price > current plan price? 
+        // We lack current plan price here unless we find it in the list.
+        const currentPlanObj = plans.find(p => p.name.toLowerCase() === currentPlan.toLowerCase() || p.key === currentPlan.toLowerCase());
+        const currentPrice = currentPlanObj ? currentPlanObj.price : 0;
+        
+        if (plan.price > currentPrice) {
              return { 
                  text: "Upgrade", 
                  disabled: false, 
@@ -100,6 +73,19 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
              return { text: "Downgrade", disabled: false, style: "bg-[#151515] border border-white/10 hover:bg-[#202020] text-gray-300" };
         }
     };
+
+  if (loading) {
+      return (
+        <section className="rounded-xl border border-white/10 bg-[#151515] p-6 mt-6 animate-pulse">
+            <div className="h-6 bg-gray-800 w-48 mb-6 rounded"></div>
+            <div className="space-y-4">
+                {[1,2,3].map(i => (
+                    <div key={i} className="h-24 bg-gray-800/50 rounded-lg"></div>
+                ))}
+            </div>
+        </section>
+      );
+  }
 
   return (
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6 mt-6">
@@ -113,10 +99,11 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
       <div className="flex flex-col gap-3">
         {plans.map((plan) => {
           const buttonState = getButtonState(plan);
+          const interval = plan.price === 0 ? "forever" : "month";
           
           return (
             <div 
-                key={plan.name} 
+                key={plan._id || plan.key} 
                 className="group relative rounded-lg border border-white/5 bg-white/[0.02] p-4 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.03]"
             >
                 <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr_1fr] gap-4 items-center">
@@ -132,8 +119,8 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
                             )}
                         </div>
                         <div className="flex items-baseline gap-1 mt-1">
-                            <span className="text-xl font-bold text-white">{plan.price}</span>
-                            {plan.price !== '$0' && <span className="text-gray-500 text-xs">/{plan.interval}</span>}
+                            <span className="text-xl font-bold text-white">${plan.price}</span>
+                            {plan.price !== 0 && <span className="text-gray-500 text-xs">/{interval}</span>}
                         </div>
                         <p className="text-gray-400 text-xs mt-1 truncate">{plan.description}</p>
                     </div>

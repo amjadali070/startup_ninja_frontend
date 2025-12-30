@@ -2,6 +2,7 @@ import { type FC, useMemo, useState } from 'react';
 import { FaRocket, FaArrowRight } from 'react-icons/fa';
 import PlanDetails, { PlanLimits, PlanUsage } from './PlanDetails';
 import AlertModal from '../AlertModal';
+import { Plan } from '../../services/plan';
 
 // Define the subscription data interface matching what's passed from parent
 interface SubscriptionData {
@@ -14,12 +15,14 @@ interface SubscriptionData {
     generated_images: number;
     social_posts: number;
     websites: number;
+    [key: string]: number;
   };
   limits?: {
     ai_chat_messages: number;
     generated_images: number;
     social_posts: number;
     websites: number;
+    [key: string]: number;
   };
 }
 
@@ -35,6 +38,7 @@ export type PlanDetailsType = {
 
 interface CurrentPlanCardProps {
   subscription: SubscriptionData | null;
+  plans?: Plan[];
   onUpgradePlan: () => void;
   onViewBillingHistory: () => void;
   onCancelSubscription: () => Promise<void> | void;
@@ -42,6 +46,7 @@ interface CurrentPlanCardProps {
 
 const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
   subscription,
+  plans = [],
   onUpgradePlan,
   onViewBillingHistory,
   onCancelSubscription,
@@ -55,11 +60,19 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
     // Map backend data to UI model
     const planName = subscription.plan;
     
-    // Price logic - simplified for now
+    // Price logic - dynamic
     let price = '$0.00';
-    if (planName === 'Startup') price = '$9.00';
-    else if (planName === 'Pro') price = '$29.00';
-    else if (planName === 'Enterprise') price = '$99.00';
+    if (plans.length > 0) {
+        const matchedPlan = plans.find(p => p.name.toLowerCase() === planName.toLowerCase() || p.key === planName.toLowerCase());
+        if (matchedPlan) {
+            price = `$${matchedPlan.price.toFixed(2)}`;
+        }
+    } else {
+        // Fallback or keep 0
+        if (planName.toLowerCase() === 'basic') price = '$24.99';
+        else if (planName.toLowerCase() === 'standard') price = '$49.99';
+        else if (planName.toLowerCase() === 'enterprise') price = '$149.99';
+    }
 
     return {
       name: planName || 'Free Plan',
@@ -70,7 +83,13 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
         : 'N/A',
       usage: subscription.usage || { ai_chat_messages: 0, generated_images: 0, social_posts: 0, websites: 0 },
-      limits: subscription.limits || { ai_chat_messages: 10, generated_images: 5, social_posts: 10, websites: 1 }
+      limits: {
+        ...(subscription.limits || {}),
+        ai_chat_messages: subscription.limits?.ai_chat_messages || 10,
+        generated_images: subscription.limits?.generated_images || 5,
+        social_posts: subscription.limits?.social_posts || 10,
+        websites: subscription.limits?.websites ?? subscription.limits?.hosted_websites ?? 1
+      }
     };
   }, [subscription]);
 

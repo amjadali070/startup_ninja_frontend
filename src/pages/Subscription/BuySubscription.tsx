@@ -5,15 +5,42 @@ import OrderSummary from '../../components/subscription/OrderSummary';
 import StepIndicator from '../../components/subscription/StepIndicator';
 import RegistrationStep from '../../components/subscription/RegistrationStep';
 import PaymentStep from '../../components/subscription/PaymentStep';
+import { planService, Plan } from '../../services/plan';
 
 const BuySubscription: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   
-  const planName = searchParams.get('plan') || 'Pro';
+  const planName = searchParams.get('plan') || 'Basic';
   const billingCycle = searchParams.get('billing') || 'monthly';
   
   const [step, setStep] = useState(isAuthenticated ? 2 : 1);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+        try {
+            const response = await planService.getAllPlans();
+            if (response.success && response.data) {
+                setPlans(response.data);
+                
+                // Try to find the plan
+                const found = response.data.find(p => 
+                    p.name.toLowerCase() === planName.toLowerCase() || 
+                    p.key === planName.toLowerCase()
+                );
+                if (found) setSelectedPlan(found);
+            }
+        } catch (error) {
+            console.error("Failed to fetch plans", error);
+        }
+    };
+    fetchPlans();
+  }, [planName]);
+  
+  // If plans loaded but no selection (e.g. invalid param), fallback or wait?
+  // We'll pass null to OrderSummary and let it handle loading or fallback
   
   useEffect(() => {
     if (isAuthenticated) setStep(2);
@@ -25,7 +52,7 @@ const BuySubscription: React.FC = () => {
       <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left Side - Order Summary */}
         <div className="w-full lg:w-[380px] shrink-0">
-          <OrderSummary planName={planName} billingCycle={billingCycle} />
+          <OrderSummary planName={planName} billingCycle={billingCycle} plan={selectedPlan} />
         </div>
 
         {/* Right Side - Form */}

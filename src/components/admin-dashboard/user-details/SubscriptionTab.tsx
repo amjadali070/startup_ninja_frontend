@@ -153,9 +153,20 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                     </span>
                   </td>
                   <td className="py-4">
-                    <button className="text-blue-400 hover:text-blue-300 text-sm">
-                      Download
-                    </button>
+                    {txn.invoiceUrl ? (
+                      <a
+                        href={txn.invoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      <span className="text-gray-600 text-sm cursor-not-allowed">
+                        Download
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -34,6 +34,7 @@ import {
   userService,
   type UserProfile,
 } from "../../services/user.ts";
+import { planService, Plan } from "../../services/plan.ts";
 import { resolveProfilePictureUrl } from "../../utils/profile.ts";
 
 interface SubscriptionData {
@@ -59,6 +60,7 @@ const Settings: FC = () => {
   const { logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -168,11 +170,12 @@ const Settings: FC = () => {
 
     const fetchData = async () => {
       try {
-        const [profileRes, preferencesRes, subscriptionRes] = await Promise.all(
+        const [profileRes, preferencesRes, subscriptionRes, plansRes] = await Promise.all(
           [
             userService.getProfile(),
             userService.getPreferences(),
             subscriptionService.getSubscription(),
+            planService.getAllPlans(),
           ]
         );
 
@@ -201,6 +204,10 @@ const Settings: FC = () => {
 
         if (subscriptionRes.success && subscriptionRes.data) {
              setSubscription(subscriptionRes.data as SubscriptionData);
+        }
+
+        if (plansRes.success && plansRes.data) {
+             setPlans(plansRes.data);
         }
 
         if (preferencesRes.success && preferencesRes.data) {
@@ -532,6 +539,7 @@ const Settings: FC = () => {
   // Cast prop as any if needed to avoid TS strict check during refactor
   const currentPlanProps: any = {
       subscription,
+      plans,
       onUpgradePlan: handleUpgradePlan,
       onViewBillingHistory: handleViewBillingHistory,
       onCancelSubscription: handleCancelSubscription

@@ -15,7 +15,7 @@ import type {
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import {
-  PLAN_FEATURES,
+
   PLATFORM_META,
   WEB_BUILDER_SERVICE_URL,
 } from "../../utils/userDetailsConstants";
@@ -146,10 +146,8 @@ const UserDetailsPage: React.FC = () => {
       const response = await adminService.getUserById(userId);
 
       if (response.success && response.data) {
-        const plan = response.data.user.subscription || "Free";
-        const features =
-          PLAN_FEATURES[plan as keyof typeof PLAN_FEATURES] ||
-          PLAN_FEATURES.Free;
+
+
 
         // Fetch actual content counts
         const [aiChatsRes, socialPostsRes, websitesRes, generatedImagesRes] = await Promise.all([
@@ -181,61 +179,34 @@ const UserDetailsPage: React.FC = () => {
 
         const extendedUser: ExtendedUserDetails = {
           ...response.data.user,
-          subscription: {
-            plan: plan,
-            status: "active",
-            startDate: "2024-01-01",
-            nextBillingDate: "2024-02-01",
-            amount:
-              plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
-            interval: "month",
+          subscription: response.data.subscription || {
+             plan: 'Free',
+             status: 'active',
+             startDate: new Date().toISOString(),
+             nextBillingDate: new Date().toISOString(),
+             amount: 0,
+             interval: 'month'
           },
-          usage: {
-            chatTokensUsed: Math.floor(
-              Math.random() *
-                (plan === "Enterprise"
-                  ? 150000
-                  : plan === "Pro"
-                  ? 80000
-                  : 8000)
-            ),
-            chatTokensLimit:
-              plan === "Enterprise"
-                ? 200000
-                : plan === "Pro"
-                ? 100000
-                : 10000,
-            imageGenUsed: Math.floor(
-              Math.random() *
-                (plan === "Enterprise" ? 400 : plan === "Pro" ? 150 : 15)
-            ),
-            imageGenLimit:
-              plan === "Enterprise" ? 500 : plan === "Pro" ? 200 : 20,
-            websiteUsed: totalWebsites,
-            websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
-            socialPostsUsed: totalPosts,
-            socialPostLimit:
-              plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
-            periodStart: "2024-01-01",
-            periodEnd: "2024-02-01",
+          usage: response.data.usage || {
+             chatTokensUsed: 0,
+             chatTokensLimit: 0,
+             imageGenUsed: 0,
+             imageGenLimit: 0,
+             websiteUsed: 0,
+             websiteLimit: 0,
+             socialPostsUsed: 0,
+             socialPostLimit: 0,
+             periodStart: new Date().toISOString(),
+             periodEnd: new Date().toISOString()
           },
+          features: response.data.features || [],
+          transactions: response.data.transactions || [],
           contentStats: {
             totalChats: totalChats,
             totalPosts: totalPosts,
             totalWebsites: totalWebsites,
             totalImages: totalImages,
           },
-          transactions: Array.from({ length: 5 }).map((_, i) => ({
-            id: `txn_${Math.random().toString(36).substr(2, 9)}`,
-            date: new Date(
-              Date.now() - i * 30 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            amount:
-              plan === "Pro" ? 29.99 : plan === "Enterprise" ? 99.99 : 0,
-            currency: "USD",
-            status: "succeeded",
-            description: `${plan} Plan Subscription`,
-          })),
           activityLogs:
             response.data.activities?.map((activity) => ({
               id: activity._id,
@@ -249,17 +220,15 @@ const UserDetailsPage: React.FC = () => {
               details: activity.details,
             })) || [],
           loginSessions: response.data.loginSessions || [],
-          features: features,
         };
         setUser(extendedUser);
 
         setResourceForm({
           chatTokensLimit: extendedUser.usage.chatTokensLimit,
           imageGenLimit: extendedUser.usage.imageGenLimit,
-          websiteLimit: plan === "Enterprise" || plan === "Pro" ? 999 : 1,
-          socialPostLimit:
-            plan === "Enterprise" ? 1000 : plan === "Pro" ? 100 : 10,
-          features: features,
+          websiteLimit: extendedUser.usage.websiteLimit || 0,
+          socialPostLimit: extendedUser.usage.socialPostLimit || 0,
+          features: extendedUser.features,
         });
 
         setEditForm({

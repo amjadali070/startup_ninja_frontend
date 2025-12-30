@@ -1,66 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
+import { planService, Plan } from "../../../services/plan";
 
 const PricingMain: React.FC = () => {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
-    "monthly"
-  );
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [plansData, setPlansData] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const plans = [
+  useEffect(() => {
+    const fetchPlans = async () => {
+        try {
+            const response = await planService.getAllPlans();
+            if (response.success && response.data) {
+                setPlansData(response.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch plans", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchPlans();
+  }, []);
 
-    {
-      name: "Startup",
-      tagline: "For beginners just starting out",
-      price: { monthly: 9, annual: 7 },
-      features: [
-        { text: "50 AI Chat messages/mo", included: true },
-        { text: "20 Image Generations/mo", included: true },
-        { text: "3 Website projects", included: true },
-        { text: "Startup Ninja subdomain", included: true },
-        { text: "Basic Social Media scheduling", included: true },
-        { text: "Custom domain", included: false },
-        { text: "Priority support", included: false },
-        { text: "Team collaboration", included: false },
-      ],
-      cta: "GET STARTED",
-      popular: false,
-    },
-    {
-      name: "Pro",
-      tagline: "For solopreneurs building their dream",
-      price: { monthly: 29, annual: 24 },
-      features: [
-        { text: "500 AI Chat messages/mo", included: true },
-        { text: "100 Image Generations/mo", included: true },
-        { text: "10 Website projects", included: true },
-        { text: "Custom domain support", included: true },
-        { text: "Full Social Media Pro access", included: true },
-        { text: "Priority email support", included: true },
-        { text: "SEO optimization tools", included: true },
-        { text: "Team collaboration", included: false },
-      ],
-      cta: "GET STARTED",
-      popular: true,
-    },
-    {
-      name: "Enterprise",
-      tagline: "For agencies and growing teams",
-      price: { monthly: 99, annual: 82 },
-      features: [
-        { text: "Unlimited AI Chat", included: true },
-        { text: "1000 AI credits/month", included: true },
-        { text: "50 Website projects", included: true },
-        { text: "White-label options", included: true },
-        { text: "Team management", included: true },
-        { text: "Advanced analytics", included: true },
-        { text: "Priority phone support", included: true },
-        { text: "Dedicated account manager", included: true },
-      ],
-      cta: "CONTACT SALES",
-      popular: false,
-    },
-  ];
+  // Filter plans
+  const paidPlans = plansData.filter(p => p.price > 0 && p.key !== 'free' && p.name.toLowerCase() !== 'free');
+  const freePlan = plansData.find(p => p.price === 0 || p.key === 'free' || p.name.toLowerCase() === 'free');
 
   const faqs = [
     {
@@ -86,7 +52,7 @@ const PricingMain: React.FC = () => {
     {
       question: "What payment methods do you accept?",
       answer:
-        "We accept all major credit and debit cards. Annual plans receive a 17% discount.",
+        "We accept all major credit and debit cards. Annual plans receive a discount.",
     },
   ];
 
@@ -142,7 +108,7 @@ const PricingMain: React.FC = () => {
             >
               Annual
               <span className="ml-2 text-xs bg-green-600 px-2 py-1 rounded">
-                Save 17%
+                Save ~20%
               </span>
             </button>
           </div>
@@ -152,22 +118,34 @@ const PricingMain: React.FC = () => {
       {/* Pricing Cards */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
+          {loading ? (
+             <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+             </div>
+          ) : (
           <div className="grid md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => (
+            {paidPlans.map((plan, index) => {
+               // Calculate price based on cycle
+               // Monthly cycle: use plan.price
+               // Annual cycle: use plan.discountPrice (assumed to be monthly cost when annual)
+               const displayPrice = billingCycle === "monthly" ? plan.price : (plan.discountPrice || plan.price);
+               const isPopular = plan.isPopular;
+
+               return (
               <div
-                key={index}
+                key={plan._id || index}
                 className={`relative rounded-lg p-8 border transition-all duration-300 ${
-                  plan.popular ? "scale-105" : ""
+                  isPopular ? "scale-105" : ""
                 }`}
                 style={{
                   background:
                     "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: plan.popular
+                  border: isPopular
                     ? "1px solid #D23621"
                     : "1px solid #8B0000",
                 }}
               >
-                {plan.popular && (
+                {isPopular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span
                       className="px-4 py-1 rounded-full text-sm font-bold"
@@ -183,35 +161,32 @@ const PricingMain: React.FC = () => {
 
                 <h3 className="text-3xl font-bold mb-2">{plan.name}</h3>
                 <p className="mb-6" style={{ color: "#CCCCCC" }}>
-                  {plan.tagline}
+                  {plan.description || "Unlock powerful features."}
                 </p>
 
                 <div className="mb-8">
                   <span className="text-5xl font-bold">
-                    $
-                    {billingCycle === "monthly"
-                      ? plan.price.monthly
-                      : plan.price.annual}
+                    ${displayPrice}
                   </span>
                   <span className="ml-2" style={{ color: "#CCCCCC" }}>
                     /month
                   </span>
-                  {billingCycle === "annual" && plan.price.annual > 0 && (
+                  {billingCycle === "annual" && (
                     <p className="text-sm text-green-500 mt-2">
-                      Billed ${plan.price.annual * 12}/year
+                      Billed ${(displayPrice * 12).toFixed(2)}/year
                     </p>
                   )}
                 </div>
 
                 <Link
-                  to={plan.price.monthly === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
+                  to={displayPrice === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
                   className={`block w-full py-4 rounded-lg font-bold text-center mb-8 transition-all duration-300 ${
-                    plan.popular
+                    isPopular
                       ? "hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
                       : "hover:opacity-80"
                   }`}
                   style={
-                    plan.popular
+                    isPopular
                       ? {
                           background:
                             "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
@@ -222,39 +197,35 @@ const PricingMain: React.FC = () => {
                         }
                   }
                 >
-                  {plan.cta}
+                  {displayPrice === 0 ? "START FOR FREE" : "GET STARTED"}
                 </Link>
 
                 <ul className="space-y-4">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
-                      {feature.included ? (
                         <FaCheck
                           className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
                           style={{ color: "#D23621" }}
                         />
-                      ) : (
-                        <FaTimes
-                          className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
-                          style={{ color: "#666" }}
-                        />
-                      )}
-                      <span
-                        style={{ color: feature.included ? "#CCCCCC" : "#666" }}
-                      >
-                        {feature.text}
+                      <span style={{ color: "#CCCCCC" }}>
+                        {feature}
                       </span>
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
+            );
+            })}
           </div>
+          )}
           
           <div className="mt-16 bg-[#151515] border border-[#333] rounded-lg p-6 max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
              <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2">Not ready to commit?</h3>
-                <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">Free Plan</span>. Includes 15 AI Messages, 5 Images, and 1 Website.</p>
+                <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">{freePlan ? freePlan.name : "Free"} Plan</span>.</p>
+                {freePlan && (
+                    <p className="text-xs text-gray-500 mt-1">Includes {freePlan.limits?.ai_chat_messages || 15} AI msg, {freePlan.limits?.generated_images || 5} Images, {freePlan.limits?.social_posts || 10} Social Posts.</p>
+                )}
              </div>
              <Link
                 to="/register"
@@ -325,7 +296,7 @@ const PricingMain: React.FC = () => {
                 </h3>
                 <ul className="space-y-3 text-left">
                   <li className="flex justify-between">
-                    <span>AI Chat (Unlimited)</span>
+                    <span>AI Chat (Unlimited*)</span>
                     <span className="text-green-500">✓</span>
                   </li>
                   <li className="flex justify-between">
@@ -429,3 +400,4 @@ const PricingMain: React.FC = () => {
 };
 
 export default PricingMain;
+
