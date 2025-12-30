@@ -2,14 +2,15 @@ import { apiClient } from './apiClient';
 
 export interface PlanLimit {
   ai_chat_messages: number;
-  chat_bot_messages: number;
   social_posts: number;
+  ai_post_writer: number;
   generated_images: number;
-  website_sessions: number;
-  social_accounts: number;
-  pager_websites: number;
-  hosted_websites: number;
-  multi_pages: boolean;
+  website_creation: number;
+  website_hosting: number;
+  single_page_website: boolean;
+  multi_page_website: boolean;
+  facebook_page_connect: number;
+  chat_bot_messages: number;
 }
 
 export interface Plan {

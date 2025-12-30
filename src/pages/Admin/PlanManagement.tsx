@@ -5,7 +5,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { authService } from '../../services/auth.ts';
 import { planService, Plan, PlanLimit } from '../../services/plan.ts';
 import { toast } from 'react-hot-toast';
-import {FiEdit2, FiCheck } from 'react-icons/fi';
+import { FiEdit2, FiCheck } from 'react-icons/fi';
 
 const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<Plan>) => Promise<void> }> = ({ plan, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,15 +24,16 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
       const l = editedPlan.limits;
       const generatedFeatures = [
         `${l.ai_chat_messages === -1 ? 'Unlimited' : l.ai_chat_messages} AI Chat messages`,
-        `${l.chat_bot_messages === -1 ? 'Unlimited' : l.chat_bot_messages} Chat bot messages`,
         `${l.social_posts === -1 ? 'Unlimited' : l.social_posts} Social media posts`,
-        `${l.generated_images === -1 ? 'Unlimited' : l.generated_images} Image generations`,
-        `${l.website_sessions === -1 ? 'Unlimited' : l.website_sessions} Website sessions`,
-        `${l.social_accounts === -1 ? 'Unlimited' : l.social_accounts} Social media accounts`,
-        `${l.pager_websites === -1 ? 'Unlimited' : l.pager_websites} Pager websites`,
-        `${l.hosted_websites === -1 ? 'Unlimited' : l.hosted_websites} Hosted websites`,
-        l.multi_pages ? "Multi-page support" : "Single-page support"
-      ];
+        `${l.ai_post_writer === -1 ? 'Unlimited' : l.ai_post_writer} AI Post Writer`,
+        `${l.generated_images === -1 ? 'Unlimited' : l.generated_images} AI Image generation`,
+        `${l.website_creation === -1 ? 'Unlimited' : l.website_creation} Website Creation`,
+        `${l.website_hosting === -1 ? 'Unlimited' : l.website_hosting} Website Hosting`,
+        l.single_page_website ? "Single Page Website" : "",
+        l.multi_page_website ? "Multipage Website" : "",
+        `${l.facebook_page_connect === -1 ? 'Unlimited' : l.facebook_page_connect} Facebook Page Connect`,
+        `${l.chat_bot_messages === -1 ? 'Unlimited' : l.chat_bot_messages} AI Chatbot Support Message`,
+      ].filter(feature => feature !== "");
 
       await onUpdate(plan._id, { 
         limits: editedPlan.limits, 
@@ -54,25 +55,42 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
   };
 
   const handleLimitChange = (key: keyof PlanLimit, value: number | boolean) => {
+    const newLimits: any = { ...editedPlan.limits };
+    
+    newLimits[key] = value;
+
+    if (key === 'single_page_website') {
+       if (value === true) {
+           newLimits.multi_page_website = false;
+       } else {
+           newLimits.multi_page_website = true;
+       }
+    }
+    else if (key === 'multi_page_website') {
+       if (value === true) {
+           newLimits.single_page_website = false;
+       } else {
+           newLimits.single_page_website = true;
+       }
+    }
+
     setEditedPlan({
       ...editedPlan,
-      limits: {
-        ...editedPlan.limits,
-        [key]: value
-      }
+      limits: newLimits
     });
   };
 
   const limitsConfig: { key: keyof PlanLimit; label: string; type: 'number' | 'boolean' }[] = [
     { key: 'ai_chat_messages', label: 'AI Chat Messages', type: 'number' },
-    { key: 'chat_bot_messages', label: 'Chat Bot Messages', type: 'number' },
-    { key: 'social_posts', label: 'Social Posts', type: 'number' },
-    { key: 'generated_images', label: 'Generated Images', type: 'number' },
-    { key: 'website_sessions', label: 'Website Sessions', type: 'number' },
-    { key: 'social_accounts', label: 'Social Accounts', type: 'number' },
-    { key: 'pager_websites', label: 'Pager Websites', type: 'number' },
-    { key: 'hosted_websites', label: 'Hosted Websites', type: 'number' },
-    { key: 'multi_pages', label: 'Multi-Page Support', type: 'boolean' },
+    { key: 'social_posts', label: 'Social Media Posts', type: 'number' },
+    { key: 'ai_post_writer', label: 'AI Post Writer', type: 'number' },
+    { key: 'generated_images', label: 'AI Image Generation', type: 'number' },
+    { key: 'website_creation', label: 'Website Creation', type: 'number' },
+    { key: 'website_hosting', label: 'Website Hosting', type: 'number' },
+    { key: 'single_page_website', label: 'Single Page Website', type: 'boolean' },
+    { key: 'multi_page_website', label: 'Multi Page Website', type: 'boolean' },
+    { key: 'facebook_page_connect', label: 'Facebook Page Connect', type: 'number' },
+    { key: 'chat_bot_messages', label: 'AI Chatbot Support Message', type: 'number' },
   ];
 
   return (
@@ -121,19 +139,19 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
                                     <input 
                                         type="checkbox" 
                                         className="sr-only peer"
-                                        checked={!!editedPlan.limits[limit.key]}
+                                        checked={(!!editedPlan.limits && !!editedPlan.limits[limit.key]) || false}
                                         onChange={(e) => handleLimitChange(limit.key, e.target.checked)}
                                     />
                                     <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                                     <span className="ml-3 text-sm font-medium text-gray-300">
-                                        {editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
+                                        {editedPlan.limits && editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
                                     </span>
                                 </label>
                             </div>
                          ) : (
                              <input 
                                 type="number"
-                                value={editedPlan.limits[limit.key] as number}
+                                value={editedPlan.limits ? (editedPlan.limits[limit.key] as number) : 0}
                                 onChange={(e) => handleLimitChange(limit.key, parseInt(e.target.value))}
                                 className="w-full bg-[#1A1A1A] border border-gray-700 rounded-lg px-3 py-2 text-white font-medium focus:border-red-500 outline-none transition-colors"
                              />
@@ -141,11 +159,11 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
                      ) : (
                          <div className="text-white font-semibold text-lg truncate">
                              {limit.type === 'boolean' ? (
-                                 <span className={editedPlan.limits[limit.key] ? "text-green-400" : "text-gray-500"}>
-                                     {editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
+                                 <span className={editedPlan.limits && editedPlan.limits[limit.key] ? "text-green-400" : "text-gray-500"}>
+                                     {editedPlan.limits && editedPlan.limits[limit.key] ? 'Enabled' : 'Disabled'}
                                  </span>
                              ) : (
-                                 (editedPlan.limits[limit.key] as number) === -1 ? 'Unlimited' : (editedPlan.limits[limit.key] || 0).toLocaleString()
+                                 (editedPlan.limits && editedPlan.limits[limit.key]) === -1 ? 'Unlimited' : ((editedPlan.limits && editedPlan.limits[limit.key]) || 0).toLocaleString()
                              )}
                          </div>
                      )}
