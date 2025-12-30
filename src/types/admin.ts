@@ -207,7 +207,7 @@ export interface UserContentStats {
 }
 
 export interface UserSubscriptionDetails {
-  plan: "Free" | "Basic" | "Pro" | "Enterprise";
+  plan: "Free" | "Basic" | "Standard" | "Enterprise";
   status: "active" | "canceled" | "past_due";
   startDate: string;
   nextBillingDate: string;

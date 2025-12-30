@@ -4,6 +4,7 @@ import {
   FaTimesCircle,
   FaCalendarAlt,
   FaCreditCard,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
 
@@ -26,10 +27,12 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
           </div>
           <span
             className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ${
-              user.subscription.plan === "Enterprise"
+              (user.subscription.plan || "").includes("Enterprise")
                 ? "bg-purple-600/20 text-purple-400 border border-purple-500/30"
-                : user.subscription.plan === "Pro"
+                : (user.subscription.plan || "").includes("Standard")
                 ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
+                : (user.subscription.plan || "").includes("Basic")
+                ? "bg-green-600/20 text-green-400 border border-green-500/30"
                 : "bg-gray-600/20 text-gray-400 border border-gray-500/30"
             }`}
           >
@@ -37,7 +40,7 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           <div className="bg-[#2A2A2A] p-4 rounded-lg border border-[#333] flex items-center gap-4">
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -97,6 +100,20 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 <span className="text-sm text-gray-500 font-normal">
                   /{user.subscription.interval}
                 </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[#2A2A2A] p-4 rounded-lg border border-[#333] flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+              <FaMoneyBillWave />
+            </div>
+            <div>
+              <p className="text-gray-400 text-xs uppercase tracking-wider mb-0.5">
+                Total Spent
+              </p>
+              <p className="text-white font-bold text-lg">
+                ${user.transactions.filter(t => t.status === 'succeeded').reduce((sum, t) => sum + t.amount, 0).toFixed(2)}
               </p>
             </div>
           </div>
