@@ -316,18 +316,32 @@ const SchedulingOption: React.FC = () => {
       }
 
       // Show appropriate notification based on results
-      if (results.length > 0 && errors.length === 0) {
-        // All platforms succeeded
+      // Show appropriate notification based on results
+      const isLimitError = errors.some(e => 
+          e.toLowerCase().includes('limit') || 
+          e.toLowerCase().includes('upgrade') || 
+          e.includes('403')
+      );
+
+      if (results.length > 0) {
+        // Partial or Full Success
         const platformList = results.join(' and ');
         toast.success(`Your post has been published to ${platformList} successfully!`);
-      } else if (results.length > 0 && errors.length > 0) {
-        // Some platforms succeeded, some failed
-        const successPlatforms = results.join(' and ');
-        toast.success(`Published to ${successPlatforms} successfully.`);
-        toast.error('Some platforms failed: ' + errors.join(', '));
+        
+        if (errors.length > 0) {
+            if (isLimitError) {
+                toast.error("Limit reached. Some associated posts could not be published. Please upgrade your plan.");
+            } else {
+                toast.error('Some platforms failed: ' + errors.join(', '));
+            }
+        }
       } else {
-        // All platforms failed
-        toast.error('Publishing failed: ' + errors.join(', '));
+        // All Failed
+        if (isLimitError) {
+            toast.error("You have reached your limit for Social Media Posts. Please upgrade your plan to continue.");
+        } else if (errors.length > 0) {
+            toast.error('Publishing failed: ' + errors.join(', '));
+        }
       }
       
       // Clear the post data after successful posting (if at least one succeeded)
