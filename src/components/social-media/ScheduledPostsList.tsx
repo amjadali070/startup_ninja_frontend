@@ -6,6 +6,7 @@ import LoadingSpinner from '../LoadingSpinner';
 import SchedulePostModal from './SchedulePostModal';
 import { emitPostStatusUpdate, emitPostRemoval, onPostStatusUpdate, onPostRemoval } from '../../utils/postStatusEvents';
 import { postStatusPoller } from '../../services/social-media/postStatusPoller';
+import { usePost } from './PostContext';
 
 type ScheduledPost = {
 	_id: string;
@@ -29,6 +30,7 @@ const ScheduledPostsList: React.FC = () => {
 	const [selected, setSelected] = useState<ScheduledPost | null>(null);
 	const [pageHistory, setPageHistory] = useState(1);
 	const [pageSizeHistory, setPageSizeHistory] = useState(5);
+	const { refreshTrigger } = usePost();
 
 	const fetchData = async () => {
 		if (loading) return;
@@ -53,7 +55,7 @@ const ScheduledPostsList: React.FC = () => {
 		return () => {
 			postStatusPoller.stopPolling();
 		};
-	}, []);
+	}, [refreshTrigger]);
 
 	useEffect(() => {
 		const handler = () => fetchData();

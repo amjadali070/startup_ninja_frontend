@@ -67,12 +67,16 @@
       const error_reason = params.get('error_reason');
       const error_description = params.get('error_description');
 
+      // Use wildcard origin to allow communication between different ports (e.g. 3000 and 5173) in development
+      // This solves the 'Target origin provided does not match recipient window origin' error
+      const targetOrigin = '*';
+
       if (window.opener) {
         if (code) {
           window.opener.postMessage({
             type: 'FACEBOOK_OAUTH_SUCCESS',
             code: code
-          }, window.location.origin);
+          }, targetOrigin);
         } else if (error) {
           let errorMessage = 'Facebook authorization failed.';
           if (error_reason === 'user_denied') {
@@ -83,15 +87,19 @@
           window.opener.postMessage({
             type: 'FACEBOOK_OAUTH_ERROR',
             error: errorMessage
-          }, window.location.origin);
+          }, targetOrigin);
         } else {
           window.opener.postMessage({
             type: 'FACEBOOK_OAUTH_ERROR',
             error: 'Missing authorization code or error from Facebook.'
-          }, window.location.origin);
+          }, targetOrigin);
         }
       }
-      window.close();
+      
+      // Add a small delay before closing to ensure message is sent
+      setTimeout(() => {
+        window.close();
+      }, 500);
     });
   </script>
 </body>

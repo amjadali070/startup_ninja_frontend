@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaTrash, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/social-media/oauth/linkedin';
@@ -20,6 +20,7 @@ const AccountsCard: React.FC = () => {
       status: 'Not Connected',
       isConnected: false,
       isPlaceholder: false,
+      pages: [] as any[],
     },
     {
       id: 'instagram',
@@ -306,8 +307,9 @@ const AccountsCard: React.FC = () => {
                   isConnected: status.connected,
                   status: status.connected ? 'Connected' : 'Not Connected',
                   username: status.connected && status.profile 
-                    ? status.profile.name 
-                    : 'Not Connected'
+                    ? `${status.profile.name} (${status.pages?.length || 0} Pages)`
+                    : 'Not Connected',
+                  pages: status.pages || []
                 }
               : account
           );
@@ -703,7 +705,8 @@ const AccountsCard: React.FC = () => {
               ...account,
                       isConnected: true,
                       status: 'Connected',
-                      username: userName
+                      username: `${userName} (${pageCount} Pages)`,
+                      pages: result.pages || []
             }
           : account
               );
@@ -713,16 +716,98 @@ const AccountsCard: React.FC = () => {
             // Emit event to notify other components
             window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
           }
-        } catch (popupError) {
-          // Fallback to redirect method if popup fails
-          await facebookService.initiateConnection();
-          // Note: After successful auth, user will be redirected back with success params
+        } catch (popupError: any) {
+          // If error is due to Plan Limits (403), show toast and DO NOT redirect
+          if (popupError?.message && (popupError.message.toLowerCase().includes('limit') || popupError.message.includes('403'))) {
+              toast.error(popupError.message);
+          } else {
+              // Fallback to redirect method if popup fails (e.g. Popups blocked)
+              await facebookService.initiateConnection();
+          }
         }
       }
     } catch (error: any) {
       toast.error(error.message || 'Failed to connect Facebook account');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSyncFacebookPages = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setIsLoading(true);
+      // Force connection flow (Update existing token)
+      const result = await facebookService.initiateConnectionPopup(user.id);
+          
+      if (result) {
+        const userName = result.user?.name || 'Facebook User';
+        const pageCount = result.pages?.length || 0;
+        toast.success(`Facebook pages synced successfully! Found ${pageCount} pages.`);
+        
+        const newFacebookStatus = {
+          connected: true,
+          profile: result.user,
+          pages: result.pages,
+          message: 'Synced successfully'
+        };
+        setFacebookStatus(newFacebookStatus);
+        
+        setAccounts(prevAccounts => {
+          const updatedAccounts = prevAccounts.map(account =>
+            account.id === 'facebook'
+              ? {
+                  ...account,
+                  isConnected: true,
+                  status: 'Connected',
+                  username: `${userName} (${pageCount} Pages)`,
+                  pages: result.pages || []
+                }
+              : account
+          );
+          return updatedAccounts;
+        });
+
+        window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sync Facebook pages');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+
+  const handleRemovePage = async (pageId: string) => {
+    try {
+        const result = await facebookService.removePage(pageId);
+        toast.success(result.message || 'Page removed');
+        
+        const newPages = result.pages || [];
+        const userName = facebookStatus?.profile?.name || 'Facebook User';
+        
+        setFacebookStatus(prev => prev ? ({ ...prev, pages: newPages }) : null);
+        
+        setAccounts(prevAccounts => {
+          return prevAccounts.map(account =>
+            account.id === 'facebook'
+              ? {
+                  ...account,
+                  pages: newPages,
+                  username: `${userName} (${newPages.length} Pages)`
+                }
+              : account
+          );
+        });
+        
+        setTimeout(() => {
+             checkFacebookStatus();
+             window.dispatchEvent(new CustomEvent('facebookStatusChanged'));
+        }, 500);
+    } catch (error: any) {
+        toast.error(error.message || 'Failed to remove page');
     }
   };
 
@@ -742,7 +827,7 @@ const AccountsCard: React.FC = () => {
                 !account.isPlaceholder ? 'hover:bg-[#252525]' : 'opacity-60'
               }`}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               {/* Left side - Platform info */}
               <div className="flex items-center gap-3">
                 <account.icon 
@@ -766,7 +851,7 @@ const AccountsCard: React.FC = () => {
                       account.isPlaceholder ? 'bg-gray-500' : 'bg-[#DE0500]'
                   }`} />
                   <span 
-                    className={`text-xs sm:text-sm font-medium ${
+                    className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
                       account.isConnected 
                         ? 'text-green-500' 
                           : account.isPlaceholder 
@@ -778,22 +863,70 @@ const AccountsCard: React.FC = () => {
                   </span>
                 </div>
                 
-                <button
-                  onClick={() => handleToggleConnection(account.id)}
-                    disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook')}
-                    className={`px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                    account.isConnected
-                      ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
-                        : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook'
-                        ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                  }`}
-                >
-                    {account.isConnected ? 'Remove' : 
-                     account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook' ? 'Soon' : 'Connect'}
-                </button>
+                <div className="flex gap-2">
+                    {account.id === 'facebook' && account.isConnected && (
+                        <button
+                            onClick={handleSyncFacebookPages}
+                            disabled={isLoading}
+                            className="px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium bg-[#1877F2]/10 text-[#1877F2] border border-[#1877F2]/20 hover:bg-[#1877F2]/20 transition-colors flex items-center gap-1"
+                        >
+                            <FaPlus className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} /> Add Page
+                        </button>
+                    )}
+                    <button
+                      onClick={() => handleToggleConnection(account.id)}
+                        disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook')}
+                        className={`px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        account.isConnected
+                          ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
+                            : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook'
+                            ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                          : 'bg-green-600 hover:bg-green-700 text-white'
+                      }`}
+                    >
+                        {account.isConnected ? 'Disconnect' : 
+                         account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook' ? 'Soon' : 'Connect'}
+                    </button>
+                </div>
               </div>
             </div>
+            
+            {/* Facebook Pages List */}
+            {account.id === 'facebook' && account.pages && account.pages.length > 0 && (
+                <div className="mt-3 pl-2 sm:pl-9 space-y-2 border-t border-gray-800 pt-3">
+                   <div className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Connected Pages</div>
+                   {account.pages.map((page: any) => (
+                        <div key={page.id} className="flex items-center gap-3 bg-[#1e1e1e] p-2 rounded-lg border border-gray-800/50 hover:border-gray-700 transition-colors">
+                           <img 
+                             src={page.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(page.name)}&background=random`} 
+                             alt={page.name}
+                             className="w-8 h-8 rounded-full border border-gray-700 object-cover"
+                             onError={(e) => {
+                                 const target = e.target as HTMLImageElement;
+                                 const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(page.name)}&background=random`;
+                                 if (target.src !== fallback) {
+                                     target.src = fallback;
+                                 }
+                             }}
+                           />
+                          <div className="flex flex-col overflow-hidden">
+                              <span className="text-sm text-gray-200 font-medium truncate">{page.name}</span>
+                              <span className="text-[10px] text-gray-500 truncate">{page.category || 'Page'}</span>
+                          </div>
+                          {/* Status Indicator for Page */}
+                          <div className="ml-auto flex items-center gap-1">
+                              <button
+                                onClick={() => handleRemovePage(page.id)}
+                                className="p-1.5 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                title="Remove Page"
+                              >
+                                  <FaTrash className="w-3 h-3" />
+                              </button>
+                          </div>
+                       </div>
+                   ))}
+                </div>
+            )}
           </div>
         ))}
       </div>

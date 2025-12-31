@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FaCalendarAlt,
   FaFacebook,
@@ -37,22 +37,36 @@ const allPlatforms: Platform[] = [
 ];
 
 type ScheduledPlatform = {
-  id: 'facebook' | 'instagram' | 'x' | 'linkedin';
+  id: string; // unique identifier (e.g. "facebook::pageId")
+  platform: 'facebook' | 'instagram' | 'x' | 'linkedin';
   date: string;
   time: string;
+  targetPageId?: string;
+  name?: string;
 };
 
 const SchedulingOption: React.FC = () => {
-  const { postData } = usePost();
+  const { postData, triggerRefreshPosts } = usePost();
   const { user } = useAuth();
   const [isSchedulingEnabled, setIsSchedulingEnabled] = useState(true);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
 
-  const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([
-    // Default: empty list; user can add platforms
-  ]);
+  const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([]);
+  const [fbPages, setFbPages] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user?.id) {
+       facebookService.getConnectionStatus(user.id).then(res => {
+          if (res.pages) {
+            setFbPages(res.pages);
+          }
+       }).catch(() => {});
+    }
+  }, [user]);
+
+  // Sync effect removed for manual control
 
   // use shared date util
 
@@ -84,23 +98,65 @@ const SchedulingOption: React.FC = () => {
     );
   };
 
-  const addPlatform = (platformToAdd: Platform) => {
+
+
+  const handleAddPlatform = (option: any) => {
     const now = new Date();
     const defaultDate = now.toISOString().split('T')[0];
-    const defaultTime = now.toTimeString().split(' ')[0].substring(0, 5); 
+    const defaultTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     setScheduledPlatforms(current => [
       ...current,
-      { id: platformToAdd.id, date: defaultDate, time: defaultTime }
+      { 
+          id: option.id, 
+          platform: option.platform, 
+          date: defaultDate, 
+          time: defaultTime,
+          targetPageId: option.targetPageId,
+          name: option.name
+      }
     ]);
     setIsPlatformSelectorOpen(false);
   };
   
-  const removePlatform = (platformIdToRemove: string) => {
+  const handleRemovePlatform = (idToRemove: string) => {
     setScheduledPlatforms(current =>
-      current.filter(p => p.id !== platformIdToRemove)
+      current.filter(p => p.id !== idToRemove)
     );
   };
+
+  const scheduledPlatformIds = new Set(scheduledPlatforms.map(p => p.id));
+  const selectableOptions: any[] = [];
+  
+  allPlatforms.forEach(p => {
+      if (p.id === 'facebook') {
+          if (fbPages.length > 0) {
+              fbPages.forEach(page => {
+                  const uniqueId = `facebook::${page.id}`;
+                  if (!scheduledPlatformIds.has(uniqueId)) { // Show if not added
+                      selectableOptions.push({
+                          id: uniqueId,
+                          platform: 'facebook',
+                          name: `Facebook - ${page.name}`,
+                          color: p.color,
+                          targetPageId: page.id,
+                          IconComponent: p.IconComponent
+                      });
+                  }
+              });
+          } else {
+              const uniqueId = 'facebook::all';
+              if (!scheduledPlatformIds.has(uniqueId)) {
+                  selectableOptions.push({ id: uniqueId, platform: 'facebook', name: 'Facebook', color: p.color, IconComponent: p.IconComponent });
+              }
+          }
+      } else {
+          const uniqueId = `${p.id}::main`;
+          if (!scheduledPlatformIds.has(uniqueId)) {
+              selectableOptions.push({ id: uniqueId, platform: p.id, name: p.name, color: p.color, IconComponent: p.IconComponent });
+          }
+      }
+  });
 
   const handleSchedule = async () => {
     if (!postData.content && postData.files.length === 0) {
@@ -108,28 +164,22 @@ const SchedulingOption: React.FC = () => {
       return;
     }
 
-    // For scheduling, use platforms added in this component (not PlatformTags selection)
     const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'] as const;
-    const platformsFromSchedule = Array.from(new Set(
-      scheduledPlatforms
-        .map(p => p.id)
-        .filter((p): p is 'linkedin' | 'x' | 'instagram' | 'facebook' => (supportedPlatforms as readonly string[]).includes(p))
-    ));
+    const itemsToSchedule = scheduledPlatforms.filter(p => supportedPlatforms.includes(p.platform));
 
-    if (platformsFromSchedule.length === 0) {
+    if (itemsToSchedule.length === 0) {
       toast.error('Please add at least one platform in Scheduling Options to schedule');
       return;
     }
 
     // Validate that no selection is in the past
-    const invalid = scheduledPlatforms.find(p => buildLocalDate(p.date, p.time).getTime() < Date.now());
+    const invalid = itemsToSchedule.find(p => buildLocalDate(p.date, p.time).getTime() < Date.now());
     if (invalid) {
       toast.error('Please choose a future date and time for all platforms');
       return;
     }
 
-    // Use the first scheduled date/time entry as a single schedule time
-    const first = scheduledPlatforms[0];
+    const first = itemsToSchedule[0];
     if (!first?.date || !first?.time) {
       toast.error('Please select a valid date and time');
       return;
@@ -146,24 +196,26 @@ const SchedulingOption: React.FC = () => {
     const imageFileObj = postData.files.find(f => f.type === 'image')?.file || null;
     const imageSizeMB = imageFileObj ? imageFileObj.size / (1024 * 1024) : 0;
     const failures: Array<{ platform: string; reason: string }> = [];
-    const validPlatforms = platformsFromSchedule.filter((p) => {
-      const c = constraints[p];
+    
+    const validItems = itemsToSchedule.filter((p) => {
+      const c = constraints[p.platform];
+      // Use logic based on p.platform
       if (postData.content.length > c.maxCaption) {
-        failures.push({ platform: p, reason: `Caption exceeds ${c.maxCaption} characters` });
+        failures.push({ platform: p.name || p.platform, reason: `Caption exceeds ${c.maxCaption} characters` });
         return false;
       }
       if (c.imageRequired && !imageFileObj) {
-        failures.push({ platform: p, reason: 'Image is required' });
+        failures.push({ platform: p.name || p.platform, reason: 'Image is required' });
         return false;
       }
       if (imageFileObj && imageSizeMB > c.maxImageMB) {
-        failures.push({ platform: p, reason: `Image exceeds ${c.maxImageMB} MB` });
+        failures.push({ platform: p.name || p.platform, reason: `Image exceeds ${c.maxImageMB} MB` });
         return false;
       }
       return true;
     });
 
-    if (validPlatforms.length === 0) {
+    if (validItems.length === 0) {
       toast.error('Validation failed: ' + failures.map(f => `${f.platform}: ${f.reason}`).join(', '));
       return;
     }
@@ -172,14 +224,19 @@ const SchedulingOption: React.FC = () => {
       setIsScheduling(true);
 
       const imageFile = imageFileObj;
+      const uniquePlatforms = Array.from(new Set(validItems.map(p => p.platform)));
 
       const resp = await schedulerService.schedulePost({
         caption: postData.content,
-        platforms: validPlatforms,
-        schedules: scheduledPlatforms
-          .filter(p => validPlatforms.includes(p.id as any))
-          .map(p => ({ platform: p.id as any, date: p.date, time: p.time })),
+        platforms: uniquePlatforms,
+        schedules: validItems.map(p => ({ 
+            platform: p.platform, 
+            date: p.date, 
+            time: p.time,
+            targetAccounts: p.targetPageId ? { [p.platform]: [p.targetPageId] } : undefined 
+        })),
         imageFile,
+        targetAccounts: postData.targetAccounts,
       });
 
       if (resp.success) {
@@ -190,8 +247,9 @@ const SchedulingOption: React.FC = () => {
         try {
           emitScheduledPostsRefresh({
             scheduledAt: `${first.date}T${first.time}:00`,
-            platforms: validPlatforms,
+            platforms: uniquePlatforms,
           });
+          triggerRefreshPosts();
         } catch (_) {}
       } else {
         toast.error(resp.message || 'Failed to schedule post');
@@ -235,6 +293,10 @@ const SchedulingOption: React.FC = () => {
       // Create FormData for the API request
       const formData = new FormData();
       formData.append('caption', postData.content);
+      
+      if (postData.targetAccounts?.['facebook']) {
+        formData.append('facebook_pages', JSON.stringify(postData.targetAccounts['facebook']));
+      }
 
       // Add the first image file if available
       if (postData.files.length > 0) {
@@ -327,6 +389,7 @@ const SchedulingOption: React.FC = () => {
         // Partial or Full Success
         const platformList = results.join(' and ');
         toast.success(`Your post has been published to ${platformList} successfully!`);
+        triggerRefreshPosts();
         
         if (errors.length > 0) {
             if (isLimitError) {
@@ -355,8 +418,7 @@ const SchedulingOption: React.FC = () => {
     }
   };
 
-  const scheduledPlatformIds = new Set(scheduledPlatforms.map(p => p.id));
-  const availablePlatforms = allPlatforms.filter(p => !scheduledPlatformIds.has(p.id));
+
 
   return (
     <div className="w-full rounded-2xl p-4 lg:p-6 border border-gray-800">
@@ -386,23 +448,24 @@ const SchedulingOption: React.FC = () => {
 
       <div className="flex flex-col gap-6 mb-6">
         {scheduledPlatforms.map(platformSchedule => {
-          const platformDetails = allPlatforms.find(p => p.id === platformSchedule.id);
+          const platformDetails = allPlatforms.find(p => p.id === platformSchedule.platform);
           if (!platformDetails) return null;
 
-          const { IconComponent, name, color } = platformDetails;
+          const { IconComponent, color } = platformDetails;
+          const displayName = platformSchedule.name || platformDetails.name;
 
           return (
             <div key={platformSchedule.id}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <IconComponent className="w-5 h-5" style={{ color }} />
-                  <span className="text-white text-sm font-medium">{name}</span>
+                  <span className="text-white text-sm font-medium">{displayName}</span>
                 </div>
                 <button
-                  onClick={() => removePlatform(platformSchedule.id)}
+                  onClick={() => handleRemovePlatform(platformSchedule.id)}
                   className="text-gray-500 hover:text-white transition-colors"
-                  aria-label={`Remove ${name} schedule`}
-                  title={`Remove ${name}`}
+                  aria-label={`Remove ${displayName} schedule`}
+                  title={`Remove ${displayName}`}
                 >
                   <FaTrash className="w-4 h-4" />
                 </button>
@@ -440,7 +503,7 @@ const SchedulingOption: React.FC = () => {
         })}
       </div>
 
-      {availablePlatforms.length > 0 && (
+      {selectableOptions.length > 0 && (
         <div className="relative mb-8">
           <button
             onClick={() => setIsPlatformSelectorOpen(!isPlatformSelectorOpen)}
@@ -452,15 +515,15 @@ const SchedulingOption: React.FC = () => {
 
           {isPlatformSelectorOpen && (
             <div className="absolute z-10 w-full mt-2 bg-[#1E1E1E] border border-gray-700 rounded-lg shadow-lg">
-              <ul className="p-1">
-                {availablePlatforms.map(platform => (
+              <ul className="p-1 max-h-60 overflow-y-auto">
+                {selectableOptions.map(option => (
                   <li
-                    key={platform.id}
-                    onClick={() => addPlatform(platform)}
+                    key={option.id}
+                    onClick={() => handleAddPlatform(option)}
                     className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-gray-700"
                   >
-                    <platform.IconComponent className="w-5 h-5" style={{ color: platform.color }} />
-                    <span className="text-white text-sm">{platform.name}</span>
+                    <option.IconComponent className="w-5 h-5" style={{ color: option.color }} />
+                    <span className="text-white text-sm">{option.name}</span>
                   </li>
                 ))}
               </ul>

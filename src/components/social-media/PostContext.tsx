@@ -9,13 +9,17 @@ export interface PostFile {
 export interface PostData {
   content: string;
   selectedPlatforms: string[];
+  targetAccounts: Record<string, string[]>;
   files: PostFile[];
 }
 
 interface PostContextType {
   postData: PostData;
+  refreshTrigger: number;
+  triggerRefreshPosts: () => void;
   updateContent: (content: string) => void;
   updateSelectedPlatforms: (platforms: string[]) => void;
+  updateTargetAccounts: (platform: string, accounts: string[]) => void;
   addFiles: (files: File[]) => void;
   removeFile: (index: number) => void;
   clearFiles: () => void;
@@ -39,8 +43,15 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
   const [postData, setPostData] = useState<PostData>({
     content: '',
     selectedPlatforms: [], // Start with no platforms selected
+    targetAccounts: {},
     files: [],
   });
+
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+
+  const triggerRefreshPosts = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const updateContent = (content: string) => {
     setPostData(prev => ({ ...prev, content }));
@@ -48,6 +59,16 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
 
   const updateSelectedPlatforms = (platforms: string[]) => {
     setPostData(prev => ({ ...prev, selectedPlatforms: platforms }));
+  };
+
+  const updateTargetAccounts = (platform: string, accounts: string[]) => {
+    setPostData(prev => ({
+      ...prev,
+      targetAccounts: {
+        ...prev.targetAccounts,
+        [platform]: accounts
+      }
+    }));
   };
 
   const addFiles = (files: File[]) => {
@@ -82,11 +103,14 @@ export const PostProvider: React.FC<PostProviderProps> = ({ children }) => {
     <PostContext.Provider
       value={{
         postData,
+        refreshTrigger,
         updateContent,
         updateSelectedPlatforms,
+        updateTargetAccounts,
         addFiles,
         removeFile,
         clearFiles,
+        triggerRefreshPosts,
       }}
     >
       {children}

@@ -7,6 +7,7 @@ export interface SchedulePostRequest {
   scheduledTime?: string; // HH:mm (fallback when schedules not provided)
   schedules?: Array<{ platform: 'facebook' | 'instagram' | 'x' | 'linkedin'; date: string; time: string }>;
   imageFile?: File | null;
+  targetAccounts?: Record<string, string[]>;
 }
 
 export interface SchedulePostResponse {
@@ -29,6 +30,9 @@ class SchedulerService {
       formData.append('scheduledTime', req.scheduledTime);
     }
     if (req.imageFile) formData.append('image', req.imageFile);
+    if (req.targetAccounts) {
+      formData.append('targetAccounts', JSON.stringify(req.targetAccounts));
+    }
 
     const resp = await apiClient.post(`${this.baseURL}/schedule`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

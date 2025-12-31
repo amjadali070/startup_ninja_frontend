@@ -24,11 +24,7 @@ export interface FacebookConnectionStatus {
 export interface FacebookPostResponse {
   success: boolean;
   message: string;
-  data?: {
-    postId: string;
-    pageId: string;
-    pageName: string;
-  };
+  data?: any;
 }
 
 export interface FacebookDisconnectResponse {
@@ -75,6 +71,7 @@ class FacebookService {
 
       return new Promise((resolve, reject) => {
         let checkClosed: number;
+        let isHandled = false;
 
         const cleanup = () => {
           if (checkClosed) clearInterval(checkClosed);
@@ -85,16 +82,25 @@ class FacebookService {
         // Check if popup was closed manually
         checkClosed = window.setInterval(() => {
           if (popup.closed) {
-            cleanup();
-            if (!this.isProcessingCallback) {
+            if (!isHandled) {
+              cleanup();
               resolve(null); // User cancelled
+            } else {
+              if (checkClosed) clearInterval(checkClosed);
             }
           }
         }, 1000) as unknown as number;
 
         // Listen for messages from popup
         const messageHandler = async (event: MessageEvent) => {
-          if (event.origin !== window.location.origin) return;
+          // Relaxed origin check to handle HTTP vs HTTPS on localhost
+          try {
+            const eventUrl = new URL(event.origin);
+            const currentUrl = new URL(window.location.origin);
+            if (eventUrl.hostname !== currentUrl.hostname) return;
+          } catch (e) {
+            if (event.origin !== window.location.origin) return;
+          }
 
           const data = event.data as { 
             type: string; 
@@ -103,7 +109,11 @@ class FacebookService {
           };
 
           if (data.type === 'FACEBOOK_OAUTH_SUCCESS') {
-            cleanup();
+            isHandled = true;
+            if (checkClosed) clearInterval(checkClosed);
+            window.removeEventListener('message', messageHandler);
+            // Don't set isProcessingCallback=false yet
+            
             popup.close();
 
             try {
@@ -113,6 +123,8 @@ class FacebookService {
                 userId: userId,
                 popup: 'true'
               });
+
+              this.isProcessingCallback = false;
 
               if (callbackResponse.success) {
                 resolve({ 
@@ -128,9 +140,13 @@ class FacebookService {
                 reject(new Error(callbackResponse.message || 'Failed to connect Facebook account'));
               }
             } catch (error: any) {
-              reject(new Error(error.message || 'Failed to complete Facebook authentication'));
+              this.isProcessingCallback = false;
+              // Extract detailed error message from backend response if available
+              const msg = error.response?.data?.message || error.message || 'Failed to complete Facebook authentication';
+              reject(new Error(msg));
             }
           } else if (data.type === 'FACEBOOK_OAUTH_ERROR') {
+            isHandled = true;
             cleanup();
             popup.close();
             reject(new Error(data.error || 'Facebook authorization failed'));
@@ -142,6 +158,22 @@ class FacebookService {
     } catch (error: any) {
       this.isProcessingCallback = false;
       throw error;
+    }
+  }
+
+  /**
+   * Remove a specific Facebook page
+   */
+  async removePage(pageId: string): Promise<{ success: boolean; message: string; pages: FacebookPage[] }> {
+    try {
+      const response = await apiClient.delete(`${this.baseURL}/pages/${pageId}`);
+      if (response.success) {
+        return response; // Expecting { success, message, pages }
+      } else {
+        throw new Error(response.message || 'Failed to remove page');
+      }
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to remove page');
     }
   }
 

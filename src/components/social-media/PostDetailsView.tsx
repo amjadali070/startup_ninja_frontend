@@ -183,9 +183,23 @@ const PostDetailsView: React.FC<Props> = ({ post }) => {
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex items-center justify-center w-9 h-9 rounded-full border border-[#2c2c34] overflow-hidden bg-[#0f0f13] flex-shrink-0">
                           {acc.profileImage ? (
-                            <img src={acc.profileImage} alt={acc.username || acc.name || 'Account'} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            <img 
+                              src={acc.profileImage} 
+                              alt={acc.username || acc.name || 'Account'} 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => { 
+                                const target = e.target as HTMLImageElement;
+                                const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name || acc.username || 'User')}&background=random`;
+                                if (target.src !== fallback) {
+                                  target.src = fallback;
+                                  target.style.display = 'block'; // Ensure it's visible if it was hidden
+                                }
+                              }} 
+                            />
                           ) : (
-                            <span className="text-gray-300 text-sm font-semibold">{initials}</span>
+                            <div className="w-full h-full flex items-center justify-center bg-[#1a1a1f]">
+                                <span className="text-gray-300 text-sm font-semibold">{initials}</span>
+                            </div>
                           )}
                         </div>
                         <div className="min-w-0">
