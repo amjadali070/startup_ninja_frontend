@@ -1,5 +1,7 @@
 import type { FC } from 'react';
 import { FiArrowRight, FiClock } from 'react-icons/fi';
+import { toast } from 'react-hot-toast';
+import { authService } from '../../services/auth';
 
 interface ProjectCardProps {
   websiteId: string;
@@ -33,9 +35,23 @@ const statusStyles: Record<ProjectCardProps['status'], { badge: string; dot: str
 const ProjectCard: FC<ProjectCardProps> = ({ websiteId, title, category = 'Website Builder', status, lastUpdated }) => {
   const statusTheme = statusStyles[status];
 
-  const handleContinue = () => {
-    // Open website editor in new tab, same as Edit Website button in WebBuilder
-    window.open(`/ai-tools/web-builder/new-website?id=${websiteId}`, '_blank');
+  const handleContinue = async () => {
+    // Check usage limits before opening editor
+    const loadingToast = toast.loading('Checking session limits...');
+    try {
+      const response = await authService.checkUsageLimit('web_builder_sessions', true);
+      toast.dismiss(loadingToast);
+
+      if (response.allowed) {
+        // Open website editor in new tab
+        window.open(`/ai-tools/web-builder/new-website?id=${websiteId}`, '_blank');
+      } else {
+        toast.error(response.message || "You have reached your limit for Web Builder sessions. Please upgrade your plan.");
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to check limits. Please try again.");
+    }
   };
 
   return (
