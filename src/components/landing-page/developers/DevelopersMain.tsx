@@ -261,7 +261,7 @@ const DevelopersMain: React.FC = () => {
             today.
           </p>
           <Link
-            to="/register"
+            to="/login"
             className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300"
             style={{
               background:

@@ -88,7 +88,7 @@ const ProductsMain: React.FC = () => {
               background: "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
             }}
           >
-            START FOR FREE
+            GET STARTED
           </Link>
         </div>
       </section>

@@ -120,7 +120,7 @@ export default function PricingSection() {
                          <span key={i} className="flex items-center"><FaCheckCircle className="text-red-500/70 mr-2" /> {f}</span>
                     ))}
                 </div>
-                <Link to="/register" className="text-white underline decoration-red-600 underline-offset-4 hover:text-red-500 transition-colors">
+                <Link to="/login" className="text-white underline decoration-red-600 underline-offset-4 hover:text-red-500 transition-colors">
                     Start for free
                 </Link>
             </div>

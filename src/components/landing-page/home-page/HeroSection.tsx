@@ -14,7 +14,7 @@ const HeroSection: React.FC = () => (
                 Speak your words, and let our AI bring them to life in stunning images. From concept to realization.
             </p>
             <div className="flex flex-col md:flex-row gap-4 mt-4 w-full md:w-auto px-4">
-                <Link to="/register" className="px-6 py-4 rounded-lg bg-[#d62424] text-white font-semibold hover:bg-[#c81c1c] transition text-center">
+                <Link to="/login" className="px-6 py-4 rounded-lg bg-[#d62424] text-white font-semibold hover:bg-[#c81c1c] transition text-center">
                     START FOR FREE
                 </Link>
                 <Link to="/book-demo" className="px-6 py-4 rounded-lg border border-white text-white font-semibold hover:bg-white/10 transition text-center">

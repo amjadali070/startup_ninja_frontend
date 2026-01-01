@@ -228,7 +228,7 @@ const PricingMain: React.FC = () => {
                 )}
              </div>
              <Link
-                to="/register"
+                to="/login"
                 className="px-6 py-3 rounded-lg border border-[#333] hover:bg-[#222] transition-colors font-semibold whitespace-nowrap"
              >
                 Start for Free
@@ -380,7 +380,7 @@ const PricingMain: React.FC = () => {
             Start free today. No credit card required.
           </p>
           <Link
-            to="/register"
+            to="/login"
             className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300"
             style={{
               background:

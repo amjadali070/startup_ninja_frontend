@@ -219,7 +219,7 @@ const BookDemoMain: React.FC = () => {
             No demo needed—start building for free today.
           </p>
           <a
-            href="/register"
+            href="/login"
             className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
             style={{
               background: "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
