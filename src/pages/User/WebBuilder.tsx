@@ -5,6 +5,8 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { authService } from "../../services/auth";
 import CreateWebsiteModal from "../../components/web-builder/CreateWebsiteModal";
+import DomainSettingsModal from "../../components/web-builder/DomainSettingsModal";
+import VerifyDomainModal from "../../components/web-builder/VerifyDomainModal";
 import {
   FiCheckCircle,
   FiEdit2,
@@ -12,7 +14,10 @@ import {
   FiGlobe,
   FiMinusCircle,
   FiSmartphone,
+  FiSettings,
+  FiSearch,
 } from "react-icons/fi";
+import SEOSettingsModal from "../../components/web-builder/SEOSettingsModal";
 import { CiDesktop } from "react-icons/ci";
 import { SlScreenTablet } from "react-icons/sl";
 import { BiPlus } from "react-icons/bi";
@@ -30,6 +35,11 @@ const WebBuilder: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [websites, setWebsites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDomainModalOpen, setIsDomainModalOpen] = useState(false);
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [selectedDomainWebsite, setSelectedDomainWebsite] = useState<any | null>(null);
+  const [isSEOModalOpen, setIsSEOModalOpen] = useState(false);
+  const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(null);
   // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
   const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
@@ -219,6 +229,26 @@ const WebBuilder: FC = () => {
     );
   };
 
+  const handleOpenDomainSettings = (site: any) => {
+    setSelectedDomainWebsite(site);
+    // If domain already connected, open verify modal, otherwise open connect modal
+    if (site.customDomain) {
+      setIsVerifyModalOpen(true);
+    } else {
+      setIsDomainModalOpen(true);
+    }
+  };
+
+  const handleDomainConnected = () => {
+    setIsDomainModalOpen(false);
+    setIsVerifyModalOpen(true);
+  };
+
+  const handleOpenSEOSettings = (site: any) => {
+    setSelectedSEOWebsite(site);
+    setIsSEOModalOpen(true);
+  };
+
   const handlePreviewStaging = async (site: any) => {
     if (!site.websiteData || Object.keys(site.websiteData).length === 0) return;
 
@@ -365,13 +395,6 @@ const WebBuilder: FC = () => {
                             alt={site.title}
                             className="preview-website-img"
                           />
-                          // <div className="relative w-full h-[190px] overflow-hidden rounded-lg border-none">
-                          //   <div className="iframe-scale-wrapper"
-                          //     style={{ transformOrigin: 'top left', pointerEvents: 'none', width: '100%',height: '100%'}}>
-                          //     <iframe srcDoc={previewMap[site._id] || ""} title={site.title} className="w-[1200px] h-[900px] border-none rounded-lg"
-                          //       style={{ transformOrigin: 'top left',transform: 'scale(var(--iframe-scale))', pointerEvents: 'none', }} />
-                          //   </div>
-                          // </div>
                         )}
 
                         {/* Info */}
@@ -403,65 +426,90 @@ const WebBuilder: FC = () => {
                             <span>{createdTime}</span>
                           </div>
                           {/* Action Buttons */}
-                          <div className="flex gap-2">
-                            {/* Edit */}
+                          <div className="flex flex-col gap-2">
+                            {/* Primary Action */}
                             <button
                               title="Edit Website"
                               onClick={() => handleEditWebsite(site._id)}
-                              className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:shadow-lg text-white text-sm font-medium px-3 py-2 rounded-md"
+                              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:shadow-lg text-white text-sm font-bold px-4 py-2.5 rounded-lg transition-all active:scale-95"
                             >
                               <FiEdit2 className="w-4 h-4" />
                               Edit Website
                             </button>
-                            {/* Staging Preview */}
-                            <button
-                              title={
-                                !hasWebsiteData
-                                  ? "No Staging Preview Available"
-                                  : "Preview Staging Website"
-                              }
-                              disabled={!hasWebsiteData}
-                              onClick={() => handlePreviewStaging(site)}
-                              className={`p-2 rounded-md transition-all flex items-center justify-center ${
-                                hasWebsiteData
-                                  ? "bg-[#2e2e2e] text-white hover:bg-[#3a3a3a]"
-                                  : "bg-[#1a1a1a] text-gray-500 cursor-not-allowed opacity-60"
-                              }`}
-                            >
-                              <FiEye
-                                className={`w-4 h-4 ${
-                                  hasWebsiteData
-                                    ? "text-white"
-                                    : "text-gray-600"
-                                }`}
-                              />
-                            </button>
 
-                            {/* Published Link (disabled if null) */}
-                            <button
-                              title={
-                                isPublished
-                                  ? "Preview Published Website"
-                                  : "Website not published yet"
-                              }
-                              disabled={!isPublished}
-                              onClick={() =>
-                                isPublished &&
-                                window.open(
-                                  site.publishedLink.startsWith("http")
-                                    ? site.publishedLink
-                                    : `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
-                                  "_blank"
-                                )
-                              }
-                              className={`p-2 rounded-md transition-all ${
-                                isPublished
-                                  ? "bg-[#2e2e2e] text-white hover:bg-[#3a3a3a]"
-                                  : "bg-[#1a1a1a] text-gray-500 cursor-not-allowed opacity-60"
-                              }`}
-                            >
-                              <FiGlobe className="w-4 h-4" />
-                            </button>
+                            {/* Secondary Actions Row */}
+                            <div className="flex items-center gap-2">
+                              {/* Domain Settings */}
+                              <button
+                                title={
+                                  isPublished
+                                    ? "Custom Domain Settings"
+                                    : "Publish your website first to connect a domain"
+                                }
+                                disabled={!isPublished}
+                                onClick={() => handleOpenDomainSettings(site)}
+                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
+                                  isPublished
+                                    ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
+                                    : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
+                                }`}
+                              >
+                                <FiSettings className="w-4 h-4" />
+                              </button>
+
+                              {/* SEO Settings */}
+                              <button
+                                title="SEO Settings"
+                                onClick={() => handleOpenSEOSettings(site)}
+                                className="flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
+                              >
+                                <FiSearch className="w-4 h-4" />
+                              </button>
+
+                              {/* Staging Preview */}
+                              <button
+                                title={
+                                  !hasWebsiteData
+                                    ? "No Staging Preview Available"
+                                    : "Preview Staging Website"
+                                }
+                                disabled={!hasWebsiteData}
+                                onClick={() => handlePreviewStaging(site)}
+                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
+                                  hasWebsiteData
+                                    ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
+                                    : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
+                                }`}
+                              >
+                                <FiEye className="w-4 h-4" />
+                              </button>
+
+                              {/* Published Link */}
+                              <button
+                                title={
+                                  isPublished
+                                    ? "Preview Published Website"
+                                    : "Website not published yet"
+                                }
+                                disabled={!isPublished}
+                                onClick={() =>
+                                  isPublished &&
+                                  window.open(
+                                    site.publishedLink.startsWith("http")
+                                      ? site.publishedLink
+                                      : `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
+                                    "_blank"
+                                  )
+                                }
+                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
+                                  isPublished
+                                    ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
+                                    : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
+                                }`}
+                              >
+                                <FiGlobe className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -476,6 +524,26 @@ const WebBuilder: FC = () => {
             onClose={() => setIsModalOpen(false)}
             onCreated={fetchWebsites}
           />
+          <DomainSettingsModal
+            isOpen={isDomainModalOpen}
+            onClose={() => setIsDomainModalOpen(false)}
+            website={selectedDomainWebsite}
+            onUpdate={fetchWebsites}
+            onConnectedSuccess={handleDomainConnected}
+          />
+          <VerifyDomainModal
+            isOpen={isVerifyModalOpen}
+            onClose={() => setIsVerifyModalOpen(false)}
+            website={selectedDomainWebsite}
+            onUpdate={fetchWebsites}
+          />
+
+      <SEOSettingsModal
+        isOpen={isSEOModalOpen}
+        onClose={() => setIsSEOModalOpen(false)}
+        website={selectedSEOWebsite}
+        onUpdate={fetchWebsites}
+      />
         </div>
       </main>
       {previewWebsite && <PreviewModal />}

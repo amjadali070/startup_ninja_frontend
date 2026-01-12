@@ -15,6 +15,16 @@ export interface WebsiteListingResponse {
     data?: WebsiteProject[];
 }
 
+export interface SEOSettings {
+    title?: string;
+    description?: string;
+    keywords?: string;
+    author?: string;
+    ogImage?: string | null;
+    favicon?: string | null;
+    isNoIndex?: boolean;
+}
+
 export interface WebsiteProject {
     _id: string;
     websiteTitle: string;
@@ -23,8 +33,18 @@ export interface WebsiteProject {
     userId: string;
     status: number;
     publishedLink: string | null;
+    customDomain: string | null;
+    customDomainStatus: 'pending' | 'verified' | 'failed';
+    customDomainVerifiedAt: string | null;
+    seoSettings?: SEOSettings;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface DomainActionResponse {
+    success: boolean;
+    message: string;
+    data?: any;
 }
 
 export interface WebsiteDataResponse {
@@ -179,6 +199,104 @@ class WebBuilderService {
         }
     }
 
+
+    /**
+     * Connect custom domain to a website project
+     */
+    async connectDomain(userId: string, websiteId: string, domain: string): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/connect-domain`, {
+                userId,
+                websiteId,
+                domain
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to connect domain."
+            };
+        }
+    }
+
+    /**
+     * Verify custom domain DNS
+     */
+    async verifyDomain(userId: string, websiteId: string): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/verify-domain`, {
+                userId,
+                websiteId
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to verify domain."
+            };
+        }
+    }
+
+    /**
+     * Update SEO settings for a website project
+     */
+    async updateSEO(userId: string, websiteId: string, seoSettings: SEOSettings): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/update-seo`, {
+                userId,
+                websiteId,
+                seoSettings
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to update SEO settings."
+            };
+        }
+    }
+
+    /**
+     * Upload favicon for a website project
+     */
+    async uploadFavicon(userId: string, websiteId: string, file: File): Promise<DomainActionResponse> {
+        try {
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('websiteId', websiteId);
+            formData.append('favicon', file);
+
+            const response = await apiClient.post(`${this.baseURL}/upload-favicon`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to upload favicon."
+            };
+        }
+    }
+
+    /**
+     * Disconnect custom domain
+     */
+    async disconnectDomain(userId: string, websiteId: string): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/disconnect-domain`, {
+                userId,
+                websiteId
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to disconnect domain."
+            };
+        }
+    }
 
 }
 export default new WebBuilderService();
