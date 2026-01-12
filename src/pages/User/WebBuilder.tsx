@@ -39,11 +39,17 @@ const WebBuilder: FC = () => {
   const [loading, setLoading] = useState(true);
   const [isDomainModalOpen, setIsDomainModalOpen] = useState(false);
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
-  const [selectedDomainWebsite, setSelectedDomainWebsite] = useState<any | null>(null);
+  const [selectedDomainWebsite, setSelectedDomainWebsite] = useState<
+    any | null
+  >(null);
   const [isSEOModalOpen, setIsSEOModalOpen] = useState(false);
-  const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(null);
+  const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(
+    null
+  );
   const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
-  const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(null);
+  const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(
+    null
+  );
   // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
   const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
@@ -113,23 +119,26 @@ const WebBuilder: FC = () => {
       : "No description";
 
   const handleEditWebsite = async (siteId: string) => {
-      const loadingToast = toast.loading("Checking session limits...");
-      try {
-        const response = await authService.checkUsageLimit('web_builder_sessions', true);
-        toast.dismiss(loadingToast);
-        
-        if (response.allowed) {
-            window.open(
-                `/ai-tools/web-builder/new-website?id=${siteId}`,
-                "_blank"
-            );
-        } else {
-             toast.error(response.message || "You have reached your limit for Web Builder sessions. Please upgrade your plan.");
-        }
-      } catch (error) {
-          toast.dismiss(loadingToast);
-          toast.error("Failed to check limits. Please try again.");
+    const loadingToast = toast.loading("Checking session limits...");
+    try {
+      const response = await authService.checkUsageLimit(
+        "web_builder_sessions",
+        true
+      );
+      toast.dismiss(loadingToast);
+
+      if (response.allowed) {
+        window.open(`/ai-tools/web-builder/new-website?id=${siteId}`, "_blank");
+      } else {
+        toast.error(
+          response.message ||
+            "You have reached your limit for Web Builder sessions. Please upgrade your plan."
+        );
       }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to check limits. Please try again.");
+    }
   };
 
   const PreviewModal = () => {
@@ -476,13 +485,13 @@ const WebBuilder: FC = () => {
                               </button>
 
                               {/* Pages Manager */}
-                              <button
+                              {/* <button
                                 title="Manage Pages"
                                 onClick={() => handleOpenPagesManager(site)}
                                 className="flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
                               >
                                 <FiFile className="w-4 h-4" />
-                              </button>
+                              </button> */}
 
                               {/* Staging Preview */}
                               <button
@@ -556,18 +565,18 @@ const WebBuilder: FC = () => {
             onUpdate={fetchWebsites}
           />
 
-      <SEOSettingsModal
-        isOpen={isSEOModalOpen}
-        onClose={() => setIsSEOModalOpen(false)}
-        website={selectedSEOWebsite}
-        onUpdate={fetchWebsites}
-      />
+          <SEOSettingsModal
+            isOpen={isSEOModalOpen}
+            onClose={() => setIsSEOModalOpen(false)}
+            website={selectedSEOWebsite}
+            onUpdate={fetchWebsites}
+          />
 
-      <PagesManagerModal
-        isOpen={isPagesModalOpen}
-        onClose={() => setIsPagesModalOpen(false)}
-        website={selectedPagesWebsite}
-      />
+          <PagesManagerModal
+            isOpen={isPagesModalOpen}
+            onClose={() => setIsPagesModalOpen(false)}
+            website={selectedPagesWebsite}
+          />
         </div>
       </main>
       {previewWebsite && <PreviewModal />}

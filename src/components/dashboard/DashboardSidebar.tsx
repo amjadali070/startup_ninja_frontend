@@ -1,15 +1,12 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { PiMagicWandBold, PiImageSquareBold } from "react-icons/pi";
+import { PiImageSquareBold } from "react-icons/pi";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { CgHome } from "react-icons/cg";
-import { FaRegFolder } from "react-icons/fa6";
-import { PiCirclesThreeBold } from "react-icons/pi";
-import { FaRss, FaUsers } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
 import {
   FiMenu,
   FiX,
-  FiChevronDown,
   FiMessageSquare,
   FiGlobe,
   FiChevronLeft,
@@ -19,17 +16,16 @@ import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
 import { TbApi } from "react-icons/tb";
 
-interface SidebarSubNavItem {
-  label: string;
-  to: string;
-  icon: ReactNode;
+
+interface SidebarSection {
+  sectionLabel?: string;
+  items: SidebarNavItem[];
 }
 
 interface SidebarNavItem {
   label: string;
   to: string;
   icon: ReactNode;
-  children?: SidebarSubNavItem[];
   admin: boolean;
   end?: boolean;
 }
@@ -39,90 +35,85 @@ interface DashboardSidebarProps {
   userData: UserProfile | null;
 }
 
-const navItems: SidebarNavItem[] = [
+const navSections: SidebarSection[] = [
   {
-    label: "Dashboard",
-    to: "/dashboard",
-    icon: <CgHome className="w-5 h-5" />,
-    admin: false,
-    end: true,
+    items: [
+      {
+        label: "Dashboard",
+        to: "/dashboard",
+        icon: <CgHome className="w-5 h-5" />,
+        admin: false,
+        end: true,
+      },
+    ],
   },
   {
-    label: "Dashboard",
-    to: "/admin-dashboard",
-    icon: <CgHome className="w-5 h-5" />,
-    admin: true,
-    end: true,
+    items: [
+      {
+        label: "Dashboard",
+        to: "/admin-dashboard",
+        icon: <CgHome className="w-5 h-5" />,
+        admin: true,
+        end: true,
+      },
+      {
+        label: "User Management",
+        to: "/admin-dashboard/users",
+        icon: <FaUsers className="w-5 h-5" />,
+        admin: true,
+      },
+      {
+        label: "Plans & Price Management",
+        to: "/admin-dashboard/plans",
+        icon: <RiMoneyDollarBoxFill className="w-5 h-5" />,
+        admin: true,
+      },
+      {
+        label: "API Management",
+        to: "/admin-dashboard/api-management",
+        icon: <TbApi className="w-5 h-5" />,
+        admin: true,
+      },
+    ],
   },
   {
-    label: "User Management",
-    to: "/admin-dashboard/users",
-    icon: <FaUsers className="w-5 h-5" />,
-    admin: true,
-  },
-  {
-    label: "Plans & Price Management",
-    to: "/admin-dashboard/plans",
-    icon: <RiMoneyDollarBoxFill className="w-5 h-5" />,
-    admin: true,
-  },
-  {
-    label: "API Management",
-    to: "/admin-dashboard/api-management",
-    icon: <TbApi className="w-5 h-5" />,
-    admin: true,
-  },
-  {
-    label: "AI Tools",
-    to: "/ai-tools",
-    icon: <PiMagicWandBold className="w-5 h-5" />,
-    children: [
+    sectionLabel: "AI Tools",
+    items: [
       {
         label: "AI Chat",
         to: "/ai-tools/chat",
-        icon: <FiMessageSquare className="h-4 w-4" />,
+        icon: <FiMessageSquare className="w-5 h-5" />,
+        admin: false,
       },
       {
         label: "AI Image",
         to: "/ai-tools/image-gen",
-        icon: <PiImageSquareBold className="h-4 w-4" />,
+        icon: <PiImageSquareBold className="w-5 h-5" />,
+        admin: false,
       },
       {
         label: "Web Builder",
         to: "/ai-tools/web-builder",
-        icon: <FiGlobe className="h-4 w-4" />,
+        icon: <FiGlobe className="w-5 h-5" />,
+        admin: false,
       },
       {
         label: "Social Pro",
         to: "/ai-tools/social-pro",
-        icon: <RiOrganizationChart className="h-4 w-4" />,
+        icon: <RiOrganizationChart className="w-5 h-5" />,
+        admin: false,
       },
     ],
-    admin: false,
   },
   {
-    label: "Projects",
-    to: "/projects",
-    icon: <FaRegFolder className="w-5 h-5" />,
-    admin: false,
-  },
-  {
-    label: "Templates",
-    to: "/templates",
-    icon: <PiCirclesThreeBold className="w-5 h-5" />,
-    admin: false,
-  },
-  {
-    label: "Community Feed",
-    to: "/community",
-    icon: <FaRss className="w-5 h-5" />,
-    admin: false,
-  },
-  {
-    label: "Settings",
-    to: "/settings",
-    icon: <HiOutlineCog6Tooth className="w-5 h-5" />,
-    admin: false,
+    items: [
+      {
+        label: "Settings",
+        to: "/settings",
+        icon: <HiOutlineCog6Tooth className="w-5 h-5" />,
+        admin: false,
+      },
+    ],
   },
 ];
 
@@ -132,15 +123,17 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [collapsedHover, setCollapsedHover] = useState<string | null>(null);
   const location = useLocation();
-  const filteredNavItems =
-    userData?.role === "admin"
-      ? navItems.filter((item) => item.admin)
-      : navItems.filter((item) => !item.admin);
+  
+  // Flatten sections and filter by admin role
+  const filteredSections = navSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => 
+        userData?.role === "admin" ? item.admin : !item.admin
+      )
+    }))
+    .filter(section => section.items.length > 0);
 
   useEffect(() => {
     setIsMobileOpen(false);
@@ -164,28 +157,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     } catch {}
   }, [isCollapsed]);
 
-  useEffect(() => {
-    setExpandedItems((prev) => {
-      const next = { ...prev };
-      navItems.forEach((item) => {
-        if (!item.children?.length) {
-          return;
-        }
-
-        const childActive = item.children.some((child) =>
-          location.pathname.startsWith(child.to)
-        );
-        if (
-          location.pathname.startsWith(item.to) ||
-          childActive ||
-          activePath === item.to
-        ) {
-          next[item.to] = true;
-        }
-      });
-      return next;
-    });
-  }, [activePath, location.pathname]);
 
   const toggleMobileSidebar = () => setIsMobileOpen((prev) => !prev);
   const closeMobileSidebar = () => setIsMobileOpen(false);
@@ -332,277 +303,93 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           </div>
 
           <nav className="flex-1 space-y-1.5 overflow-hidden pr-1">
-            {filteredNavItems.map((item) => {
-              const children = item.children ?? [];
-              const hasChildren = children.length > 0;
-              const childActive = children.some((child) =>
-                location.pathname.startsWith(child.to)
-              );
-              const isExpanded = hasChildren
-                ? expandedItems[item.to] ?? false
-                : false;
-              const navActive =
-                location.pathname === item.to ||
-                activePath === item.to ||
-                childActive;
-              const dataIsActiveValue = navActive.toString();
+            {filteredSections.map((section, sectionIndex) => (
+              <div 
+                key={sectionIndex} 
+                className={`space-y-1.5 ${
+                  section.sectionLabel && !isCollapsed 
+                    ? 'pt-4 pb-4 mb-2 border-t-2 border-b-2 border-white/10' 
+                    : ''
+                }`}
+              >
+                {/* Section Label (if exists) */}
+                {section.sectionLabel && !isCollapsed && (
+                  <div className="px-3 pt-1 pb-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                      {section.sectionLabel}
+                    </p>
+                  </div>
+                )}
 
-              return (
-                <div
-                  key={item.label}
-                  className="space-y-0.5 relative"
-                  onMouseEnter={() => {
-                    if (isCollapsed && hasChildren) setCollapsedHover(item.to);
-                  }}
-                  onMouseLeave={() => {
-                    if (isCollapsed && hasChildren)
-                      setCollapsedHover((prev) =>
-                        prev === item.to ? null : prev
-                      );
-                  }}
-                >
-                  <NavLink
-                    to={item.to}
-                    end={item.end}
-                    onClick={() => {
-                      if (hasChildren) {
-                        setExpandedItems((prev) => ({
-                          ...prev,
-                          [item.to]: true,
-                        }));
-                      }
-                      closeMobileSidebar();
-                    }}
-                    className={({ isActive }) => {
-                      const isCurrent = isActive || navActive;
-                      const baseClasses = `group relative flex items-center ${
-                        isCollapsed
-                          ? "justify-center px-2 py-2"
-                          : "gap-2 px-3 py-2"
-                      } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
-                      const defaultState =
-                        "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
-                      const activeState =
-                        "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
+                {/* Section Items */}
+                {section.items.map((item) => {
+                  const navActive =
+                    location.pathname === item.to ||
+                    activePath === item.to ||
+                    location.pathname.startsWith(item.to);
+                  const dataIsActiveValue = navActive.toString();
 
-                      return `${baseClasses} ${
-                        isCurrent ? activeState : defaultState
-                      }`.trim();
-                    }}
-                    style={({ isActive }) => {
-                      const isCurrent = isActive || navActive;
-                      if (isCurrent) {
-                        return activeNavStyle;
-                      }
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.to}
+                      end={item.end}
+                      onClick={closeMobileSidebar}
+                      className={({ isActive }) => {
+                        const isCurrent = isActive || navActive;
+                        const baseClasses = `group relative flex items-center ${
+                          isCollapsed
+                            ? "justify-center px-2 py-2"
+                            : "gap-2 px-3 py-2"
+                        } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
+                        const defaultState =
+                          "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
+                        const activeState =
+                          "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
 
-                      return {
-                        transition: "background 0.2s ease, border 0.2s ease",
-                      };
-                    }}
-                    data-is-active={dataIsActiveValue}
-                    onMouseEnter={(event) => {
-                      const element = event.currentTarget;
-                      if (element.dataset.isActive === "true") {
-                        return;
-                      }
-                      applyHoverGradient(element);
-                    }}
-                    onMouseLeave={(event) => {
-                      const element = event.currentTarget;
-                      if (element.dataset.isActive === "true") {
-                        return;
-                      }
-                      clearHoverGradient(element);
-                    }}
-                  >
-                    <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
-                      {item.icon}
-                    </span>
-                    {isCollapsed ? null : (
-                      <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
-                        {item.label}
+                        return `${baseClasses} ${
+                          isCurrent ? activeState : defaultState
+                        }`.trim();
+                      }}
+                      style={({ isActive }) => {
+                        const isCurrent = isActive || navActive;
+                        if (isCurrent) {
+                          return activeNavStyle;
+                        }
+
+                        return {
+                          transition: "background 0.2s ease, border 0.2s ease",
+                        };
+                      }}
+                      data-is-active={dataIsActiveValue}
+                      onMouseEnter={(event) => {
+                        const element = event.currentTarget;
+                        if (element.dataset.isActive === "true") {
+                          return;
+                        }
+                        applyHoverGradient(element);
+                      }}
+                      onMouseLeave={(event) => {
+                        const element = event.currentTarget;
+                        if (element.dataset.isActive === "true") {
+                          return;
+                        }
+                        clearHoverGradient(element);
+                      }}
+                    >
+                      <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
+                        {item.icon}
                       </span>
-                    )}
-                    <span
-                      className={`ml-auto flex items-center gap-2 transition-all duration-300 ease-in-out ${
-                        isCollapsed
-                          ? "opacity-0 w-0 overflow-hidden"
-                          : "opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.2s_forwards,slideInRight_0.3s_ease-in-out_0.2s_forwards]"
-                      }`}
-                    >
-                      {hasChildren ? (
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            setExpandedItems((prev) => ({
-                              ...prev,
-                              [item.to]: !isExpanded,
-                            }));
-                          }}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-white/70 transition-colors duration-200 hover:bg-white/10 focus:outline-none"
-                          aria-label={`Toggle ${item.label} menu`}
-                        >
-                          <FiChevronDown
-                            className={`h-4 w-4 transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                      ) : null}
-                    </span>
-                  </NavLink>
-
-                  {hasChildren ? (
-                    <div
-                      className={`ml-12 flex flex-col gap-1 overflow-hidden rounded-xl border border-transparent pl-2 transition-all duration-300 ease-in-out ${
-                        isCollapsed
-                          ? "opacity-0 max-h-0 pointer-events-none"
-                          : isExpanded
-                          ? "max-h-96 opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.1s_forwards,slideInDown_0.3s_ease-in-out_0.1s_forwards]"
-                          : "pointer-events-none max-h-0 opacity-0"
-                      }`}
-                      aria-label={`${item.label} submenu`}
-                    >
-                      {children.map((child) => (
-                        <NavLink
-                          key={child.label}
-                          to={child.to}
-                          onClick={closeMobileSidebar}
-                          className={({ isActive }) => {
-                            const isCurrent =
-                              isActive ||
-                              location.pathname.startsWith(child.to);
-                            const baseClasses = `group flex items-center gap-2 rounded-lg border px-1 py-2 text-sm transition-all duration-200`;
-                            const defaultState =
-                              "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
-                            const activeState =
-                              "text-white shadow-[0_10px_24px_rgba(229,0,0,0.12)]";
-                            return `${baseClasses} ${
-                              isCurrent ? activeState : defaultState
-                            }`.trim();
-                          }}
-                          style={({ isActive }) => {
-                            const isCurrent =
-                              isActive ||
-                              location.pathname.startsWith(child.to);
-                            if (isCurrent) {
-                              return activeNavStyle;
-                            }
-
-                            return {
-                              transition:
-                                "background 0.2s ease, border 0.2s ease",
-                            };
-                          }}
-                          data-is-active={location.pathname
-                            .startsWith(child.to)
-                            .toString()}
-                          onMouseEnter={(event) => {
-                            const element = event.currentTarget;
-                            if (element.dataset.isActive === "true") {
-                              return;
-                            }
-                            applyHoverGradient(element);
-                          }}
-                          onMouseLeave={(event) => {
-                            const element = event.currentTarget;
-                            if (element.dataset.isActive === "true") {
-                              return;
-                            }
-                            clearHoverGradient(element);
-                          }}
-                        >
-                          <span
-                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white"
-                            aria-hidden
-                          >
-                            {child.icon}
-                          </span>
-                          <span>{child.label}</span>
-                        </NavLink>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  {hasChildren && isCollapsed ? (
-                    <div
-                      className={`absolute left-[84px] top-0 z-50 min-w-[200px] max-w-[240px] rounded-xl border border-white/10 bg-[#0B0B0F] p-2 shadow-xl transition-opacity duration-150 ${
-                        collapsedHover === item.to
-                          ? "opacity-100 pointer-events-auto"
-                          : "opacity-0 pointer-events-none"
-                      }`}
-                      onMouseEnter={() => setCollapsedHover(item.to)}
-                      onMouseLeave={() =>
-                        setCollapsedHover((prev) =>
-                          prev === item.to ? null : prev
-                        )
-                      }
-                    >
-                      <div className="px-2 pb-1 text-xs text-white/60">
-                        {item.label}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {children.map((child) => (
-                          <NavLink
-                            key={child.label}
-                            to={child.to}
-                            onClick={closeMobileSidebar}
-                            className={({ isActive }) => {
-                              const isCurrent =
-                                isActive ||
-                                location.pathname.startsWith(child.to);
-                              const baseClasses = `group flex items-center gap-2 rounded-lg border px-2 py-2 text-sm transition-all duration-200`;
-                              const defaultState =
-                                "border-transparent text-white/70 hover:text-white hover:bg-[#EF44440F]";
-                              const activeState =
-                                "text-white shadow-[0_10px_24px_rgba(229,0,0,0.12)]";
-                              return `${baseClasses} ${
-                                isCurrent ? activeState : defaultState
-                              }`.trim();
-                            }}
-                            style={({ isActive }) => {
-                              const isCurrent =
-                                isActive ||
-                                location.pathname.startsWith(child.to);
-                              if (isCurrent) {
-                                return activeNavStyle;
-                              }
-                              return {
-                                transition:
-                                  "background 0.2s ease, border 0.2s ease",
-                              };
-                            }}
-                            data-is-active={location.pathname
-                              .startsWith(child.to)
-                              .toString()}
-                            onMouseEnter={(event) => {
-                              const element = event.currentTarget;
-                              if (element.dataset.isActive === "true") return;
-                              applyHoverGradient(element);
-                            }}
-                            onMouseLeave={(event) => {
-                              const element = event.currentTarget;
-                              if (element.dataset.isActive === "true") return;
-                              clearHoverGradient(element);
-                            }}
-                          >
-                            <span
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white"
-                              aria-hidden
-                            >
-                              {child.icon}
-                            </span>
-                            <span className="truncate">{child.label}</span>
-                          </NavLink>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
+                      {isCollapsed ? null : (
+                        <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
+                          {item.label}
+                        </span>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
 
           <div className="mt-6 hidden lg:block text-[10px] text-white/30">
