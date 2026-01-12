@@ -7,6 +7,7 @@ import { authService } from "../../services/auth";
 import CreateWebsiteModal from "../../components/web-builder/CreateWebsiteModal";
 import DomainSettingsModal from "../../components/web-builder/DomainSettingsModal";
 import VerifyDomainModal from "../../components/web-builder/VerifyDomainModal";
+import PagesManagerModal from "../../components/web-builder/PagesManagerModal";
 import {
   FiCheckCircle,
   FiEdit2,
@@ -16,6 +17,7 @@ import {
   FiSmartphone,
   FiSettings,
   FiSearch,
+  FiFile,
 } from "react-icons/fi";
 import SEOSettingsModal from "../../components/web-builder/SEOSettingsModal";
 import { CiDesktop } from "react-icons/ci";
@@ -40,6 +42,8 @@ const WebBuilder: FC = () => {
   const [selectedDomainWebsite, setSelectedDomainWebsite] = useState<any | null>(null);
   const [isSEOModalOpen, setIsSEOModalOpen] = useState(false);
   const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(null);
+  const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
+  const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(null);
   // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
   const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
@@ -247,6 +251,11 @@ const WebBuilder: FC = () => {
   const handleOpenSEOSettings = (site: any) => {
     setSelectedSEOWebsite(site);
     setIsSEOModalOpen(true);
+  };
+
+  const handleOpenPagesManager = (site: any) => {
+    setSelectedPagesWebsite(site);
+    setIsPagesModalOpen(true);
   };
 
   const handlePreviewStaging = async (site: any) => {
@@ -466,6 +475,15 @@ const WebBuilder: FC = () => {
                                 <FiSearch className="w-4 h-4" />
                               </button>
 
+                              {/* Pages Manager */}
+                              <button
+                                title="Manage Pages"
+                                onClick={() => handleOpenPagesManager(site)}
+                                className="flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
+                              >
+                                <FiFile className="w-4 h-4" />
+                              </button>
+
                               {/* Staging Preview */}
                               <button
                                 title={
@@ -543,6 +561,12 @@ const WebBuilder: FC = () => {
         onClose={() => setIsSEOModalOpen(false)}
         website={selectedSEOWebsite}
         onUpdate={fetchWebsites}
+      />
+
+      <PagesManagerModal
+        isOpen={isPagesModalOpen}
+        onClose={() => setIsPagesModalOpen(false)}
+        website={selectedPagesWebsite}
       />
         </div>
       </main>

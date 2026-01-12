@@ -298,5 +298,85 @@ class WebBuilderService {
         }
     }
 
+    /**
+     * Get all pages for a website
+     */
+    async getPages(userId: string, websiteId: string): Promise<any> {
+        try {
+            const response = await apiClient.get(`${this.baseURL}/pages`, {
+                params: { userId, websiteId }
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to fetch pages.",
+                data: []
+            };
+        }
+    }
+
+    /**
+     * Create a new page
+     */
+    async createPage(userId: string, websiteId: string, slug: string, title: string): Promise<any> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/pages/create`, {
+                userId,
+                websiteId,
+                slug,
+                title
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to create page."
+            };
+        }
+    }
+
+    /**
+     * Update a page
+     */
+    async updatePage(userId: string, websiteId: string, slug: string, title?: string, pageData?: any): Promise<any> {
+        try {
+            const response = await apiClient.put(`${this.baseURL}/pages/update`, {
+                userId,
+                websiteId,
+                slug,
+                title,
+                pageData
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to update page."
+            };
+        }
+    }
+
+    /**
+     * Delete a page
+     */
+    async deletePage(userId: string, websiteId: string, slug: string): Promise<any> {
+        try {
+            const response = await apiClient.delete(`${this.baseURL}/pages/delete`, {
+                data: {
+                    userId,
+                    websiteId,
+                    slug
+                }
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to delete page."
+            };
+        }
+    }
+
 }
 export default new WebBuilderService();
