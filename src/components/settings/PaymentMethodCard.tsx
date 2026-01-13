@@ -1,16 +1,16 @@
-import { type FC, useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
-import { FiX, FiCreditCard, FiTrash2, FiCheck } from 'react-icons/fi';
-import { subscriptionService } from '../../services/subscription';
-import { StripeWrapper } from '../payment/StripeWrapper';
-import { 
-  useStripe, 
-  useElements, 
-  CardNumberElement, 
-  CardExpiryElement, 
-  CardCvcElement 
-} from '@stripe/react-stripe-js';
-import AlertModal from '../AlertModal';
+import { type FC, useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { FiX, FiCreditCard, FiTrash2, FiCheck } from "react-icons/fi";
+import { subscriptionService } from "../../services/subscription";
+import { StripeWrapper } from "../payment/StripeWrapper";
+import {
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
+import AlertModal from "../AlertModal";
 
 export type PaymentMethod = {
   id: string;
@@ -30,7 +30,7 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
   const [cards, setCards] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
-  
+
   // Alert Modal State
   const [showAlert, setShowAlert] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -48,7 +48,7 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
         setCards(response.cards);
       }
     } catch (error) {
-      console.error('Failed to fetch cards:', error);
+      console.error("Failed to fetch cards:", error);
     } finally {
       setLoading(false);
     }
@@ -58,50 +58,51 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
     try {
       const response = await subscriptionService.setDefaultCard(cardId);
       if (response.success) {
-        toast.success('Default card updated');
+        toast.success("Default card updated");
         fetchCards();
         onRefresh?.();
       } else {
-        toast.error(response.message || 'Failed to update default card');
+        toast.error(response.message || "Failed to update default card");
       }
     } catch (error) {
-      toast.error('Failed to update default card');
+      toast.error("Failed to update default card");
     }
   };
 
   const initDeleteCard = (cardId: string) => {
-      setSelectedCardId(cardId);
-      setShowAlert(true);
+    setSelectedCardId(cardId);
+    setShowAlert(true);
   };
 
   const handleDeleteConfirmed = async () => {
     if (!selectedCardId) return;
-    
+
     setIsDeleting(true);
     try {
       const response = await subscriptionService.deleteCard(selectedCardId);
       if (response.success) {
-        toast.success('Card deleted successfully');
+        toast.success("Card deleted successfully");
         fetchCards();
         onRefresh?.();
         setShowAlert(false);
         setSelectedCardId(null);
       } else {
-        toast.error(response.message || 'Failed to delete card');
+        toast.error(response.message || "Failed to delete card");
       }
     } catch (error) {
-      toast.error('Failed to delete card');
+      toast.error("Failed to delete card");
     } finally {
       setIsDeleting(false);
     }
   };
 
   const getCardIcon = (brand: string) => {
-    const brandLower = brand?.toLowerCase() || '';
-    if (brandLower.includes('visa')) return '💳';
-    if (brandLower.includes('mastercard')) return '💳';
-    if (brandLower.includes('amex') || brandLower.includes('american')) return '💳';
-    return '💳';
+    const brandLower = brand?.toLowerCase() || "";
+    if (brandLower.includes("visa")) return "💳";
+    if (brandLower.includes("mastercard")) return "💳";
+    if (brandLower.includes("amex") || brandLower.includes("american"))
+      return "💳";
+    return "💳";
   };
 
   return (
@@ -109,8 +110,12 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
       <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
         {/* Header Section */}
         <div className="mb-4 xs:mb-5 sm:mb-6">
-          <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta">Payment Methods</h3>
-          <p className="text-gray-400 text-xs xs:text-sm mt-1">Manage your saved cards</p>
+          <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta">
+            Payment Methods
+          </h3>
+          <p className="text-gray-400 text-xs xs:text-sm mt-1">
+            Manage your saved cards
+          </p>
         </div>
 
         {/* Loading State */}
@@ -123,7 +128,9 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
           /* Empty State */
           <div className="text-center py-8">
             <FiCreditCard className="mx-auto text-gray-600 mb-3" size={40} />
-            <p className="text-gray-400 text-sm mb-4">No payment methods added</p>
+            <p className="text-gray-400 text-sm mb-4">
+              No payment methods added
+            </p>
           </div>
         ) : (
           /* Cards List */
@@ -133,8 +140,8 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
                 key={card.id}
                 className={`rounded-lg border p-3 xs:p-4 transition-all ${
                   card.isDefault
-                    ? 'border-red-500/50 bg-red-500/5'
-                    : 'border-white/10 bg-[#1A1A1A] hover:bg-white/5'
+                    ? "border-red-500/50 bg-red-500/5"
+                    : "border-white/10 bg-[#1A1A1A] hover:bg-white/5"
                 }`}
               >
                 <div className="flex items-center gap-4">
@@ -202,13 +209,13 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
       {/* Add Card Modal */}
       {showAddCardModal && (
         <StripeWrapper>
-            <AddCardModalContent
-                onClose={() => setShowAddCardModal(false)}
-                onSuccess={() => {
-                    fetchCards();
-                    onRefresh?.();
-                }}
-            />
+          <AddCardModalContent
+            onClose={() => setShowAddCardModal(false)}
+            onSuccess={() => {
+              fetchCards();
+              onRefresh?.();
+            }}
+          />
         </StripeWrapper>
       )}
 
@@ -232,16 +239,19 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
 
 // Internal component to use Stripe hooks
 interface AddCardModalContentProps {
-    onClose: () => void;
-    onSuccess: () => void;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
-const AddCardModalContent: FC<AddCardModalContentProps> = ({ onClose, onSuccess }) => {
+const AddCardModalContent: FC<AddCardModalContentProps> = ({
+  onClose,
+  onSuccess,
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
-  const [cardholderName, setCardholderName] = useState('');
-  
+  const [cardholderName, setCardholderName] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
@@ -253,53 +263,54 @@ const AddCardModalContent: FC<AddCardModalContentProps> = ({ onClose, onSuccess 
       if (!cardElement) return;
 
       const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
+        type: "card",
         card: cardElement,
         billing_details: {
-            name: cardholderName,
-        }
+          name: cardholderName,
+        },
       });
 
       if (error) {
-         toast.error(error.message || 'Payment processing failed');
-         setLoading(false);
-         return;
+        toast.error(error.message || "Payment processing failed");
+        setLoading(false);
+        return;
       }
 
       // Send to backend
       const response = await subscriptionService.addPaymentMethod({
         paymentMethodId: paymentMethod.id,
-        cardholderName
+        cardholderName,
       });
 
       if (response.success) {
-        toast.success('Card added successfully');
+        toast.success("Card added successfully");
         onSuccess();
         onClose();
       } else {
-        toast.error(response.message || 'Failed to add card');
+        toast.error(response.message || "Failed to add card");
       }
     } catch (error) {
-      toast.error('Failed to add card');
+      toast.error("Failed to add card");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200";
+  const inputClass =
+    "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200";
   const elementOptions = {
-      style: {
-          base: {
-              fontSize: '16px',
-              color: '#ffffff',
-              '::placeholder': {
-                  color: '#6b7280',
-              },
-          },
-          invalid: {
-              color: '#ef4444',
-          },
+    style: {
+      base: {
+        fontSize: "16px",
+        color: "#ffffff",
+        "::placeholder": {
+          color: "#6b7280",
+        },
       },
+      invalid: {
+        color: "#ef4444",
+      },
+    },
   };
 
   return (
@@ -307,44 +318,59 @@ const AddCardModalContent: FC<AddCardModalContentProps> = ({ onClose, onSuccess 
       <div className="w-full max-w-md bg-gradient-to-br from-[#0a0a0a] to-black rounded-2xl p-6 lg:p-8 border border-white/10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Add Payment Method</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+            aria-label="Close modal"
+          >
             <FiX size={24} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Card Number</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Card Number
+            </label>
             <div className="relative">
               <div className={inputClass + " flex items-center"}>
-                  <CardNumberElement options={elementOptions} className="w-full" />
+                <CardNumberElement
+                  options={elementOptions}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Expiry Date</label>
-               <div className={inputClass}>
-                  <CardExpiryElement options={elementOptions} />
-               </div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Expiry Date
+              </label>
+              <div className={inputClass}>
+                <CardExpiryElement options={elementOptions} />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">CVC</label>
-               <div className={inputClass}>
-                  <CardCvcElement options={elementOptions} />
-               </div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                CVC
+              </label>
+              <div className={inputClass}>
+                <CardCvcElement options={elementOptions} />
+              </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Cardholder Name</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Cardholder Name
+            </label>
             <input
               type="text"
               placeholder="John Doe"
               value={cardholderName}
-              onChange={e => setCardholderName(e.target.value)}
+              onChange={(e) => setCardholderName(e.target.value)}
               className={inputClass}
               required
             />
@@ -355,7 +381,7 @@ const AddCardModalContent: FC<AddCardModalContentProps> = ({ onClose, onSuccess 
             disabled={loading || !stripe}
             className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-red-600/20 hover:shadow-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Adding Card...' : 'Add Card'}
+            {loading ? "Adding Card..." : "Add Card"}
           </button>
         </form>
       </div>

@@ -7,7 +7,7 @@ import { authService } from "../../services/auth";
 import CreateWebsiteModal from "../../components/web-builder/CreateWebsiteModal";
 import DomainSettingsModal from "../../components/web-builder/DomainSettingsModal";
 import VerifyDomainModal from "../../components/web-builder/VerifyDomainModal";
-import PagesManagerModal from "../../components/web-builder/PagesManagerModal";
+// import PagesManagerModal from "../../components/web-builder/PagesManagerModal";
 import {
   FiCheckCircle,
   FiEdit2,
@@ -17,7 +17,6 @@ import {
   FiSmartphone,
   FiSettings,
   FiSearch,
-  FiFile,
 } from "react-icons/fi";
 import SEOSettingsModal from "../../components/web-builder/SEOSettingsModal";
 import { CiDesktop } from "react-icons/ci";
@@ -46,10 +45,10 @@ const WebBuilder: FC = () => {
   const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(
     null
   );
-  const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
-  const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(
-    null
-  );
+  // const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
+  // const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(
+  //   null
+  // );
   // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
   const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
@@ -262,10 +261,10 @@ const WebBuilder: FC = () => {
     setIsSEOModalOpen(true);
   };
 
-  const handleOpenPagesManager = (site: any) => {
-    setSelectedPagesWebsite(site);
-    setIsPagesModalOpen(true);
-  };
+  // const handleOpenPagesManager = (site: any) => {
+  //   setSelectedPagesWebsite(site);
+  //   setIsPagesModalOpen(true);
+  // };
 
   const handlePreviewStaging = async (site: any) => {
     if (!site.websiteData || Object.keys(site.websiteData).length === 0) return;
@@ -572,11 +571,11 @@ const WebBuilder: FC = () => {
             onUpdate={fetchWebsites}
           />
 
-          <PagesManagerModal
+          {/* <PagesManagerModal
             isOpen={isPagesModalOpen}
             onClose={() => setIsPagesModalOpen(false)}
             website={selectedPagesWebsite}
-          />
+          /> */}
         </div>
       </main>
       {previewWebsite && <PreviewModal />}
