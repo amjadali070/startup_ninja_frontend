@@ -46,7 +46,7 @@ A modern React frontend for the Startup Ninja authentication system.
 The application uses a custom color palette based on the Startup Ninja brand:
 
 - **Primary Red**: `#E50000` - Main brand color
-- **Secondary Red**: `#A04040` - Accent color  
+- **Secondary Red**: `#A04040` - Accent color
 - **Dark Background**: `#1A1A1A` - Primary background
 - **Black**: `#000000` - Deep background
 - **Grey**: `#333333` - UI elements
@@ -173,6 +173,5 @@ The application is fully responsive and works on:
 - XSS protection through React
 
 ## 📄 License
-
 
 MIT License - see LICENSE file for details.
