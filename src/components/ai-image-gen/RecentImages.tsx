@@ -7,6 +7,7 @@ import {
   FiX,
   FiCopy,
   FiImage,
+  FiLoader,
 } from "react-icons/fi";
 import {
   imageGenService,
@@ -33,8 +34,9 @@ const ImageDetailModal: React.FC<{
   image: PreparedImageItem | null;
   onClose: () => void;
   onDelete: (id: string) => void;
-  onDownload: (url: string, filename: string) => void;
-}> = ({ image, onClose, onDelete, onDownload }) => {
+  onDownload: (imageId: string, filename: string) => void;
+  isDownloading: boolean;
+}> = ({ image, onClose, onDelete, onDownload, isDownloading }) => {
   if (!image) return null;
 
   const copyPrompt = () => {
@@ -103,11 +105,21 @@ const ImageDetailModal: React.FC<{
           <div className="flex gap-3 mt-auto pt-4 border-t border-[#242424] shrink-0">
             <button
               onClick={() =>
-                onDownload(image.src, `generated-image-${image.id}.png`)
+                onDownload(image.id, `generated-image-${image.id}.png`)
               }
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#242424] hover:bg-[#2a2a2a] text-white rounded-xl transition-all font-medium text-sm border border-transparent hover:border-[#333]"
+              disabled={isDownloading}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#242424] hover:bg-[#2a2a2a] text-white rounded-xl transition-all font-medium text-sm border border-transparent hover:border-[#333] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FiDownload size={16} /> Download
+              {isDownloading ? (
+                <>
+                  <FiLoader size={16} className="animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <FiDownload size={16} /> Download
+                </>
+              )}
             </button>
             <button
               onClick={() => onDelete(image.id)}
@@ -182,6 +194,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [downloadingImages, setDownloadingImages] = useState<Set<string>>(new Set());
 
   const handleDeleteClick = (imageId: string) => {
     setImageToDelete(imageId);
@@ -209,9 +222,31 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     }
   };
 
-  const handleDownload = async (url: string, filename: string) => {
+  const handleDownload = async (imageId: string, filename: string) => {
+    // Prevent multiple simultaneous downloads of the same image
+    if (downloadingImages.has(imageId)) {
+      return;
+    }
+
     try {
-      const response = await fetch(url);
+      // Mark as downloading
+      setDownloadingImages(prev => new Set(prev).add(imageId));
+      
+      // Use backend proxy to bypass CORS
+      const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+      const downloadUrl = `${apiBase}/imaginative/download/${imageId}`;
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(downloadUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+      
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
 
@@ -223,10 +258,17 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
 
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-      toast.success("Download started");
+      toast.success("Download complete");
     } catch (error) {
       console.error("Download failed:", error);
       toast.error("Failed to download image");
+    } finally {
+      // Remove from downloading set
+      setDownloadingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageId);
+        return newSet;
+      });
     }
   };
 
@@ -286,12 +328,17 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
                 <button
                     onClick={(e) => {
                     e.stopPropagation();
-                    handleDownload(image.src, `generated-image-${image.id}.png`);
+                    handleDownload(image.id, `generated-image-${image.id}.png`);
                     }}
-                    className="p-2 bg-black/60 hover:bg-[#333] text-white rounded-xl backdrop-blur-md border border-white/10"
-                    title="Download"
+                    disabled={downloadingImages.has(image.id)}
+                    className="p-2 bg-black/60 hover:bg-[#333] text-white rounded-xl backdrop-blur-md border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={downloadingImages.has(image.id) ? "Downloading..." : "Download"}
                 >
-                    <FiDownload className="w-3.5 h-3.5" />
+                    {downloadingImages.has(image.id) ? (
+                      <FiLoader className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <FiDownload className="w-3.5 h-3.5" />
+                    )}
                 </button>
 
                 <button
@@ -400,6 +447,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
           onClose={() => setSelectedImage(null)}
           onDelete={handleDeleteClick}
           onDownload={handleDownload}
+          isDownloading={downloadingImages.has(selectedImage.id)}
         />
       )}
 
