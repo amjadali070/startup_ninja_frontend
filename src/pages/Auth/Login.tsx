@@ -114,12 +114,7 @@ const Login: React.FC = () => {
   const handleEmailVerification = async (otp: string) => {
     if (!verificationData) return;
 
-    console.log("🔍 Frontend OTP Verification Debug:", {
-      userId: verificationData.userId,
-      providedOTP: otp,
-      email: verificationData.email,
-      timestamp: new Date().toISOString(),
-    });
+
 
     setVerificationLoading(true);
     try {
@@ -127,7 +122,7 @@ const Login: React.FC = () => {
         verificationData.userId,
         otp
       );
-      console.log("📧 Verification Response:", response);
+
 
       if (response.success && response.token && response.user) {
         login(response.user, response.token, response.refreshToken);
@@ -149,11 +144,11 @@ const Login: React.FC = () => {
   const handleResendOTP = async () => {
     if (!verificationData) return;
 
-    console.log("🔄 Resending OTP for user:", verificationData.userId);
+
 
     try {
       const response = await authService.resendOTP(verificationData.userId);
-      console.log("📤 Resend OTP Response:", response);
+
 
       if (!response.success) {
         throw new Error(response.message || "Failed to resend OTP");

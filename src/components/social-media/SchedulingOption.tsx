@@ -263,7 +263,7 @@ const SchedulingOption: React.FC = () => {
   };
 
   const handleSaveAsDraft = () => {
-    console.log('Saving as draft:', scheduledPlatforms);
+
   };
 
   const handlePublishNow = async () => {

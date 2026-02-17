@@ -212,10 +212,10 @@ const WebsiteBuilderStudio: FC = () => {
       );
 
       if (response.success) {
-        console.log("Success");
+
         toast.success("Website saved successfully!");
       } else {
-        console.log("Failed");
+
         toast.error(response.message);
       }
     } catch (err) {
@@ -224,8 +224,8 @@ const WebsiteBuilderStudio: FC = () => {
     }
   };
 
-  const navigatetoHome = (editor: any) => {
-    console.log("Editor : ", editor);
+  const navigatetoHome = (_: any) => {
+
     navigate("/ai-tools/web-builder");
   };
 
@@ -1676,7 +1676,7 @@ const WebsiteBuilderStudio: FC = () => {
                                       for (const attr of importButton.attributes) {
                                         attributes[attr.name] = attr.value;
                                       }
-                                      console.log("Import button attributes:", attributes);
+
                                       importButton.click();
                                     } else {
                                       console.error("Import code button not found");

@@ -55,11 +55,11 @@ const AdminLoginPage: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    console.log('Forgot password clicked');
+
   };
 
   const handleCreateAccount = () => {
-    console.log('Create account clicked');
+
   };
 
   return (

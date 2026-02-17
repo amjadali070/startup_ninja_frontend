@@ -37,7 +37,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        console.log("Fetching user profile in DashboardLayout...");
+
         const response = await userService.getProfile();
         if (response.success && response.user) {
           setProfile(response.user);

@@ -11,7 +11,7 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
 
-  if (images.length === 0) {
+  if (!images || images.length === 0) {
     return (
       <div className="text-gray-400 text-center py-8">
         No generated images found

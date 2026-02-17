@@ -27,8 +27,6 @@ export const useAdminDashboard = () => {
       }
       setError(null);
 
-      console.log('🔄 Fetching admin dashboard data...');
-
       // Fetch all dashboard data in parallel
       const [statsRes, aiUsageRes, realtimeRes, alertsRes] = await Promise.all([
         adminService.getDashboardStats(),
@@ -36,11 +34,6 @@ export const useAdminDashboard = () => {
         adminService.getRealtimeUsage(),
         adminService.getSystemAlerts()
       ]);
-
-      console.log('📊 Dashboard Stats Response:', statsRes);
-      console.log('🤖 AI Usage Response:', aiUsageRes);
-      console.log('⚡ Realtime Usage Response:', realtimeRes);
-      console.log('🚨 Alerts Response:', alertsRes);
 
       if (statsRes.success && statsRes.data) {
         setStats(statsRes.data);

@@ -11,7 +11,7 @@ const BookDemoMain: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Demo booking:", formData);
+
   };
 
   const demoFeatures = [

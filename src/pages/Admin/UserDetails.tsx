@@ -158,22 +158,22 @@ const UserDetailsPage: React.FC = () => {
         ]);
 
         const totalChats =
-          aiChatsRes.success && aiChatsRes.data
+          aiChatsRes.success && aiChatsRes.data?.pagination?.total
             ? aiChatsRes.data.pagination.total
             : response.data.stats.totalChats || 0;
 
         const totalPosts =
-          socialPostsRes.success && socialPostsRes.data
+          socialPostsRes.success && socialPostsRes.data?.pagination?.total
             ? socialPostsRes.data.pagination.total
             : response.data.stats.totalPosts || 0;
 
         const totalWebsites =
-          websitesRes.success && websitesRes.data
+          websitesRes.success && websitesRes.data?.pagination?.total
             ? websitesRes.data.pagination.total
             : response.data.stats.totalWebsites || 0;
 
         const totalImages =
-          generatedImagesRes.success && generatedImagesRes.data
+          generatedImagesRes.success && generatedImagesRes.data?.pagination?.total
             ? generatedImagesRes.data.pagination.total
             : response.data.stats.totalImages || 0;
 
@@ -317,7 +317,7 @@ const UserDetailsPage: React.FC = () => {
         if (response.success && response.data) {
           setContentData((prev) => ({
             ...prev,
-            generatedImages: response.data!.data,
+            generatedImages: response.data?.data || [],
           }));
           setContentTotalPages(response.data.pagination.pages);
         }

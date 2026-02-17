@@ -64,9 +64,7 @@ class ApiClient {
     try {
       const response = await this.axiosInstance.get("/csrf-token");
       this.csrfToken = response.data.csrfToken;
-      if (import.meta.env.DEV) {
-        console.log("🔒 CSRF token initialized");
-      }
+
     } catch (error) {
       console.error("Failed to fetch CSRF token:", error);
     }
@@ -102,12 +100,7 @@ class ApiClient {
         // Add request timestamp for debugging
         config.metadata = { startTime: new Date() };
 
-        // Log request in development
-        if (import.meta.env.DEV) {
-          console.log(
-            `🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`
-          );
-        }
+
 
         return config;
       },
@@ -120,16 +113,7 @@ class ApiClient {
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => {
-        // Log response time in development
-        if (import.meta.env.DEV && response.config.metadata?.startTime) {
-          const duration =
-            new Date().getTime() - response.config.metadata.startTime.getTime();
-          console.log(
-            `✅ API Response: ${response.config.method?.toUpperCase()} ${
-              response.config.url
-            } (${duration}ms)`
-          );
-        }
+
 
         return response;
       },

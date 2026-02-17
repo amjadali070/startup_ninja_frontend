@@ -102,9 +102,7 @@ const AdminDashboardLayout: React.FC = () => {
                 timeoutPercentage={realtimeUsage.timeoutPercentage}
                 chartData={realtimeUsage.chartData}
                 timeframeOptions={["This week", "Last week", "This month"]}
-                onTimeframeChange={(timeframe) =>
-                  console.log("Timeframe changed to:", timeframe)
-                }
+                onTimeframeChange={(_) => null}
                 selectedTimeframe={realtimeUsage.timeframe || "This week"}
               />
             )}
