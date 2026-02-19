@@ -11,8 +11,7 @@ services:
       dockerfile: Dockerfile
     container_name: startup-ninja-frontend-dev
     restart: always
-    ports:
-      - "80:80" # Serve on standard HTTP port
+    # Ports removed - accessed via nginx-proxy (backend network)
     environment:
       - VITE_API_BASE_URL=/api
       - VITE_SYSTEM_IP=54.152.247.90
