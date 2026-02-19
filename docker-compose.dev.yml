@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  # ============================================================================
+  # FRONTEND (DEV)
+  # ============================================================================
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: startup-ninja-frontend-dev
+    restart: always
+    ports:
+      - "80:80" # Serve on standard HTTP port
+    environment:
+      - VITE_API_BASE_URL=/api
+      - VITE_SYSTEM_IP=54.152.247.90
+    networks:
+      - backend_shared-network
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  backend_shared-network:
+    external: true
+    name: startup_ninja_backend_shared-network
