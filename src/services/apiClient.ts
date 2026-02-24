@@ -137,7 +137,8 @@ class ApiClient {
                 originalRequest.url?.includes("/auth/register") ||
                 originalRequest.url?.includes("/auth/verify-email") ||
                 originalRequest.url?.includes("/auth/google") ||
-                originalRequest.url?.includes("/auth/microsoft");
+                originalRequest.url?.includes("/auth/microsoft") ||
+                originalRequest.url?.includes("/auth/refresh-token");
 
               if (isAuthEndpoint) {
                 // Just reject the error for auth endpoints - don't try to refresh
@@ -163,7 +164,7 @@ class ApiClient {
                 this.isRefreshing = true;
 
                 try {
-                  const refreshToken = localStorage.getItem("refreshToken");
+                  const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
                   if (refreshToken) {
                     const response = await this.axiosInstance.post(
                       "/auth/refresh-token",
@@ -175,7 +176,11 @@ class ApiClient {
                     const { token: newToken, refreshToken: newRefreshToken } =
                       response.data;
                     this.setAuthToken(newToken);
-                    localStorage.setItem("refreshToken", newRefreshToken);
+                    if (sessionStorage.getItem("refreshToken")) {
+                      sessionStorage.setItem("refreshToken", newRefreshToken);
+                    } else {
+                      localStorage.setItem("refreshToken", newRefreshToken);
+                    }
 
                     // Notify all subscribers
                     this.refreshSubscribers.forEach((callback) =>
@@ -193,6 +198,7 @@ class ApiClient {
                   // Refresh failed - clear tokens and notify user
                   this.clearAuthToken();
                   localStorage.removeItem("refreshToken");
+                  sessionStorage.removeItem("refreshToken");
 
                   // Dispatch session expired event for the modal
                   window.dispatchEvent(new Event("session-expired"));
@@ -207,6 +213,7 @@ class ApiClient {
               // If retry failed, clear tokens and redirect
               this.clearAuthToken();
               localStorage.removeItem("refreshToken");
+              sessionStorage.removeItem("refreshToken");
               window.location.href = "/login";
               break;
             case 403:
@@ -323,7 +330,7 @@ class ApiClient {
   }
 
   private getToken(): string | null {
-    return localStorage.getItem("token");
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
   }
 
   // Public methods for making requests
@@ -372,12 +379,18 @@ class ApiClient {
 
   // Utility methods
   public setAuthToken(token: string): void {
-    localStorage.setItem("token", token);
+    if (sessionStorage.getItem("token")) {
+      sessionStorage.setItem("token", token);
+    } else {
+      localStorage.setItem("token", token);
+    }
   }
 
   public clearAuthToken(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
   }
 
   public isAuthenticated(): boolean {
