@@ -53,6 +53,25 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   }, []);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await notificationsService.list(1, 50);
+        if (response.success && isMountedRef.current) {
+          setNotifications(response.data);
+          setUnread(response.data.filter(n => !n.read).length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+    fetchNotifications();
+    
+    // Set up polling every minute to capture background jobs like subscription reminders
+    const intervalId = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
@@ -262,6 +281,13 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
         onMarkAsRead={handleMarkAsRead}
         onOpenItem={(id) => {
           const item = notifications.find((n) => n._id === id);
+          if (item?.type === "warning" || item?.type === "error") {
+            // Subscription payment/expire related
+            setIsNotificationModalOpen(false);
+            navigate(`/settings?tab=billing`);
+            return;
+          }
+          
           const scheduledPostId = (item?.metadata as any)?.scheduledPostId;
           if (scheduledPostId) {
             setIsNotificationModalOpen(false);

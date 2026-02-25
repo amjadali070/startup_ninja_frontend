@@ -111,6 +111,11 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                           <span className="w-1 h-1 bg-white/40 rounded-full"></span>
                           {notification.timestamp}
                         </p>
+                        {(notification.type === 'warning' || notification.type === 'error') && (
+                          <div className="mt-2 inline-flex items-center text-[10px] font-semibold text-[#FF3B3B] hover:text-[#ff5c5c] transition-colors">
+                            Manage Subscription <span className="ml-1">→</span>
+                          </div>
+                        )}
                       </div>
                       {!notification.read && (
                         <div className="flex-shrink-0">
