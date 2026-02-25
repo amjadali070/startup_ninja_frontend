@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { GiNinjaStar } from "react-icons/gi";
 import { FaPlus } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
+import { FaFilePdf, FaFileWord } from "react-icons/fa";
 
 interface AIChatComposerProps {
   prompt: string;
@@ -12,7 +13,8 @@ interface AIChatComposerProps {
   placeholder?: string;
   isGenerating?: boolean;
   tokenUsage?: number;
-  usageLimit?: number;
+  onExportPdf?: () => void;
+  onExportDocx?: () => void;
   onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   className?: string;
 }
@@ -24,6 +26,8 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
   onNewChat,
   placeholder = "Ask me anything...",
   isGenerating = false,
+  onExportPdf,
+  onExportDocx,
   onKeyDown,
   className,
 }) => {
@@ -103,6 +107,34 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
               >
                 <FaPlus className="h-3.5 w-3.5" />
                 New Chat
+              </button>
+            )}
+            
+            {onExportPdf && (
+              <button
+                type="button"
+                onClick={onExportPdf}
+                disabled={disabled}
+                className="inline-flex items-center gap-2 rounded-[14px] border border-white/20 px-3 py-2 sm:py-1.5 text-xs font-semibold text-white/70 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 hover:text-white"
+                title="Export to PDF"
+                aria-label="Export to PDF"
+              >
+                <FaFilePdf className="h-3.5 w-3.5 text-red-400" />
+                <span className="hidden sm:inline">PDF</span>
+              </button>
+            )}
+
+            {onExportDocx && (
+              <button
+                type="button"
+                onClick={onExportDocx}
+                disabled={disabled}
+                className="inline-flex items-center gap-2 rounded-[14px] border border-white/20 px-3 py-2 sm:py-1.5 text-xs font-semibold text-white/70 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 hover:text-white"
+                title="Export to DOCX"
+                aria-label="Export to DOCX"
+              >
+                <FaFileWord className="h-3.5 w-3.5 text-blue-400" />
+                <span className="hidden sm:inline">DOCX</span>
               </button>
             )}
           </div>

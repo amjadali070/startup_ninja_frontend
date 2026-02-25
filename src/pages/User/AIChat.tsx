@@ -508,6 +508,36 @@ const AIChat: FC = () => {
     []
   );
 
+  const handleExport = useCallback(async (format: "pdf" | "docx") => {
+    if (!currentChatId) return;
+
+    try {
+      const toastId = toast.loading(`Generating ${format.toUpperCase()}...`);
+      const response = await aiContentService.exportChat(currentChatId, format);
+      
+      if (response instanceof Blob) {
+        toast.success(`Generated ${format.toUpperCase()}`, { id: toastId });
+        
+        const url = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = url;
+        const currentChat = chats.find(c => c._id === currentChatId);
+        const fileName = currentChat?.title ? `${currentChat.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}` : `chat_export.${format}`;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        toast.error(response.message || `Failed to export ${format.toUpperCase()}`, { id: toastId });
+      }
+    } catch (err) {
+      console.error(`Export failed:`, err);
+      toast.error(`Failed to export document`);
+    }
+  }, [currentChatId, chats]);
+
   return (
     <DashboardLayout
       activePath="/ai-tools/chat"
@@ -552,6 +582,8 @@ const AIChat: FC = () => {
               onSubmit={handleComposerSubmit}
               onNewChat={handleNewChat}
               isGenerating={isGenerating}
+              onExportPdf={currentChatId ? () => handleExport("pdf") : undefined}
+              onExportDocx={currentChatId ? () => handleExport("docx") : undefined}
               className="w-full"
             />
           </div>

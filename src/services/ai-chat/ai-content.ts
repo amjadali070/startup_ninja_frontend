@@ -108,4 +108,23 @@ export const aiContentService = {
       };
     }
   },
+
+  /**
+   * Export chat to document
+   */
+  async exportChat(chatId: string, format: "pdf" | "docx"): Promise<Blob | { success: false; message: string }> {
+    try {
+      const data = await apiClient.get<Blob>(
+        `/ai-content/chat/${chatId}/export?format=${format}`,
+        { responseType: "blob" }
+      );
+      
+      return data;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: "Failed to export chat (Limit exceeded or server error)",
+      };
+    }
+  },
 };
