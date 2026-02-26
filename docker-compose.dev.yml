@@ -22,7 +22,7 @@ services:
     # Ports removed - accessed via nginx-proxy (backend network)
     environment:
       - VITE_API_BASE_URL=/api
-      - VITE_SYSTEM_IP=54.152.247.90
+      - VITE_SYSTEM_IP=54.159.113.115
     networks:
       - backend_shared-network
 
@@ -33,4 +33,4 @@ services:
 networks:
   backend_shared-network:
     external: true
-    name: startup_ninja_backend_shared-network
+    name: backend_shared-network
