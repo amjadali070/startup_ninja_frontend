@@ -19,13 +19,8 @@ if (!microsoftClientId) {
   console.warn('[Auth] VITE_MICROSOFT_CLIENT_ID is not defined. Microsoft sign-in will be disabled.')
 }
 
-// Only initialize MSAL in a secure context (HTTPS or localhost).
-// On plain HTTP, window.crypto.subtle is unavailable and MSAL will crash the app.
-const isSecureContext = window.isSecureContext || window.location.hostname === 'localhost'
-const msalInstance =
-  microsoftClientId && isSecureContext
-    ? new PublicClientApplication(msalConfig)
-    : null
+// Create MSAL instance
+const msalInstance = new PublicClientApplication(msalConfig)
 
 // Render app with providers
 const renderApp = () => {
@@ -35,8 +30,8 @@ const renderApp = () => {
     </BrowserRouter>
   )
 
-  // Wrap with Microsoft provider only if MSAL initialized successfully
-  if (msalInstance) {
+  // Wrap with Microsoft provider if available
+  if (microsoftClientId) {
     appComponent = (
       <MsalProvider instance={msalInstance}>
         {appComponent}
