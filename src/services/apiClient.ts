@@ -78,12 +78,6 @@ class ApiClient {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        // Fix for Axios overriding baseURL when url starts with /
-        if (config.url && config.url.startsWith('/') && this.baseURL) {
-            config.url = this.baseURL.replace(/\/+$/, '') + config.url;
-            config.baseURL = ''; // Reset baseURL so it doesn't double-apply
-        }
-
         // Add auth token if available
         const token = this.getToken();
         if (token) {
@@ -105,6 +99,8 @@ class ApiClient {
 
         // Add request timestamp for debugging
         config.metadata = { startTime: new Date() };
+
+
 
         return config;
       },
