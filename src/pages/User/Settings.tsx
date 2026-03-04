@@ -640,7 +640,6 @@ const Settings: FC = () => {
           setShowPlanSelectionModal(true);
         }}
         planName={selectedPlan}
-        billingCycle="monthly"
         onSuccess={() => {
           refreshSubscription();
         }}

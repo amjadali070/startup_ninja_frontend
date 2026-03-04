@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+import { adminService } from "../../../services/admin";
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -13,6 +15,41 @@ interface SubscriptionTabProps {
 }
 
 const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [planName, setPlanName] = useState("Basic");
+  const [billingCycle, setBillingCycle] = useState("monthly");
+  const [paymentStatus, setPaymentStatus] = useState("paid");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleAssignPlan = async () => {
+    if (paymentStatus === "paid" && !invoiceNumber) {
+      toast.error("Please enter an invoice number for paid status.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await adminService.assignSubscription(user._id, {
+        planName,
+        billingCycle,
+        paymentStatus,
+        invoiceNumber: paymentStatus === "paid" ? invoiceNumber : undefined,
+      });
+      if (res.success) {
+        toast.success(res.message || "Subscription updated correctly.");
+        setIsEditing(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast.error(res.message || "Failed to update subscription");
+      }
+    } catch (e: any) {
+      toast.error("An error occurred during update");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
@@ -25,20 +62,92 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
               Manage subscription and billing
             </p>
           </div>
-          <span
-            className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ${
-              (user.subscription.plan || "").includes("Enterprise")
-                ? "bg-purple-600/20 text-purple-400 border border-purple-500/30"
-                : (user.subscription.plan || "").includes("Standard")
-                ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
-                : (user.subscription.plan || "").includes("Basic")
-                ? "bg-green-600/20 text-green-400 border border-green-500/30"
-                : "bg-gray-600/20 text-gray-400 border border-gray-500/30"
-            }`}
-          >
-            {user.subscription.plan}
-          </span>
+          <div className="flex items-center gap-3">
+            <span
+              className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ${
+                (user.subscription.plan || "").includes("Enterprise")
+                  ? "bg-purple-600/20 text-purple-400 border border-purple-500/30"
+                  : (user.subscription.plan || "").includes("Standard")
+                  ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
+                  : (user.subscription.plan || "").includes("Basic")
+                  ? "bg-green-600/20 text-green-400 border border-green-500/30"
+                  : "bg-gray-600/20 text-gray-400 border border-gray-500/30"
+              }`}
+            >
+              {user.subscription.plan}
+            </span>
+            <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold transition whitespace-nowrap"
+            >
+                {isEditing ? 'Cancel Edit' : 'Update Plan'}
+            </button>
+          </div>
         </div>
+
+        {isEditing && (
+            <div className="mt-6 p-5 bg-[#2A2A2A] border border-[#333] rounded-lg">
+                <h4 className="text-white font-semibold mb-4 text-base">Assign / Update Subscription</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+                    <div>
+                        <label className="block text-gray-400 mb-1.5">Select Plan</label>
+                        <select 
+                            value={planName} 
+                            onChange={(e) => setPlanName(e.target.value)}
+                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
+                        >
+                            <option value="Free">Free</option>
+                            <option value="Basic">Basic</option>
+                            <option value="Standard">Standard (Pro)</option>
+                            <option value="Enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-1.5">Billing Cycle</label>
+                        <select 
+                            value={billingCycle} 
+                            onChange={(e) => setBillingCycle(e.target.value)}
+                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
+                        >
+                            <option value="monthly">Monthly</option>
+                            <option value="annual">Annual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-gray-400 mb-1.5">Payment Status</label>
+                        <select 
+                            value={paymentStatus} 
+                            onChange={(e) => setPaymentStatus(e.target.value)}
+                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
+                        >
+                            <option value="paid">Paid (Activate immediately)</option>
+                            <option value="unpaid">Unpaid (Email Payment Link)</option>
+                        </select>
+                    </div>
+                    {paymentStatus === "paid" && (
+                    <div>
+                        <label className="block text-gray-400 mb-1.5">Invoice / Receipt # (Required)</label>
+                        <input
+                            type="text"
+                            value={invoiceNumber}
+                            onChange={(e) => setInvoiceNumber(e.target.value)}
+                            placeholder="e.g. MANUAL-001 or pi_1234..."
+                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
+                        />
+                    </div>
+                    )}
+                </div>
+                <div className="mt-5 flex justify-end">
+                    <button
+                        onClick={handleAssignPlan}
+                        disabled={loading}
+                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-md font-semibold transition disabled:opacity-50"
+                    >
+                        {loading ? 'Processing...' : (paymentStatus === 'paid' ? 'Confirm Assignment' : 'Generate & Send Link')}
+                    </button>
+                </div>
+            </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
           <div className="bg-[#2A2A2A] p-4 rounded-lg border border-[#333] flex items-center gap-4">

@@ -82,13 +82,19 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       renewalDate: subscription.nextBillingDate 
         ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
         : 'N/A',
-      usage: subscription.usage || { ai_chat_messages: 0, generated_images: 0, social_posts: 0, websites: 0 },
+      usage: {
+        ai_chat_messages: subscription.usage?.ai_chat_messages || 0,
+        generated_images: subscription.usage?.generated_images || 0,
+        social_posts: subscription.usage?.social_posts || 0,
+        websites: subscription.usage?.websites || 0,
+        website_creation: subscription.usage?.website_creation || 0,
+      },
       limits: {
         ...(subscription.limits || {}),
         ai_chat_messages: subscription.limits?.ai_chat_messages || 10,
         generated_images: subscription.limits?.generated_images || 5,
         social_posts: subscription.limits?.social_posts || 10,
-        websites: subscription.limits?.websites ?? subscription.limits?.hosted_websites ?? 1
+        websites: subscription.limits?.website_creation ?? subscription.limits?.website_hosting ?? subscription.limits?.websites ?? 1
       }
     };
   }, [subscription]);

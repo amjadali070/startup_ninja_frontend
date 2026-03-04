@@ -12,6 +12,7 @@ import PrivacyPolicy from "./pages/Legal/PrivacyPolicy.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Dashboard from "./pages/User/Dashboard.tsx";
 import AdminLogin from "./pages/Auth/AdminLogin.tsx";
+import PaymentSuccess from "./pages/Subscription/PaymentSuccess.tsx";
 import BuySubscription from "./pages/Subscription/BuySubscription.tsx";
 import AIChat from "./pages/User/AIChat.tsx";
 import AIImageGen from "./pages/User/AIImageGen.tsx";
@@ -114,6 +115,7 @@ function App() {
             }
           />
           <Route path="/buy-subscription" element={<BuySubscription />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
 
           {/* Protected User Routes */}
           <Route

@@ -26,7 +26,6 @@ interface UpgradePlanModalProps {
   onClose: () => void;
   onBack?: () => void;
   planName: string;
-  billingCycle?: string;
   onSuccess: () => void;
 }
 
@@ -35,9 +34,9 @@ const UpgradePlanModalContent: React.FC<UpgradePlanModalProps> = ({
   onClose,
   onBack,
   planName,
-  billingCycle = 'monthly',
   onSuccess
 }) => {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -171,6 +170,24 @@ const UpgradePlanModalContent: React.FC<UpgradePlanModalProps> = ({
           >
             <FiX size={24} />
           </button>
+        </div>
+
+        {/* Billing Cycle Selection */}
+        <div className="mb-6 flex justify-center">
+            <div className="inline-flex items-center rounded-lg p-1 bg-[#1a0f0f] border border-white/10">
+                <button
+                    onClick={() => setBillingCycle("monthly")}
+                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${billingCycle === "monthly" ? "bg-red-600 text-white" : "text-gray-400 hover:text-white"}`}
+                >
+                    Monthly
+                </button>
+                <button
+                    onClick={() => setBillingCycle("annual")}
+                    className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${billingCycle === "annual" ? "bg-red-600 text-white" : "text-gray-400 hover:text-white"}`}
+                >
+                    Annual (Save ~20%)
+                </button>
+            </div>
         </div>
 
         {/* Payment Method Selection */}

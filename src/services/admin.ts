@@ -634,9 +634,6 @@ export const adminService = {
     }
   },
 
-  /**
-   * Delete API Balance Credit
-   */
   async deleteAPIBalanceCredit(id: string): Promise<AdminApiResponse<void>> {
     try {
       const response = await apiClient.delete<AdminApiResponse<void>>(
@@ -647,6 +644,34 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to delete balance credit",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Assign subscription plan to a user
+   */
+  async assignSubscription(
+    userId: string,
+    data: {
+      planName: string;
+      billingCycle: string;
+      paymentStatus: string;
+      invoiceNumber?: string;
+    }
+  ): Promise<AdminApiResponse<{ paymentUrl?: string }>> {
+    try {
+      // Routes to auth-service via /api/user/*
+      const response = await apiClient.post<AdminApiResponse<{ paymentUrl?: string }>>(
+        `/user/admin/users/${userId}/subscription/assign`,
+        data
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to assign subscription",
         error: error.message,
       };
     }

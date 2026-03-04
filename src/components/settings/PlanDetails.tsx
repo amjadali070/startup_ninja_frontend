@@ -4,14 +4,16 @@ export type PlanUsage = {
   ai_chat_messages: number;
   generated_images: number;
   social_posts: number;
-  websites: number;
+  websites?: number;
+  website_creation?: number;
 };
 
 export type PlanLimits = {
   ai_chat_messages: number;
   generated_images: number;
   social_posts: number;
-  websites: number;
+  websites?: number;
+  website_creation?: number;
 };
 
 interface PlanDetailsProps {
@@ -22,7 +24,7 @@ interface PlanDetailsProps {
 const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
   const renderUsageItem = (label: string, used: number, limit: number) => {
     // Handle unlimited limits (e.g. 999999 or -1)
-    const isUnlimited = limit >= 999999;
+    const isUnlimited = limit >= 999999 || limit === -1;
     const percentage = isUnlimited ? 0 : Math.min(100, Math.max(0, (used / limit) * 100));
     
     return (
@@ -59,7 +61,7 @@ const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
       {renderUsageItem("AI Chat Messages", usage.ai_chat_messages || 0, limits.ai_chat_messages || 0)}
       {renderUsageItem("Generated Images", usage.generated_images || 0, limits.generated_images || 0)}
       {renderUsageItem("Social Posts", usage.social_posts || 0, limits.social_posts || 0)}
-      {renderUsageItem("Websites", usage.websites || 0, limits.websites || 0)}
+      {renderUsageItem("Websites", (usage.website_creation ?? usage.websites) || 0, (limits.website_creation ?? limits.websites) || 0)}
     </div>
   );
 };
