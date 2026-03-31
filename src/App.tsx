@@ -40,6 +40,7 @@ import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
+import NinjaLegal from "./pages/User/NinjaLegal.tsx";
 
 function App() {
   return (
@@ -203,6 +204,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <WebBuilder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal"
+            element={
+              <ProtectedRoute>
+                <NinjaLegal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/finance"
+            element={
+              <ProtectedRoute>
+                <ComingSoon title="Ninja Finance" />
               </ProtectedRoute>
             }
           />

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, type FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiGlobe, FiMessageSquare } from "react-icons/fi";
-import { RiShareBoxLine } from "react-icons/ri";
+import { RiShareBoxLine, RiFundsLine } from "react-icons/ri";
 import { PiImageSquareBold } from "react-icons/pi";
+import { FaGavel } from "react-icons/fa";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import AIToolCard from "../../components/ai-tools/AIToolCard.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
@@ -92,6 +93,22 @@ const AITools: FC = () => {
         icon: <RiShareBoxLine className="h-8 w-8" />,
         ctaLabel: "Schedule Content",
         ctaTo: "/ai-tools/social-pro",
+      },
+      {
+        title: "Ninja Legal",
+        description:
+          "Generate legal documents, contracts, and compliance checklists tailored for startups.",
+        icon: <FaGavel className="h-8 w-8" />,
+        ctaLabel: "Start Legal",
+        ctaTo: "/ai-tools/legal",
+      },
+      {
+        title: "Ninja Finance",
+        description:
+          "Manage your startup's financial planning, burn rate, and investment ready reports.",
+        icon: <RiFundsLine className="h-8 w-8" />,
+        ctaLabel: "Start Finance",
+        ctaTo: "/ai-tools/finance",
       },
     ],
     []

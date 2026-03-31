@@ -3,7 +3,6 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { PiImageSquareBold } from "react-icons/pi";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { CgHome } from "react-icons/cg";
-import { FaUsers } from "react-icons/fa";
 import {
   FiMenu,
   FiX,
@@ -12,9 +11,10 @@ import {
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
-import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
+import { RiMoneyDollarBoxFill, RiOrganizationChart, RiFundsLine } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
 import { TbApi } from "react-icons/tb";
+import { FaGavel, FaUsers } from "react-icons/fa";
 
 
 interface SidebarSection {
@@ -77,7 +77,7 @@ const navSections: SidebarSection[] = [
     ],
   },
   {
-    sectionLabel: "AI Tools",
+    sectionLabel: "Tools",
     items: [
       {
         label: "AI Chat",
@@ -103,6 +103,18 @@ const navSections: SidebarSection[] = [
         icon: <RiOrganizationChart className="w-5 h-5" />,
         admin: false,
       },
+      {
+        label: "Ninja Legal",
+        to: "/ai-tools/legal",
+        icon: <FaGavel className="w-5 h-5" />,
+        admin: false,
+      },
+      {
+        label: "Ninja Finance",
+        to: "/ai-tools/finance",
+        icon: <RiFundsLine className="w-5 h-5" />,
+        admin: false,
+      },
     ],
   },
   {
@@ -124,12 +136,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  
+
   // Flatten sections and filter by admin role
   const filteredSections = navSections
     .map(section => ({
       ...section,
-      items: section.items.filter(item => 
+      items: section.items.filter(item =>
         userData?.role === "admin" ? item.admin : !item.admin
       )
     }))
@@ -145,7 +157,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       if (stored === "1") {
         setIsCollapsed(true);
       }
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => {
@@ -154,7 +166,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         "dashboard_sidebar_collapsed",
         isCollapsed ? "1" : "0"
       );
-    } catch {}
+    } catch { }
   }, [isCollapsed]);
 
 
@@ -212,11 +224,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       <aside
         id="dashboard-sidebar"
-        className={`pt-5 fixed inset-y-0 left-0 z-40 transform bg-[#0B0B0F] border-r border-white/5 transition-all duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:translate-x-0 ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isMobileOpen ? "w-[260px]" : ""} ${
-          isCollapsed ? "lg:w-[80px]" : "lg:w-[248px] xl:w-[260px]"
-        }`}
+        className={`pt-5 fixed inset-y-0 left-0 z-40 transform bg-[#0B0B0F] border-r border-white/5 transition-all duration-300 ease-in-out lg:static lg:z-auto lg:flex lg:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          } ${isMobileOpen ? "w-[260px]" : ""} ${isCollapsed ? "lg:w-[80px]" : "lg:w-[248px] xl:w-[260px]"
+          }`}
       >
         <div className="flex h-full w-full flex-col px-3 pt-2 lg:pt-3 lg:px-3">
           <div
@@ -304,13 +314,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
           <nav className="flex-1 space-y-1.5 overflow-hidden pr-1">
             {filteredSections.map((section, sectionIndex) => (
-              <div 
-                key={sectionIndex} 
-                className={`space-y-1.5 ${
-                  section.sectionLabel && !isCollapsed 
-                    ? 'pt-4 pb-4 mb-2 border-t-2 border-b-2 border-white/10' 
-                    : ''
-                }`}
+              <div
+                key={sectionIndex}
+                className={`space-y-1.5 ${section.sectionLabel && !isCollapsed
+                  ? 'pt-4 pb-4 mb-2 border-t-2 border-b-2 border-white/10'
+                  : ''
+                  }`}
               >
                 {/* Section Label (if exists) */}
                 {section.sectionLabel && !isCollapsed && (
@@ -337,19 +346,17 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                       onClick={closeMobileSidebar}
                       className={({ isActive }) => {
                         const isCurrent = isActive || navActive;
-                        const baseClasses = `group relative flex items-center ${
-                          isCollapsed
-                            ? "justify-center px-2 py-2"
-                            : "gap-2 px-3 py-2"
-                        } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
+                        const baseClasses = `group relative flex items-center ${isCollapsed
+                          ? "justify-center px-2 py-2"
+                          : "gap-2 px-3 py-2"
+                          } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
                         const defaultState =
                           "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
                         const activeState =
                           "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
 
-                        return `${baseClasses} ${
-                          isCurrent ? activeState : defaultState
-                        }`.trim();
+                        return `${baseClasses} ${isCurrent ? activeState : defaultState
+                          }`.trim();
                       }}
                       style={({ isActive }) => {
                         const isCurrent = isActive || navActive;
