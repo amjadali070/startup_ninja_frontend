@@ -9,7 +9,7 @@ const WorkloadBalance: FC = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-[#EF4444] blur-[150px] opacity-[0.03] pointer-events-none rounded-full" />
 
       <div className="relative z-10 w-full mb-10">
-        <h2 className="text-3xl font-black text-white tracking-tight leading-none">Workload Balance</h2>
+        <h2 className="text-2xl font-black text-white tracking-tight leading-none">Workload Balance</h2>
       </div>
 
       {/* Donut Chart - Bold Reference Styling */}

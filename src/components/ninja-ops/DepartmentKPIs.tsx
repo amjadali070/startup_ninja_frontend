@@ -14,7 +14,7 @@ const DepartmentKPIs: FC = () => {
   return (
     <div className="bg-[#121212] rounded-[40px] p-10 lg:p-12 h-full font-plus-jakarta flex flex-col gap-10 group relative overflow-hidden shadow-2xl">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-3xl font-black text-white tracking-tight uppercase">Department KPIs</h2>
+        <h2 className="text-2xl font-black text-white tracking-tight leading-none">Department KPIs</h2>
       </div>
 
       <div className="flex flex-col gap-10">
@@ -26,11 +26,11 @@ const DepartmentKPIs: FC = () => {
                 {dept.detail}
               </p>
             </div>
-            
+
             <div className="flex flex-col items-end gap-3 w-[45%]">
               <span className="text-[18px] font-black text-white leading-none">{dept.score}%</span>
               <div className="relative h-2 w-full bg-[#1A1A1A] rounded-full overflow-hidden">
-                <div 
+                <div
                   className="absolute top-0 left-0 h-full bg-[#EF4444] transition-all duration-1000 shadow-[0_0_12px_rgba(239,68,68,0.3)]"
                   style={{ width: `${dept.score}%` }}
                 />

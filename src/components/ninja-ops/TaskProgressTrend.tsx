@@ -3,7 +3,7 @@ import { FiChevronDown } from "react-icons/fi";
 
 const TaskProgressTrend: FC = () => {
   const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-  
+
   // Refined SVG Paths to match reference curves
   const primaryLinePath = "M 0 142 Q 100 135 150 100 T 270 70 Q 320 70 380 40 T 600 20";
   const primaryAreaPath = `${primaryLinePath} V 150 H 0 Z`;
@@ -33,26 +33,26 @@ const TaskProgressTrend: FC = () => {
               <stop offset="100%" stopColor="#EF4444" stopOpacity="0.8" />
             </linearGradient>
           </defs>
-          
+
           {/* Secondary Trend (Darker) */}
-          <path 
-            d={secondaryLinePath} 
-            fill="none" 
-            stroke="white" 
-            strokeWidth="1.5" 
-            strokeOpacity="0.1" 
+          <path
+            d={secondaryLinePath}
+            fill="none"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeOpacity="0.1"
             strokeLinecap="round"
           />
 
           {/* Primary Trend Area Fill */}
           <path d={primaryAreaPath} fill="url(#primaryAreaGradient)" />
-          
+
           {/* Primary Trend Stroke */}
-          <path 
-            d={primaryLinePath} 
-            fill="none" 
-            stroke="url(#primaryStrokeGradient)" 
-            strokeWidth="3" 
+          <path
+            d={primaryLinePath}
+            fill="none"
+            stroke="url(#primaryStrokeGradient)"
+            strokeWidth="3"
             strokeLinecap="round"
             className="drop-shadow-[0_0_12px_rgba(239,68,68,0.3)]"
           />
@@ -70,7 +70,7 @@ const TaskProgressTrend: FC = () => {
       <div className="flex justify-between items-end px-4 mt-2">
         {days.map((day, i) => (
           <div key={day} className="flex flex-col items-center gap-4">
-            <span 
+            <span
               className={`text-[10px] font-black uppercase tracking-widest ${i === 3 ? "text-white" : "text-gray-500"}`}
             >
               {day}
