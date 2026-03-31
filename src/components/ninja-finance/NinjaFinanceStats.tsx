@@ -60,7 +60,7 @@ const NinjaFinanceStats: FC = () => {
           </div>
 
           <div className="relative z-10">
-            <h3 className="text-4xl font-black text-white leading-none tracking-tight mb-2.5">
+            <h3 className="text-3xl font-black text-white leading-none tracking-tight mb-2.5 mt-4">
               {stat.value}
             </h3>
             <div className="flex flex-col">
@@ -72,7 +72,7 @@ const NinjaFinanceStats: FC = () => {
               </p>
             </div>
           </div>
-          
+
           {/* Subtle Hover Effect */}
           <div className="absolute inset-x-0 bottom-0 h-1 bg-[#EF4444]/0 group-hover:bg-[#EF4444]/40 transition-all duration-500" />
         </div>

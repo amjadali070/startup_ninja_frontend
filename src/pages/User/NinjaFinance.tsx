@@ -35,6 +35,10 @@ const NinjaFinance: FC = () => {
     console.log("Connect Bank modal triggered");
   };
 
+  const handleExport = () => {
+    console.log("Export CSV triggered");
+  };
+
   return (
     <DashboardLayout
       activePath="/ai-tools/finance"
@@ -43,8 +47,8 @@ const NinjaFinance: FC = () => {
       onSettings={handleOpenSettings}
     >
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#121212]">
-        <div className="p-4 lg:p-8 space-y-8 max-w-[1600px] mx-auto text-white min-h-screen">
-          <NinjaFinanceHeader onConnectBank={handleConnectBank} />
+        <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
+          <NinjaFinanceHeader onConnectBank={handleConnectBank} onExport={handleExport} />
 
           <NinjaFinanceStats />
 
