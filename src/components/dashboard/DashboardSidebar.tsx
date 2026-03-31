@@ -10,6 +10,7 @@ import {
   FiGlobe,
   FiChevronLeft,
   FiChevronRight,
+  FiCheckSquare,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart, RiFundsLine } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -113,6 +114,12 @@ const navSections: SidebarSection[] = [
         label: "Ninja Finance",
         to: "/ai-tools/finance",
         icon: <RiFundsLine className="w-5 h-5" />,
+        admin: false,
+      },
+      {
+        label: "Ninja Ops",
+        to: "/ai-tools/ops",
+        icon: <FiCheckSquare className="w-5 h-5" />,
         admin: false,
       },
     ],
