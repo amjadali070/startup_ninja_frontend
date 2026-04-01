@@ -41,6 +41,9 @@ import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
+import NinjaFinance from "./pages/User/NinjaFinance.tsx";
+import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
+import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
 import NinjaSales from "./pages/User/NinjaSales.tsx";
 
 function App() {
@@ -228,7 +231,23 @@ function App() {
             path="/ai-tools/finance"
             element={
               <ProtectedRoute>
-                <ComingSoon title="Ninja Finance" />
+                <NinjaFinance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/all-contracts"
+            element={
+              <ProtectedRoute>
+                <AllContracts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/audit-logs"
+            element={
+              <ProtectedRoute>
+                <AuditLogs />
               </ProtectedRoute>
             }
           />
