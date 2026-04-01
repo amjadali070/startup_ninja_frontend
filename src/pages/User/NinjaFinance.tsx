@@ -46,7 +46,7 @@ const NinjaFinance: FC = () => {
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
-      <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#121212]">
+      <main className="flex-1 overflow-y-auto font-plus-jakarta">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
           <NinjaFinanceHeader onConnectBank={handleConnectBank} onExport={handleExport} />
 

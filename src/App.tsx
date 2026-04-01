@@ -42,6 +42,7 @@ import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
 import NinjaFinance from "./pages/User/NinjaFinance.tsx";
+import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
 import NinjaSales from "./pages/User/NinjaSales.tsx";
@@ -248,6 +249,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AuditLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/ops"
+            element={
+              <ProtectedRoute>
+                <NinjaOps />
               </ProtectedRoute>
             }
           />
