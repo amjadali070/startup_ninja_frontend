@@ -41,6 +41,7 @@ import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
+import NinjaSales from "./pages/User/NinjaSales.tsx";
 
 function App() {
   return (
@@ -212,6 +213,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <NinjaLegal />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales"
+            element={
+              <ProtectedRoute>
+                <NinjaSales />
               </ProtectedRoute>
             }
           />
