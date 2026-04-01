@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { FiZap, FiFilePlus } from "react-icons/fi";
+import { FiZap } from "react-icons/fi";
 
 const SalesAdvancedModule: FC = () => {
   return (

@@ -105,6 +105,11 @@ const navSections: SidebarSection[] = [
         icon: <RiOrganizationChart className="w-5 h-5" />,
         admin: false,
       },
+    ],
+  },
+  {
+    sectionLabel: "Enterprise Tools",
+    items: [
       {
         label: "Ninja Legal",
         to: "/ai-tools/legal",
@@ -132,6 +137,7 @@ const navSections: SidebarSection[] = [
     ],
   },
   {
+    sectionLabel: "Settings",
     items: [
       {
         label: "Settings",
@@ -331,7 +337,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <div
                 key={sectionIndex}
                 className={`space-y-1.5 ${section.sectionLabel && !isCollapsed
-                  ? 'pt-4 pb-4 mb-2 border-t-2 border-b-2 border-white/10'
+                  ? 'pt-6 mt-6 border-t-2 border-white/10'
                   : ''
                   }`}
               >
