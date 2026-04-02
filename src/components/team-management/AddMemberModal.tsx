@@ -7,7 +7,12 @@ interface AddMemberModalProps {
   onConfirm: (data: any) => void;
 }
 
+import { useAuth } from "../../hooks/useAuth";
+
 const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConfirm }) => {
+  const { user } = useAuth();
+  const isManager = !!user?.addedBy && user?.teamRole === "Manager";
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -152,7 +157,6 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                       onChange={handleChange}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-red-500/50 appearance-none transition-all cursor-pointer"
                     >
-                      <option className="bg-[#0B0B0F]" value="Admin">Admin</option>
                       <option className="bg-[#0B0B0F]" value="Manager">Manager</option>
                       <option className="bg-[#0B0B0F]" value="Member">Member</option>
                     </select>
@@ -207,27 +211,33 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                     { id: 'ops', label: 'Ninja Ops' },
                     { id: 'finance', label: 'Ninja Finance' },
                     { id: 'legal', label: 'Ninja Legal' }
-                  ].map((module) => (
-                    <div
-                      key={module.id}
-                      onClick={() => handlePermissionChange(module.id)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all ${formData.permissions[module.id as keyof typeof formData.permissions]
-                        ? "bg-red-600/10 border-red-600/50"
-                        : "bg-white/5 border-white/5 hover:bg-white/[0.08]"
-                        }`}
-                    >
-                      <span className={`text-sm font-medium transition-colors ${formData.permissions[module.id as keyof typeof formData.permissions] ? "text-white" : "text-white/40"
-                        }`}>
-                        {module.label}
-                      </span>
-                      <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.permissions[module.id as keyof typeof formData.permissions]
-                        ? "bg-red-600 border-red-600"
-                        : "border-white/10"
-                        }`}>
-                        {formData.permissions[module.id as keyof typeof formData.permissions] && <FiCheck className="text-white w-4 h-4" />}
+                  ].map((module) => {
+                    // Check if manager is allowed to delegate this module
+                    const isAllowed = !isManager || user?.permissions?.[module.id as keyof typeof user.permissions];
+                    
+                    return (
+                      <div
+                        key={module.id}
+                        onClick={() => isAllowed ? handlePermissionChange(module.id) : null}
+                        className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${isAllowed ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'} ${formData.permissions[module.id as keyof typeof formData.permissions]
+                          ? "bg-red-600/10 border-red-600/50"
+                          : "bg-white/5 border-white/5 " + (isAllowed ? "hover:bg-white/[0.08]" : "")
+                          }`}
+                      >
+                        <span className={`text-sm font-medium transition-colors ${formData.permissions[module.id as keyof typeof formData.permissions] ? "text-white" : "text-white/40"
+                          }`}>
+                          {module.label}
+                          {!isAllowed && <span className="ml-2 text-xs text-red-500/70">(Locked)</span>}
+                        </span>
+                        <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.permissions[module.id as keyof typeof formData.permissions]
+                          ? "bg-red-600 border-red-600"
+                          : "border-white/10"
+                          }`}>
+                          {formData.permissions[module.id as keyof typeof formData.permissions] && <FiCheck className="text-white w-4 h-4" />}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

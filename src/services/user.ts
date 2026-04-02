@@ -6,6 +6,15 @@ export interface UserProfile {
   email: string;
   role: 'user' | 'admin';
   profilePicture?: string | null;
+  department?: string;
+  teamRole?: 'Admin' | 'Manager' | 'Member';
+  addedBy?: string | null;
+  permissions?: {
+    sales: boolean;
+    ops: boolean;
+    finance: boolean;
+    legal: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 }

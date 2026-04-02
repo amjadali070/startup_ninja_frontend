@@ -1,16 +1,39 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useAuth } from "../../../hooks/useAuth";
-import { FiUserPlus, FiDownload, FiFilter } from "react-icons/fi";
+import { FiUserPlus, FiLoader } from "react-icons/fi";
 import TeamTable from "../../../components/team-management/TeamTable";
 import AddMemberModal from "../../../components/team-management/AddMemberModal";
 import toast from "react-hot-toast";
+import { teamService, TeamMember } from "../../../services/team";
 
 const ManageTeam: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      const res = await teamService.getMembers();
+      if (res.success && res.data) {
+        setMembers(res.data);
+      } else {
+        toast.error(res.message || "Failed to load team members");
+      }
+    } catch (err) {
+      toast.error("Failed to load team members");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -26,9 +49,14 @@ const ManageTeam: FC = () => {
     navigate("/settings");
   };
 
-  const handleAddMember = (data: any) => {
-    console.log("Adding new member:", data);
-    toast.success("Team member added successfully!");
+  const handleAddMember = async (data: any) => {
+    const res = await teamService.addMember(data);
+    if (res.success) {
+      toast.success("Team member added successfully!");
+      fetchMembers();
+    } else {
+      toast.error(res.message || "Failed to add team member");
+    }
   };
 
 
@@ -59,21 +87,18 @@ const ManageTeam: FC = () => {
                 <FiUserPlus className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                 Add Member
               </button>
-
-              <button className="flex items-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 rounded-2xl py-3.5 px-6 text-sm font-medium transition-all active:scale-95">
-                <FiDownload className="w-5 h-5 text-red-500/70" />
-                Export Team
-              </button>
-
-              <button className="flex items-center justify-center bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 rounded-2xl p-3.5 transition-all">
-                <FiFilter className="w-5 h-5" />
-              </button>
             </div>
           </div>
 
           {/* Table Section */}
           <div className="mb-4 animate-fade-in-up">
-            <TeamTable />
+            {loading ? (
+              <div className="flex justify-center p-12">
+                <FiLoader className="w-8 h-8 animate-spin text-red-500" />
+              </div>
+            ) : (
+              <TeamTable members={members} onRefresh={fetchMembers} />
+            )}
           </div>
 
           <AddMemberModal

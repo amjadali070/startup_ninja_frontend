@@ -163,14 +163,43 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
-  // Flatten sections and filter by admin role
+  const isSubUser = !!userData?.addedBy;
+
+  // Flatten sections and filter by admin role and team permissions
   const filteredSections = navSections
-    .map(section => ({
-      ...section,
-      items: section.items.filter(item =>
-        userData?.role === "admin" ? item.admin : !item.admin
-      )
-    }))
+    .map(section => {
+      // Hide Tools section completely for sub-users
+      if (isSubUser && section.sectionLabel === "Tools") {
+        return { ...section, items: [] };
+      }
+
+      const filteredItems = section.items.filter(item => {
+        // Handle System Admin vs Normal User
+        if (userData?.role === "admin") {
+          return item.admin;
+        } else {
+          if (item.admin) return false;
+
+          // If standard user isn't a sub-user, show everything
+          if (!isSubUser) return true;
+
+          // If sub-user, check permissions for Enterprise Tools
+          if (section.sectionLabel === "Enterprise Tools") {
+            const perms: any = userData?.permissions || {};
+            if (item.label === "Ninja Legal" && !perms.legal) return false;
+            if (item.label === "Ninja Finance" && !perms.finance) return false;
+            if (item.label === "Ninja Ops" && !perms.ops) return false;
+            if (item.label === "Ninja Sales" && !perms.sales) return false;
+            // Sub-users shouldn't manage the team unless they are Managers
+            if (item.label === "Manage Team" && userData?.teamRole !== "Manager") return false;
+          }
+
+          // Let Dashboard, Settings through for sub-users
+          return true;
+        }
+      });
+      return { ...section, items: filteredItems };
+    })
     .filter(section => section.items.length > 0);
 
   useEffect(() => {
