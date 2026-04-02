@@ -10,10 +10,10 @@ import {
   FiGlobe,
   FiChevronLeft,
   FiChevronRight,
-  FiCheckSquare,
+  // FiCheckSquare,
   FiTrendingUp,
 } from "react-icons/fi";
-import { RiMoneyDollarBoxFill, RiOrganizationChart, RiFundsLine } from "react-icons/ri";
+import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
 import { TbApi } from "react-icons/tb";
 import { FaGavel, FaUsers } from "react-icons/fa";
@@ -116,22 +116,28 @@ const navSections: SidebarSection[] = [
         icon: <FaGavel className="w-5 h-5" />,
         admin: false,
       },
-      {
-        label: "Ninja Finance",
-        to: "/ai-tools/finance",
-        icon: <RiFundsLine className="w-5 h-5" />,
-        admin: false,
-      },
-      {
-        label: "Ninja Ops",
-        to: "/ai-tools/ops",
-        icon: <FiCheckSquare className="w-5 h-5" />,
-        admin: false,
-      },
+      // {
+      //   label: "Ninja Finance",
+      //   to: "/ai-tools/finance",
+      //   icon: <RiFundsLine className="w-5 h-5" />,
+      //   admin: false,
+      // },
+      // {
+      //   label: "Ninja Ops",
+      //   to: "/ai-tools/ops",
+      //   icon: <FiCheckSquare className="w-5 h-5" />,
+      //   admin: false,
+      // },
       {
         label: "Ninja Sales",
         to: "/ai-tools/sales",
         icon: <FiTrendingUp className="w-5 h-5" />,
+        admin: false,
+      },
+      {
+        label: "Manage Team",
+        to: "/manage-team",
+        icon: <FaUsers className="w-5 h-5" />,
         admin: false,
       },
     ],

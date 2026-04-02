@@ -46,6 +46,9 @@ import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
 import NinjaSales from "./pages/User/NinjaSales.tsx";
+import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
+import MemberDetails from "./pages/User/TeamManagement/MemberDetails.tsx";
+import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
 
 function App() {
   return (
@@ -257,6 +260,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <NinjaOps />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team"
+            element={
+              <ProtectedRoute>
+                <ManageTeam />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team/:memberId"
+            element={
+              <ProtectedRoute>
+                <MemberDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team/:memberId/edit"
+            element={
+              <ProtectedRoute>
+                <EditMember />
               </ProtectedRoute>
             }
           />

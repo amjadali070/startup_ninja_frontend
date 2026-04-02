@@ -1,8 +1,10 @@
 import { type FC } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+// import DashboardLayout from "../../layouts/DashboardLayout";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../../hooks/useAuth";
+import ComingSoon from "../ComingSoon";
 
+/*
 import NinjaFinanceHeader from "../../components/ninja-finance/NinjaFinanceHeader";
 import NinjaFinanceStats from "../../components/ninja-finance/NinjaFinanceStats";
 import CashflowTrend from "../../components/ninja-finance/CashflowTrend";
@@ -12,25 +14,27 @@ import FinanceAIIntelligence from "../../components/ninja-finance/FinanceAIIntel
 import BudgetVsActual from "../../components/ninja-finance/BudgetVsActual";
 import ProfitLossSnapshot from "../../components/ninja-finance/ProfitLossSnapshot";
 import FinanceAdvancedModule from "../../components/ninja-finance/FinanceAdvancedModule";
+*/
 
 const NinjaFinance: FC = () => {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
+  // const navigate = useNavigate();
+  // const { logout } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error("Finance logout failed:", err);
-    } finally {
-      navigate("/login", { replace: true });
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await logout();
+  //   } catch (err) {
+  //     console.error("Finance logout failed:", err);
+  //   } finally {
+  //     navigate("/login", { replace: true });
+  //   }
+  // };
 
-  const handleOpenSettings = () => {
-    navigate("/settings");
-  };
+  // const handleOpenSettings = () => {
+  //   navigate("/settings");
+  // };
 
+  /*
   const handleConnectBank = () => {
     console.log("Connect Bank modal triggered");
   };
@@ -38,7 +42,11 @@ const NinjaFinance: FC = () => {
   const handleExport = () => {
     console.log("Export CSV triggered");
   };
+  */
 
+  return <ComingSoon title="Ninja Finance" />;
+
+  /*
   return (
     <DashboardLayout
       activePath="/ai-tools/finance"
@@ -52,7 +60,6 @@ const NinjaFinance: FC = () => {
 
           <NinjaFinanceStats />
 
-          {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             <div className="lg:col-span-8">
               <CashflowTrend />
@@ -62,7 +69,6 @@ const NinjaFinance: FC = () => {
             </div>
           </div>
 
-          {/* Middle Details Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <div className="lg:col-span-1">
               <RecentExpenses />
@@ -75,12 +81,10 @@ const NinjaFinance: FC = () => {
             </div>
           </div>
 
-          {/* P&L Snapshot Section */}
           <div className="mb-8">
             <ProfitLossSnapshot />
           </div>
 
-          {/* Advanced AI Module Section */}
           <div className="pb-10">
             <FinanceAdvancedModule />
           </div>
@@ -89,6 +93,7 @@ const NinjaFinance: FC = () => {
       </main>
     </DashboardLayout>
   );
+  */
 };
 
 export default NinjaFinance;
