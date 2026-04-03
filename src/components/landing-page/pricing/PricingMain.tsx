@@ -244,7 +244,7 @@ const PricingMain: React.FC = () => {
             The Math is <span style={{ color: "#D23621" }}>Simple</span>
           </h2>
           <p className="text-xl mb-12" style={{ color: "#CCCCCC" }}>
-            Replace $100-300/month in subscriptions with one affordable price
+            Replace $165+/month in subscriptions with one affordable price
           </p>
 
           <div
@@ -280,12 +280,20 @@ const PricingMain: React.FC = () => {
                     <span>Buffer</span>
                     <span>$12/mo</span>
                   </li>
+                  <li className="flex justify-between">
+                    <span>Sales CRM</span>
+                    <span>$45/mo</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Legal Services</span>
+                    <span>$35/mo</span>
+                  </li>
                   <li
                     className="flex justify-between border-t pt-3 font-bold"
                     style={{ borderColor: "#666", color: "#D23621" }}
                   >
                     <span>Total</span>
-                    <span>$85+/mo</span>
+                    <span>$165+/mo</span>
                   </li>
                 </ul>
               </div>
@@ -311,6 +319,14 @@ const PricingMain: React.FC = () => {
                     <span>Social Media Pro</span>
                     <span className="text-green-500">✓</span>
                   </li>
+                  <li className="flex justify-between">
+                    <span>Ninja Sales</span>
+                    <span className="text-green-500">✓</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Ninja Legal</span>
+                    <span className="text-green-500">✓</span>
+                  </li>
                   <li
                     className="flex justify-between border-t pt-3 font-bold text-green-500"
                     style={{ borderColor: "#666" }}
@@ -331,7 +347,7 @@ const PricingMain: React.FC = () => {
               }}
             >
               <p className="text-2xl font-bold text-green-400">
-                Save $672+ per year
+                Save $1,632+ per year
               </p>
             </div>
           </div>

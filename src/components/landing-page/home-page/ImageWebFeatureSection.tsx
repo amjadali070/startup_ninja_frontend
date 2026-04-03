@@ -1,7 +1,7 @@
 import React from 'react';
 
 const ImageWebFeatureSection: React.FC = () => (
-    <section className="w-full flex flex-col md:flex-row gap-8 items-stretch justify-center py-10 px-4 bg-transparent">
+    <section className="w-full flex flex-col md:flex-row gap-8 items-stretch justify-center py-0 px-4 bg-transparent">
         {/* Image Generation Feature */}
         <div className="flex-1 bg-[#18181b] rounded-3xl shadow-xl p-6 md:p-14 max-w-xl w-full text-left flex flex-col justify-between">
             <div>
@@ -12,10 +12,10 @@ const ImageWebFeatureSection: React.FC = () => (
                 </p>
             </div>
             <div className="relative flex items-end gap-6 mt-8">
-                <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black w-full" style={{boxShadow: 'rgb(237 53 28 / 26%) 10px 2px 25px 0px, rgb(255 124 106 / 18%) 4px 11px 11px 0px'}}>
+                <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black w-full" style={{ boxShadow: 'rgb(237 53 28 / 26%) 10px 2px 25px 0px, rgb(255 124 106 / 18%) 4px 11px 11px 0px' }}>
                     <img src="/images/image-banner.png" alt="Image Generation Banner" className="object-cover w-full h-auto" />
                 </div>
-                <img src="/images/chat-feature.png" alt="Ninja Mascot" className="w-48 h-48 md:w-72 md:h-72 object-contain drop-shadow-2xl scale-x-[-1] -ml-16 md:-ml-24 -mb-8 md:-mb-12" style={{ zIndex: 2}} />
+                <img src="/images/chat-feature.png" alt="Ninja Mascot" className="w-48 h-48 md:w-72 md:h-72 object-contain drop-shadow-2xl scale-x-[-1] -ml-16 md:-ml-24 -mb-8 md:-mb-12" style={{ zIndex: 2 }} />
             </div>
         </div>
         {/* Web Builder Feature */}
@@ -29,7 +29,7 @@ const ImageWebFeatureSection: React.FC = () => (
             </div>
             <div className="relative flex items-end gap-6 mt-8">
                 <img src="/images/builder-mascot.png" alt="Builder Mascot" className="w-56 h-56 md:w-80 md:h-80 object-contain drop-shadow-2xl -mr-16 md:-mr-24 -mb-8 md:-mb-12" style={{ zIndex: 2, position: 'relative' }} />
-                <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black w-full" style={{boxShadow: 'rgb(237 53 28 / 26%) 10px 2px 25px 0px, rgb(255 124 106 / 18%) 4px 11px 11px 0px'}}>
+                <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black w-full" style={{ boxShadow: 'rgb(237 53 28 / 26%) 10px 2px 25px 0px, rgb(255 124 106 / 18%) 4px 11px 11px 0px' }}>
                     <img src="/images/builder-banner.png" alt="Web Builder Banner" className="w-full h-auto" />
                 </div>
             </div>

@@ -7,7 +7,7 @@ const chatBubbles = [
 ];
 
 const ChatFeatureSection: React.FC = () => (
-    <section className="w-full flex flex-col md:flex-row items-center justify-center py-8 md:py-20 px-4 md:px-6 feature-bg">
+    <section className="w-full flex flex-col md:flex-row items-center justify-center py-10 px-4 md:px-6 feature-bg">
         <div className="rounded-3xl shadow-xl p-6 md:p-8 max-w-xl w-full text-left">
             <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">AI Chat,</h2>
             <h3 className="text-xl md:text-3xl font-bold text-[#ED351C] mb-4 md:mb-6">Your Strategic Partner</h3>
