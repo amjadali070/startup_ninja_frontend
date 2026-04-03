@@ -216,10 +216,10 @@ const ProductsMain: React.FC = () => {
               "Sell & Close",
               "Protect & Comply",
             ].map((step, index) => (
-              <div key={index} className="relative">
-                <div className="rounded-lg p-6 transition-all duration-300 bg-[#151515] border border-[#333]">
+              <div key={index} className="relative h-full">
+                <div className="rounded-lg p-6 transition-all duration-300 bg-[#151515] border border-[#333] h-full flex flex-col items-center text-center">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 mx-auto"
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 shrink-0 mx-auto"
                     style={{
                       background:
                         "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
