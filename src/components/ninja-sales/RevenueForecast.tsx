@@ -22,12 +22,12 @@ const RevenueForecast: FC = () => {
 
   return (
     <div className="bg-[#121212] border border-white/[0.04] rounded-2xl p-4 sm:p-8 h-full font-plus-jakarta flex flex-col gap-4 sm:gap-5 shadow-2xl overflow-hidden">
-      {/* Header */}
+
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-0">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <FiTrendingUp className="text-[#EF4444] w-4 h-4 flex-shrink-0" />
-            <h2 className="text-sm font-black text-white uppercase tracking-widest leading-none">Revenue Forecast</h2>
+            <h2 className="text-base sm:text-lg font-semibold text-white tracking-wide leading-tight">Revenue Forecast</h2>
           </div>
           <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest pl-6">Sep 2024 – Jan 2025</p>
         </div>
