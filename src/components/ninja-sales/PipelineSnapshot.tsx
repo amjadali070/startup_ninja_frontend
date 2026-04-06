@@ -10,10 +10,10 @@ const PipelineSnapshot: FC = () => {
   ];
 
   return (
-    <div className="bg-[#121212] border border-white/[0.03] rounded-[32px] p-8 h-full font-plus-jakarta flex flex-col gap-8 group overflow-hidden relative shadow-2xl">
+    <div className="bg-[#121212] border border-white/[0.03] rounded-2xl p-8 h-full font-plus-jakarta flex flex-col gap-8 group overflow-hidden relative shadow-2xl">
       <div className="flex items-center gap-3 mb-2">
         <FiTarget className="text-[#EF4444] w-5 h-5" />
-        <h2 className="text-xl font-black text-white tracking-tight uppercase">Pipeline Snapshot</h2>
+        <h2 className="text-lg font-semibold text-white tracking-wide">Pipeline Snapshot</h2>
       </div>
 
       <div className="flex-1 flex flex-col justify-between gap-6 py-2">

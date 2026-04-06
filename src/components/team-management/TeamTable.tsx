@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiSearch, FiUser, FiCheckCircle, FiEdit, FiTrash2, FiDownload, FiUsers } from "react-icons/fi";
+import { FiSearch, FiUser, FiCheckCircle, FiEdit, FiTrash2, FiDownload, FiUsers, FiShield, FiXCircle, FiFilter } from "react-icons/fi";
 import { TeamMember, teamService } from "../../services/team";
 import toast from "react-hot-toast";
+import IconSelect from "../IconSelect";
 
 interface TeamTableProps {
   members: TeamMember[];
@@ -88,24 +89,26 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <select 
+          <IconSelect 
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 flex-1 md:w-[140px]"
-          >
-            <option value="all">All Roles</option>
-            <option value="manager">Manager</option>
-            <option value="member">Member</option>
-          </select>
-          <select 
+            onChange={setRoleFilter}
+            options={[
+              { value: "all", label: "All Roles", icon: <FiUsers className="w-4 h-4" /> },
+              { value: "manager", label: "Manager", icon: <FiShield className="w-4 h-4" /> },
+              { value: "member", label: "Member", icon: <FiUser className="w-4 h-4" /> }
+            ]}
+            className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+          />
+          <IconSelect 
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 flex-1 md:w-[140px]"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            onChange={setStatusFilter}
+            options={[
+              { value: "all", label: "All Status", icon: <FiFilter className="w-4 h-4" /> },
+              { value: "active", label: "Active", icon: <FiCheckCircle className="w-4 h-4" /> },
+              { value: "inactive", label: "Inactive", icon: <FiXCircle className="w-4 h-4" /> }
+            ]}
+            className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+          />
 
           <button 
             onClick={handleExportCSV}
@@ -163,7 +166,10 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 border-b border-white/5">
-                    <span className="text-white/70 text-sm">{member.teamRole}</span>
+                    <div className="flex items-center gap-2">
+                      {member.teamRole === 'Manager' ? <FiShield className="text-white/30 w-4 h-4" /> : <FiUser className="text-white/30 w-4 h-4" />}
+                      <span className="text-white/70 text-sm">{member.teamRole}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 border-b border-white/5 text-white/50 text-sm">
                     {member.department}
@@ -176,7 +182,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
                   </td>
                   <td className="px-6 py-4 border-b border-white/5">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyle(member.status)}`}>
-                      {member.status === 1 ? <FiCheckCircle className="text-xs" /> : <FiUser className="text-xs" />}
+                      {member.status === 1 ? <FiCheckCircle className="text-xs" /> : <FiXCircle className="text-xs" />}
                       {member.status === 1 ? "Active" : "Inactive"}
                     </span>
                   </td>

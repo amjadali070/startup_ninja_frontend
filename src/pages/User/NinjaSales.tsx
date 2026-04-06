@@ -1,10 +1,7 @@
 import { type FC } from "react";
-// import DashboardLayout from "../../layouts/DashboardLayout";
-// import { useNavigate } from "react-router-dom";
-// import { useAuth } from "../../hooks/useAuth";
-import ComingSoon from "../ComingSoon";
-
-/*
+import DashboardLayout from "../../layouts/DashboardLayout";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import NinjaSalesHeader from "../../components/ninja-sales/NinjaSalesHeader";
 import NinjaSalesStats from "../../components/ninja-sales/NinjaSalesStats";
 import PipelineSnapshot from "../../components/ninja-sales/PipelineSnapshot";
@@ -14,27 +11,27 @@ import AIFollowupSuggestions from "../../components/ninja-sales/AIFollowupSugges
 import TopOpportunities from "../../components/ninja-sales/TopOpportunities";
 import SalesQuickActions from "../../components/ninja-sales/SalesQuickActions";
 import SalesAdvancedModule from "../../components/ninja-sales/SalesAdvancedModule";
-*/
+
 
 const NinjaSales: FC = () => {
-  // const navigate = useNavigate();
-  // const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await logout();
-  //   } catch (err) {
-  //     console.error("Sales logout failed:", err);
-  //   } finally {
-  //     navigate("/login", { replace: true });
-  //   }
-  // };
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Sales logout failed:", err);
+    } finally {
+      navigate("/login", { replace: true });
+    }
+  };
 
-  // const handleOpenSettings = () => {
-  //   navigate("/settings");
-  // };
+  const handleOpenSettings = () => {
+    navigate("/settings");
+  };
 
-  /*
+
   const handleNewDeal = () => {
     console.log("New Deal triggered");
   };
@@ -42,11 +39,7 @@ const NinjaSales: FC = () => {
   const handleExport = () => {
     console.log("Export CSV triggered");
   };
-  */
 
-  return <ComingSoon title="Ninja Sales" />;
-
-  /*
   return (
     <DashboardLayout
       activePath="/ai-tools/sales"
@@ -57,7 +50,7 @@ const NinjaSales: FC = () => {
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
           <NinjaSalesHeader onNewDeal={handleNewDeal} onExport={handleExport} />
-          
+
           <NinjaSalesStats />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
@@ -73,13 +66,13 @@ const NinjaSales: FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-5">
               <AIFollowupSuggestions />
             </div>
             <div className="lg:col-span-5">
               <TopOpportunities />
             </div>
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-2">
               <SalesQuickActions />
             </div>
           </div>
@@ -91,7 +84,6 @@ const NinjaSales: FC = () => {
       </main>
     </DashboardLayout>
   );
-  */
 };
 
 export default NinjaSales;

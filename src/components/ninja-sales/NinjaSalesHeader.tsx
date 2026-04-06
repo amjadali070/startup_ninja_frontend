@@ -8,39 +8,47 @@ interface NinjaSalesHeaderProps {
 
 const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ onNewDeal, onExport }) => {
   return (
-    <div className="relative w-full overflow-hidden rounded-[32px] bg-[#121212] p-8 lg:p-10 border border-white/[0.03] shadow-2xl">
-      {/* Background abstract effect */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#EF444408] to-transparent pointer-events-none" />
-      
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">Ninja Sales</h1>
-            <div className="px-2.5 py-1 bg-[#EF444415] border border-[#EF444425] rounded-lg">
-              <span className="text-[10px] font-black text-[#EF4444] uppercase tracking-widest">AI REVENUE ENGINE</span>
+    <div className="mb-6">
+      <section className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat border-[#ff3b3b47]">
+        <div className="absolute inset-0 bg-[#f5212e0d]" />
+        <div className="relative z-10 flex h-full flex-col justify-between gap-3 px-3 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-5 md:px-6 md:py-6 xl:px-8 xl:py-8">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="font-plus-jakarta text-xl font-bold leading-7 text-white sm:text-2xl sm:leading-[32px] md:text-[26px] md:leading-[36px]">
+                Ninja Sales
+              </h2>
+              <div className="px-2 py-1 bg-[#EF444415] border border-[#EF444425] rounded-lg hidden md:flex items-center">
+                <span className="text-[9px] font-black text-[#EF4444] uppercase tracking-widest leading-none">AI REVENUE ENGINE</span>
+              </div>
             </div>
+            <p className="font-plus-jakarta text-xs leading-5 text-gray-300 sm:text-sm sm:leading-6 md:text-[16px] md:leading-[24px]">
+              The Revenue Engine — Accelerating your pipeline with predictive intelligence.
+            </p>
           </div>
-          <p className="text-gray-400 font-medium text-sm lg:text-base">The Revenue Engine — Accelerating your pipeline with predictive intelligence.</p>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={onExport}
-            className="flex items-center gap-2 px-5 py-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 rounded-2xl text-[11px] font-black text-gray-300 uppercase tracking-widest transition-all shadow-xl active:scale-95"
-          >
-            <FiDownload className="w-4 h-4" />
-            Export CSV
-          </button>
-          
-          <button 
-            onClick={onNewDeal}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF3B3B] via-[#E50000] to-[#A60000] hover:brightness-110 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-[0_12px_32px_rgba(229,0,0,0.3)] active:scale-95"
-          >
-            <FiPlus className="w-4 h-4" />
-            New Deal
-          </button>
+          <div className="flex-shrink-0 flex items-center gap-3">
+            {onExport && (
+              <button
+                type="button"
+                onClick={onExport}
+                className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 sm:px-4 sm:py-2.5 sm:text-sm whitespace-nowrap"
+              >
+                <FiDownload className="h-4 w-4" />
+                <span>Export CSV</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onNewDeal}
+              className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
+            >
+              <FiPlus className="h-4 w-4" />
+              <span>New Deal</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
