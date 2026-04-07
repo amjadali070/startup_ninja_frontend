@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { FiSearch, FiDownload, FiMoreVertical, FiMail, FiPhone, FiExternalLink, FiUserPlus, FiTrendingUp } from "react-icons/fi";
-import { motion } from "framer-motion";
 
 interface Lead {
   id: string;
@@ -71,27 +70,8 @@ const LeadsTable: React.FC = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-  };
-
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl"
-    >
+    <div className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl">
       {/* Header Actions */}
       <div className="p-6 border-b border-white/[0.03] flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
@@ -149,15 +129,14 @@ const LeadsTable: React.FC = () => {
           </thead>
           <tbody>
             {paginatedLeads.map((lead) => (
-              <motion.tr
+              <tr
                 key={lead.id}
-                variants={itemVariants}
                 className="group hover:bg-white/[0.02] transition-all duration-300 border-b border-white/[0.03]"
               >
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-900/10 border border-white/10 flex items-center justify-center text-red-500 font-bold shadow-inner">
-                      {lead.name.split(' ').map(n => n[0]).join('')}
+                      {lead.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div>
                       <div className="font-semibold text-white group-hover:text-red-500 transition-colors flex items-center gap-2">
@@ -186,7 +165,7 @@ const LeadsTable: React.FC = () => {
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-[10px] text-white/60">
-                      {lead.assignedTo.split(' ').map(n => n[0]).join('')}
+                      {lead.assignedTo.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <span className="text-white/70 text-sm">{lead.assignedTo}</span>
                   </div>
@@ -207,7 +186,7 @@ const LeadsTable: React.FC = () => {
                     </button>
                   </div>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -244,7 +223,7 @@ const LeadsTable: React.FC = () => {
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

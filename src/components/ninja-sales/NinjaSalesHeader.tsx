@@ -44,7 +44,7 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ onNewDeal, onExport }) =>
               className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
             >
               <FiPlus className="h-4 w-4" />
-              <span>New Deal</span>
+              <span>New Lead</span>
             </button>
           </div>
         </div>

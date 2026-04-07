@@ -5,7 +5,6 @@ import { useAuth } from "../../../hooks/useAuth";
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import LeadsTable from "../../../components/ninja-sales/LeadsTable";
 import { FiUsers, FiTrendingUp, FiTarget, FiZap } from "react-icons/fi";
-import { motion } from "framer-motion";
 
 const LeadsPage: FC = () => {
   const navigate = useNavigate();
@@ -54,12 +53,9 @@ const LeadsPage: FC = () => {
 
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
+            {stats.map((stat) => (
+              <div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className="group relative bg-[#121212] border border-white/[0.03] rounded-2xl p-8 hover:bg-[#161616] transition-all hover:border-[#EF444420] shadow-xl overflow-hidden"
               >
                 {/* Subtle icon glow on hover */}
@@ -80,7 +76,7 @@ const LeadsPage: FC = () => {
                     </span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
