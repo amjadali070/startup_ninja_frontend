@@ -10,8 +10,10 @@ import {
   FiGlobe,
   FiChevronLeft,
   FiChevronRight,
-  // FiCheckSquare,
   FiTrendingUp,
+  FiUsers,
+  FiZap,
+  FiFileText,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -30,6 +32,13 @@ interface SidebarNavItem {
   icon: ReactNode;
   admin: boolean;
   end?: boolean;
+  subItems?: SidebarSubItem[];
+}
+
+interface SidebarSubItem {
+  label: string;
+  to: string;
+  icon: ReactNode;
 }
 
 interface DashboardSidebarProps {
@@ -133,6 +142,23 @@ const navSections: SidebarSection[] = [
         to: "/ai-tools/sales",
         icon: <FiTrendingUp className="w-5 h-5" />,
         admin: false,
+        subItems: [
+          {
+            label: "Leads",
+            to: "/ai-tools/sales/leads",
+            icon: <FiUsers className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Follow-ups",
+            to: "/ai-tools/sales/follow-ups",
+            icon: <FiZap className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Proposals",
+            to: "/ai-tools/sales/proposals",
+            icon: <FiFileText className="w-3.5 h-3.5" />,
+          },
+        ],
       },
       {
         label: "Manage Team",
@@ -394,60 +420,85 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   const dataIsActiveValue = navActive.toString();
 
                   return (
-                    <NavLink
-                      key={item.label}
-                      to={item.to}
-                      end={item.end}
-                      onClick={closeMobileSidebar}
-                      className={({ isActive }) => {
-                        const isCurrent = isActive || navActive;
-                        const baseClasses = `group relative flex items-center ${isCollapsed
-                          ? "justify-center px-2 py-2"
-                          : "gap-2 px-3 py-2"
-                          } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
-                        const defaultState =
-                          "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
-                        const activeState =
-                          "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
+                    <div key={item.label} className="space-y-1">
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        onClick={closeMobileSidebar}
+                        className={({ isActive }) => {
+                          const isCurrent = isActive || navActive;
+                          const baseClasses = `group relative flex items-center ${isCollapsed
+                            ? "justify-center px-2 py-2"
+                            : "gap-2 px-3 py-2"
+                            } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
+                          const defaultState =
+                            "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
+                          const activeState =
+                            "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
 
-                        return `${baseClasses} ${isCurrent ? activeState : defaultState
-                          }`.trim();
-                      }}
-                      style={({ isActive }) => {
-                        const isCurrent = isActive || navActive;
-                        if (isCurrent) {
-                          return activeNavStyle;
-                        }
+                          return `${baseClasses} ${isCurrent ? activeState : defaultState
+                            }`.trim();
+                        }}
+                        style={({ isActive }) => {
+                          const isCurrent = isActive || navActive;
+                          if (isCurrent) {
+                            return activeNavStyle;
+                          }
 
-                        return {
-                          transition: "background 0.2s ease, border 0.2s ease",
-                        };
-                      }}
-                      data-is-active={dataIsActiveValue}
-                      onMouseEnter={(event) => {
-                        const element = event.currentTarget;
-                        if (element.dataset.isActive === "true") {
-                          return;
-                        }
-                        applyHoverGradient(element);
-                      }}
-                      onMouseLeave={(event) => {
-                        const element = event.currentTarget;
-                        if (element.dataset.isActive === "true") {
-                          return;
-                        }
-                        clearHoverGradient(element);
-                      }}
-                    >
-                      <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
-                        {item.icon}
-                      </span>
-                      {isCollapsed ? null : (
-                        <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
-                          {item.label}
+                          return {
+                            transition: "background 0.2s ease, border 0.2s ease",
+                          };
+                        }}
+                        data-is-active={dataIsActiveValue}
+                        onMouseEnter={(event) => {
+                          const element = event.currentTarget;
+                          if (element.dataset.isActive === "true") {
+                            return;
+                          }
+                          applyHoverGradient(element);
+                        }}
+                        onMouseLeave={(event) => {
+                          const element = event.currentTarget;
+                          if (element.dataset.isActive === "true") {
+                            return;
+                          }
+                          clearHoverGradient(element);
+                        }}
+                      >
+                        <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
+                          {item.icon}
                         </span>
+                        {isCollapsed ? null : (
+                          <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
+                            {item.label}
+                          </span>
+                        )}
+                      </NavLink>
+
+                      {/* Sub-items rendering */}
+                      {!isCollapsed && item.subItems && navActive && (
+                        <div className="ml-9 space-y-1 animate-in slide-in-from-top-2 duration-300">
+                          {item.subItems.map((subItem) => {
+                            const isSubActive = location.pathname === subItem.to;
+                            return (
+                              <Link
+                                key={subItem.label}
+                                to={subItem.to}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${isSubActive
+                                  ? "text-red-500 bg-red-500/5"
+                                  : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                                  }`}
+                              >
+                                <span className={isSubActive ? "text-red-500" : "text-white/20"}>
+                                  {subItem.icon}
+                                </span>
+                                <span>{subItem.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       )}
-                    </NavLink>
+                    </div>
                   );
                 })}
               </div>
