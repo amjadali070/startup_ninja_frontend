@@ -4,9 +4,18 @@ import { FiPlus, FiDownload } from "react-icons/fi";
 interface NinjaSalesHeaderProps {
   onNewDeal?: () => void;
   onExport?: () => void;
+  newButtonText?: string;
+  title?: string;
+  subtitle?: string;
 }
 
-const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ onNewDeal, onExport }) => {
+const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ 
+  onNewDeal, 
+  onExport, 
+  newButtonText = "New Lead",
+  title = "Ninja Sales",
+  subtitle = "The Revenue Engine — Accelerating your pipeline with predictive intelligence."
+}) => {
   return (
     <div className="mb-6">
       <section className="relative w-full overflow-hidden rounded-[16px] border border-black bg-[url('/images/welcome-bg.png')] bg-cover bg-center bg-no-repeat border-[#ff3b3b47]">
@@ -15,14 +24,14 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ onNewDeal, onExport }) =>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
               <h2 className="font-plus-jakarta text-xl font-bold leading-7 text-white sm:text-2xl sm:leading-[32px] md:text-[26px] md:leading-[36px]">
-                Ninja Sales
+                {title}
               </h2>
               <div className="px-2 py-1 bg-[#EF444415] border border-[#EF444425] rounded-lg hidden md:flex items-center">
                 <span className="text-[9px] font-black text-[#EF4444] uppercase tracking-widest leading-none">AI REVENUE ENGINE</span>
               </div>
             </div>
             <p className="font-plus-jakarta text-xs leading-5 text-gray-300 sm:text-sm sm:leading-6 md:text-[16px] md:leading-[24px]">
-              The Revenue Engine — Accelerating your pipeline with predictive intelligence.
+              {subtitle}
             </p>
           </div>
 
@@ -44,7 +53,7 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({ onNewDeal, onExport }) =>
               className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
             >
               <FiPlus className="h-4 w-4" />
-              <span>New Lead</span>
+              <span>{newButtonText}</span>
             </button>
           </div>
         </div>

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import PipelineKanban, { Column } from "../../../components/ninja-sales/PipelineKanban";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
-import { FiPlus, FiFilter, FiCalendar, FiUser, FiChevronDown, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe } from "react-icons/fi";
+import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
+import { FiFilter, FiCalendar, FiUser, FiChevronDown, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe } from "react-icons/fi";
 import { DropResult } from "@hello-pangea/dnd";
 
 const initialKanbanData: Column[] = [
@@ -50,7 +51,7 @@ const LeadsPipelinePage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [kanbanData, setKanbanData] = useState<Column[]>(initialKanbanData);
-
+  
   // Filter States
   const [timeframe, setTimeframe] = useState("This Quarter");
   const [owner, setOwner] = useState("All Owners");
@@ -72,6 +73,14 @@ const LeadsPipelinePage: FC = () => {
     navigate("/settings");
   };
 
+  const handleNewLead = () => {
+    console.log("New Lead triggered");
+  };
+
+  const handleExport = () => {
+    console.log("Export CSV triggered");
+  };
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
@@ -80,13 +89,12 @@ const LeadsPipelinePage: FC = () => {
     const newCols = [...kanbanData];
     const sourceColIndex = newCols.findIndex(col => col.id === source.droppableId);
     const destColIndex = newCols.findIndex(col => col.id === destination.droppableId);
-
-    // We deep clone the involved columns to ensure React detects the state change
+    
     const sourceCol = { ...newCols[sourceColIndex], cards: [...newCols[sourceColIndex].cards] };
     const destCol = { ...newCols[destColIndex], cards: [...newCols[destColIndex].cards] };
-
+    
     const [movedCard] = sourceCol.cards.splice(source.index, 1);
-
+    
     if (source.droppableId === destination.droppableId) {
       sourceCol.cards.splice(destination.index, 0, movedCard);
       newCols[sourceColIndex] = sourceCol;
@@ -103,8 +111,7 @@ const LeadsPipelinePage: FC = () => {
       ...col,
       cards: col.cards.filter(card => {
         const priorityMatch = priorityFilter === "All Priority" || card.priority === priorityFilter.replace(" Priority", "").toUpperCase();
-
-        // Mocking Value filtering logic based on string "$125k" -> 125000
+        
         const numericValue = parseInt(card.value.replace(/[^0-9]/g, '')) * (card.value.includes('k') ? 1000 : 1);
         let valueMatch = true;
         if (valueRange === "< $50k") valueMatch = numericValue < 50000;
@@ -132,18 +139,13 @@ const LeadsPipelinePage: FC = () => {
     >
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         <div className="p-4 lg:p-8 space-y-8 max-w-auto mx-auto text-white pb-20">
-
-          {/* Header Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-            <div>
-              <h1 className="text-3xl font-black text-white tracking-tight uppercase">Lead Pipeline</h1>
-              <p className="text-white/40 text-sm mt-1">Revenue Pipeline Overview</p>
-            </div>
-            <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-6 text-sm font-black transition-all shadow-lg shadow-red-600/20 active:scale-95 whitespace-nowrap">
-              <FiPlus className="w-5 h-5" />
-              <span>Add Lead</span>
-            </button>
-          </div>
+          
+          <NinjaSalesHeader 
+            title="Lead Pipeline" 
+            subtitle="Revenue Pipeline Overview — Monitoring your business velocity."
+            onNewDeal={handleNewLead} 
+            onExport={handleExport} 
+          />
 
           <SalesStatGrid stats={stats} />
 

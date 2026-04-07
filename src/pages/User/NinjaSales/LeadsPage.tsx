@@ -43,14 +43,19 @@ const LeadsPage: FC = () => {
   return (
     <DashboardLayout
       activePath="/ai-tools/sales/leads"
-      title="Leads - Ninja Sales"
+      title="Leads Management - Ninja Sales"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
-        <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
-          {/* Header Section */}
-          <NinjaSalesHeader onNewDeal={handleNewLead} onExport={handleExport} />
+        <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen pb-10">
+          
+          <NinjaSalesHeader 
+            title="Lead Management" 
+            subtitle="Intelligent Lead Tracking — Managing your potential revenue growth."
+            onNewDeal={handleNewLead} 
+            onExport={handleExport} 
+          />
 
           <SalesStatGrid stats={stats} />
 
