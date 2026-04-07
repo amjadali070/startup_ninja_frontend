@@ -73,9 +73,9 @@ const LeadsTable: React.FC = () => {
   return (
     <div className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl">
       {/* Header Actions */}
-      <div className="p-6 border-b border-white/[0.03] flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
-          <div className="relative group w-full sm:w-[320px]">
+      <div className="p-4 sm:p-6 border-b border-white/[0.03] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 flex-1">
+          <div className="relative group w-full md:w-[320px]">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
             <input
               type="text"
@@ -86,11 +86,11 @@ const LeadsTable: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 transition-all cursor-pointer flex-1 sm:w-[160px]"
+              className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 transition-all cursor-pointer w-full md:w-[160px]"
             >
               <option value="All" className="bg-[#1A1A1A] text-white">All Status</option>
               <option value="New" className="bg-[#1A1A1A] text-white">New</option>
@@ -103,12 +103,12 @@ const LeadsTable: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-5 text-sm font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-95">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-5 text-sm font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-95 w-full sm:w-auto">
             <FiUserPlus className="w-4 h-4" />
             <span>Add New Lead</span>
           </button>
-          <button className="p-3 bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white/70 rounded-xl transition-all" title="Export CSV">
+          <button className="p-3 bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white/70 rounded-xl transition-all flex items-center justify-center" title="Export CSV">
             <FiDownload className="w-5 h-5" />
           </button>
         </div>
@@ -193,23 +193,23 @@ const LeadsTable: React.FC = () => {
       </div>
 
       {/* Pagination Container */}
-      <div className="p-6 bg-white/[0.02] border-t border-white/[0.03] flex items-center justify-between">
-        <p className="text-xs text-white/30 font-medium">
+      <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.03] flex flex-col md:flex-row items-center justify-between gap-6">
+        <p className="text-xs text-white/30 font-medium order-2 md:order-1">
           Showing <span className="text-white/60">{filteredLeads.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}-{Math.min(currentPage * itemsPerPage, filteredLeads.length)}</span> of <span className="text-white/60">{filteredLeads.length}</span> leads
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-between md:justify-end">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold border border-white/[0.03] transition-all ${currentPage === 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/5 active:scale-95'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold border border-white/[0.03] transition-all flex-1 md:flex-none ${currentPage === 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/5 active:scale-95'}`}
           >
-            Previous
+            Prev
           </button>
 
-          <div className="flex items-center gap-6 px-3 py-1 mx-2">
-            <span className="text-xs font-black text-white/50 uppercase tracking-[0.2em] whitespace-nowrap">
+          <div className="flex items-center gap-6 px-3 py-1 bg-white/[0.02] border border-white/5 rounded-xl mx-1 md:mx-2">
+            <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] whitespace-nowrap">
               Page <span className="text-white text-xs font-black">{currentPage}</span>
-              <span className="text-white/10 mx-2">/</span>
+              <span className="text-white/10 mx-1">/</span>
               {totalPages}
             </span>
           </div>
@@ -217,7 +217,7 @@ const LeadsTable: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-5 py-2 rounded-xl text-xs font-semibold border border-white/10 transition-all ${currentPage === totalPages ? 'text-white/20 cursor-not-allowed' : 'text-white/60 bg-white/5 hover:bg-white/10 active:scale-95'}`}
+            className={`px-5 py-2 rounded-xl text-xs font-semibold border border-white/10 transition-all flex-1 md:flex-none ${currentPage === totalPages ? 'text-white/20 cursor-not-allowed' : 'text-white/60 bg-white/5 hover:bg-white/10 active:scale-95'}`}
           >
             Next
           </button>

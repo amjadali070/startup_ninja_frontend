@@ -50,6 +50,7 @@ import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
 import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
 import MemberDetails from "./pages/User/TeamManagement/MemberDetails.tsx";
 import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
+import LeadsPipelinePage from "./pages/User/NinjaSales/LeadsPipelinePage.tsx";
 
 function App() {
   return (
@@ -237,6 +238,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/pipeline"
+            element={
+              <ProtectedRoute>
+                <LeadsPipelinePage />
               </ProtectedRoute>
             }
           />

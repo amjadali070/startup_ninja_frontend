@@ -3,7 +3,8 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import NinjaSalesHeader from "../../components/ninja-sales/NinjaSalesHeader";
-import NinjaSalesStats from "../../components/ninja-sales/NinjaSalesStats";
+import SalesStatGrid, { StatItem } from "../../components/ninja-sales/SalesStatGrid";
+import { FiTrendingUp, FiFolder, FiAward, FiAlertCircle } from "react-icons/fi";
 import PipelineSnapshot from "../../components/ninja-sales/PipelineSnapshot";
 import RevenueForecast from "../../components/ninja-sales/RevenueForecast.tsx";
 import RecentLeadActivity from "../../components/ninja-sales/RecentLeadActivity";
@@ -40,6 +41,13 @@ const NinjaSales: FC = () => {
     console.log("Export CSV triggered");
   };
 
+  const dashboardStats: StatItem[] = [
+    { label: "Active Leads", value: "42", change: "+12% this week", isPositive: true, icon: <FiTrendingUp className="w-5 h-5" /> },
+    { label: "Pipeline Value", value: "$1.2M", change: "Target: $1.5M", icon: <FiFolder className="w-5 h-5" /> },
+    { label: "Win Rate", value: "68%", progress: 68, icon: <FiAward className="w-5 h-5" /> },
+    { label: "Overdue Follow-ups", value: "5", isAlert: true, change: "Requires Immediate Action", icon: <FiAlertCircle className="w-5 h-5" /> },
+  ];
+
   return (
     <DashboardLayout
       activePath="/ai-tools/sales"
@@ -51,7 +59,7 @@ const NinjaSales: FC = () => {
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
           <NinjaSalesHeader onNewDeal={handleNewDeal} onExport={handleExport} />
 
-          <NinjaSalesStats />
+          <SalesStatGrid stats={dashboardStats} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             <div className="lg:col-span-4">
