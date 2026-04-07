@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { FiSearch, FiDownload, FiMoreVertical, FiMail, FiPhone, FiExternalLink, FiUserPlus, FiTrendingUp } from "react-icons/fi";
 
 interface Lead {
@@ -134,18 +135,18 @@ const LeadsTable: React.FC = () => {
                 className="group hover:bg-white/[0.02] transition-all duration-300 border-b border-white/[0.03]"
               >
                 <td className="px-6 py-5">
-                  <div className="flex items-center gap-4">
+                  <Link to={`/ai-tools/sales/leads/${lead.id}`} className="flex items-center gap-4 group/name">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-900/10 border border-white/10 flex items-center justify-center text-red-500 font-bold shadow-inner">
                       {lead.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div>
-                      <div className="font-semibold text-white group-hover:text-red-500 transition-colors flex items-center gap-2">
+                      <div className="font-semibold text-white group-hover/name:text-red-500 transition-colors flex items-center gap-2">
                         {lead.name}
-                        <FiExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <FiExternalLink className="w-3 h-3 opacity-0 group-hover/name:opacity-100 transition-opacity" />
                       </div>
                       <div className="text-white/40 text-xs mt-0.5">{lead.company}</div>
                     </div>
-                  </div>
+                  </Link>
                 </td>
                 <td className="px-6 py-5">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border ${getStatusStyle(lead.status)}`}>

@@ -53,6 +53,7 @@ import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
 import LeadsPipelinePage from "./pages/User/NinjaSales/LeadsPipelinePage.tsx";
 import FollowUpsPage from "./pages/User/NinjaSales/FollowUpsPage.tsx";
 import ProposalsPage from "./pages/User/NinjaSales/ProposalsPage.tsx";
+import LeadDetailsPage from "./pages/User/NinjaSales/LeadDetailsPage.tsx";
 
 function App() {
   return (
@@ -240,6 +241,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/leads/:id"
+            element={
+              <ProtectedRoute>
+                <LeadDetailsPage />
               </ProtectedRoute>
             }
           />

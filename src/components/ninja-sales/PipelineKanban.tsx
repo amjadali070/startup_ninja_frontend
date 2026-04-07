@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FiMoreHorizontal, FiClock, FiPhone } from "react-icons/fi";
 import { MdDragIndicator } from "react-icons/md";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
@@ -86,12 +87,12 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
                             </div>
                           </div>
 
-                          <div className="space-y-1 mb-6">
-                            <h4 className="text-base font-black text-white group-hover:text-red-500 transition-colors uppercase tracking-tight">
+                          <Link to={`/ai-tools/sales/leads/${card.id}`} className="block space-y-1 mb-6 group/title">
+                            <h4 className="text-base font-black text-white group-hover/title:text-red-500 transition-colors uppercase tracking-tight">
                               {card.company}
                             </h4>
                             <p className="text-sm font-medium text-white/40">{card.contact}</p>
-                          </div>
+                          </Link>
 
                           <div className="flex items-center justify-between">
                             <div>
