@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -6,10 +6,12 @@ import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import LeadsTable from "../../../components/ninja-sales/LeadsTable";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import { FiUsers, FiTrendingUp, FiTarget, FiZap } from "react-icons/fi";
+import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
 
 const LeadsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -26,7 +28,7 @@ const LeadsPage: FC = () => {
   };
 
   const handleNewLead = () => {
-    console.log("New Lead triggered");
+    setIsAddModalOpen(true);
   };
 
   const handleExport = () => {
@@ -69,6 +71,11 @@ const LeadsPage: FC = () => {
           </div>
         </div>
       </main>
+
+      <AddProjectModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };

@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -8,10 +8,12 @@ import ProposalEditor from "../../../components/ninja-sales/ProposalEditor";
 import SavedTemplates from "../../../components/ninja-sales/SavedTemplates";
 import RecentProposals from "../../../components/ninja-sales/RecentProposals";
 import { FiTrendingUp, FiTarget, FiZap, FiEdit3 } from "react-icons/fi";
+import NewProposalModal from "../../../components/ninja-sales/NewProposalModal";
 
 const ProposalsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isNewProposalModalOpen, setIsNewProposalModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,7 +30,7 @@ const ProposalsPage: FC = () => {
   };
 
   const handleNewProposal = () => {
-    console.log("New Proposal triggered");
+    setIsNewProposalModalOpen(true);
   };
 
   const handleExport = () => {
@@ -83,6 +85,11 @@ const ProposalsPage: FC = () => {
 
         </div>
       </main>
+
+      <NewProposalModal 
+        isOpen={isNewProposalModalOpen} 
+        onClose={() => setIsNewProposalModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };

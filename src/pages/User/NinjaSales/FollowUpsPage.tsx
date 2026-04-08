@@ -7,11 +7,13 @@ import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesSt
 import FollowUpTable from "../../../components/ninja-sales/FollowUpTable";
 import AIOutreachAssistant from "../../../components/ninja-sales/AIOutreachAssistant";
 import { FiTrendingUp, FiAlertTriangle, FiClock, FiCheckCircle } from "react-icons/fi";
+import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 
 const FollowUpsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState("Today");
+  const [isNewOutreachModalOpen, setIsNewOutreachModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,7 +30,7 @@ const FollowUpsPage: FC = () => {
   };
 
   const handleNewOutreach = () => {
-    console.log("New Outreach triggered");
+    setIsNewOutreachModalOpen(true);
   };
 
   const stats: StatItem[] = [
@@ -87,6 +89,11 @@ const FollowUpsPage: FC = () => {
           </div>
         </div>
       </main>
+
+      <NewOutreachModal 
+        isOpen={isNewOutreachModalOpen} 
+        onClose={() => setIsNewOutreachModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };

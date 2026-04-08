@@ -1,22 +1,24 @@
-import { type FC } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import { type FC, useState } from "react";
+import DashboardLayout from "../../../layouts/DashboardLayout.tsx";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import NinjaSalesHeader from "../../components/ninja-sales/NinjaSalesHeader";
-import SalesStatGrid, { StatItem } from "../../components/ninja-sales/SalesStatGrid";
+import { useAuth } from "../../../hooks/useAuth.ts";
+import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader.tsx";
+import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid.tsx";
 import { FiTrendingUp, FiFolder, FiAward, FiAlertCircle } from "react-icons/fi";
-import PipelineSnapshot from "../../components/ninja-sales/PipelineSnapshot";
-import RevenueForecast from "../../components/ninja-sales/RevenueForecast.tsx";
-import RecentLeadActivity from "../../components/ninja-sales/RecentLeadActivity";
-import AIFollowupSuggestions from "../../components/ninja-sales/AIFollowupSuggestions";
-import TopOpportunities from "../../components/ninja-sales/TopOpportunities";
-import SalesQuickActions from "../../components/ninja-sales/SalesQuickActions";
-import SalesAdvancedModule from "../../components/ninja-sales/SalesAdvancedModule";
+import PipelineSnapshot from "../../../components/ninja-sales/PipelineSnapshot.tsx";
+import RevenueForecast from "../../../components/ninja-sales/RevenueForecast.tsx";
+import RecentLeadActivity from "../../../components/ninja-sales/RecentLeadActivity.tsx";
+import AIFollowupSuggestions from "../../../components/ninja-sales/AIFollowupSuggestions.tsx";
+import TopOpportunities from "../../../components/ninja-sales/TopOpportunities.tsx";
+import SalesQuickActions from "../../../components/ninja-sales/SalesQuickActions.tsx";
+import SalesAdvancedModule from "../../../components/ninja-sales/SalesAdvancedModule.tsx";
+import AddProjectModal from "../../../components/ninja-sales/AddProjectModal.tsx";
 
 
 const NinjaSales: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -34,7 +36,7 @@ const NinjaSales: FC = () => {
 
 
   const handleNewDeal = () => {
-    console.log("New Deal triggered");
+    setIsAddModalOpen(true);
   };
 
   const handleExport = () => {
@@ -51,7 +53,7 @@ const NinjaSales: FC = () => {
   return (
     <DashboardLayout
       activePath="/ai-tools/sales"
-      title="Ninja Sales"
+      title="Ninja Sales Dashboard"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
@@ -90,6 +92,11 @@ const NinjaSales: FC = () => {
           </div>
         </div>
       </main>
+
+      <AddProjectModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };

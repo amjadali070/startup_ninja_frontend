@@ -7,6 +7,7 @@ import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesSt
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import { FiFilter, FiCalendar, FiUser, FiChevronDown, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe } from "react-icons/fi";
 import { DropResult } from "@hello-pangea/dnd";
+import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
 
 const initialKanbanData: Column[] = [
   {
@@ -51,6 +52,7 @@ const LeadsPipelinePage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [kanbanData, setKanbanData] = useState<Column[]>(initialKanbanData);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   // Filter States
   const [timeframe, setTimeframe] = useState("This Quarter");
@@ -74,7 +76,7 @@ const LeadsPipelinePage: FC = () => {
   };
 
   const handleNewLead = () => {
-    console.log("New Lead triggered");
+    setIsAddModalOpen(true);
   };
 
   const handleExport = () => {
@@ -243,6 +245,11 @@ const LeadsPipelinePage: FC = () => {
 
         </div>
       </main>
+
+      <AddProjectModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };

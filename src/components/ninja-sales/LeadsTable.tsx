@@ -1,6 +1,21 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiSearch, FiDownload, FiMoreVertical, FiMail, FiPhone, FiExternalLink, FiUserPlus, FiTrendingUp } from "react-icons/fi";
+import { 
+  FiSearch, 
+  FiMoreVertical, 
+  FiMail, 
+  FiPhone, 
+  FiExternalLink, 
+  FiTrendingUp,
+  FiFilter,
+  FiFilePlus,
+  FiMessageCircle,
+  FiUserCheck,
+  FiSend,
+  FiActivity,
+  FiAward
+} from "react-icons/fi";
+import IconSelect from "../IconSelect";
 
 interface Lead {
   id: string;
@@ -27,7 +42,7 @@ const dummyLeads: Lead[] = [
   { id: "9", name: "Thomas Miller", company: "Miller Tech", email: "thomas@millertech.com", phone: "+1 (555) 012-7777", status: "Qualified", value: 12000, source: "Cold Outreach", assignedTo: "David Kim", lastContact: "4 hours ago" },
   { id: "10", name: "Christopher Davis", company: "Davis & Co", email: "chris@davis.com", phone: "+1 (555) 012-8888", status: "Contacted", value: 55000, source: "Google Ads", assignedTo: "Sarah Miller", lastContact: "6 hours ago" },
   { id: "11", name: "Emily Blunt", company: "Creative Edge", email: "emily@creative.com", phone: "+1 (555) 012-9999", status: "New", value: 9500, source: "Instagram", assignedTo: "Mike Ross", lastContact: "10 mins ago" },
-  { id: "12", name: "Jack Wilson", company: "Wilson Brothers", email: "jack@wilsonbros.io", phone: "+1 (555) 013-1111", status: "Negotiation", value: 75000, source: "Partner", assignedTo: "David Kim", lastContact: "12 hours ago" },
+  { id: "12", name: "Jack Wilson", company: "Jack Wilson Brothers", email: "jack@wilsonbros.io", phone: "+1 (555) 013-1111", status: "Negotiation", value: 75000, source: "Partner", assignedTo: "David Kim", lastContact: "12 hours ago" },
 ];
 
 const LeadsTable: React.FC = () => {
@@ -88,23 +103,24 @@ const LeadsTable: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <select
+            <IconSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 transition-all cursor-pointer w-full md:w-[160px]"
-            >
-              <option value="All" className="bg-[#1A1A1A] text-white">All Status</option>
-              <option value="New" className="bg-[#1A1A1A] text-white">New</option>
-              <option value="Contacted" className="bg-[#1A1A1A] text-white">Contacted</option>
-              <option value="Qualified" className="bg-[#1A1A1A] text-white">Qualified</option>
-              <option value="Proposal Sent" className="bg-[#1A1A1A] text-white">Proposal Sent</option>
-              <option value="Negotiation" className="bg-[#1A1A1A] text-white">Negotiation</option>
-              <option value="Closed" className="bg-[#1A1A1A] text-white">Closed</option>
-            </select>
+              onChange={setStatusFilter}
+              options={[
+                { value: "All", label: "All Status", icon: <FiFilter className="w-4 h-4" /> },
+                { value: "New", label: "New", icon: <FiFilePlus className="w-4 h-4" /> },
+                { value: "Contacted", label: "Contacted", icon: <FiMessageCircle className="w-4 h-4" /> },
+                { value: "Qualified", label: "Qualified", icon: <FiUserCheck className="w-4 h-4" /> },
+                { value: "Proposal Sent", label: "Proposal Sent", icon: <FiSend className="w-4 h-4" /> },
+                { value: "Negotiation", label: "Negotiation", icon: <FiActivity className="w-4 h-4" /> },
+                { value: "Closed", label: "Closed", icon: <FiAward className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[180px] h-[46px] text-sm"
+            />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
           <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-5 text-sm font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-95 w-full sm:w-auto">
             <FiUserPlus className="w-4 h-4" />
             <span>Add New Lead</span>
@@ -112,7 +128,7 @@ const LeadsTable: React.FC = () => {
           <button className="p-3 bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white/70 rounded-xl transition-all flex items-center justify-center" title="Export CSV">
             <FiDownload className="w-5 h-5" />
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Table Content */}

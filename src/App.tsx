@@ -45,7 +45,7 @@ import NinjaFinance from "./pages/User/NinjaFinance.tsx";
 import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
-import NinjaSales from "./pages/User/NinjaSales.tsx";
+import NinjaSales from "./pages/User/NinjaSales/NinjaSales.tsx";
 import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
 import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
 import MemberDetails from "./pages/User/TeamManagement/MemberDetails.tsx";
