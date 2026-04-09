@@ -1,10 +1,9 @@
 import { type FC } from "react";
-// import { useNavigate } from "react-router-dom";
-// import DashboardLayout from "../../layouts/DashboardLayout";
-// import { useAuth } from "../../hooks/useAuth";
-import ComingSoon from "../ComingSoon";
+import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../../layouts/DashboardLayout";
+import { useAuth } from "../../hooks/useAuth";
+// import ComingSoon from "../ComingSoon";
 
-/*
 import NinjaLegalHeader from "../../components/ninja-legal/NinjaLegalHeader";
 import NinjaLegalStats from "../../components/ninja-legal/NinjaLegalStats";
 import NinjaStrategist from "../../components/ninja-legal/NinjaStrategist";
@@ -12,36 +11,32 @@ import ContractGeneration from "../../components/ninja-legal/ContractGeneration"
 import ComplianceMonitor from "../../components/ninja-legal/ComplianceMonitor";
 import ActiveContractsList from "../../components/ninja-legal/ActiveContractsList";
 import LegalAIAdvancedModule from "../../components/ninja-legal/LegalAIAdvancedModule";
-*/
+
 
 const NinjaLegal: FC = () => {
-  // const navigate = useNavigate();
-  // const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await logout();
-  //   } catch (err) {
-  //     console.error("Legal logout failed:", err);
-  //   } finally {
-  //     navigate("/login", { replace: true });
-  //   }
-  // };
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Legal logout failed:", err);
+    } finally {
+      navigate("/login", { replace: true });
+    }
+  };
 
-  // const handleOpenSettings = () => {
-  //   navigate("/settings");
-  // };
+  const handleOpenSettings = () => {
+    navigate("/settings");
+  };
 
-  /*
   const handleNewContract = () => {
-    // This will eventually open a modal or navigate to a creation page
     console.log("Starting a new contract...");
   };
-  */
 
-  return <ComingSoon title="Ninja Legal" />;
+  // return <ComingSoon title="Ninja Legal" />;
 
-  /*
   return (
     <DashboardLayout
       activePath="/ai-tools/legal"
@@ -81,7 +76,7 @@ const NinjaLegal: FC = () => {
       </main>
     </DashboardLayout>
   );
-  */
+  
 };
 
 export default NinjaLegal;

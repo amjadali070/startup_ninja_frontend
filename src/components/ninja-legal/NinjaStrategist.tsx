@@ -16,7 +16,7 @@ const NinjaStrategist: FC = () => {
       {/* Header */}
       <div className="p-5 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-[#EF4444] p-2 rounded-lg text-white">
+          <div className="bg-[#dc2626] p-2 rounded-lg text-white">
             <HiLightningBolt className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-white tracking-wide uppercase text-sm">
@@ -61,13 +61,13 @@ const NinjaStrategist: FC = () => {
 
       {/* Input Area */}
       <div className="p-5 bg-white/5 border-t border-white/5">
-        <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-xl px-4 transition-all focus-within:border-[#EF444440]">
+        <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-xl px-4 transition-all focus-within:border-[#dc262640]">
           <textarea
             rows={1}
             placeholder="Ask Ninja Strategist anything..."
             className="flex-1 bg-transparent py-4 pr-2 text-sm text-white placeholder-gray-500 focus:outline-none resize-none"
           />
-          <button className="flex-shrink-0 w-9 h-9 bg-[#EF4444] text-white rounded-lg hover:bg-[#DC2626] transition-all shadow-lg active:scale-95 flex items-center justify-center">
+          <button className="flex-shrink-0 w-9 h-9 bg-[#dc2626] text-white rounded-lg hover:bg-[#b91c1c] transition-all shadow-lg active:scale-95 flex items-center justify-center">
             <FiSend className="w-4 h-4" />
           </button>
         </div>

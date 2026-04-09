@@ -6,7 +6,7 @@ const NinjaLegalStats: FC = () => {
       label: "ACTIVE CONTRACTS",
       value: "12",
       subtext: "+2 this month",
-      subtextColor: "text-[#EF4444]",
+      subtextColor: "text-[#dc2626]",
     },
     {
       label: "COMPLIANCE HEALTH",
@@ -33,7 +33,7 @@ const NinjaLegalStats: FC = () => {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="bg-[#121212] border border-white/5 rounded-2xl p-6 flex flex-col justify-between h-[150px] group hover:border-[#EF444430] transition-all"
+          className="bg-[#121212] border border-white/5 rounded-2xl p-6 flex flex-col justify-between group hover:border-[#dc262630] transition-all"
         >
           <div>
             <p className="text-[10px] font-extrabold text-gray-500 tracking-[0.1em] uppercase">
@@ -41,7 +41,7 @@ const NinjaLegalStats: FC = () => {
             </p>
           </div>
 
-          <div className="flex items-end justify-between">
+          <div className="flex items-end justify-between mt-4">
             <h3 className="text-3xl lg:text-4xl font-black text-white leading-none">
               {stat.value}
             </h3>
@@ -53,11 +53,11 @@ const NinjaLegalStats: FC = () => {
             )}
 
             {stat.hasAccent && (
-              <div className="w-14 h-1.5 bg-[#EF4444] rounded-full mb-1 ml-4" />
+              <div className="w-14 h-1.5 bg-[#dc2626] rounded-full mb-1 ml-4" />
             )}
 
             {stat.isStatus && (
-              <span className="bg-[#EF4444] text-white text-[9px] font-black px-3 py-1.5 rounded-md uppercase tracking-wider mb-1">
+              <span className="bg-[#dc262626] text-[#dc2626] text-[9px] font-black px-3 py-1.5 rounded-md uppercase tracking-wider mb-1">
                 {stat.subtext}
               </span>
             )}
