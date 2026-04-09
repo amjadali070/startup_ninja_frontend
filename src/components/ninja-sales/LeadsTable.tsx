@@ -1,6 +1,21 @@
 import React, { useState } from "react";
-import { FiSearch, FiDownload, FiMoreVertical, FiMail, FiPhone, FiExternalLink, FiUserPlus, FiTrendingUp } from "react-icons/fi";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { 
+  FiSearch, 
+  FiMoreVertical, 
+  FiMail, 
+  FiPhone, 
+  FiExternalLink, 
+  FiTrendingUp,
+  FiFilter,
+  FiFilePlus,
+  FiMessageCircle,
+  FiUserCheck,
+  FiSend,
+  FiActivity,
+  FiAward
+} from "react-icons/fi";
+import IconSelect from "../IconSelect";
 
 interface Lead {
   id: string;
@@ -27,7 +42,7 @@ const dummyLeads: Lead[] = [
   { id: "9", name: "Thomas Miller", company: "Miller Tech", email: "thomas@millertech.com", phone: "+1 (555) 012-7777", status: "Qualified", value: 12000, source: "Cold Outreach", assignedTo: "David Kim", lastContact: "4 hours ago" },
   { id: "10", name: "Christopher Davis", company: "Davis & Co", email: "chris@davis.com", phone: "+1 (555) 012-8888", status: "Contacted", value: 55000, source: "Google Ads", assignedTo: "Sarah Miller", lastContact: "6 hours ago" },
   { id: "11", name: "Emily Blunt", company: "Creative Edge", email: "emily@creative.com", phone: "+1 (555) 012-9999", status: "New", value: 9500, source: "Instagram", assignedTo: "Mike Ross", lastContact: "10 mins ago" },
-  { id: "12", name: "Jack Wilson", company: "Wilson Brothers", email: "jack@wilsonbros.io", phone: "+1 (555) 013-1111", status: "Negotiation", value: 75000, source: "Partner", assignedTo: "David Kim", lastContact: "12 hours ago" },
+  { id: "12", name: "Jack Wilson", company: "Jack Wilson Brothers", email: "jack@wilsonbros.io", phone: "+1 (555) 013-1111", status: "Negotiation", value: 75000, source: "Partner", assignedTo: "David Kim", lastContact: "12 hours ago" },
 ];
 
 const LeadsTable: React.FC = () => {
@@ -71,31 +86,12 @@ const LeadsTable: React.FC = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-  };
-
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl"
-    >
+    <div className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl">
       {/* Header Actions */}
-      <div className="p-6 border-b border-white/[0.03] flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
-          <div className="relative group w-full sm:w-[320px]">
+      <div className="p-4 sm:p-6 border-b border-white/[0.03] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 flex-1">
+          <div className="relative group w-full md:w-[320px]">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
             <input
               type="text"
@@ -106,32 +102,33 @@ const LeadsTable: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <select
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <IconSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-red-500/50 transition-all cursor-pointer flex-1 sm:w-[160px]"
-            >
-              <option value="All" className="bg-[#1A1A1A] text-white">All Status</option>
-              <option value="New" className="bg-[#1A1A1A] text-white">New</option>
-              <option value="Contacted" className="bg-[#1A1A1A] text-white">Contacted</option>
-              <option value="Qualified" className="bg-[#1A1A1A] text-white">Qualified</option>
-              <option value="Proposal Sent" className="bg-[#1A1A1A] text-white">Proposal Sent</option>
-              <option value="Negotiation" className="bg-[#1A1A1A] text-white">Negotiation</option>
-              <option value="Closed" className="bg-[#1A1A1A] text-white">Closed</option>
-            </select>
+              onChange={setStatusFilter}
+              options={[
+                { value: "All", label: "All Status", icon: <FiFilter className="w-4 h-4" /> },
+                { value: "New", label: "New", icon: <FiFilePlus className="w-4 h-4" /> },
+                { value: "Contacted", label: "Contacted", icon: <FiMessageCircle className="w-4 h-4" /> },
+                { value: "Qualified", label: "Qualified", icon: <FiUserCheck className="w-4 h-4" /> },
+                { value: "Proposal Sent", label: "Proposal Sent", icon: <FiSend className="w-4 h-4" /> },
+                { value: "Negotiation", label: "Negotiation", icon: <FiActivity className="w-4 h-4" /> },
+                { value: "Closed", label: "Closed", icon: <FiAward className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[180px] h-[46px] text-sm"
+            />
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-5 text-sm font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-95">
+        {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <button className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-5 text-sm font-semibold transition-all shadow-lg shadow-red-600/20 active:scale-95 w-full sm:w-auto">
             <FiUserPlus className="w-4 h-4" />
             <span>Add New Lead</span>
           </button>
-          <button className="p-3 bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white/70 rounded-xl transition-all" title="Export CSV">
+          <button className="p-3 bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white/70 rounded-xl transition-all flex items-center justify-center" title="Export CSV">
             <FiDownload className="w-5 h-5" />
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Table Content */}
@@ -149,24 +146,23 @@ const LeadsTable: React.FC = () => {
           </thead>
           <tbody>
             {paginatedLeads.map((lead) => (
-              <motion.tr
+              <tr
                 key={lead.id}
-                variants={itemVariants}
                 className="group hover:bg-white/[0.02] transition-all duration-300 border-b border-white/[0.03]"
               >
                 <td className="px-6 py-5">
-                  <div className="flex items-center gap-4">
+                  <Link to={`/ai-tools/sales/leads/${lead.id}`} className="flex items-center gap-4 group/name">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-900/10 border border-white/10 flex items-center justify-center text-red-500 font-bold shadow-inner">
-                      {lead.name.split(' ').map(n => n[0]).join('')}
+                      {lead.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div>
-                      <div className="font-semibold text-white group-hover:text-red-500 transition-colors flex items-center gap-2">
+                      <div className="font-semibold text-white group-hover/name:text-red-500 transition-colors flex items-center gap-2">
                         {lead.name}
-                        <FiExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <FiExternalLink className="w-3 h-3 opacity-0 group-hover/name:opacity-100 transition-opacity" />
                       </div>
                       <div className="text-white/40 text-xs mt-0.5">{lead.company}</div>
                     </div>
-                  </div>
+                  </Link>
                 </td>
                 <td className="px-6 py-5">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border ${getStatusStyle(lead.status)}`}>
@@ -186,7 +182,7 @@ const LeadsTable: React.FC = () => {
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-[10px] text-white/60">
-                      {lead.assignedTo.split(' ').map(n => n[0]).join('')}
+                      {lead.assignedTo.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <span className="text-white/70 text-sm">{lead.assignedTo}</span>
                   </div>
@@ -207,30 +203,30 @@ const LeadsTable: React.FC = () => {
                     </button>
                   </div>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>
       </div>
 
       {/* Pagination Container */}
-      <div className="p-6 bg-white/[0.02] border-t border-white/[0.03] flex items-center justify-between">
-        <p className="text-xs text-white/30 font-medium">
+      <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.03] flex flex-col md:flex-row items-center justify-between gap-6">
+        <p className="text-xs text-white/30 font-medium order-2 md:order-1">
           Showing <span className="text-white/60">{filteredLeads.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}-{Math.min(currentPage * itemsPerPage, filteredLeads.length)}</span> of <span className="text-white/60">{filteredLeads.length}</span> leads
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-between md:justify-end">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold border border-white/[0.03] transition-all ${currentPage === 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/5 active:scale-95'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold border border-white/[0.03] transition-all flex-1 md:flex-none ${currentPage === 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/60 hover:bg-white/5 active:scale-95'}`}
           >
-            Previous
+            Prev
           </button>
 
-          <div className="flex items-center gap-6 px-3 py-1 mx-2">
-            <span className="text-xs font-black text-white/50 uppercase tracking-[0.2em] whitespace-nowrap">
+          <div className="flex items-center gap-6 px-3 py-1 bg-white/[0.02] border border-white/5 rounded-xl mx-1 md:mx-2">
+            <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] whitespace-nowrap">
               Page <span className="text-white text-xs font-black">{currentPage}</span>
-              <span className="text-white/10 mx-2">/</span>
+              <span className="text-white/10 mx-1">/</span>
               {totalPages}
             </span>
           </div>
@@ -238,13 +234,13 @@ const LeadsTable: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-5 py-2 rounded-xl text-xs font-semibold border border-white/10 transition-all ${currentPage === totalPages ? 'text-white/20 cursor-not-allowed' : 'text-white/60 bg-white/5 hover:bg-white/10 active:scale-95'}`}
+            className={`px-5 py-2 rounded-xl text-xs font-semibold border border-white/10 transition-all flex-1 md:flex-none ${currentPage === totalPages ? 'text-white/20 cursor-not-allowed' : 'text-white/60 bg-white/5 hover:bg-white/10 active:scale-95'}`}
           >
             Next
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -149,6 +149,11 @@ const navSections: SidebarSection[] = [
             icon: <FiUsers className="w-3.5 h-3.5" />,
           },
           {
+            label: "Leads Pipeline",
+            to: "/ai-tools/sales/pipeline",
+            icon: <RiOrganizationChart className="w-3.5 h-3.5" />,
+          },
+          {
             label: "Follow-ups",
             to: "/ai-tools/sales/follow-ups",
             icon: <FiZap className="w-3.5 h-3.5" />,

@@ -45,11 +45,15 @@ import NinjaFinance from "./pages/User/NinjaFinance.tsx";
 import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
-import NinjaSales from "./pages/User/NinjaSales.tsx";
+import NinjaSales from "./pages/User/NinjaSales/NinjaSales.tsx";
 import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
 import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
 import MemberDetails from "./pages/User/TeamManagement/MemberDetails.tsx";
 import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
+import LeadsPipelinePage from "./pages/User/NinjaSales/LeadsPipelinePage.tsx";
+import FollowUpsPage from "./pages/User/NinjaSales/FollowUpsPage.tsx";
+import ProposalsPage from "./pages/User/NinjaSales/ProposalsPage.tsx";
+import LeadDetailsPage from "./pages/User/NinjaSales/LeadDetailsPage.tsx";
 
 function App() {
   return (
@@ -237,6 +241,38 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/leads/:id"
+            element={
+              <ProtectedRoute>
+                <LeadDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/pipeline"
+            element={
+              <ProtectedRoute>
+                <LeadsPipelinePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/follow-ups"
+            element={
+              <ProtectedRoute>
+                <FollowUpsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/proposals"
+            element={
+              <ProtectedRoute>
+                <ProposalsPage />
               </ProtectedRoute>
             }
           />
