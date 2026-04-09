@@ -398,7 +398,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             )}
           </div>
 
-          <nav className="flex-1 space-y-1.5 overflow-hidden pr-1">
+          <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin custom-scrollbar">
             {filteredSections.map((section, sectionIndex) => (
               <div
                 key={sectionIndex}
