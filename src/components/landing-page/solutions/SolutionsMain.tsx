@@ -49,6 +49,18 @@ const SolutionsMain: React.FC = () => {
         "No coding, no design skills needed. Just your brilliant idea.",
       benefit: "Launch in days, not months",
     },
+    {
+      title: "Collaborative Sales Engine",
+      description:
+        "Supercharge your pipeline with team-driven workflows, lead tracking, and proposals.",
+      benefit: "Close deals 2x faster",
+    },
+    {
+      title: "Legal & Compliance Architect",
+      description:
+        "Navigate founder structuring, equity modeling, and generate bulletproof contracts effortlessly.",
+      benefit: "Avoid costly legal mistakes",
+    },
   ];
 
   const useCases = [

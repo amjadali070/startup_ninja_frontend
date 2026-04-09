@@ -3,6 +3,8 @@ import HeroSection from '../../components/landing-page/home-page/HeroSection';
 import ChatFeatureSection from '../../components/landing-page/home-page/ChatFeatureSection';
 import ImageWebFeatureSection from '../../components/landing-page/home-page/ImageWebFeatureSection';
 import SocialMediaFeature from '../../components/landing-page/home-page/SocialMediaFeature';
+import NinjaSalesFeatureSection from '../../components/landing-page/home-page/NinjaSalesFeatureSection';
+import NinjaLegalFeatureSection from '../../components/landing-page/home-page/NinjaLegalFeatureSection';
 import PricingSection from '../../components/landing-page/home-page/PricingSection';
 import LatestNewsSection from '../../components/landing-page/home-page/LatestNewsSection';
 import BusinessSection from '../../components/landing-page/home-page/BusinessSection';
@@ -68,10 +70,12 @@ const HomePage: React.FC = () => {
         </div>
       </section>
       {/* Features */}
-      <section className="relative w-full min-h-[700px] bg-black overflow-hidden mt-10 mb-10">
+      <section className="relative w-full min-h-full bg-black mt-10 mb-10 flex flex-col gap-6 md:gap-10">
         <ChatFeatureSection />
         <ImageWebFeatureSection />
         <SocialMediaFeature />
+        <NinjaSalesFeatureSection />
+        <NinjaLegalFeatureSection />
         <section className="relative w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 mt-10 overflow-hidden">
           <div className="z-10 rounded-3xl p-4 md:p-8 max-w-xl w-full text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Built for Creating</h2>

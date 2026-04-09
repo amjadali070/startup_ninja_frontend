@@ -24,13 +24,13 @@ const TopOpportunities: FC = () => {
   ];
 
   return (
-    <div className="bg-[#121212] border border-white/[0.03] rounded-[32px] p-8 h-full font-plus-jakarta flex flex-col gap-4 group overflow-hidden relative shadow-2xl">
+    <div className="bg-[#121212] border border-white/[0.03] rounded-2xl p-8 h-full font-plus-jakarta flex flex-col gap-4 group overflow-hidden relative shadow-2xl">
       <div className="flex items-center gap-3 mb-2">
         <FiStar className="text-[#EF4444] w-5 h-5 fill-[#EF4444]" />
-        <h2 className="text-xl font-black text-white tracking-tight uppercase">Top Opportunities</h2>
+        <h2 className="text-lg font-semibold text-white tracking-wide">Top Opportunities</h2>
       </div>
 
-      <div className="flex-1 flex flex-col gap-3">
+      <div className="flex-1 flex flex-col gap-4">
         {opportunities.map((opt, i) => (
           <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white/[0.02] border border-white/[0.03] rounded-[24px] hover:border-[#EF444420] transition-all gap-6 shadow-lg group/item">
             <div className="flex-1 space-y-2">

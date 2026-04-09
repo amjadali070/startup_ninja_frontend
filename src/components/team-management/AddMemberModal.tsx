@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiX, FiUser, FiMail, FiLock, FiBriefcase, FiShield, FiToggleRight, FiCheck } from "react-icons/fi";
+import { FiX, FiUser, FiMail, FiLock, FiBriefcase, FiShield, FiCheck, FiEye, FiEyeOff, FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 interface AddMemberModalProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface AddMemberModalProps {
 }
 
 import { useAuth } from "../../hooks/useAuth";
+import IconSelect from "../IconSelect";
 
 const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConfirm }) => {
   const { user } = useAuth();
@@ -138,7 +139,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
                     >
-                      <FiShield className="w-5 h-5" />
+                      {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
@@ -149,56 +150,47 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                 {/* Role */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white/60 ml-1">Role</label>
-                  <div className="relative group">
-                    <FiShield className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
-                    <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-red-500/50 appearance-none transition-all cursor-pointer"
-                    >
-                      <option className="bg-[#0B0B0F]" value="Manager">Manager</option>
-                      <option className="bg-[#0B0B0F]" value="Member">Member</option>
-                    </select>
-                  </div>
+                  <IconSelect
+                    value={formData.role}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, role: val }))}
+                    options={[
+                      { value: "Manager", label: "Manager", icon: <FiShield className="w-5 h-5" /> },
+                      { value: "Member", label: "Member", icon: <FiUser className="w-5 h-5" /> },
+                    ]}
+                    className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 text-white transition-all"
+                  />
                 </div>
 
                 {/* Status */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white/60 ml-1">Status</label>
-                  <div className="relative group">
-                    <FiToggleRight className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-red-500/50 appearance-none transition-all cursor-pointer"
-                    >
-                      <option className="bg-[#0B0B0F]" value="Active">Active</option>
-                      <option className="bg-[#0B0B0F]" value="Inactive">Inactive</option>
-                    </select>
-                  </div>
+                  <IconSelect
+                    value={formData.status}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, status: val }))}
+                    options={[
+                      { value: "Active", label: "Active", icon: <FiCheckCircle className="w-5 h-5" /> },
+                      { value: "Inactive", label: "Inactive", icon: <FiXCircle className="w-5 h-5" /> },
+                    ]}
+                    className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 text-white transition-all"
+                  />
                 </div>
 
                 {/* Department */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white/60 ml-1">Department</label>
-                  <div className="relative group">
-                    <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
-                    <select
-                      name="department"
-                      value={formData.department}
-                      onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-red-500/50 appearance-none transition-all cursor-pointer"
-                    >
-                      <option className="bg-[#0B0B0F]" value="Sales">Sales</option>
-                      <option className="bg-[#0B0B0F]" value="Ops">Ops</option>
-                      <option className="bg-[#0B0B0F]" value="Finance">Finance</option>
-                      <option className="bg-[#0B0B0F]" value="Legal">Legal</option>
-                      <option className="bg-[#0B0B0F]" value="Tech">Tech</option>
-                      <option className="bg-[#0B0B0F]" value="HR">HR</option>
-                    </select>
-                  </div>
+                  <IconSelect
+                    value={formData.department}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, department: val }))}
+                    options={[
+                      { value: "Sales", label: "Sales", icon: <FiBriefcase className="w-5 h-5" /> },
+                      { value: "Ops", label: "Ops", icon: <FiBriefcase className="w-5 h-5" /> },
+                      { value: "Finance", label: "Finance", icon: <FiBriefcase className="w-5 h-5" /> },
+                      { value: "Legal", label: "Legal", icon: <FiBriefcase className="w-5 h-5" /> },
+                      { value: "Tech", label: "Tech", icon: <FiBriefcase className="w-5 h-5" /> },
+                      { value: "HR", label: "HR", icon: <FiBriefcase className="w-5 h-5" /> },
+                    ]}
+                    className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 text-white transition-all"
+                  />
                 </div>
               </div>
 
