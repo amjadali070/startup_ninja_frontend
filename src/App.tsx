@@ -41,6 +41,15 @@ import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
+import NinjaFinance from "./pages/User/NinjaFinance.tsx";
+import NinjaOps from "./pages/User/NinjaOps.tsx";
+import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
+import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
+import NinjaSales from "./pages/User/NinjaSales.tsx";
+import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
+import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
+import MemberDetails from "./pages/User/TeamManagement/MemberDetails.tsx";
+import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
 
 function App() {
   return (
@@ -216,10 +225,74 @@ function App() {
             }
           />
           <Route
+            path="/ai-tools/sales"
+            element={
+              <ProtectedRoute>
+                <NinjaSales />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/leads"
+            element={
+              <ProtectedRoute>
+                <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ai-tools/finance"
             element={
               <ProtectedRoute>
-                <ComingSoon title="Ninja Finance" />
+                <NinjaFinance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/all-contracts"
+            element={
+              <ProtectedRoute>
+                <AllContracts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/audit-logs"
+            element={
+              <ProtectedRoute>
+                <AuditLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/ops"
+            element={
+              <ProtectedRoute>
+                <NinjaOps />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team"
+            element={
+              <ProtectedRoute>
+                <ManageTeam />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team/:memberId"
+            element={
+              <ProtectedRoute>
+                <MemberDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manage-team/:memberId/edit"
+            element={
+              <ProtectedRoute>
+                <EditMember />
               </ProtectedRoute>
             }
           />

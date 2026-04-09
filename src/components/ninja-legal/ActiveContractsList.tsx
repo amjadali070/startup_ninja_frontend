@@ -7,8 +7,8 @@ const ActiveContractsList: FC = () => {
       company: "GlobalTech Inc",
       type: "MSA",
       status: "Active",
-      statusColor: "text-[#EF4444]",
-      dotColor: "bg-[#EF4444]",
+      statusColor: "text-[#dc2626]",
+      dotColor: "bg-[#dc2626]",
       value: "$120k",
     },
     {
@@ -31,8 +31,8 @@ const ActiveContractsList: FC = () => {
       company: "TechNova Solutions",
       type: "Employment",
       status: "Active",
-      statusColor: "text-[#EF4444]",
-      dotColor: "bg-[#EF4444]",
+      statusColor: "text-[#dc2626]",
+      dotColor: "bg-[#dc2626]",
       value: "$85k",
     },
   ];
@@ -41,7 +41,7 @@ const ActiveContractsList: FC = () => {
     <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-6 flex flex-col gap-6 h-full font-plus-jakarta">
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-3">
-          <div className="text-[#EF4444] bg-[#EF444410] p-2 rounded-lg border border-[#EF444420]">
+          <div className="text-[#dc2626] bg-[#dc262610] p-2 rounded-lg border border-[#dc262620]">
             <FiBarChart2 className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-white tracking-widest uppercase text-xs">
@@ -67,7 +67,7 @@ const ActiveContractsList: FC = () => {
             {contracts.map((item) => (
               <tr key={item.company} className="group hover:bg-white/5 transition-all">
                 <td className="py-4 px-2">
-                  <span className="text-xs font-bold text-white group-hover:text-[#EF4444] transition-colors">{item.company}</span>
+                  <span className="text-xs font-bold text-white group-hover:text-[#dc2626] transition-colors">{item.company}</span>
                 </td>
                 <td className="py-4 px-2">
                   <span className="text-[10px] font-medium text-gray-500">{item.type}</span>

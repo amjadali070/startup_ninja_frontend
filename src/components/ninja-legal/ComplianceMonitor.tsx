@@ -13,7 +13,7 @@ const ComplianceMonitor: FC = () => {
       title: "SOC2 Type II",
       subtitle: "Monitoring continuous controls",
       status: "ACTIVE",
-      statusColor: "text-[#EF4444] bg-[#EF444410] border-[#EF444420]", // Theme red for active
+      statusColor: "text-[#dc2626] bg-[#dc262610] border-[#dc262620]", // Theme red for active
     },
     {
       title: "HIPAA Baseline",
@@ -27,7 +27,7 @@ const ComplianceMonitor: FC = () => {
     <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-6 flex flex-col gap-6 h-full font-plus-jakarta">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="text-[#EF4444] bg-[#EF444410] p-2 rounded-lg border border-[#EF444420]">
+          <div className="text-[#dc2626] bg-[#dc262610] p-2 rounded-lg border border-[#dc262620]">
             <FiShield className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-white tracking-widest uppercase text-xs">
@@ -47,7 +47,7 @@ const ComplianceMonitor: FC = () => {
           >
             <div className="flex items-center gap-4">
               <div
-                className={`w-1.5 h-1.5 rounded-full ${index === 0 ? "bg-[#10B981]" : index === 1 ? "bg-[#EF4444]" : "bg-white/40"
+                className={`w-1.5 h-1.5 rounded-full ${index === 0 ? "bg-[#10B981]" : index === 1 ? "bg-[#dc2626]" : "bg-white/40"
                   }`}
               />
               <div>

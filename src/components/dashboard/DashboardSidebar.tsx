@@ -10,8 +10,12 @@ import {
   FiGlobe,
   FiChevronLeft,
   FiChevronRight,
+  FiTrendingUp,
+  FiUsers,
+  FiZap,
+  FiFileText,
 } from "react-icons/fi";
-import { RiMoneyDollarBoxFill, RiOrganizationChart, RiFundsLine } from "react-icons/ri";
+import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
 import { TbApi } from "react-icons/tb";
 import { FaGavel, FaUsers } from "react-icons/fa";
@@ -28,6 +32,13 @@ interface SidebarNavItem {
   icon: ReactNode;
   admin: boolean;
   end?: boolean;
+  subItems?: SidebarSubItem[];
+}
+
+interface SidebarSubItem {
+  label: string;
+  to: string;
+  icon: ReactNode;
 }
 
 interface DashboardSidebarProps {
@@ -103,21 +114,62 @@ const navSections: SidebarSection[] = [
         icon: <RiOrganizationChart className="w-5 h-5" />,
         admin: false,
       },
+    ],
+  },
+  {
+    sectionLabel: "Enterprise Tools",
+    items: [
       {
         label: "Ninja Legal",
         to: "/ai-tools/legal",
         icon: <FaGavel className="w-5 h-5" />,
         admin: false,
       },
+      // {
+      //   label: "Ninja Finance",
+      //   to: "/ai-tools/finance",
+      //   icon: <RiFundsLine className="w-5 h-5" />,
+      //   admin: false,
+      // },
+      // {
+      //   label: "Ninja Ops",
+      //   to: "/ai-tools/ops",
+      //   icon: <FiCheckSquare className="w-5 h-5" />,
+      //   admin: false,
+      // },
       {
-        label: "Ninja Finance",
-        to: "/ai-tools/finance",
-        icon: <RiFundsLine className="w-5 h-5" />,
+        label: "Ninja Sales",
+        to: "/ai-tools/sales",
+        icon: <FiTrendingUp className="w-5 h-5" />,
+        admin: false,
+        subItems: [
+          {
+            label: "Leads",
+            to: "/ai-tools/sales/leads",
+            icon: <FiUsers className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Follow-ups",
+            to: "/ai-tools/sales/follow-ups",
+            icon: <FiZap className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Proposals",
+            to: "/ai-tools/sales/proposals",
+            icon: <FiFileText className="w-3.5 h-3.5" />,
+          },
+        ],
+      },
+      {
+        label: "Manage Team",
+        to: "/manage-team",
+        icon: <FaUsers className="w-5 h-5" />,
         admin: false,
       },
     ],
   },
   {
+    sectionLabel: "Settings",
     items: [
       {
         label: "Settings",
@@ -137,14 +189,43 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
-  // Flatten sections and filter by admin role
+  const isSubUser = !!userData?.addedBy;
+
+  // Flatten sections and filter by admin role and team permissions
   const filteredSections = navSections
-    .map(section => ({
-      ...section,
-      items: section.items.filter(item =>
-        userData?.role === "admin" ? item.admin : !item.admin
-      )
-    }))
+    .map(section => {
+      // Hide Tools section completely for sub-users
+      if (isSubUser && section.sectionLabel === "Tools") {
+        return { ...section, items: [] };
+      }
+
+      const filteredItems = section.items.filter(item => {
+        // Handle System Admin vs Normal User
+        if (userData?.role === "admin") {
+          return item.admin;
+        } else {
+          if (item.admin) return false;
+
+          // If standard user isn't a sub-user, show everything
+          if (!isSubUser) return true;
+
+          // If sub-user, check permissions for Enterprise Tools
+          if (section.sectionLabel === "Enterprise Tools") {
+            const perms: any = userData?.permissions || {};
+            if (item.label === "Ninja Legal" && !perms.legal) return false;
+            if (item.label === "Ninja Finance" && !perms.finance) return false;
+            if (item.label === "Ninja Ops" && !perms.ops) return false;
+            if (item.label === "Ninja Sales" && !perms.sales) return false;
+            // Sub-users shouldn't manage the team unless they are Managers
+            if (item.label === "Manage Team" && userData?.teamRole !== "Manager") return false;
+          }
+
+          // Let Dashboard, Settings through for sub-users
+          return true;
+        }
+      });
+      return { ...section, items: filteredItems };
+    })
     .filter(section => section.items.length > 0);
 
   useEffect(() => {
@@ -317,7 +398,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <div
                 key={sectionIndex}
                 className={`space-y-1.5 ${section.sectionLabel && !isCollapsed
-                  ? 'pt-4 pb-4 mb-2 border-t-2 border-b-2 border-white/10'
+                  ? 'pt-6 mt-6 border-t-2 border-white/10'
                   : ''
                   }`}
               >
@@ -339,60 +420,85 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   const dataIsActiveValue = navActive.toString();
 
                   return (
-                    <NavLink
-                      key={item.label}
-                      to={item.to}
-                      end={item.end}
-                      onClick={closeMobileSidebar}
-                      className={({ isActive }) => {
-                        const isCurrent = isActive || navActive;
-                        const baseClasses = `group relative flex items-center ${isCollapsed
-                          ? "justify-center px-2 py-2"
-                          : "gap-2 px-3 py-2"
-                          } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
-                        const defaultState =
-                          "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
-                        const activeState =
-                          "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
+                    <div key={item.label} className="space-y-1">
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        onClick={closeMobileSidebar}
+                        className={({ isActive }) => {
+                          const isCurrent = isActive || navActive;
+                          const baseClasses = `group relative flex items-center ${isCollapsed
+                            ? "justify-center px-2 py-2"
+                            : "gap-2 px-3 py-2"
+                            } rounded-xl border text-xs font-medium transition-all duration-300 ease-in-out`;
+                          const defaultState =
+                            "border-transparent text-white/60 hover:text-white hover:bg-[#EF44440F]";
+                          const activeState =
+                            "text-white shadow-[0_12px_32px_rgba(229,0,0,0.12)]";
 
-                        return `${baseClasses} ${isCurrent ? activeState : defaultState
-                          }`.trim();
-                      }}
-                      style={({ isActive }) => {
-                        const isCurrent = isActive || navActive;
-                        if (isCurrent) {
-                          return activeNavStyle;
-                        }
+                          return `${baseClasses} ${isCurrent ? activeState : defaultState
+                            }`.trim();
+                        }}
+                        style={({ isActive }) => {
+                          const isCurrent = isActive || navActive;
+                          if (isCurrent) {
+                            return activeNavStyle;
+                          }
 
-                        return {
-                          transition: "background 0.2s ease, border 0.2s ease",
-                        };
-                      }}
-                      data-is-active={dataIsActiveValue}
-                      onMouseEnter={(event) => {
-                        const element = event.currentTarget;
-                        if (element.dataset.isActive === "true") {
-                          return;
-                        }
-                        applyHoverGradient(element);
-                      }}
-                      onMouseLeave={(event) => {
-                        const element = event.currentTarget;
-                        if (element.dataset.isActive === "true") {
-                          return;
-                        }
-                        clearHoverGradient(element);
-                      }}
-                    >
-                      <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
-                        {item.icon}
-                      </span>
-                      {isCollapsed ? null : (
-                        <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
-                          {item.label}
+                          return {
+                            transition: "background 0.2s ease, border 0.2s ease",
+                          };
+                        }}
+                        data-is-active={dataIsActiveValue}
+                        onMouseEnter={(event) => {
+                          const element = event.currentTarget;
+                          if (element.dataset.isActive === "true") {
+                            return;
+                          }
+                          applyHoverGradient(element);
+                        }}
+                        onMouseLeave={(event) => {
+                          const element = event.currentTarget;
+                          if (element.dataset.isActive === "true") {
+                            return;
+                          }
+                          clearHoverGradient(element);
+                        }}
+                      >
+                        <span className="flex h-7 w-7 items-center justify-center text-white transition-transform duration-300 ease-in-out group-hover:scale-110">
+                          {item.icon}
                         </span>
+                        {isCollapsed ? null : (
+                          <span className="truncate transition-all duration-300 ease-in-out opacity-0 animate-[fadeIn_0.3s_ease-in-out_0.15s_forwards,slideInLeft_0.3s_ease-in-out_0.15s_forwards]">
+                            {item.label}
+                          </span>
+                        )}
+                      </NavLink>
+
+                      {/* Sub-items rendering */}
+                      {!isCollapsed && item.subItems && navActive && (
+                        <div className="ml-9 space-y-1 animate-in slide-in-from-top-2 duration-300">
+                          {item.subItems.map((subItem) => {
+                            const isSubActive = location.pathname === subItem.to;
+                            return (
+                              <Link
+                                key={subItem.label}
+                                to={subItem.to}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${isSubActive
+                                  ? "text-red-500 bg-red-500/5"
+                                  : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                                  }`}
+                              >
+                                <span className={isSubActive ? "text-red-500" : "text-white/20"}>
+                                  {subItem.icon}
+                                </span>
+                                <span>{subItem.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       )}
-                    </NavLink>
+                    </div>
                   );
                 })}
               </div>

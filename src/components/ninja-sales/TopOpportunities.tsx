@@ -1,0 +1,62 @@
+import { type FC } from "react";
+import { FiStar, FiChevronRight } from "react-icons/fi";
+
+const TopOpportunities: FC = () => {
+  const opportunities = [
+    {
+      name: "Global Logistics AI",
+      value: "$85,000",
+      date: "Expected Dec 12",
+      confidence: 92,
+    },
+    {
+      name: "Quantum Sec Implementation",
+      value: "$120,000",
+      date: "Expected Jan 05",
+      confidence: 84,
+    },
+    {
+      name: "CyberDyne Expansion",
+      value: "$250,000",
+      date: "Expected Feb 15",
+      confidence: 78,
+    },
+  ];
+
+  return (
+    <div className="bg-[#121212] border border-white/[0.03] rounded-2xl p-8 h-full font-plus-jakarta flex flex-col gap-4 group overflow-hidden relative shadow-2xl">
+      <div className="flex items-center gap-3 mb-2">
+        <FiStar className="text-[#EF4444] w-5 h-5 fill-[#EF4444]" />
+        <h2 className="text-lg font-semibold text-white tracking-wide">Top Opportunities</h2>
+      </div>
+
+      <div className="flex-1 flex flex-col gap-4">
+        {opportunities.map((opt, i) => (
+          <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white/[0.02] border border-white/[0.03] rounded-[24px] hover:border-[#EF444420] transition-all gap-6 shadow-lg group/item">
+            <div className="flex-1 space-y-2">
+              <h4 className="text-[15px] font-black text-white tracking-tight leading-tight group-hover/item:text-[#EF4444] transition-colors">{opt.name}</h4>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">{opt.value}</span>
+                <span className="w-1 h-1 rounded-full bg-gray-700" />
+                <span className="text-[10px] font-black text-[#EF4444] uppercase tracking-widest">{opt.date}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:items-end gap-3 min-w-[120px]">
+              <div className="flex flex-col sm:items-end gap-1">
+                <span className="text-[14px] font-black text-[#10B981]">{opt.confidence}% Match</span>
+                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">CONFIDENCE</span>
+              </div>
+              <button className="flex items-center gap-2 px-6 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white border border-white/5 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest transition-all">
+                View Deal
+                <FiChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TopOpportunities;

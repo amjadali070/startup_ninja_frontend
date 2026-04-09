@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaRocket, FaImage, FaCode, FaShareAlt, FaCheck } from "react-icons/fa";
+import { FaRocket, FaImage, FaCode, FaShareAlt, FaCheck, FaChartLine, FaGavel } from "react-icons/fa";
 
 const ProductsMain: React.FC = () => {
   const products = [
@@ -60,6 +60,34 @@ const ProductsMain: React.FC = () => {
       ],
       color: "from-pink-600 to-red-600",
     },
+    {
+      icon: <FaChartLine className="w-12 h-12" />,
+      name: "Ninja Sales",
+      tagline: "Your Collaborative Revenue Engine",
+      description:
+        "Supercharge your sales pipeline with team-driven workflows. Track leads, craft proposals, automate follow-ups, and close deals faster all from one powerful dashboard.",
+      features: [
+        "Team Sales Pipeline",
+        "Lead Tracking & Scoring",
+        "Proposal Builder & Sending",
+        "Automated Follow-ups",
+      ],
+      color: "from-red-600 to-orange-600",
+    },
+    {
+      icon: <FaGavel className="w-12 h-12" />,
+      name: "Ninja Legal Co-Founder",
+      tagline: "The Strategist for Your Legal Foundation",
+      description:
+        "Navigate the complex legal landscape of building a startup with confidence. From structuring your founding team to generating compliant contracts, your AI legal strategist has you covered.",
+      features: [
+        "Founder Structuring",
+        "Equity Modelling",
+        "Contract Generation",
+        "Compliance Roadmap",
+      ],
+      color: "from-orange-600 to-red-600",
+    },
   ];
 
   return (
@@ -78,8 +106,8 @@ const ProductsMain: React.FC = () => {
             className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
             style={{ color: "#CCCCCC" }}
           >
-            Four powerful tools, one integrated platform. Everything you need to
-            build, design, and market your startup—faster than ever.
+            Six powerful tools, one integrated platform. Everything you need to
+            build, design, sell, and legally protect your startup—faster than ever.
           </p>
           <Link
             to="/pricing"
@@ -96,7 +124,7 @@ const ProductsMain: React.FC = () => {
       {/* Products Grid */}
       <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
               <div
                 key={index}
@@ -179,17 +207,19 @@ const ProductsMain: React.FC = () => {
           </p>
 
           {/* Integration Flow */}
-          <div className="grid md:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
             {[
               "Research & Plan",
               "Design & Create",
               "Build & Launch",
               "Market & Grow",
+              "Sell & Close",
+              "Protect & Comply",
             ].map((step, index) => (
-              <div key={index} className="relative">
-                <div className="rounded-lg p-6 transition-all duration-300 bg-[#151515] border border-[#333]">
+              <div key={index} className="relative h-full">
+                <div className="rounded-lg p-6 transition-all duration-300 bg-[#151515] border border-[#333] h-full flex flex-col items-center text-center">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 mx-auto"
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 shrink-0 mx-auto"
                     style={{
                       background:
                         "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
@@ -199,7 +229,7 @@ const ProductsMain: React.FC = () => {
                   </div>
                   <p className="font-semibold">{step}</p>
                 </div>
-                {index < 3 && (
+                {index < 5 && (
                   <div
                     className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5"
                     style={{
@@ -217,8 +247,8 @@ const ProductsMain: React.FC = () => {
             className="inline-block px-8 py-4 border-2 rounded-lg font-bold text-lg transition-all duration-300"
             style={{ borderColor: "#D23621" }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.background =
-                "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)")
+            (e.currentTarget.style.background =
+              "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.background = "transparent")
