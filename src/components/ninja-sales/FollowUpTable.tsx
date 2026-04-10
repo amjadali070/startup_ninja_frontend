@@ -49,6 +49,17 @@ const FollowUpTable: FC<FollowUpTableProps> = ({ filter }) => {
     }
   };
 
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case "Today": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+      case "Overdue": return "text-[#EF4444] bg-[#EF444410] border-red-500/20";
+      case "No Response": return "text-orange-500 bg-orange-500/10 border-orange-500/20";
+      case "High Value": return "text-purple-500 bg-purple-500/10 border-purple-500/20";
+      case "Proposal Sent": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+      default: return "text-white/60 bg-white/5 border-white/10";
+    }
+  };
+
   const filteredLeads = filter === "All" ? followUps : followUps.filter((lead) => lead.tabType === filter);
 
   return (
@@ -60,14 +71,15 @@ const FollowUpTable: FC<FollowUpTableProps> = ({ filter }) => {
         </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
+      <div className="overflow-x-auto scrollbar-hide">
+        <table className="w-full text-left min-w-[900px]">
           <thead>
             <tr className="border-b border-white/[0.03] bg-white/[0.01]">
               <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Lead Name</th>
               <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Company</th>
               <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Value</th>
               <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Urgency</th>
+              <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Status</th>
               <th className="px-6 py-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">AI Confidence</th>
             </tr>
           </thead>
@@ -89,6 +101,11 @@ const FollowUpTable: FC<FollowUpTableProps> = ({ filter }) => {
                 <td className="px-6 py-5">
                   <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black tracking-widest ${getUrgencyStyles(lead.urgency)}`}>
                     {lead.urgency}
+                  </span>
+                </td>
+                <td className="px-6 py-5">
+                  <span className={`inline-block w-[110px] text-center px-2.5 py-1 rounded-lg text-[9px] font-black tracking-widest border uppercase whitespace-nowrap ${getStatusStyles(lead.tabType)}`}>
+                    {lead.tabType}
                   </span>
                 </td>
                 <td className="px-6 py-5">
