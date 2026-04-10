@@ -5,9 +5,10 @@ import { useAuth } from "../../../hooks/useAuth";
 import PipelineKanban, { Column } from "../../../components/ninja-sales/PipelineKanban";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
-import { FiFilter, FiCalendar, FiUser, FiChevronDown, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe } from "react-icons/fi";
+import { FiFilter, FiCalendar, FiUser, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe, FiSearch } from "react-icons/fi";
 import { DropResult } from "@hello-pangea/dnd";
 import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
+import IconSelect from "../../../components/IconSelect";
 
 const initialKanbanData: Column[] = [
   {
@@ -53,13 +54,15 @@ const LeadsPipelinePage: FC = () => {
   const { logout } = useAuth();
   const [kanbanData, setKanbanData] = useState<Column[]>(initialKanbanData);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+
   // Filter States
   const [timeframe, setTimeframe] = useState("This Quarter");
   const [owner, setOwner] = useState("All Owners");
   const [priorityFilter, setPriorityFilter] = useState("All Priority");
   const [valueRange, setValueRange] = useState("All Values");
   const [leadSource, setLeadSource] = useState("All Sources");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleLogout = async () => {
     try {
@@ -91,12 +94,12 @@ const LeadsPipelinePage: FC = () => {
     const newCols = [...kanbanData];
     const sourceColIndex = newCols.findIndex(col => col.id === source.droppableId);
     const destColIndex = newCols.findIndex(col => col.id === destination.droppableId);
-    
+
     const sourceCol = { ...newCols[sourceColIndex], cards: [...newCols[sourceColIndex].cards] };
     const destCol = { ...newCols[destColIndex], cards: [...newCols[destColIndex].cards] };
-    
+
     const [movedCard] = sourceCol.cards.splice(source.index, 1);
-    
+
     if (source.droppableId === destination.droppableId) {
       sourceCol.cards.splice(destination.index, 0, movedCard);
       newCols[sourceColIndex] = sourceCol;
@@ -113,17 +116,19 @@ const LeadsPipelinePage: FC = () => {
       ...col,
       cards: col.cards.filter(card => {
         const priorityMatch = priorityFilter === "All Priority" || card.priority === priorityFilter.replace(" Priority", "").toUpperCase();
-        
+
         const numericValue = parseInt(card.value.replace(/[^0-9]/g, '')) * (card.value.includes('k') ? 1000 : 1);
         let valueMatch = true;
         if (valueRange === "< $50k") valueMatch = numericValue < 50000;
         else if (valueRange === "$50k - $200k") valueMatch = numericValue >= 50000 && numericValue <= 200000;
         else if (valueRange === "> $200k") valueMatch = numericValue > 200000;
 
-        return priorityMatch && valueMatch;
+        const searchMatch = !searchQuery || card.company.toLowerCase().includes(searchQuery.toLowerCase()) || card.contact.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return priorityMatch && valueMatch && searchMatch;
       })
     }));
-  }, [kanbanData, priorityFilter, valueRange]);
+  }, [kanbanData, priorityFilter, valueRange, searchQuery]);
 
   const stats: StatItem[] = [
     { label: "Total Pipeline Value", value: "$4.8M", icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "+12.5% this month" },
@@ -141,100 +146,96 @@ const LeadsPipelinePage: FC = () => {
     >
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         <div className="p-4 lg:p-8 space-y-8 max-w-auto mx-auto text-white pb-20">
-          
-          <NinjaSalesHeader 
-            title="Lead Pipeline" 
+
+          <NinjaSalesHeader
+            title="Lead Pipeline"
             subtitle="Revenue Pipeline Overview — Monitoring your business velocity."
-            onNewDeal={handleNewLead} 
-            onExport={handleExport} 
+            onNewDeal={handleNewLead}
+            onExport={handleExport}
           />
 
           <SalesStatGrid stats={stats} />
 
           {/* Filtering Controls */}
-          <div className="flex flex-wrap items-center gap-4 py-6 border-b border-white/[0.03]">
-            {/* Timeframe Filter */}
-            <div className="relative group">
-              <select
-                value={timeframe}
-                onChange={(e) => setTimeframe(e.target.value)}
-                className="appearance-none flex items-center gap-2 bg-[#121212]/50 border border-white/10 hover:border-red-500/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold transition-all text-white/70 outline-none cursor-pointer w-full sm:w-auto hover:bg-white/[0.03]"
-              >
-                <option value="This Quarter" className="bg-[#121212]">This Quarter</option>
-                <option value="This Month" className="bg-[#121212]">This Month</option>
-                <option value="Last Quarter" className="bg-[#121212]">Last Quarter</option>
-              </select>
-              <FiCalendar className="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <FiChevronDown className="w-4 h-4 text-white/20 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+          <div className="flex flex-wrap items-center gap-3 py-6 border-b border-white/[0.03] w-full">
+            <IconSelect
+              value={timeframe}
+              onChange={setTimeframe}
+              options={[
+                { value: "This Quarter", label: "This Quarter", icon: <FiCalendar className="w-4 h-4" /> },
+                { value: "This Month", label: "This Month", icon: <FiCalendar className="w-4 h-4" /> },
+                { value: "Last Quarter", label: "Last Quarter", icon: <FiCalendar className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+            />
 
-            {/* Owner Filter */}
-            <div className="relative group">
-              <select
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-                className="appearance-none flex items-center gap-2 bg-[#121212]/50 border border-white/10 hover:border-red-500/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold transition-all text-white/70 outline-none cursor-pointer w-full sm:w-auto hover:bg-white/[0.03]"
-              >
-                <option value="All Owners" className="bg-[#121212]">All Owners</option>
-                <option value="Me" className="bg-[#121212]">Me Only</option>
-              </select>
-              <FiUser className="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <FiChevronDown className="w-4 h-4 text-white/20 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={owner}
+              onChange={setOwner}
+              options={[
+                { value: "All Owners", label: "All Owners", icon: <FiUser className="w-4 h-4" /> },
+                { value: "Me", label: "Me Only", icon: <FiUser className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+            />
 
-            {/* Priority Filter */}
-            <div className="relative group">
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                className="appearance-none flex items-center gap-2 bg-[#121212]/50 border border-white/10 hover:border-red-500/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold transition-all text-white/70 outline-none cursor-pointer w-full sm:w-auto hover:bg-white/[0.03]"
-              >
-                <option value="All Priority" className="bg-[#121212]">All Priority</option>
-                <option value="High Priority" className="bg-[#121212]">High Priority</option>
-                <option value="Med Priority" className="bg-[#121212]">Med Priority</option>
-                <option value="Low Priority" className="bg-[#121212]">Low Priority</option>
-              </select>
-              <span className="text-red-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none font-bold">!</span>
-              <FiChevronDown className="w-4 h-4 text-white/20 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              options={[
+                { value: "All Priority", label: "All Priority", icon: <FiAlertTriangle className="w-4 h-4" /> },
+                { value: "High Priority", label: "High Priority", icon: <FiAlertTriangle className="w-4 h-4" /> },
+                { value: "Med Priority", label: "Med Priority", icon: <FiAlertTriangle className="w-4 h-4" /> },
+                { value: "Low Priority", label: "Low Priority", icon: <FiAlertTriangle className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+            />
 
-            {/* Value Filter */}
-            <div className="relative group">
-              <select
-                value={valueRange}
-                onChange={(e) => setValueRange(e.target.value)}
-                className="appearance-none flex items-center gap-2 bg-[#121212]/50 border border-white/10 hover:border-red-500/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold transition-all text-white/70 outline-none cursor-pointer w-full sm:w-auto hover:bg-white/[0.03]"
-              >
-                <option value="All Values" className="bg-[#121212]">All Values</option>
-                <option value="< $50k" className="bg-[#121212]">&lt; $50k</option>
-                <option value="$50k - $200k" className="bg-[#121212]">$50k - $200k</option>
-                <option value="> $200k" className="bg-[#121212]">&gt; $200k</option>
-              </select>
-              <FiDollarSign className="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <FiChevronDown className="w-4 h-4 text-white/20 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={valueRange}
+              onChange={setValueRange}
+              options={[
+                { value: "All Values", label: "All Values", icon: <FiDollarSign className="w-4 h-4" /> },
+                { value: "< $50k", label: "< $50k", icon: <FiDollarSign className="w-4 h-4" /> },
+                { value: "$50k - $200k", label: "$50k - $200k", icon: <FiDollarSign className="w-4 h-4" /> },
+                { value: "> $200k", label: "> $200k", icon: <FiDollarSign className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+            />
 
-            {/* Source Filter */}
-            <div className="relative group">
-              <select
-                value={leadSource}
-                onChange={(e) => setLeadSource(e.target.value)}
-                className="appearance-none flex items-center gap-2 bg-[#121212]/50 border border-white/10 hover:border-red-500/20 rounded-xl pl-10 pr-10 py-2.5 text-xs font-bold transition-all text-white/70 outline-none cursor-pointer w-full sm:w-auto hover:bg-white/[0.03]"
-              >
-                <option value="All Sources" className="bg-[#121212]">All Sources</option>
-                <option value="Referral" className="bg-[#121212]">Referral</option>
-                <option value="Cold Outreach" className="bg-[#121212]">Cold Outreach</option>
-                <option value="LinkedIn" className="bg-[#121212]">LinkedIn</option>
-                <option value="Direct" className="bg-[#121212]">Direct</option>
-              </select>
-              <FiGlobe className="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <FiChevronDown className="w-4 h-4 text-white/20 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={leadSource}
+              onChange={setLeadSource}
+              options={[
+                { value: "All Sources", label: "All Sources", icon: <FiGlobe className="w-4 h-4" /> },
+                { value: "Referral", label: "Referral", icon: <FiGlobe className="w-4 h-4" /> },
+                { value: "Cold Outreach", label: "Cold Outreach", icon: <FiGlobe className="w-4 h-4" /> },
+                { value: "LinkedIn", label: "LinkedIn", icon: <FiGlobe className="w-4 h-4" /> },
+                { value: "Direct", label: "Direct", icon: <FiGlobe className="w-4 h-4" /> },
+              ]}
+              className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl px-4 py-0 flex-1 md:w-[160px] h-[46px] text-sm"
+            />
 
-            <div className="w-[1px] h-6 bg-white/10 mx-2 hidden xl:block" />
-            <button className="flex items-center gap-2 text-white/40 hover:text-white transition-all text-sm font-bold ml-auto xl:ml-0">
+            {showMoreFilters && (
+              <div className="relative group w-full xl:w-[280px] animate-in fade-in zoom-in-95 ml-auto">
+                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search leads..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 rounded-xl py-0 pl-11 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all w-full h-[46px]"
+                />
+              </div>
+            )}
+
+            <div className={`w-[1px] h-6 bg-white/10 mx-2 hidden xl:block ${!showMoreFilters ? 'ml-auto' : ''}`} />
+            <button 
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className={`flex items-center gap-2 transition-all text-sm font-bold ${!showMoreFilters ? 'ml-auto xl:ml-0' : 'xl:ml-0'} ${showMoreFilters ? 'text-red-500' : 'text-white/40 hover:text-white'}`}
+            >
               <FiFilter className="w-4 h-4" />
-              <span>More Filters</span>
+              <span>{showMoreFilters ? 'Less Filters' : 'More Filters'}</span>
             </button>
           </div>
 
@@ -246,9 +247,9 @@ const LeadsPipelinePage: FC = () => {
         </div>
       </main>
 
-      <AddProjectModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddProjectModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
     </DashboardLayout>
   );

@@ -38,11 +38,11 @@ const IconSelect: React.FC<IconSelectProps> = ({
   }, []);
 
   return (
-    <div className={`relative ${className}`} ref={ref}>
+    <div className={`relative ${className} focus-within:ring-2 focus-within:ring-red-500/20 focus-within:border-red-500/50 transition-all`} ref={ref}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-full flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all rounded-inherit"
+        className="w-full h-full flex items-center justify-between text-left focus:outline-none outline-none rounded-inherit"
       >
         <div className="flex items-center gap-3 w-full">
           {selectedOption ? (
