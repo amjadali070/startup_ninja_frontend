@@ -5,6 +5,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { FiArrowLeft, FiMail, FiShield, FiBriefcase, FiCalendar, FiCheckCircle, FiUser, FiActivity, FiX, FiLoader } from "react-icons/fi";
 import { teamService } from "../../../services/team";
 import toast from "react-hot-toast";
+import AlertModal from "../../../components/AlertModal";
 
 const MemberDetails: React.FC = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -27,6 +28,8 @@ const MemberDetails: React.FC = () => {
 
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchMember = async () => {
@@ -89,8 +92,8 @@ const MemberDetails: React.FC = () => {
 
   const handleDeleteMember = async () => {
     if (!memberId) return;
-    if (!window.confirm(`Are you sure you want to permanently delete ${member?.name}?`)) return;
 
+    setIsDeleting(true);
     const loadToast = toast.loading("Deleting member...");
     try {
       const res = await teamService.deleteMember(memberId);
@@ -102,6 +105,9 @@ const MemberDetails: React.FC = () => {
       }
     } catch (err) {
       toast.error("Error connecting to server", { id: loadToast });
+    } finally {
+      setIsDeleting(false);
+      setDeleteModalOpen(false);
     }
   };
 
@@ -235,7 +241,7 @@ const MemberDetails: React.FC = () => {
                         Reset Password
                       </button>
                       <button
-                        onClick={handleDeleteMember}
+                        onClick={() => setDeleteModalOpen(true)}
                         className="w-full py-4 px-6 bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 rounded-2xl text-left font-semibold text-red-400 transition-all hover:pl-8 active:scale-95"
                       >
                         Delete Member
@@ -269,6 +275,19 @@ const MemberDetails: React.FC = () => {
           ) : null}
         </div>
       </main>
+
+      <AlertModal
+        isOpen={deleteModalOpen}
+        type="danger"
+        action="delete"
+        title="Delete Member"
+        message={`Are you sure you want to permanently delete ${member?.name || 'this member'}?`}
+        confirmText="Delete"
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteMember}
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </DashboardLayout>
   );
 };

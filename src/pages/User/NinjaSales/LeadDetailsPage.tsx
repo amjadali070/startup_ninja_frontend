@@ -60,11 +60,15 @@ const LeadDetailsPage: FC = () => {
                 <FiEdit3 className="w-4 h-4" />
                 <span>Update Stage</span>
               </button>
-              <button className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+              <button 
+                onClick={() => navigate('/ai-tools/sales/proposals')}
+                className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                 <FiFilePlus className="w-4 h-4" />
                 <span>Create Invoice</span>
               </button>
-              <button className="h-12 px-8 bg-red-600 hover:bg-red-700 text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-600/20">
+              <button 
+                onClick={() => navigate('/ai-tools/sales/proposals')}
+                className="h-12 px-8 bg-red-600 hover:bg-red-700 text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-600/20">
                 <FiSend className="w-4 h-4" />
                 <span>Generate Proposal</span>
               </button>

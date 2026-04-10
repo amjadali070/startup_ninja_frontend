@@ -7,7 +7,7 @@ import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesSt
 import ProposalEditor from "../../../components/ninja-sales/ProposalEditor";
 import SavedTemplates from "../../../components/ninja-sales/SavedTemplates";
 import RecentProposals from "../../../components/ninja-sales/RecentProposals";
-import { FiTrendingUp, FiTarget, FiZap, FiEdit3 } from "react-icons/fi";
+import { FiTrendingUp, FiTarget, FiZap, FiEdit3, FiArrowLeft, FiSend, FiPlus } from "react-icons/fi";
 import NewProposalModal from "../../../components/ninja-sales/NewProposalModal";
 
 const ProposalsPage: FC = () => {
@@ -33,10 +33,6 @@ const ProposalsPage: FC = () => {
     setIsNewProposalModalOpen(true);
   };
 
-  const handleExport = () => {
-    console.log("Export PDF triggered");
-  };
-
   const stats: StatItem[] = [
     { label: "Active Proposals", value: "18", icon: <FiEdit3 />, change: "4 Pending Review", isPositive: true },
     { label: "Avg. Deal Value", value: "$12,450", icon: <FiTrendingUp />, change: "+12% vs last month", isPositive: true },
@@ -54,12 +50,23 @@ const ProposalsPage: FC = () => {
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         <div className="p-4 lg:p-8 space-y-12 max-w-auto mx-auto text-white pb-20">
 
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-[0.2em] hover:text-red-500 transition-colors mb-[-1.5rem] group"
+          >
+            <FiArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+            Back
+          </button>
+
           <NinjaSalesHeader
             title="Proposal Editor"
             subtitle="Intelligent Document Engine — Build high-conversion proposals in seconds."
             newButtonText="Send Proposal"
-            onNewDeal={handleNewProposal}
-            onExport={handleExport}
+            newButtonIcon={<FiSend className="h-4 w-4" />}
+            onNewDeal={() => console.log('Send Proposal triggered')}
+            secondaryButtonText="Create New Proposal"
+            secondaryButtonIcon={<FiPlus className="h-4 w-4" />}
+            onSecondaryAction={handleNewProposal}
           />
 
           <SalesStatGrid stats={stats} />

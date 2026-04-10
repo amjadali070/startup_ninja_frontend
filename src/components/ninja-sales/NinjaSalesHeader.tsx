@@ -1,10 +1,14 @@
-import { type FC } from "react";
+import { type FC, type ReactNode } from "react";
 import { FiPlus, FiDownload } from "react-icons/fi";
 
 interface NinjaSalesHeaderProps {
   onNewDeal?: () => void;
   onExport?: () => void;
   newButtonText?: string;
+  newButtonIcon?: ReactNode;
+  secondaryButtonText?: string;
+  secondaryButtonIcon?: ReactNode;
+  onSecondaryAction?: () => void;
   title?: string;
   subtitle?: string;
 }
@@ -13,6 +17,10 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({
   onNewDeal, 
   onExport, 
   newButtonText = "New Lead",
+  newButtonIcon = <FiPlus className="h-4 w-4" />,
+  secondaryButtonText,
+  secondaryButtonIcon,
+  onSecondaryAction,
   title = "Ninja Sales",
   subtitle = "The Revenue Engine — Accelerating your pipeline with predictive intelligence."
 }) => {
@@ -47,12 +55,23 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({
               </button>
             )}
 
+            {onSecondaryAction && secondaryButtonText && (
+              <button
+                type="button"
+                onClick={onSecondaryAction}
+                className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 sm:px-4 sm:py-2.5 sm:text-sm whitespace-nowrap"
+              >
+                {secondaryButtonIcon}
+                <span>{secondaryButtonText}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onNewDeal}
               className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
             >
-              <FiPlus className="h-4 w-4" />
+              {newButtonIcon}
               <span>{newButtonText}</span>
             </button>
           </div>

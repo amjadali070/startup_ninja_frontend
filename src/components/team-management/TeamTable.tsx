@@ -4,6 +4,7 @@ import { FiSearch, FiUser, FiCheckCircle, FiEdit, FiTrash2, FiDownload, FiUsers,
 import { TeamMember, teamService } from "../../services/team";
 import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
+import AlertModal from "../AlertModal";
 
 interface TeamTableProps {
   members: TeamMember[];
@@ -15,6 +16,9 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filteredTeam = members.filter((member: TeamMember) => {
     const matchesSearch = member.fullname?.toLowerCase().includes(search.toLowerCase()) || member.email?.toLowerCase().includes(search.toLowerCase());
@@ -50,16 +54,22 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
     document.body.removeChild(link);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to remove this member?")) {
-      const res = await teamService.deleteMember(id);
-      if (res.success) {
-        toast.success("Member removed");
-        onRefresh();
-      } else {
-        toast.error(res.message || "Failed to remove member");
-      }
+  const handleDelete = async () => {
+    if (!memberToDelete) return;
+    
+    setIsDeleting(true);
+    const res = await teamService.deleteMember(memberToDelete);
+    setIsDeleting(false);
+    
+    if (res.success) {
+      toast.success("Member removed");
+      onRefresh();
+    } else {
+      toast.error(res.message || "Failed to remove member");
     }
+    
+    setDeleteModalOpen(false);
+    setMemberToDelete(null);
   };
 
   const getStatusStyle = (status: number) => {
@@ -195,7 +205,10 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
                       <FiEdit className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(member._id)}
+                      onClick={() => {
+                        setMemberToDelete(member._id);
+                        setDeleteModalOpen(true);
+                      }}
                       className="p-2 text-white/30 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                       title="Remove Member"
                     >
@@ -217,6 +230,22 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
           <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50" disabled>Next</button>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={deleteModalOpen}
+        type="danger"
+        action="delete"
+        title="Delete Member"
+        message={`Are you sure you want to permanently delete ${filteredTeam.find(m => m._id === memberToDelete)?.fullname || 'this member'}?`}
+        confirmText="Delete"
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setMemberToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </div>
   );
 };

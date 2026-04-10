@@ -13,7 +13,6 @@ import {
   FiTrendingUp,
   FiUsers,
   FiZap,
-  FiFileText,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -157,11 +156,6 @@ const navSections: SidebarSection[] = [
             label: "Follow-ups",
             to: "/ai-tools/sales/follow-ups",
             icon: <FiZap className="w-3.5 h-3.5" />,
-          },
-          {
-            label: "Proposals",
-            to: "/ai-tools/sales/proposals",
-            icon: <FiFileText className="w-3.5 h-3.5" />,
           },
         ],
       },
