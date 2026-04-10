@@ -4,9 +4,10 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import { 
   FiEdit3, FiFilePlus, FiSend, FiMoreVertical, 
-  FiCheckCircle, FiClock, FiInfo, FiPlus
+  FiCheckCircle, FiClock, FiInfo, FiPlus, FiTrash2
 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
+import NewTaskModal from "../../../components/ninja-sales/NewTaskModal";
 
 const LeadDetailsPage: FC = () => {
   const { id: _id } = useParams();
@@ -14,6 +15,28 @@ const LeadDetailsPage: FC = () => {
   const { logout } = useAuth();
   const [timelineFilter, setTimelineFilter] = useState("ALL");
   const [isCopied, setIsCopied] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
+  const [tasks, setTasks] = useState([
+    { id: 1, t: "Send follow-up deck", d: "Due Today, 5:00 PM", c: true },
+    { id: 2, t: "Schedule technical deep dive", d: "Due Tomorrow", c: false },
+    { id: 3, t: "Verify GPU availability with Ops", d: "Due Friday", c: false },
+  ]);
+
+  const handleToggleTask = (id: number) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, c: !task.c } : task
+    ));
+  };
+
+  const handleDeleteTask = (id: number) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  const handleAddTask = (newTask: { id: number, t: string, d: string, c: boolean }) => {
+    setTasks([...tasks, newTask]);
+    setIsTaskModalOpen(false);
+  };
 
   const timelineData = [
     { t: "Proposal Drafted", desc: "System automatically generated preliminary quote based on requirements list.", time: "2H AGO", active: true, type: "EMAILS" },
@@ -165,24 +188,32 @@ const LeadDetailsPage: FC = () => {
             <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 md:col-span-2 lg:col-span-1">
                <div className="flex items-center justify-between mb-2">
                  <h2 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tasks & Reminders</h2>
-                 <button className="text-red-500 hover:text-red-400 transition-all"><FiPlus className="w-5 h-5" /></button>
+                 <button onClick={() => setIsTaskModalOpen(true)} className="text-red-500 hover:text-red-400 transition-all"><FiPlus className="w-5 h-5" /></button>
                </div>
                
                <div className="space-y-4">
-                 {[
-                   { t: "Send follow-up deck", d: "Due Today, 5:00 PM", c: true },
-                   { t: "Schedule technical deep dive", d: "Due Tomorrow", c: false },
-                   { t: "Verify GPU availability with Ops", d: "Due Friday", c: false },
-                 ].map((task, i) => (
-                   <div key={i} className={`p-4 rounded-2xl border transition-all ${task.c ? 'bg-white/[0.03] border-white/5' : 'bg-transparent border-white/5 hover:bg-white/[0.01]'}`}>
-                     <div className="flex items-start gap-4">
-                        <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${task.c ? 'bg-red-600 border-red-600' : 'border-white/20'}`}>
-                           {task.c && <FiCheckCircle className="w-3 h-3 text-white" />}
-                        </div>
-                        <div className="space-y-1">
-                          <p className={`text-sm font-black uppercase tracking-tight ${task.c ? 'text-white/40' : 'text-white'}`}>{task.t}</p>
-                          <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{task.d}</p>
-                        </div>
+                 {tasks.map((task) => (
+                   <div key={task.id} className={`p-4 rounded-2xl border transition-all group/task ${task.c ? 'bg-white/[0.03] border-white/5' : 'bg-transparent border-white/5 hover:bg-white/[0.01]'}`}>
+                     <div className="flex items-start justify-between gap-4">
+                       <div className="flex items-start gap-4 flex-1">
+                          <div 
+                            onClick={() => handleToggleTask(task.id)}
+                            className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer ${task.c ? 'bg-red-600 border-red-600' : 'border-white/20 hover:border-red-500'}`}
+                          >
+                             {task.c && <FiCheckCircle className="w-3 h-3 text-white" />}
+                          </div>
+                          <div className="space-y-1">
+                            <p className={`text-sm font-black uppercase tracking-tight transition-all ${task.c ? 'text-white/40 line-through' : 'text-white'}`}>{task.t}</p>
+                            <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{task.d}</p>
+                          </div>
+                       </div>
+                       <button
+                         onClick={() => handleDeleteTask(task.id)}
+                         className="text-white/20 hover:text-red-500 transition-colors opacity-0 group-hover/task:opacity-100 p-1"
+                         title="Delete Task"
+                       >
+                         <FiTrash2 className="w-4 h-4" />
+                       </button>
                      </div>
                    </div>
                  ))}
@@ -328,6 +359,12 @@ const LeadDetailsPage: FC = () => {
 
         </div>
       </main>
+
+      <NewTaskModal 
+        isOpen={isTaskModalOpen} 
+        onClose={() => setIsTaskModalOpen(false)} 
+        onTaskCreate={handleAddTask}
+      />
     </DashboardLayout>
   );
 };
