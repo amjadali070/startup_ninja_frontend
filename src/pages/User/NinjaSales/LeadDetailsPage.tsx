@@ -13,6 +13,24 @@ const LeadDetailsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [timelineFilter, setTimelineFilter] = useState("ALL");
+  const [isCopied, setIsCopied] = useState(false);
+
+  const timelineData = [
+    { t: "Proposal Drafted", desc: "System automatically generated preliminary quote based on requirements list.", time: "2H AGO", active: true, type: "EMAILS" },
+    { t: "Meeting Note: Needs scalable GPU infrastructure", desc: "Alex emphasized the need for elastic scaling during peak training cycles.", time: "YESTERDAY", active: false, type: "CALLS" },
+    { t: "Discovery Call Completed", desc: "Conducted 45min initial screening. Identified budget holder and technical blockers.", time: "OCT 14", active: false, type: "CALLS" },
+    { t: "Email Sent", desc: "Initial outreach sent via LinkedIn connection.", time: "OCT 12", active: false, type: "EMAILS" },
+  ];
+
+  const filteredTimeline = timelineFilter === "ALL" 
+    ? timelineData 
+    : timelineData.filter(item => item.type === timelineFilter);
+
+  const handleCopyDraft = () => {
+    navigator.clipboard.writeText("Hi Alex, following our talk on your infrastructure needs, I wanted to share how we handled similar scaling for Nebula's peers...");
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const handleLogout = async () => {
     try {
@@ -189,12 +207,7 @@ const LeadDetailsPage: FC = () => {
                </div>
 
                <div className="space-y-10 md:space-y-12 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[1px] before:bg-white/5">
-                 {[
-                   { t: "Proposal Drafted", desc: "System automatically generated preliminary quote based on requirements list.", time: "2H AGO", active: true },
-                   { t: "Meeting Note: Needs scalable GPU infrastructure", desc: "Alex emphasized the need for elastic scaling during peak training cycles.", time: "YESTERDAY", active: false },
-                   { t: "Discovery Call Completed", desc: "Conducted 45min initial screening. Identified budget holder and technical blockers.", time: "OCT 14", active: false },
-                   { t: "Email Sent", desc: "Initial outreach sent via LinkedIn connection.", time: "OCT 12", active: false },
-                 ].map((act, i) => (
+                 {filteredTimeline.map((act, i) => (
                    <div key={i} className="relative pl-10 group">
                       <div className={`absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full border-4 border-[#121212] z-10 transition-all ${act.active ? 'bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-white/10 group-hover:bg-white/20'}`} />
                       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4">
@@ -247,7 +260,9 @@ const LeadDetailsPage: FC = () => {
                    <FiClock className="w-4 h-4 flex-shrink-0" />
                    <span className="text-[10px] font-black uppercase tracking-widest">Best sent <span className="text-red-500">Tuesday at 9:00 AM</span></span>
                  </div>
-                 <button className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-all">Copy Draft</button>
+                 <button onClick={handleCopyDraft} className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-all">
+                   {isCopied ? "Copied!" : "Copy Draft"}
+                 </button>
                </div>
             </div>
           </div>
@@ -277,13 +292,18 @@ const LeadDetailsPage: FC = () => {
                       { name: "Master Services Agreement", ref: "MSA-NEB-24", date: "Oct 16, 2024", val: "--", st: "DRAFT", type: "CONTRACT" },
                       { name: "Invoice #SN-102", ref: "INV-SN-102", date: "Oct 10, 2024", val: "$45,000.00", st: "PAID", type: "INVOICE" },
                     ].map((doc, i) => (
-                      <tr key={i} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors cursor-pointer">
+                      <tr key={i} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
                         <td className="px-8 py-6">
                            <div className="flex items-center gap-4">
                              <div className={`p-2.5 rounded-xl border transition-all ${doc.type === 'INVOICE' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-white/5 border-white/5 text-white/40'}`}>
                                <FiFilePlus className="w-5 h-5 flex-shrink-0" />
                              </div>
-                             <span className="text-sm font-black text-white uppercase tracking-tight group-hover:text-red-500 transition-colors">{doc.name}</span>
+                             <span 
+                               onClick={() => navigate('/ai-tools/sales/proposals')}
+                               className="text-sm font-black text-white uppercase tracking-tight hover:text-red-500 transition-colors cursor-pointer"
+                             >
+                               {doc.name}
+                             </span>
                            </div>
                         </td>
                         <td className="px-8 py-6 text-sm font-medium text-white/30 uppercase tracking-tight">{doc.ref}</td>

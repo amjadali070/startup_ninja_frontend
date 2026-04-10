@@ -12,7 +12,7 @@ import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 const FollowUpsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("Today");
+  const [activeTab, setActiveTab] = useState("All");
   const [isNewOutreachModalOpen, setIsNewOutreachModalOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -40,7 +40,7 @@ const FollowUpsPage: FC = () => {
     { label: "Awaiting Response", value: "28", icon: <FiCheckCircle className="w-5 h-5 text-white" />, isPositive: true, change: "Pending Update" },
   ];
 
-  const tabs = ["Today", "Overdue", "No Response", "High Value", "Proposal Sent"];
+  const tabs = ["All", "Today", "Overdue", "No Response", "High Value", "Proposal Sent"];
 
   return (
     <DashboardLayout
@@ -81,7 +81,7 @@ const FollowUpsPage: FC = () => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
             <div className="xl:col-span-8">
-              <FollowUpTable />
+              <FollowUpTable filter={activeTab} />
             </div>
             <div className="xl:col-span-4 h-full sticky top-8">
               <AIOutreachAssistant />
