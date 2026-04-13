@@ -13,23 +13,67 @@ import {
   FiSend,
   FiActivity,
   FiAward,
-  FiLoader
+  FiLoader,
 } from "react-icons/fi";
 import IconSelect from "../IconSelect";
-import { ninjaSalesService, Lead } from "../../services/ninjaSales";
+import LeadAssigneePicker from "./LeadAssigneePicker";
+import { ninjaSalesService, Lead, TeamAssigneeMember } from "../../services/ninjaSales";
+import { useAuth } from "../../hooks/useAuth";
 
 interface LeadsTableProps {
   refreshKey?: number;
 }
 
 const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
+  const { user } = useAuth();
+  /** Account owner or Manager may assign (matches ninja-sales backend) */
+  const canAssignLeads = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [teamMembers, setTeamMembers] = useState<TeamAssigneeMember[]>([]);
+  const [assigneeLoading, setAssigneeLoading] = useState(true);
+  const [savingAssignLeadId, setSavingAssignLeadId] = useState<string | null>(null);
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setAssigneeLoading(true);
+      const res = await ninjaSalesService.getTeamAssignees();
+      if (cancelled) return;
+      if (!res.success || !res.data?.members?.length) {
+        setTeamMembers([]);
+        setAssigneeLoading(false);
+        return;
+      }
+      setTeamMembers(res.data.members);
+      setAssigneeLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAssigneeChange = async (lead: Lead, userId: string | null) => {
+    const nextId = userId === null || userId === "" ? null : userId;
+    const prev = lead.assignedToUserId ? String(lead.assignedToUserId) : "";
+    if ((nextId || "") === (prev || "")) return;
+    setSavingAssignLeadId(lead._id);
+    const res = await ninjaSalesService.updateLead(lead._id, { assignedToUserId: nextId });
+    setSavingAssignLeadId(null);
+    if (res.success && res.data) {
+      setLeads((prevLeads) =>
+        prevLeads.map((l) => (l._id === lead._id ? { ...l, ...res.data } : l))
+      );
+    } else {
+      window.alert(res.message || "Could not update assignee");
+    }
+  };
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -181,19 +225,18 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
                 <td className="px-6 py-5">
                   <span className="text-sm font-medium text-white/70">{lead.company || "N/A"}</span>
                 </td>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-2">
-                    {lead.assignedTo ? (
-                      <>
-                        <div className="w-6 h-6 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-[10px] text-white/60">
-                          {lead.assignedTo.split(' ').map((n: string) => n[0]).join('')}
-                        </div>
-                        <span className="text-white/70 text-sm">{lead.assignedTo}</span>
-                      </>
-                    ) : (
-                      <span className="text-white/30 text-sm italic">Unassigned</span>
-                    )}
-                  </div>
+                <td className="px-6 py-5 align-middle" onClick={(e) => e.stopPropagation()}>
+                  {canAssignLeads && assigneeLoading ? (
+                    <FiLoader className="w-4 h-4 text-violet-400/90 animate-spin" />
+                  ) : (
+                    <LeadAssigneePicker
+                      lead={lead}
+                      teamMembers={teamMembers}
+                      saving={savingAssignLeadId === lead._id}
+                      disabled={!canAssignLeads}
+                      onAssign={(userId) => handleAssigneeChange(lead, userId)}
+                    />
+                  )}
                 </td>
                 <td className="px-6 py-5">
                   <div className="text-white/50 text-sm italic">{getRelativeTime(lead.lastContactAt)}</div>

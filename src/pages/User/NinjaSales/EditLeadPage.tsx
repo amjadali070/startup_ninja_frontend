@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect, useCallback } from "react";
+import { type FC, useState, useEffect, useCallback, useMemo } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -6,9 +6,10 @@ import {
   FiArrowLeft, FiLoader, FiSave, FiMail, FiPhone, FiBriefcase,
   FiAward, FiCheckCircle, FiTarget, FiZap, FiUser, FiActivity,
   FiStar, FiUserCheck, FiUserX, FiHeart, FiThumbsUp, FiThumbsDown,
-  FiPauseCircle, FiSlash
+  FiPauseCircle, FiSlash, FiFilter,
 } from "react-icons/fi";
 import { ninjaSalesService } from "../../../services/ninjaSales";
+import type { SelectOption } from "../../../components/IconSelect";
 import IconSelect from "../../../components/IconSelect";
 
 const Field: FC<{ label: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ label, icon, children }) => (
@@ -31,9 +32,12 @@ const EditLeadPage: FC = () => {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", jobTitle: "",
-    source: "Other", assignedTo: "", campaign: "", notes: "",
+    source: "Other", assignedToUserId: "", campaign: "", notes: "",
     decisionMaker: false, leadStatus: "new",
   });
+  const [assigneeOptions, setAssigneeOptions] = useState<SelectOption[]>([]);
+  /** When the saved assignee is no longer on the team roster, keep their id selectable until changed */
+  const [assigneeGhostLabel, setAssigneeGhostLabel] = useState<string | null>(null);
 
   const fetchLead = useCallback(async () => {
     if (!id) return;
@@ -41,10 +45,16 @@ const EditLeadPage: FC = () => {
     const res = await ninjaSalesService.getLeadById(id);
     if (res.success && res.data) {
       const l = res.data;
+      setAssigneeGhostLabel(
+        l.assignedToUserId
+          ? l.assignee?.fullname || l.assignedTo || null
+          : null
+      );
       setForm({
         name: l.name || "", email: l.email || "", phone: l.phone || "",
         company: l.company || "", jobTitle: l.jobTitle || "",
-        source: l.source || "Other", assignedTo: l.assignedTo || "",
+        source: l.source || "Other",
+        assignedToUserId: l.assignedToUserId ? String(l.assignedToUserId) : "",
         campaign: l.campaign || "", notes: l.notes || "",
         decisionMaker: l.decisionMaker || false, leadStatus: l.leadStatus || "new",
       });
@@ -54,6 +64,49 @@ const EditLeadPage: FC = () => {
 
   useEffect(() => { fetchLead(); }, [fetchLead]);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await ninjaSalesService.getTeamAssignees();
+      if (cancelled || !res.success || !res.data) return;
+      const members = res.data.members || [];
+      const opts: SelectOption[] = [
+        { value: "", label: "Unassigned", icon: <FiFilter className="w-4 h-4" /> },
+        ...members.map((m) => ({
+          value: m._id,
+          label: m.isOwner ? `${m.fullname} (Owner)` : m.fullname,
+          icon: <FiUser className="w-4 h-4" />,
+        })),
+      ];
+      setAssigneeOptions(opts);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const mergedAssigneeOptions = useMemo(() => {
+    const unassignedOpt: SelectOption = {
+      value: "",
+      label: "Unassigned",
+      icon: <FiFilter className="w-4 h-4" />,
+    };
+    const base =
+      assigneeOptions.length > 0 ? assigneeOptions : [unassignedOpt];
+    const uid = form.assignedToUserId;
+    if (!uid || base.some((o) => o.value === uid)) return base;
+    return [
+      ...base,
+      {
+        value: uid,
+        label: assigneeGhostLabel
+          ? `${assigneeGhostLabel} (not in current team)`
+          : "Previous assignee (not in current team)",
+        icon: <FiUser className="w-4 h-4" />,
+      },
+    ];
+  }, [assigneeOptions, form.assignedToUserId, assigneeGhostLabel]);
+
   const handleChange = (field: string, value: string | boolean) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
@@ -61,7 +114,19 @@ const EditLeadPage: FC = () => {
   const handleSubmit = async () => {
     if (!id || !form.name.trim()) return;
     setSaving(true);
-    const res = await ninjaSalesService.updateLead(id, form);
+    const res = await ninjaSalesService.updateLead(id, {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      company: form.company,
+      jobTitle: form.jobTitle,
+      source: form.source,
+      leadStatus: form.leadStatus,
+      campaign: form.campaign,
+      notes: form.notes,
+      decisionMaker: form.decisionMaker,
+      assignedToUserId: form.assignedToUserId === "" ? null : form.assignedToUserId,
+    });
     setSaving(false);
     if (res.success) navigate(`/ai-tools/sales/leads/${id}`);
   };
@@ -121,7 +186,23 @@ const EditLeadPage: FC = () => {
                     <Field label="Job Title" icon={<FiAward className="w-4 h-4" />}><input type="text" value={form.jobTitle} onChange={e => handleChange("jobTitle", e.target.value)} className={withIcon} placeholder="Product Manager" /></Field>
                   </div>
 
-                  <Field label="Assigned To" icon={<FiUser className="w-4 h-4" />}><input type="text" value={form.assignedTo} onChange={e => handleChange("assignedTo", e.target.value)} className={withIcon} placeholder="Team member" /></Field>
+                  <Field label="Assigned To (team)">
+                    <IconSelect
+                        value={
+                          form.assignedToUserId &&
+                          mergedAssigneeOptions.some((o) => o.value === form.assignedToUserId)
+                            ? form.assignedToUserId
+                            : ""
+                        }
+                        onChange={(v) => handleChange("assignedToUserId", v)}
+                        options={mergedAssigneeOptions}
+                        placeholder="Unassigned"
+                        className={`${selectStyle} w-full`}
+                      />
+                    <p className="text-[10px] text-white/25 mt-1.5 leading-relaxed">
+                      Only your account owner and managers can assign leads. The list includes you (owner) and members added under Team Management.
+                    </p>
+                  </Field>
                 </div>
               </div>
 

@@ -13,6 +13,9 @@ export interface Lead {
   leadStatus: string;
   source: string;
   assignedTo: string;
+  /** Auth user id of assignee (team roster from admin team management) */
+  assignedToUserId?: string | null;
+  assignee?: { _id: string; fullname: string; email: string; teamRole?: string } | null;
   campaign: string;
   notes: string;
   decisionMaker: boolean;
@@ -32,9 +35,18 @@ export interface CreateLeadRequest {
   leadStatus?: string;
   source?: string;
   assignedTo?: string;
+  assignedToUserId?: string | null;
   campaign?: string;
   notes?: string;
   decisionMaker?: boolean;
+}
+
+export interface TeamAssigneeMember {
+  _id: string;
+  fullname: string;
+  email: string;
+  teamRole?: string | null;
+  isOwner?: boolean;
 }
 
 export interface PipelineCard {
@@ -422,6 +434,22 @@ export const ninjaSalesService = {
       return await apiClient.get<ApiSingleResponse<Lead>>(`/ninja-sales/leads/${id}`);
     } catch (error: any) {
       return { success: false, data: {} as Lead, message: error.response?.data?.message || 'Failed to fetch lead' };
+    }
+  },
+
+  async getTeamAssignees(): Promise<
+    ApiSingleResponse<{ ownerId: string; members: TeamAssigneeMember[] }>
+  > {
+    try {
+      return await apiClient.get<ApiSingleResponse<{ ownerId: string; members: TeamAssigneeMember[] }>>(
+        '/ninja-sales/leads/team-assignees'
+      );
+    } catch (error: any) {
+      return {
+        success: false,
+        data: { ownerId: '', members: [] },
+        message: error.response?.data?.message || 'Failed to load team',
+      };
     }
   },
 

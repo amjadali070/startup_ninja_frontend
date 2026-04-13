@@ -5,7 +5,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import {
   FiEdit3, FiFilePlus, FiSend, FiMoreVertical,
   FiCheckCircle, FiClock, FiInfo, FiPlus, FiTrash2, FiLoader,
-  FiRefreshCw, FiFilter, FiFolder,
+  FiRefreshCw, FiFilter, FiFolder, FiUser,
 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
 import NewTaskModal from "../../../components/ninja-sales/NewTaskModal";
@@ -271,6 +271,15 @@ const LeadDetailsPage: FC = () => {
                  <div className="space-y-1">
                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Source</p>
                    <p className="text-sm font-bold text-white/70">{lead?.source || "N/A"}</p>
+                 </div>
+                 <div className="space-y-1">
+                   <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Assigned To</p>
+                   <p className="text-sm font-bold text-white/70 flex items-center gap-2 min-w-0">
+                     <FiUser className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
+                     <span className="truncate">
+                       {lead?.assignee?.fullname || lead?.assignedTo?.trim() || "Unassigned"}
+                     </span>
+                   </p>
                  </div>
                  <div className="space-y-1">
                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Lead Status</p>
