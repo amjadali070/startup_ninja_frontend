@@ -1,39 +1,119 @@
-import { type FC } from "react";
-import { 
-  FiX, 
-  FiHelpCircle, 
-  FiChevronDown, 
-  FiUser, 
-  FiBriefcase, 
-  FiFlag, 
-  FiMessageCircle,
-  FiCpu,
-  FiZap,
+import { type FC, useState, useEffect } from "react";
+import {
+  FiX,
+  FiChevronDown,
   FiClock,
-  FiSmile
+  FiLoader,
+  FiPhone,
+  FiMail,
+  FiUsers,
+  FiRefreshCw,
+  FiMonitor,
+  FiFileText,
+  FiMoreHorizontal,
+  FiAlertTriangle,
+  FiFlag,
+  FiMinusCircle,
 } from "react-icons/fi";
+import { ninjaSalesService, Project } from "../../services/ninjaSales";
+import IconSelect, { SelectOption } from "../IconSelect";
 
 interface NewOutreachModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreated?: () => void;
+  preselectedProjectId?: string;
 }
 
-const NewOutreachModal: FC<NewOutreachModalProps> = ({ isOpen, onClose }) => {
+const typeOptions: SelectOption[] = [
+  { value: "call", label: "Call", icon: <FiPhone className="w-4 h-4" /> },
+  { value: "email", label: "Email", icon: <FiMail className="w-4 h-4" /> },
+  { value: "meeting", label: "Meeting", icon: <FiUsers className="w-4 h-4" /> },
+  { value: "follow-up", label: "Follow-up", icon: <FiRefreshCw className="w-4 h-4" /> },
+  { value: "demo", label: "Demo", icon: <FiMonitor className="w-4 h-4" /> },
+  { value: "proposal-review", label: "Proposal Review", icon: <FiFileText className="w-4 h-4" /> },
+  { value: "other", label: "Other", icon: <FiMoreHorizontal className="w-4 h-4" /> },
+];
+
+const urgencyOptions: SelectOption[] = [
+  { value: "HIGH", label: "High Priority", icon: <FiAlertTriangle className="w-4 h-4" /> },
+  { value: "MEDIUM", label: "Medium Priority", icon: <FiFlag className="w-4 h-4" /> },
+  { value: "LOW", label: "Low Priority", icon: <FiMinusCircle className="w-4 h-4" /> },
+];
+
+const NewOutreachModal: FC<NewOutreachModalProps> = ({
+  isOpen,
+  onClose,
+  onCreated,
+  preselectedProjectId,
+}) => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState(preselectedProjectId || "");
+  const [type, setType] = useState("call");
+  const [title, setTitle] = useState("");
+  const [urgency, setUrgency] = useState<"HIGH" | "MEDIUM" | "LOW">("MEDIUM");
+  const [dueDate, setDueDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      ninjaSalesService.getProjects({ limit: 100 }).then((res) => {
+        if (res.success) setProjects(res.data);
+      });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (preselectedProjectId) setProjectId(preselectedProjectId);
+  }, [preselectedProjectId]);
+
   if (!isOpen) return null;
+
+  const getLeadLabel = (p: Project) => {
+    if (typeof p.leadId === "object" && p.leadId) {
+      return p.leadId.name + (p.leadId.company ? ` (${p.leadId.company})` : "");
+    }
+    return "";
+  };
+
+  const handleSubmit = async () => {
+    if (!projectId || !title || !dueDate) return;
+    setSaving(true);
+    const res = await ninjaSalesService.createFollowUp({
+      projectId,
+      type,
+      title,
+      dueDate,
+      urgency,
+      notes,
+    });
+    setSaving(false);
+    if (res.success) {
+      onCreated?.();
+      onClose();
+      setProjectId(preselectedProjectId || "");
+      setType("call");
+      setTitle("");
+      setUrgency("MEDIUM");
+      setDueDate("");
+      setNotes("");
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div 
+      <div
         className="relative w-full max-w-2xl bg-[#0A0A0B] border border-[#1C1C1F] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-6 pb-4 flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">New Outreach</h2>
-            <p className="text-gray-400 text-sm mt-1">Schedule a follow-up or outreach task for your leads</p>
+            <h2 className="text-2xl font-bold text-white tracking-tight">New Follow-up</h2>
+            <p className="text-gray-400 text-sm mt-1">Schedule a follow-up action for a project</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white"
           >
@@ -44,33 +124,32 @@ const NewOutreachModal: FC<NewOutreachModalProps> = ({ isOpen, onClose }) => {
         <div className="border-t border-[#1C1C1F] mx-6" />
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar whitespace-nowrap">
-          
-          {/* OUTREACH TARGET */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+          {/* PROJECT & TYPE */}
           <section className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="w-1 h-5 bg-[#E11D48] rounded-full" />
-              <h3 className="text-[11px] font-bold text-[#E11D48] uppercase tracking-[0.2em]">OUTREACH TARGET</h3>
+              <h3 className="text-[11px] font-bold text-[#E11D48] uppercase tracking-[0.2em]">TARGET</h3>
             </div>
 
             <div className="space-y-6">
-              {/* Recipient Lead */}
+              {/* Project Selector */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-white ml-0.5">
-                  Recipient Lead <span className="text-[#E11D48] ml-0.5">*</span>
+                  Project <span className="text-[#E11D48] ml-0.5">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                    <FiUser className="w-4 h-4" />
-                  </div>
-                  <select 
-                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                    defaultValue=""
+                  <select
+                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
                   >
-                    <option value="" disabled>Select a lead or contact</option>
-                    <option value="1">Alex Thompson (TechFlow Solutions)</option>
-                    <option value="2">Sarah Chen (Chen Design Studio)</option>
-                    <option value="3">Marcus Rodriguez (Global Logistics)</option>
+                    <option value="" disabled>Select a project</option>
+                    {projects.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.name} {getLeadLabel(p) ? `— ${getLeadLabel(p)}` : ""}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
                     <FiChevronDown className="w-4 h-4" />
@@ -79,168 +158,104 @@ const NewOutreachModal: FC<NewOutreachModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Company (Read-only reference) */}
+                {/* Type */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-white ml-0.5">Company</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                      <FiBriefcase className="w-4 h-4" />
-                    </div>
-                    <input 
-                      type="text" 
-                      placeholder="Company auto-populates"
-                      disabled
-                      className="w-full bg-[#161618]/50 border border-[#27272A] rounded-lg pl-11 pr-4 py-3 text-sm text-white/50 cursor-not-allowed"
-                    />
-                  </div>
+                  <label className="text-xs font-semibold text-white ml-0.5">Type</label>
+                  <IconSelect
+                    value={type}
+                    onChange={setType}
+                    options={typeOptions}
+                    placeholder="Select type"
+                    className="bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm"
+                  />
                 </div>
 
-                {/* Priority */}
+                {/* Urgency */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-white ml-0.5">Priority Level</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                      <FiFlag className="w-4 h-4" />
-                    </div>
-                    <select 
-                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                      defaultValue="medium"
-                    >
-                      <option value="urgent">Urgent Action</option>
-                      <option value="high">High Priority</option>
-                      <option value="medium">Medium Priority</option>
-                      <option value="low">Low Priority</option>
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                      <FiChevronDown className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* OUTREACH CONFIGURATION */}
-          <section className="space-y-6 pt-2">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-5 bg-[#E11D48] rounded-full" />
-              <h3 className="text-[11px] font-bold text-[#E11D48] uppercase tracking-[0.2em]">OUTREACH CONFIGURATION</h3>
-            </div>
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Channel Selector */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-white ml-0.5">Outreach Channel</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                      <FiMessageCircle className="w-4 h-4" />
-                    </div>
-                    <select 
-                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                      defaultValue="email"
-                    >
-                      <option value="linkedin">LinkedIn Message</option>
-                      <option value="email">Direct Email</option>
-                      <option value="call">Phone Call</option>
-                      <option value="meeting">Video Meeting</option>
-                      <option value="sms">SMS Text</option>
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                      <FiChevronDown className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Scheduled Time */}
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-white ml-0.5">Scheduled Date & Time</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                      <FiClock className="w-4 h-4" />
-                    </div>
-                    <input 
-                      type="datetime-local" 
-                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all [color-scheme:dark]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Goal/Subject */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-white ml-0.5">Goal / Subject Line</label>
-                <div className="relative">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                    <FiZap className="w-4 h-4" />
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Following up on yesterday's proposal"
-                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                  <label className="text-xs font-semibold text-white ml-0.5">Urgency</label>
+                  <IconSelect
+                    value={urgency}
+                    onChange={(v) => setUrgency(v as "HIGH" | "MEDIUM" | "LOW")}
+                    options={urgencyOptions}
+                    placeholder="Select urgency"
+                    className="bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm"
                   />
                 </div>
               </div>
             </div>
           </section>
 
-          {/* AI CONTENT ASSISTANT */}
-          <section className="space-y-6 pt-2 pb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-[#E11D48] rounded-full" />
-                <h3 className="text-[11px] font-bold text-[#E11D48] uppercase tracking-[0.2em]">OUTREACH CONTENT</h3>
-              </div>
-              <button className="flex items-center gap-2 px-3 py-1.5 bg-[#E11D48]/10 hover:bg-[#E11D48]/20 border border-[#E11D48]/20 rounded-lg text-[10px] font-bold text-[#E11D48] uppercase tracking-wider transition-all">
-                <FiCpu className="w-3 h-3" />
-                <span>AI Draft Assistant</span>
-              </button>
+          {/* DETAILS */}
+          <section className="space-y-6 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-5 bg-[#E11D48] rounded-full" />
+              <h3 className="text-[11px] font-bold text-[#E11D48] uppercase tracking-[0.2em]">DETAILS</h3>
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <button className="flex items-center justify-center gap-2 py-2 bg-[#161618] border border-[#27272A] rounded-lg text-xs font-medium text-white/70 hover:text-white hover:border-[#E11D48]/30 transition-all">
-                  <FiSmile className="w-3.5 h-3.5" />
-                  <span>Professional</span>
-                </button>
-                <button className="flex items-center justify-center gap-2 py-2 bg-[#161618] border border-[#27272A] rounded-lg text-xs font-medium text-white/70 hover:text-white hover:border-[#E11D48]/30 transition-all">
-                  <FiZap className="w-3.5 h-3.5" />
-                  <span>Persuasive</span>
-                </button>
-                <button className="flex items-center justify-center gap-2 py-2 bg-[#161618] border border-[#27272A] rounded-lg text-xs font-medium text-white/70 hover:text-white hover:border-[#E11D48]/30 transition-all">
-                  <FiClock className="w-3.5 h-3.5" />
-                  <span>Direct/Short</span>
-                </button>
+            <div className="space-y-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-white ml-0.5">
+                  Title <span className="text-[#E11D48] ml-0.5">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Follow up on proposal feedback"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                />
               </div>
 
-              <textarea 
-                placeholder="Write your outreach message here or use AI to generate a draft based on the lead's profile..."
-                rows={4}
-                className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#E11D48]/50 transition-all resize-none"
-              />
+              {/* Due Date */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-white ml-0.5">
+                  Due Date & Time <span className="text-[#E11D48] ml-0.5">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
+                    <FiClock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="datetime-local"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all [color-scheme:dark]"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2 pb-6">
+                <label className="text-xs font-semibold text-white ml-0.5">Notes</label>
+                <textarea
+                  placeholder="Additional context or instructions..."
+                  rows={4}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#E11D48]/50 transition-all resize-none"
+                />
+              </div>
             </div>
           </section>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[#1C1C1F] bg-[#0A0A0B] flex items-center justify-between">
-          <button className="flex items-center gap-2 text-gray-400 hover:text-white text-xs font-medium transition-colors">
-            <FiHelpCircle className="w-4 h-4" />
-            <span>How do outreaches work?</span>
-          </button>
-          
+        <div className="p-6 border-t border-[#1C1C1F] bg-[#0A0A0B] flex items-center justify-end">
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={onClose}
               className="px-6 py-2.5 text-sm font-semibold text-white/70 hover:text-white transition-all"
             >
               Cancel
             </button>
-            <button className="px-6 py-2.5 text-sm font-semibold text-white bg-[#1A0707] border border-[#450A0A] hover:bg-[#2D0A0A] rounded-lg transition-all">
-              Save Draft
-            </button>
-            <button className="px-8 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20 transition-all">
-              Create Outreach
+            <button
+              onClick={handleSubmit}
+              disabled={saving || !projectId || !title || !dueDate}
+              className="px-8 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving && <FiLoader className="w-4 h-4 animate-spin" />}
+              Create Follow-up
             </button>
           </div>
         </div>

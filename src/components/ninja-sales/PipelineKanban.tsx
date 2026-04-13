@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FiMoreHorizontal, FiClock, FiPhone } from "react-icons/fi";
+import { FiMoreHorizontal, FiClock, FiPhone, FiInbox } from "react-icons/fi";
 import { MdDragIndicator } from "react-icons/md";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
@@ -14,6 +14,7 @@ interface PipelineCard {
   avatar: string;
   lastActivity?: string;
   nextStep?: string;
+  projectName?: string;
 }
 
 interface Column {
@@ -36,6 +37,22 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
       default: return "bg-white/10 text-white/70";
     }
   };
+
+  const totalCards = columns.reduce((sum, col) => sum + col.cards.length, 0);
+
+  if (totalCards === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 px-8">
+        <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mb-6">
+          <FiInbox className="w-9 h-9 text-white/15" />
+        </div>
+        <h3 className="text-lg font-black text-white/60 uppercase tracking-wide mb-2">No Leads Available</h3>
+        <p className="text-sm text-white/30 text-center max-w-md">
+          Your pipeline is empty. Add a new project to create your first lead and start tracking deals.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -61,7 +78,7 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
                 <div 
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className={`flex-1 space-y-4 rounded-3xl transition-all p-1 min-h-[150px] ${snapshot.isDraggingOver ? 'bg-red-600/5 ring-1 ring-red-600/10' : ''}`}
+                  className={`flex-1 space-y-5 rounded-3xl transition-all p-1 min-h-[150px] ${snapshot.isDraggingOver ? 'bg-red-600/5 ring-1 ring-red-600/10' : ''}`}
                 >
                   {column.cards.map((card, index) => (
                     <Draggable key={card.id} draggableId={card.id} index={index}>
@@ -71,9 +88,9 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           style={{ ...provided.draggableProps.style }}
-                          className={`bg-[#121212] border border-white/[0.03] rounded-2xl p-6 shadow-xl transition-all group relative overflow-hidden ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-2xl ring-2 ring-red-600/40 z-50' : 'hover:border-red-500/30'}`}
+                          className={`bg-[#121212] border border-white/[0.03] rounded-2xl p-5 sm:p-6 shadow-xl transition-all group relative overflow-hidden flex flex-col shrink-0 ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-2xl ring-2 ring-red-600/40 z-50' : 'hover:border-red-500/30'}`}
                         >
-                          <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start justify-between mb-3.5 shrink-0">
                             <span className={`text-[10px] font-black px-2 py-0.5 rounded ${getPriorityStyle(card.priority)}`}>
                               {card.priority}
                             </span>
@@ -87,42 +104,48 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
                             </div>
                           </div>
 
-                          <Link to={`/ai-tools/sales/leads/${card.id}`} className="block space-y-1 mb-6 group/title">
-                            <h4 className="text-base font-black text-white group-hover/title:text-red-500 transition-colors uppercase tracking-tight">
-                              {card.company}
+                          <Link to={`/ai-tools/sales/projects/${card.id}`} className="block shrink-0 group/title min-h-0">
+                            <h4 className="text-[15px] font-black text-white group-hover/title:text-red-500 transition-colors capitalize tracking-tight leading-snug line-clamp-2">
+                              {card.projectName || card.company}
                             </h4>
-                            <p className="text-sm font-medium text-white/40">{card.contact}</p>
+                            <p className="text-xs font-medium text-white/40 mt-1.5 line-clamp-1">
+                              {card.company}{card.contact ? ` · ${card.contact}` : ""}
+                            </p>
                           </Link>
 
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="text-xl font-black text-red-500 tracking-tight">{card.value}</div>
-                              {card.lastActivity && (
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/30 mt-2 uppercase tracking-wide">
-                                  <FiClock className="w-3 h-3" />
-                                  <span>{card.lastActivity}</span>
-                                </div>
-                              )}
-                              {card.nextStep && (
-                                <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-500 mt-2 uppercase tracking-wide">
-                                  <FiPhone className="w-3 h-3" />
-                                  <span>{card.nextStep}</span>
-                                </div>
-                              )}
-                            </div>
+                          <div className="mt-5 shrink-0">
+                            <div className="flex items-end justify-between gap-4">
+                              <div className="min-w-0 flex-1 space-y-2">
+                                <div className="text-xl font-black text-red-500 tracking-tight leading-none">{card.value}</div>
+                                {(card.lastActivity || card.nextStep) ? (
+                                  <div className="space-y-1.5 pt-1">
+                                    {card.lastActivity && (
+                                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/30 uppercase tracking-wide line-clamp-1">
+                                        <FiClock className="w-3 h-3 shrink-0" />
+                                        <span>{card.lastActivity}</span>
+                                      </div>
+                                    )}
+                                    {card.nextStep && (
+                                      <div className="flex items-start gap-1.5 text-[10px] font-black text-emerald-500 uppercase tracking-wide line-clamp-2 leading-tight">
+                                        <FiPhone className="w-3 h-3 shrink-0 mt-0.5" />
+                                        <span>{card.nextStep}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : null}
+                              </div>
 
-                            <div className="text-right">
-                              <div className="text-[10px] text-white/30 font-black mb-2 uppercase tracking-widest">{card.date}</div>
-                              <img 
-                                src={card.avatar} 
-                                alt={card.contact} 
-                                className="w-8 h-8 rounded-xl border border-white/10 ml-auto grayscale hover:grayscale-0 transition-all shadow-lg"
-                              />
+                              <div className="text-right shrink-0 flex flex-col items-end justify-end gap-2.5">
+                                <div className="text-[10px] text-white/30 font-black uppercase tracking-widest">{card.date}</div>
+                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500/20 to-red-900/20 border border-white/10 flex items-center justify-center text-[10px] font-black text-red-500 uppercase shadow-lg">
+                                  {card.contact ? card.contact.split(" ").map(n => n[0]).join("").slice(0, 2) : "?"}
+                                </div>
+                              </div>
                             </div>
                           </div>
                           
                           {/* Inner card glow on hover */}
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 blur-[40px] rounded-full translate-x-8 -translate-y-8 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 blur-[40px] rounded-full translate-x-8 -translate-y-8 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         </div>
                       )}
                     </Draggable>

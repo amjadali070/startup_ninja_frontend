@@ -54,6 +54,10 @@ import LeadsPipelinePage from "./pages/User/NinjaSales/LeadsPipelinePage.tsx";
 import FollowUpsPage from "./pages/User/NinjaSales/FollowUpsPage.tsx";
 import ProposalsPage from "./pages/User/NinjaSales/ProposalsPage.tsx";
 import LeadDetailsPage from "./pages/User/NinjaSales/LeadDetailsPage.tsx";
+import ProjectsPage from "./pages/User/NinjaSales/ProjectsPage.tsx";
+import ProjectDetailsPage from "./pages/User/NinjaSales/ProjectDetailsPage.tsx";
+import EditLeadPage from "./pages/User/NinjaSales/EditLeadPage.tsx";
+import EditProjectPage from "./pages/User/NinjaSales/EditProjectPage.tsx";
 
 function App() {
   return (
@@ -253,6 +257,14 @@ function App() {
             }
           />
           <Route
+            path="/ai-tools/sales/leads/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditLeadPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ai-tools/sales/pipeline"
             element={
               <ProtectedRoute>
@@ -273,6 +285,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProposalsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/projects"
+            element={
+              <ProtectedRoute>
+                <ProjectsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/projects/:id"
+            element={
+              <ProtectedRoute>
+                <ProjectDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/projects/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditProjectPage />
               </ProtectedRoute>
             }
           />

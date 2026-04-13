@@ -1,4 +1,4 @@
-import { type FC, useState, useMemo } from "react";
+import { type FC, useState, useMemo, useEffect, useCallback } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -9,50 +9,22 @@ import { FiFilter, FiCalendar, FiUser, FiTrendingUp, FiAlertTriangle, FiDollarSi
 import { DropResult } from "@hello-pangea/dnd";
 import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
 import IconSelect from "../../../components/IconSelect";
+import { ninjaSalesService } from "../../../services/ninjaSales";
 
-const initialKanbanData: Column[] = [
-  {
-    id: "new",
-    title: "New Lead",
-    cards: [
-      { id: "1", company: "Aether Dynamics", contact: "Sarah Jenkins", value: "$125k", priority: "HIGH", date: "Dec 12", avatar: "https://i.pravatar.cc/150?u=sarah", lastActivity: "2h ago" },
-      { id: "2", company: "Lumina Systems", contact: "Mark Thompson", value: "$42k", priority: "MED", date: "Dec 18", avatar: "https://i.pravatar.cc/150?u=mark" }
-    ]
-  },
-  {
-    id: "qualified",
-    title: "Qualified",
-    cards: [
-      { id: "3", company: "Nebula Labs", contact: "Alex Rivera", value: "$280k", priority: "HIGH", date: "Jan 05", avatar: "https://i.pravatar.cc/150?u=alex", nextStep: "Next: Demo Wed" }
-    ]
-  },
-  {
-    id: "discovery",
-    title: "Discovery",
-    cards: [
-      { id: "4", company: "Vertex Corp", contact: "Daria V.", value: "$18k", priority: "LOW", date: "Dec 15", avatar: "https://i.pravatar.cc/150?u=daria" }
-    ]
-  },
-  {
-    id: "proposal",
-    title: "Proposal Sent",
-    cards: [
-      { id: "5", company: "Solaris Tech", contact: "Elena G.", value: "$150k", priority: "MED", date: "Dec 20", avatar: "https://i.pravatar.cc/150?u=elena" }
-    ]
-  },
-  {
-    id: "negotiation",
-    title: "Negotiation",
-    cards: [
-      { id: "6", company: "Cyberdyne Sys", contact: "John C.", value: "$520k", priority: "HIGH", date: "Dec 22", avatar: "https://i.pravatar.cc/150?u=john", lastActivity: "1h ago" }
-    ]
-  }
+const emptyColumns: Column[] = [
+  { id: "new", title: "New", cards: [] },
+  { id: "contacted", title: "Contacted", cards: [] },
+  { id: "qualified", title: "Qualified", cards: [] },
+  { id: "proposal", title: "Proposal", cards: [] },
+  { id: "negotiation", title: "Negotiation", cards: [] },
+  { id: "converted", title: "Converted", cards: [] },
+  { id: "closed-won", title: "Closed Won", cards: [] },
 ];
 
 const LeadsPipelinePage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [kanbanData, setKanbanData] = useState<Column[]>(initialKanbanData);
+  const [kanbanData, setKanbanData] = useState<Column[]>(emptyColumns);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Filter States
@@ -63,6 +35,19 @@ const LeadsPipelinePage: FC = () => {
   const [leadSource, setLeadSource] = useState("All Sources");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchPipeline = useCallback(async () => {
+    const res = await ninjaSalesService.getPipelineColumns({
+      priority: priorityFilter !== "All Priority" ? priorityFilter.replace(" Priority", "").toLowerCase() : undefined,
+      search: searchQuery || undefined,
+      source: leadSource !== "All Sources" ? leadSource : undefined,
+    });
+    if (res.success) {
+      setKanbanData(res.data.length > 0 ? res.data : emptyColumns);
+    }
+  }, [priorityFilter, searchQuery, leadSource]);
+
+  useEffect(() => { fetchPipeline(); }, [fetchPipeline]);
 
   const handleLogout = async () => {
     try {
@@ -109,6 +94,13 @@ const LeadsPipelinePage: FC = () => {
       newCols[destColIndex] = destCol;
     }
     setKanbanData(newCols);
+
+    ninjaSalesService.movePipelineCard({
+      leadId: movedCard.id,
+      fromStage: source.droppableId,
+      toStage: destination.droppableId,
+      newIndex: destination.index,
+    });
   };
 
   const filteredColumns = useMemo(() => {
@@ -130,17 +122,27 @@ const LeadsPipelinePage: FC = () => {
     }));
   }, [kanbanData, priorityFilter, valueRange, searchQuery]);
 
+  const allCards = kanbanData.flatMap(col => col.cards);
+  const totalCards = allCards.length;
+  const totalValue = allCards.reduce((sum, c) => {
+    const num = parseInt(c.value.replace(/[^0-9]/g, '')) * (c.value.includes('k') ? 1000 : 1);
+    return sum + (num || 0);
+  }, 0);
+  const closingCards = kanbanData.find(c => c.id === "negotiation")?.cards.length || 0;
+  const holdCards = kanbanData.find(c => c.id === "hold")?.cards.length || 0;
+  const formatVal = (v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`;
+
   const stats: StatItem[] = [
-    { label: "Total Pipeline Value", value: "$4.8M", icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "+12.5% this month" },
-    { label: "Deals Closing (Month)", value: "12", icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "+3 since last week" },
-    { label: "Weighted Forecast", value: "$3.2M", icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "On Track" },
-    { label: "Stalled Deals", value: "03", warning: true, icon: <FiAlertTriangle className="w-5 h-5" />, change: "Requires Attention" },
+    { label: "Total Pipeline Value", value: formatVal(totalValue), icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: `${totalCards} deals in pipeline` },
+    { label: "In Negotiation", value: String(closingCards), icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "Active negotiations" },
+    { label: "Total Deals", value: String(totalCards), icon: <FiTrendingUp className="w-5 h-5" />, isPositive: true, change: "Across all stages" },
+    { label: "On Hold", value: String(holdCards), warning: holdCards > 0, icon: <FiAlertTriangle className="w-5 h-5" />, change: holdCards > 0 ? "Requires Attention" : "All clear" },
   ];
 
   return (
     <DashboardLayout
       activePath="/ai-tools/sales/pipeline"
-      title="Leads Pipeline - Ninja Sales"
+      title="Projects Pipeline - Ninja Sales"
       onLogout={handleLogout}
       onSettings={handleOpenSettings}
     >
@@ -148,8 +150,8 @@ const LeadsPipelinePage: FC = () => {
         <div className="p-4 lg:p-8 space-y-8 max-w-auto mx-auto text-white pb-20">
 
           <NinjaSalesHeader
-            title="Lead Pipeline"
-            subtitle="Revenue Pipeline Overview — Monitoring your business velocity."
+            title="Projects Pipeline"
+            subtitle="Track your deals across pipeline stages — monitor business velocity."
             onNewDeal={handleNewLead}
             onExport={handleExport}
           />
@@ -250,6 +252,7 @@ const LeadsPipelinePage: FC = () => {
       <AddProjectModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+        onCreated={() => fetchPipeline()}
       />
     </DashboardLayout>
   );

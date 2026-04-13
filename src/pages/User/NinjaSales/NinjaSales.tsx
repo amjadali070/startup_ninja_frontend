@@ -1,10 +1,11 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout.tsx";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth.ts";
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader.tsx";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid.tsx";
 import { FiTrendingUp, FiFolder, FiAward, FiAlertCircle } from "react-icons/fi";
+import { ninjaSalesService, DashboardStats } from "../../../services/ninjaSales";
 import PipelineSnapshot from "../../../components/ninja-sales/PipelineSnapshot.tsx";
 import RevenueForecast from "../../../components/ninja-sales/RevenueForecast.tsx";
 import RecentLeadActivity from "../../../components/ninja-sales/RecentLeadActivity.tsx";
@@ -43,11 +44,22 @@ const NinjaSales: FC = () => {
     console.log("Export CSV triggered");
   };
 
+  const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+
+  useEffect(() => {
+    ninjaSalesService.getDashboardStats().then(res => {
+      if (res.success) setDashboardData(res.data);
+    });
+  }, []);
+
+  const s = dashboardData?.stats;
+  const formatValue = (v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`;
+
   const dashboardStats: StatItem[] = [
-    { label: "Active Leads", value: "42", change: "+12% this week", isPositive: true, icon: <FiTrendingUp className="w-5 h-5" /> },
-    { label: "Pipeline Value", value: "$1.2M", change: "Target: $1.5M", icon: <FiFolder className="w-5 h-5" /> },
-    { label: "Win Rate", value: "68%", progress: 68, icon: <FiAward className="w-5 h-5" /> },
-    { label: "Overdue Follow-ups", value: "5", isAlert: true, change: "Requires Immediate Action", icon: <FiAlertCircle className="w-5 h-5" /> },
+    { label: "Active Leads", value: String(s?.activeLeads ?? 0), change: s?.leadGrowth ? `${s.leadGrowth > 0 ? "+" : ""}${s.leadGrowth}% this month` : "No change", isPositive: (s?.leadGrowth ?? 0) >= 0, icon: <FiTrendingUp className="w-5 h-5" /> },
+    { label: "Pipeline Value", value: formatValue(s?.pipelineValue ?? 0), icon: <FiFolder className="w-5 h-5" /> },
+    { label: "Win Rate", value: `${s?.winRate ?? 0}%`, progress: s?.winRate ?? 0, icon: <FiAward className="w-5 h-5" /> },
+    { label: "Overdue Follow-ups", value: String(s?.overdueFollowUps ?? 0), isAlert: (s?.overdueFollowUps ?? 0) > 0, change: (s?.overdueFollowUps ?? 0) > 0 ? "Requires Immediate Action" : "All clear", icon: <FiAlertCircle className="w-5 h-5" /> },
   ];
 
   return (
@@ -65,13 +77,13 @@ const NinjaSales: FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             <div className="lg:col-span-4">
-              <PipelineSnapshot />
+              <PipelineSnapshot pipelineByStage={dashboardData?.pipelineByStage} />
             </div>
             <div className="lg:col-span-4">
-              <RevenueForecast />
+              <RevenueForecast revenueForecast={dashboardData?.revenueForecast} />
             </div>
             <div className="lg:col-span-4">
-              <RecentLeadActivity />
+              <RecentLeadActivity activities={dashboardData?.recentActivities} />
             </div>
           </div>
 
@@ -80,7 +92,7 @@ const NinjaSales: FC = () => {
               <AIFollowupSuggestions />
             </div>
             <div className="lg:col-span-5">
-              <TopOpportunities />
+              <TopOpportunities opportunities={dashboardData?.topOpportunities} />
             </div>
             <div className="lg:col-span-2">
               <SalesQuickActions />
@@ -95,7 +107,8 @@ const NinjaSales: FC = () => {
 
       <AddProjectModal 
         isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+        onClose={() => setIsAddModalOpen(false)}
+        onCreated={() => ninjaSalesService.getDashboardStats().then(res => { if (res.success) setDashboardData(res.data); })}
       />
     </DashboardLayout>
   );

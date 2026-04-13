@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { 
   FiSearch, 
@@ -6,62 +6,49 @@ import {
   FiMail, 
   FiPhone, 
   FiExternalLink, 
-  FiTrendingUp,
   FiFilter,
   FiFilePlus,
   FiMessageCircle,
   FiUserCheck,
   FiSend,
   FiActivity,
-  FiAward
+  FiAward,
+  FiLoader
 } from "react-icons/fi";
 import IconSelect from "../IconSelect";
+import { ninjaSalesService, Lead } from "../../services/ninjaSales";
 
-interface Lead {
-  id: string;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  status: "New" | "Contacted" | "Qualified" | "Proposal Sent" | "Negotiation" | "Closed";
-  value: number;
-  source: string;
-  assignedTo: string;
-  lastContact: string;
+interface LeadsTableProps {
+  refreshKey?: number;
 }
 
-const dummyLeads: Lead[] = [
-  { id: "1", name: "Alex Thompson", company: "TechFlow Solutions", email: "alex@techflow.io", phone: "+1 (555) 012-3456", status: "Qualified", value: 12500, source: "LinkedIn", assignedTo: "Sarah Miller", lastContact: "2 hours ago" },
-  { id: "2", name: "Sarah Chen", company: "Chen Design Studio", email: "sarah.c@chendesign.com", phone: "+1 (555) 012-7890", status: "New", value: 5000, source: "Website", assignedTo: "Mike Ross", lastContact: "Just now" },
-  { id: "3", name: "Marcus Rodriguez", company: "Global Logistics Ltd", email: "m.rodriguez@globallog.com", phone: "+1 (555) 012-1111", status: "Proposal Sent", value: 45000, source: "Referral", assignedTo: "Sarah Miller", lastContact: "1 day ago" },
-  { id: "4", name: "Elena Petrova", company: "Smart Capital", email: "epetrova@smartcap.ru", phone: "+1 (555) 012-2222", status: "Negotiation", value: 82000, source: "Cold Outreach", assignedTo: "David Kim", lastContact: "3 hours ago" },
-  { id: "5", name: "James Wilson", company: "Apex Innovations", email: "j.wilson@apexinnov.com", phone: "+1 (555) 012-3333", status: "Contacted", value: 15000, source: "Google Ads", assignedTo: "Mike Ross", lastContact: "5 hours ago" },
-  { id: "6", name: "Linda Gray", company: "Quantum Systems", email: "linda.g@quantumsys.com", phone: "+1 (555) 012-4444", status: "New", value: 32000, source: "LinkedIn", assignedTo: "David Kim", lastContact: "1 hour ago" },
-  { id: "7", name: "Robert Fox", company: "Silverline Media", email: "robert@silverline.com", phone: "+1 (555) 012-5555", status: "Closed", value: 25000, source: "Referral", assignedTo: "Sarah Miller", lastContact: "2 days ago" },
-  { id: "8", name: "Sophia Wagner", company: "Wagner Logistics", email: "sophia@wagnerlog.de", phone: "+1 (555) 012-6666", status: "Proposal Sent", value: 18500, source: "Website", assignedTo: "Mike Ross", lastContact: "1 hour ago" },
-  { id: "9", name: "Thomas Miller", company: "Miller Tech", email: "thomas@millertech.com", phone: "+1 (555) 012-7777", status: "Qualified", value: 12000, source: "Cold Outreach", assignedTo: "David Kim", lastContact: "4 hours ago" },
-  { id: "10", name: "Christopher Davis", company: "Davis & Co", email: "chris@davis.com", phone: "+1 (555) 012-8888", status: "Contacted", value: 55000, source: "Google Ads", assignedTo: "Sarah Miller", lastContact: "6 hours ago" },
-  { id: "11", name: "Emily Blunt", company: "Creative Edge", email: "emily@creative.com", phone: "+1 (555) 012-9999", status: "New", value: 9500, source: "Instagram", assignedTo: "Mike Ross", lastContact: "10 mins ago" },
-  { id: "12", name: "Jack Wilson", company: "Jack Wilson Brothers", email: "jack@wilsonbros.io", phone: "+1 (555) 013-1111", status: "Negotiation", value: 75000, source: "Partner", assignedTo: "David Kim", lastContact: "12 hours ago" },
-];
-
-const LeadsTable: React.FC = () => {
+const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [totalLeads, setTotalLeads] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const itemsPerPage = 10;
 
-  const filteredLeads = dummyLeads.filter(lead => {
-    const matchesSearch =
-      lead.name.toLowerCase().includes(search.toLowerCase()) ||
-      lead.company.toLowerCase().includes(search.toLowerCase()) ||
-      lead.email.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "All" || lead.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const fetchLeads = useCallback(async () => {
+    setLoading(true);
+    const res = await ninjaSalesService.getLeads({
+      page: currentPage,
+      limit: itemsPerPage,
+      search: search || undefined,
+      status: statusFilter !== "All" ? statusFilter : undefined,
+    });
+    if (res.success) {
+      setLeads(res.data);
+      setTotalLeads(res.pagination?.total || res.data.length);
+    }
+    setLoading(false);
+  }, [currentPage, search, statusFilter]);
 
-  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
-  const paginatedLeads = filteredLeads.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  useEffect(() => { fetchLeads(); }, [fetchLeads, refreshKey]);
+
+  const totalPages = Math.ceil(totalLeads / itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -69,22 +56,20 @@ const LeadsTable: React.FC = () => {
     }
   };
 
-  // Reset to first page when filtering
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [search, statusFilter]);
 
-  const getStatusStyle = (status: Lead["status"]) => {
-    switch (status) {
-      case "New": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-      case "Contacted": return "bg-purple-500/10 text-purple-500 border-purple-500/20";
-      case "Qualified": return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "Proposal Sent": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-      case "Negotiation": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
-      case "Closed": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
-    }
+  const getRelativeTime = (dateStr: string) => {
+    if (!dateStr) return "N/A";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
   };
+
 
   return (
     <div className="bg-[#121212] border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl">
@@ -132,26 +117,35 @@ const LeadsTable: React.FC = () => {
       </div>
 
       {/* Table Content */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
+          <span className="ml-3 text-white/40 text-sm">Loading leads...</span>
+        </div>
+      ) : (
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr className="bg-white/[0.03]">
               <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Lead Information</th>
-              <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Status</th>
-              <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Deal Value</th>
+              <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Source</th>
+              <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Lead Status</th>
+              <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Company</th>
               <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Assigned To</th>
               <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03]">Last Touch</th>
               <th className="px-6 py-5 text-xs font-bold uppercase tracking-widest text-white/40 border-b border-white/[0.03] text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedLeads.map((lead) => (
+            {leads.length === 0 ? (
+              <tr><td colSpan={7} className="px-6 py-16 text-center text-white/30 text-sm">No leads found. Create your first lead to get started.</td></tr>
+            ) : leads.map((lead) => (
               <tr
-                key={lead.id}
+                key={lead._id}
                 className="group hover:bg-white/[0.02] transition-all duration-300 border-b border-white/[0.03]"
               >
                 <td className="px-6 py-5">
-                  <Link to={`/ai-tools/sales/leads/${lead.id}`} className="flex items-center gap-4 group/name">
+                  <Link to={`/ai-tools/sales/leads/${lead._id}`} className="flex items-center gap-4 group/name">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-900/10 border border-white/10 flex items-center justify-center text-red-500 font-bold shadow-inner">
                       {lead.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
@@ -165,30 +159,44 @@ const LeadsTable: React.FC = () => {
                   </Link>
                 </td>
                 <td className="px-6 py-5">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border ${getStatusStyle(lead.status)}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-current mr-2 animate-pulse" />
-                    {lead.status}
+                  <span className="text-sm font-medium text-white/70">{lead.source || "N/A"}</span>
+                </td>
+                <td className="px-6 py-5">
+                  <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest uppercase ${
+                    lead.leadStatus === "new" ? "bg-blue-500/10 text-blue-400" :
+                    lead.leadStatus === "contacted" ? "bg-purple-500/10 text-purple-400" :
+                    lead.leadStatus === "engaged" ? "bg-cyan-500/10 text-cyan-400" :
+                    lead.leadStatus === "qualified" ? "bg-emerald-500/10 text-emerald-400" :
+                    lead.leadStatus === "unqualified" ? "bg-orange-500/10 text-orange-400" :
+                    lead.leadStatus === "nurturing" ? "bg-yellow-500/10 text-yellow-400" :
+                    lead.leadStatus === "converted" ? "bg-emerald-500/10 text-emerald-500" :
+                    lead.leadStatus === "lost" ? "bg-red-500/10 text-red-400" :
+                    lead.leadStatus === "inactive" ? "bg-white/10 text-white/40" :
+                    lead.leadStatus === "do-not-contact" ? "bg-red-600/20 text-red-500" :
+                    "bg-white/5 text-white/40"
+                  }`}>
+                    {lead.leadStatus || "New"}
                   </span>
                 </td>
                 <td className="px-6 py-5">
-                  <div className="font-bold text-white text-sm">
-                    ${lead.value.toLocaleString()}
-                  </div>
-                  <div className="text-[10px] text-white/30 flex items-center gap-1 mt-0.5">
-                    <FiTrendingUp className="text-green-500/50" />
-                    Via {lead.source}
-                  </div>
+                  <span className="text-sm font-medium text-white/70">{lead.company || "N/A"}</span>
                 </td>
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-[10px] text-white/60">
-                      {lead.assignedTo.split(' ').map((n: string) => n[0]).join('')}
-                    </div>
-                    <span className="text-white/70 text-sm">{lead.assignedTo}</span>
+                    {lead.assignedTo ? (
+                      <>
+                        <div className="w-6 h-6 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-[10px] text-white/60">
+                          {lead.assignedTo.split(' ').map((n: string) => n[0]).join('')}
+                        </div>
+                        <span className="text-white/70 text-sm">{lead.assignedTo}</span>
+                      </>
+                    ) : (
+                      <span className="text-white/30 text-sm italic">Unassigned</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-5">
-                  <div className="text-white/50 text-sm italic">{lead.lastContact}</div>
+                  <div className="text-white/50 text-sm italic">{getRelativeTime(lead.lastContactAt)}</div>
                 </td>
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2 transition-opacity duration-300">
@@ -208,11 +216,12 @@ const LeadsTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Pagination Container */}
       <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.03] flex flex-col md:flex-row items-center justify-between gap-6">
         <p className="text-xs text-white/30 font-medium order-2 md:order-1">
-          Showing <span className="text-white/60">{filteredLeads.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}-{Math.min(currentPage * itemsPerPage, filteredLeads.length)}</span> of <span className="text-white/60">{filteredLeads.length}</span> leads
+          Showing <span className="text-white/60">{totalLeads > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}-{Math.min(currentPage * itemsPerPage, totalLeads)}</span> of <span className="text-white/60">{totalLeads}</span> leads
         </p>
         <div className="flex items-center gap-2 order-1 md:order-2 w-full md:w-auto justify-between md:justify-end">
           <button

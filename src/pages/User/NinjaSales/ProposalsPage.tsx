@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -9,11 +9,19 @@ import SavedTemplates from "../../../components/ninja-sales/SavedTemplates";
 import RecentProposals from "../../../components/ninja-sales/RecentProposals";
 import { FiTrendingUp, FiTarget, FiZap, FiEdit3, FiArrowLeft, FiSend, FiPlus } from "react-icons/fi";
 import NewProposalModal from "../../../components/ninja-sales/NewProposalModal";
+import { ninjaSalesService, Proposal } from "../../../services/ninjaSales";
 
 const ProposalsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [isNewProposalModalOpen, setIsNewProposalModalOpen] = useState(false);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+
+  useEffect(() => {
+    ninjaSalesService.getProposals().then(res => {
+      if (res.success) setProposals(res.data);
+    });
+  }, []);
 
   const handleLogout = async () => {
     try {

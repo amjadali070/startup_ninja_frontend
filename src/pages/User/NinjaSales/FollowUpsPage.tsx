@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect, useCallback } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
@@ -6,14 +6,32 @@ import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import FollowUpTable from "../../../components/ninja-sales/FollowUpTable";
 import AIOutreachAssistant from "../../../components/ninja-sales/AIOutreachAssistant";
-import { FiTrendingUp, FiAlertTriangle, FiClock, FiCheckCircle } from "react-icons/fi";
+import { FiCalendar, FiAlertTriangle, FiClock, FiCheckCircle } from "react-icons/fi";
 import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
+import { ninjaSalesService } from "../../../services/ninjaSales";
+import type { FollowUpStats } from "../../../services/ninjaSales";
 
 const FollowUpsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
   const [isNewOutreachModalOpen, setIsNewOutreachModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const [followUpCounts, setFollowUpCounts] = useState<FollowUpStats>({
+    today: 0,
+    overdue: 0,
+    upcoming: 0,
+    completed: 0,
+    total: 0,
+  });
+
+  const fetchFollowUpStats = useCallback(async () => {
+    const res = await ninjaSalesService.getFollowUpStats();
+    if (res.success) setFollowUpCounts(res.data);
+  }, []);
+
+  useEffect(() => { fetchFollowUpStats(); }, [fetchFollowUpStats, refreshKey]);
 
   const handleLogout = async () => {
     try {
@@ -34,13 +52,13 @@ const FollowUpsPage: FC = () => {
   };
 
   const stats: StatItem[] = [
-    { label: "Due Today", value: "1", icon: <FiClock className="w-5 h-5 text-red-500" />, isPositive: false, change: "4 Priority", warning: true },
-    { label: "Overdue", value: "05", icon: <FiAlertTriangle className="w-5 h-5 text-red-500 shadow-sm" />, isPositive: false, change: "Action Needed", warning: true },
-    { label: "High-Value", value: "$1.2M", icon: <FiTrendingUp className="w-5 h-5 text-white" />, isPositive: true, change: "Total Pipeline" },
-    { label: "Awaiting Response", value: "28", icon: <FiCheckCircle className="w-5 h-5 text-white" />, isPositive: true, change: "Pending Update" },
+    { label: "Due Today", value: String(followUpCounts.today), icon: <FiClock className="w-5 h-5 text-red-500" />, isPositive: false, change: followUpCounts.today > 0 ? "Priority" : "All clear", warning: followUpCounts.today > 0 },
+    { label: "Overdue", value: String(followUpCounts.overdue), icon: <FiAlertTriangle className="w-5 h-5 text-red-500 shadow-sm" />, isPositive: false, change: followUpCounts.overdue > 0 ? "Action Needed" : "All clear", warning: followUpCounts.overdue > 0 },
+    { label: "Upcoming", value: String(followUpCounts.upcoming), icon: <FiCalendar className="w-5 h-5 text-white" />, isPositive: true, change: "Next 7 days" },
+    { label: "Completed", value: String(followUpCounts.completed), icon: <FiCheckCircle className="w-5 h-5 text-white" />, isPositive: true, change: "Done" },
   ];
 
-  const tabs = ["All", "Today", "Overdue", "No Response", "High Value", "Proposal Sent"];
+  const tabs = ["All", "Today", "Overdue", "Upcoming", "Completed"];
 
   return (
     <DashboardLayout
@@ -81,7 +99,7 @@ const FollowUpsPage: FC = () => {
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
             <div className="xl:col-span-8">
-              <FollowUpTable filter={activeTab} />
+              <FollowUpTable key={activeTab} filter={activeTab} refreshKey={refreshKey} />
             </div>
             <div className="xl:col-span-4 h-full sticky top-8">
               <AIOutreachAssistant />
@@ -92,7 +110,8 @@ const FollowUpsPage: FC = () => {
 
       <NewOutreachModal 
         isOpen={isNewOutreachModalOpen} 
-        onClose={() => setIsNewOutreachModalOpen(false)} 
+        onClose={() => setIsNewOutreachModalOpen(false)}
+        onCreated={() => setRefreshKey(k => k + 1)}
       />
     </DashboardLayout>
   );
