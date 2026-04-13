@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAuth } from "../../hooks/useAuth";
@@ -11,11 +11,40 @@ import ContractGeneration from "../../components/ninja-legal/ContractGeneration"
 import ComplianceMonitor from "../../components/ninja-legal/ComplianceMonitor";
 import ActiveContractsList from "../../components/ninja-legal/ActiveContractsList";
 import LegalAIAdvancedModule from "../../components/ninja-legal/LegalAIAdvancedModule";
+import AddContractModal from "../../components/ninja-legal/AddContractModal";
+import ViewContractModal from "../../components/ninja-legal/ViewContractModal";
+import { ContractDetails, KpiData, ninjaLegalService } from "../../services/ninja-legal";
 
 
 const NinjaLegal: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+  const [contractCreatedTrigger, setContractCreatedTrigger] = useState(0);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedContractData, setSelectedContractData] = useState<ContractDetails | undefined>();
+  const [kpiData, setKpiData] = useState<KpiData | null>(null);
+  const [isKpiLoading, setIsKpiLoading] = useState(false);
+
+  // Function to fetch KPI data
+  const fetchKpis = async () => {
+    setIsKpiLoading(true);
+    try {
+      const response = await ninjaLegalService.getContractKpis();
+      if (response.success && response.data) {
+        setKpiData(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch KPI data:", error);
+    } finally {
+      setIsKpiLoading(false);
+    }
+  };
+
+  // Fetch KPI data on component mount
+  useEffect(() => {
+    fetchKpis();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -32,7 +61,26 @@ const NinjaLegal: FC = () => {
   };
 
   const handleNewContract = () => {
-    console.log("Starting a new contract...");
+    setIsContractModalOpen(true);
+  };
+
+  const handleContractCreated = () => {
+    // Trigger contracts list refresh
+    setContractCreatedTrigger(prev => prev + 1);
+    // Refresh KPI data
+    fetchKpis();
+  };
+
+  const handleViewContract = (contractData: ContractDetails) => {
+    setSelectedContractData(contractData);
+    setIsViewModalOpen(true);
+  };
+
+  const handleContractUpdated = () => {
+    // Trigger contracts list refresh
+    setContractCreatedTrigger(prev => prev + 1);
+    // Refresh KPI data
+    fetchKpis();
   };
 
   // return <ComingSoon title="Ninja Legal" />;
@@ -55,16 +103,16 @@ const NinjaLegal: FC = () => {
               <NinjaStrategist />
             </div>
             <div className="lg:col-span-1">
-              <ContractGeneration />
+              <ContractGeneration key={contractCreatedTrigger} onViewContract={handleViewContract} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
             <div>
-              <ComplianceMonitor />
+              <ComplianceMonitor kpiData={kpiData} isLoading={isKpiLoading} />
             </div>
             <div>
-              <ActiveContractsList />
+              <ActiveContractsList key={contractCreatedTrigger} onViewContract={handleViewContract} />
             </div>
           </div>
 
@@ -74,6 +122,23 @@ const NinjaLegal: FC = () => {
 
         </div>
       </main>
+
+      <AddContractModal 
+        isOpen={isContractModalOpen} 
+        onClose={() => setIsContractModalOpen(false)}
+        onContractCreated={handleContractCreated}
+      />
+
+      <ViewContractModal 
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedContractData(undefined);
+        }}
+        contractData={selectedContractData}
+        isLoading={false}
+        onContractUpdated={handleContractUpdated}
+      />
     </DashboardLayout>
   );
   
