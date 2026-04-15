@@ -13,7 +13,7 @@ import {
   FiLoader,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { ninjaLegalService } from "../../services/ninja-legal";
+import { ninjaLegalService, ContractDetails } from "../../services/ninja-legal";
 
 interface Party {
   name: string;
@@ -25,7 +25,7 @@ interface Party {
 interface AddContractModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContractCreated?: () => void;
+  onContractCreated?: (contract: ContractDetails) => void;
 }
 
 interface FormErrors {
@@ -134,14 +134,14 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
     console.table(formData);
 
     try {
-      const response = await ninjaLegalService.createContract(formData);
+      const response:any = await ninjaLegalService.createContract(formData);
       if (response.success) {
         console.log("Contract created successfully!", response.data);
         toast.success(response.message || "Contract created successfully!");
 
-        // Trigger the parent component to refresh contracts list
-        if (onContractCreated) {
-          onContractCreated();
+        // Trigger the parent component to refresh contracts list and activate chat
+        if (onContractCreated && response.data) {
+          onContractCreated(response.data);
         }
 
         setTimeout(() => {

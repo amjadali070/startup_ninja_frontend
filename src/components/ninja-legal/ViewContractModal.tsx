@@ -1,5 +1,5 @@
 import { type FC, useState } from "react";
-import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiChevronDown, FiFlag, FiCalendar } from "react-icons/fi";
+import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiChevronDown, FiFlag, FiCalendar, FiZap } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ContractDetails, ninjaLegalService } from "../../services/ninja-legal";
 
@@ -23,6 +23,7 @@ interface ViewContractModalProps {
   contractData?: ContractDetails;
   isLoading?: boolean;
   onContractUpdated?: () => void;
+  onOpenChat?: (contractData: ContractDetails) => void;
 }
 
 const ViewContractModal: FC<ViewContractModalProps> = ({
@@ -31,6 +32,7 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
   contractData,
   isLoading = false,
   onContractUpdated,
+  onOpenChat,
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -195,7 +197,7 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
               {isEditMode ? "Edit Contract" : "Contract Details"}
             </h2>
             <p className="text-gray-400 text-sm mt-1">
-              {isEditMode ? "Update contract information" : "View complete contract information"}
+              {isEditMode ? "Update contract information" : "View and manage your contract or chat with AI Strategist"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -705,7 +707,18 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[#1C1C1F] bg-[#0A0A0B] flex items-center justify-end">
+        <div className="p-6 border-t border-[#1C1C1F] bg-[#0A0A0B] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {!isEditMode && contractData && onOpenChat && (
+              <button
+                onClick={() => onOpenChat(contractData)}
+                className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
+              >
+                <FiZap className="w-4 h-4" />
+                Open with AI Strategist
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-3">
             {isEditMode ? (
               <>

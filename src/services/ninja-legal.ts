@@ -109,6 +109,32 @@ export interface KpiResponse {
   data: KpiData;
 }
 
+export interface DashboardData {
+  activeContracts: {
+    total: number;
+    thisMonth: number;
+  };
+  complianceHealth: {
+    complianceScore: number;
+    completeContracts: number;
+    totalContracts: number;
+  };
+  contractValue: {
+    totalActiveContractNO: number;
+    thisMonthContractWorth: number;
+    thisMonthContractWorthNo: number;
+    totalContractWorth: number;
+    noOfContractsThatHasWorth: number;
+  };
+  upcomingRenewals: number;
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  message: string;
+  data: DashboardData;
+}
+
 /**
  * Ninja Legal Service
  * Handles all ninja-legal related API calls
@@ -220,10 +246,10 @@ export const ninjaLegalService = {
    * Fetch active contracts with pagination
    * @param page - Page number (starts from 1)
    */
-  async listActiveContracts(page: number = 1): Promise<ActiveContractListResponse> {
+  async listActiveExpiryContracts(page: number = 1): Promise<ActiveContractListResponse> {
     try {
       const response = await apiClient.get<ActiveContractListResponse>(
-        `/ai-legal/list-active-contracts?page=${page}`
+        `/ai-legal/list-active-expiry-contracts?page=${page}`
       );
       return response;
     } catch (error: any) {
@@ -273,6 +299,44 @@ export const ninjaLegalService = {
             expiringIn90Days: 0,
             expiredCount: 0,
           },
+        },
+      };
+    }
+  },
+
+  /**
+   * Fetch contract dashboard data
+   * Returns active contracts, compliance health, contract value, and upcoming renewals
+   */
+  async getContractDashboard(): Promise<DashboardResponse> {
+    try {
+      const response = await apiClient.get<DashboardResponse>(
+        "/ai-legal/contract-dashboard-kpis"
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Failed to fetch dashboard data",
+        data: {
+          activeContracts: {
+            total: 0,
+            thisMonth: 0,
+          },
+          complianceHealth: {
+            complianceScore: 0,
+            completeContracts: 0,
+            totalContracts: 0,
+          },
+          contractValue: {
+            totalActiveContractNO: 0,
+            thisMonthContractWorth: 0,
+            thisMonthContractWorthNo: 0,
+            totalContractWorth: 0,
+            noOfContractsThatHasWorth: 0,
+          },
+          upcomingRenewals: 0,
         },
       };
     }

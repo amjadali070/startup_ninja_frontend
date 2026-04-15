@@ -25,19 +25,19 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
   const [loading, setLoading] = useState(true);
   const [loadingContractId, setLoadingContractId] = useState<string | null>(null);
 
-  const fetchActiveContracts = async (page: number) => {
+  const fetchActiveExpiryContracts = async (page: number) => {
     try {
       setLoading(true);
-      const response = await ninjaLegalService.listActiveContracts(page);
+      const response = await ninjaLegalService.listActiveExpiryContracts(page);
       
       if (response.success && response.data) {
         setContracts(response.data);
         setPagination(response.pagination);
       } else {
-        toast.error(response.message || "Failed to fetch active contracts");
+        toast.error(response.message || "Failed to fetch active expiry contracts");
       }
     } catch (error) {
-      toast.error("Failed to fetch active contracts");
+      toast.error("Failed to fetch active expiry contracts");
       console.error(error);
     } finally {
       setLoading(false);
@@ -45,18 +45,18 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
   };
 
   useEffect(() => {
-    fetchActiveContracts(1);
+    fetchActiveExpiryContracts(1);
   }, []);
 
   const handlePreviousPage = () => {
     if (pagination.currentPage > 1) {
-      fetchActiveContracts(pagination.currentPage - 1);
+      fetchActiveExpiryContracts(pagination.currentPage - 1);
     }
   };
 
   const handleNextPage = () => {
     if (pagination.currentPage < pagination.totalPages) {
-      fetchActiveContracts(pagination.currentPage + 1);
+      fetchActiveExpiryContracts(pagination.currentPage + 1);
     }
   };
 
@@ -133,7 +133,7 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
             <FiBarChart2 className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-white tracking-widest uppercase text-xs">
-            ACTIVE CONTRACTS
+            Active Expiry Contracts
           </h3>
         </div>
       </div>

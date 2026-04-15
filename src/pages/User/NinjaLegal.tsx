@@ -13,7 +13,7 @@ import ActiveContractsList from "../../components/ninja-legal/ActiveContractsLis
 import LegalAIAdvancedModule from "../../components/ninja-legal/LegalAIAdvancedModule";
 import AddContractModal from "../../components/ninja-legal/AddContractModal";
 import ViewContractModal from "../../components/ninja-legal/ViewContractModal";
-import { ContractDetails, KpiData, ninjaLegalService } from "../../services/ninja-legal";
+import { ContractDetails, KpiData, DashboardData, ninjaLegalService } from "../../services/ninja-legal";
 
 
 const NinjaLegal: FC = () => {
@@ -25,6 +25,24 @@ const NinjaLegal: FC = () => {
   const [selectedContractData, setSelectedContractData] = useState<ContractDetails | undefined>();
   const [kpiData, setKpiData] = useState<KpiData | null>(null);
   const [isKpiLoading, setIsKpiLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false);
+  const [activeChatContract, setActiveChatContract] = useState<ContractDetails | undefined>();
+
+  // Function to fetch dashboard data
+  const fetchDashboard = async () => {
+    setIsDashboardLoading(true);
+    try {
+      const response = await ninjaLegalService.getContractDashboard();
+      if (response.success && response.data) {
+        setDashboardData(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    } finally {
+      setIsDashboardLoading(false);
+    }
+  };
 
   // Function to fetch KPI data
   const fetchKpis = async () => {
@@ -41,8 +59,9 @@ const NinjaLegal: FC = () => {
     }
   };
 
-  // Fetch KPI data on component mount
+  // Fetch dashboard and KPI data on component mount
   useEffect(() => {
+    fetchDashboard();
     fetchKpis();
   }, []);
 
@@ -64,10 +83,15 @@ const NinjaLegal: FC = () => {
     setIsContractModalOpen(true);
   };
 
-  const handleContractCreated = () => {
+  const handleContractCreated = (newContract?: ContractDetails) => {
+    // If new contract data provided, auto-activate chat with it
+    if (newContract?._id) {
+      setActiveChatContract(newContract);
+    }
     // Trigger contracts list refresh
     setContractCreatedTrigger(prev => prev + 1);
-    // Refresh KPI data
+    // Refresh dashboard and KPI data
+    fetchDashboard();
     fetchKpis();
   };
 
@@ -76,10 +100,25 @@ const NinjaLegal: FC = () => {
     setIsViewModalOpen(true);
   };
 
+  const handleOpenChatFromModal = (contractData: ContractDetails) => {
+    // Activate chat and close modal for unified view
+    setActiveChatContract(contractData);
+    setIsViewModalOpen(false);
+  };
+
   const handleContractUpdated = () => {
     // Trigger contracts list refresh
     setContractCreatedTrigger(prev => prev + 1);
-    // Refresh KPI data
+    // Refresh dashboard and KPI data
+    fetchDashboard();
+    fetchKpis();
+  };
+
+  const handleGenerateContractFromChat = () => {
+    // Close chat and trigger refresh
+    setActiveChatContract(undefined);
+    setContractCreatedTrigger(prev => prev + 1);
+    fetchDashboard();
     fetchKpis();
   };
 
@@ -96,11 +135,15 @@ const NinjaLegal: FC = () => {
         <div className="p-3 sm:p-4 lg:p-6 text-white min-h-screen">
           <NinjaLegalHeader onNewContract={handleNewContract} />
 
-          <NinjaLegalStats />
+          <NinjaLegalStats dashboardData={dashboardData} isLoading={isDashboardLoading} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             <div className="lg:col-span-2">
-              <NinjaStrategist />
+              <NinjaStrategist 
+                contractData={activeChatContract}
+                onGenerateContract={handleGenerateContractFromChat}
+                disabled={!activeChatContract}
+              />
             </div>
             <div className="lg:col-span-1">
               <ContractGeneration key={contractCreatedTrigger} onViewContract={handleViewContract} />
@@ -138,6 +181,7 @@ const NinjaLegal: FC = () => {
         contractData={selectedContractData}
         isLoading={false}
         onContractUpdated={handleContractUpdated}
+        onOpenChat={handleOpenChatFromModal}
       />
     </DashboardLayout>
   );
