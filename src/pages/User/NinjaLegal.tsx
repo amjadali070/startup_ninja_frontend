@@ -114,14 +114,6 @@ const NinjaLegal: FC = () => {
     fetchKpis();
   };
 
-  const handleGenerateContractFromChat = () => {
-    // Close chat and trigger refresh
-    setActiveChatContract(undefined);
-    setContractCreatedTrigger(prev => prev + 1);
-    fetchDashboard();
-    fetchKpis();
-  };
-
   // return <ComingSoon title="Ninja Legal" />;
 
   return (
@@ -141,7 +133,6 @@ const NinjaLegal: FC = () => {
             <div className="lg:col-span-2">
               <NinjaStrategist 
                 contractData={activeChatContract}
-                onGenerateContract={handleGenerateContractFromChat}
                 disabled={!activeChatContract}
               />
             </div>

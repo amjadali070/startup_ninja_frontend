@@ -1,6 +1,7 @@
 import { type FC, useState } from "react";
 import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiChevronDown, FiFlag, FiCalendar, FiZap } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { ContractDetails, ninjaLegalService } from "../../services/ninja-legal";
 
 interface Party {
@@ -34,10 +35,10 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
   onContractUpdated,
   onOpenChat,
 }) => {
+  const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // Form states for edit mode
   const [contractTitle, setContractTitle] = useState(contractData?.contractTitle || "");
   const [purpose, setPurpose] = useState(contractData?.purpose || "");
   const [priority, setPriority] = useState(contractData?.priority || "high");
@@ -686,7 +687,7 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
               </section>
 
               {/* Metadata */}
-              <section className="space-y-2 pt-4 border-t border-white/[0.05]">
+              <section className="space-y-4 pt-4 border-t border-white/[0.05]">
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
                     <p className="text-gray-500">Created</p>
@@ -697,6 +698,16 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
                     <p className="text-gray-300 mt-0.5">{formatDate(contractData.updatedAt)}</p>
                   </div>
                 </div>
+
+                {/* Generation Status */}
+                {contractData.isReadyForGeneration && (
+                  <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-400" />
+                      <span className="text-xs font-semibold text-green-400">Ready for AI Generation</span>
+                    </div>
+                  </div>
+                )}
               </section>
             </>
           ) : (
@@ -716,6 +727,22 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
               >
                 <FiZap className="w-4 h-4" />
                 Open with AI Strategist
+              </button>
+            )}
+            {!isEditMode && contractData?.isReadyForGeneration && (
+              <button
+                onClick={() => {
+                  navigate("/ai-tools/legal/generate", {
+                    state: {
+                      contractId: contractData._id,
+                      contractTitle: contractData.contractTitle,
+                    },
+                  });
+                }}
+                className="px-6 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-lg shadow-green-600/20 transition-all flex items-center gap-2"
+              >
+                <FiZap className="w-4 h-4" />
+                Generate Contract
               </button>
             )}
           </div>

@@ -30,7 +30,7 @@ const ComplianceMonitor: FC<ComplianceMonitorProps> = ({ kpiData, isLoading = fa
   };
 
   const data = kpiData || defaultData;
-  const totalContracts = data.workloadHeatMap.totalContracts || 1; // Avoid division by zero
+  const totalContracts = data.workloadHeatMap.totalContracts || 0; // Avoid division by zero
 
   const priorityData = [
     { label: "Urgent", count: data.workloadHeatMap.priority.urgent, color: "#dc2626" },
@@ -44,10 +44,10 @@ const ComplianceMonitor: FC<ComplianceMonitorProps> = ({ kpiData, isLoading = fa
   const highValuePercentage = totalContracts > 0 ? Math.round((data.HighvalueContracts / totalContracts) * 100) : 0;
 
   const complianceMetrics = [
-    { label: "Expiry Coverage", value: `${100 - Math.round((data.expirySummary.expiredCount / (totalContracts || 1)) * 100)}%`, icon: <FiCalendar className="w-4 h-4" />, color: "#a78bfa" },
+    { label: "Expiry Coverage", value: `${100 - Math.round((data.expirySummary.expiredCount / (totalContracts)) * 100) || 0}%`, icon: <FiCalendar className="w-4 h-4" />, color: "#a78bfa" },
     { label: "Expired Contracts", value: data.expirySummary.expiredCount, icon: <FiX className="w-4 h-4" />, color: "#dc2626" },
   ];
-
+ 
   if (isLoading) {
     return (
       <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-5 flex flex-col gap-0 font-plus-jakarta h-full">

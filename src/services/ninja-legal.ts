@@ -38,6 +38,7 @@ export interface ContractListItem {
   contractStatus: "active" | "inactive";
   expiryDate: string;
   priority: "low" | "medium" | "high" | "urgent";
+  isReadyForGeneration?: boolean;
 }
 
 export interface PaginationInfo {
@@ -61,6 +62,7 @@ export interface ActiveContractListItem {
   expiryDate: string;
   priority: "low" | "medium" | "high" | "urgent";
   contractWorth?: string | null;
+  isReadyForGeneration?: boolean;
 }
 
 export interface ActiveContractListResponse {
@@ -83,6 +85,7 @@ export interface ContractDetails {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  isReadyForGeneration?: boolean;
 }
 
 export interface KpiData {
@@ -133,6 +136,49 @@ export interface DashboardResponse {
   success: boolean;
   message: string;
   data: DashboardData;
+}
+
+export interface ContractSection {
+  id: string;
+  title: string;
+  content: string;
+  order: number;
+  updatedAt?: string;
+}
+
+export interface GenerateContractRequest {
+  startDate: string;
+  headerLogo?: string | null;
+  footerText?: string | null;
+}
+
+export interface GenerateContractResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    generatedContractId: string;
+    sections: ContractSection[];
+    startDate: string;
+    headerLogo?: string | null;
+    footerText?: string | null;
+  };
+  error?: string;
+}
+
+export interface UpdateSectionRequest {
+  userFeedback: string;
+}
+
+export interface UpdateSectionResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    sectionId: string;
+    content: string;
+    updatedAt: string;
+    version: number;
+  };
+  error?: string;
 }
 
 /**
@@ -338,6 +384,80 @@ export const ninjaLegalService = {
           },
           upcomingRenewals: 0,
         },
+      };
+    }
+  },
+
+  /**
+   * Generate contract sections using AI
+   * @param contractId - Contract ID
+   * @param requestData - Generation request data (startDate, headerLogo, footerText)
+   */
+  async generateContractSections(
+    contractId: string,
+    requestData: GenerateContractRequest
+  ): Promise<GenerateContractResponse> {
+    try {
+      const response = await apiClient.post<GenerateContractResponse>(
+        `/ai-legal/generate-contract/${contractId}`,
+        requestData
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Failed to generate contract sections",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Update a contract section with user feedback
+   * @param generatedContractId - Generated contract ID
+   * @param sectionId - Section ID to update
+   * @param requestData - Update request data (userFeedback)
+   */
+  async updateContractSection(
+    generatedContractId: string,
+    sectionId: string,
+    requestData: UpdateSectionRequest
+  ): Promise<UpdateSectionResponse> {
+    try {
+      const response = await apiClient.post<UpdateSectionResponse>(
+        `/ai-legal/update-contract-section/${generatedContractId}/${sectionId}`,
+        requestData
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Failed to update contract section",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get the latest generated contract for a contract ID
+   * @param contractId - Contract ID
+   */
+  async getLatestGeneratedContract(
+    contractId: string
+  ): Promise<GenerateContractResponse> {
+    try {
+      const response = await apiClient.get<GenerateContractResponse>(
+        `/ai-legal/latest-generated-contract/${contractId}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "No generated contract found",
+        error: error.message,
       };
     }
   },

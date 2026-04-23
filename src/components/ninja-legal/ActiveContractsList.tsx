@@ -151,6 +151,7 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
                 <th className="pb-3 px-2">CONTRACT</th>
                 <th className="pb-3 px-2">PRIORITY</th>
                 <th className="pb-3 px-2 text-center">STATUS</th>
+                <th className="pb-3 px-2 text-center">GENERATION</th>
                 <th className="pb-3 px-2 text-right">VALUE</th>
               </tr>
             </thead>
@@ -183,6 +184,13 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
                         )}
                         <span className={`text-[10px] font-bold ${statusColors.text}`}>{statusColors.label}</span>
                       </div>
+                    </td>
+                    <td className="py-4 px-2 text-center">
+                      {contract.isReadyForGeneration ? (
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="text-green-400 text-xs font-bold">✓ Ready</span>
+                        </div>
+                      ) : null}
                     </td>
                     <td className="py-4 px-2 text-right">
                       <span className="text-xs font-bold text-white">

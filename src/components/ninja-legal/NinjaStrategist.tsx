@@ -5,16 +5,15 @@ import { RiRobot2Fill } from "react-icons/ri";
 import { aiChatService, ChatMessage } from "../../services/ai-chat";
 import { ContractDetails } from "../../services/ninja-legal";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface NinjaStrategistProps {
   contractData?: ContractDetails;
-  onGenerateContract?: () => void;
   disabled?: boolean;
 }
 
 const NinjaStrategist: FC<NinjaStrategistProps> = ({
   contractData,
-  onGenerateContract,
   disabled = false,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -27,6 +26,7 @@ const NinjaStrategist: FC<NinjaStrategistProps> = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const isFirstLoadRef = useRef(true);
+  const navigate = useNavigate();
 
   // Auto-scroll to bottom when messages change or streaming updates (scroll only the chat container)
   useEffect(() => {
@@ -197,17 +197,17 @@ const NinjaStrategist: FC<NinjaStrategistProps> = ({
     }
   };
 
-  const handleGenerateContract = () => {
-    if (!contractData?._id || disabled) return;
+  // const handleGenerateContract = () => {
+  //   if (!contractData?._id || disabled) return;
 
-    console.log("Generate Contract clicked", {
-      contractId: contractData._id,
-      contractTitle: contractData.contractTitle,
-      chatMessages: messages,
-    });
+  //   console.log("Generate Contract clicked", {
+  //     contractId: contractData._id,
+  //     contractTitle: contractData.contractTitle,
+  //     chatMessages: messages,
+  //   });
     
-    toast.success("Contract generation initiated!");
-  };
+  //   toast.success("Contract generation initiated!");
+  // };
 
   if (disabled || !contractData) {
     return (
@@ -269,7 +269,14 @@ const NinjaStrategist: FC<NinjaStrategistProps> = ({
         {/* Generate Button in Header - Right Side */}
         {suggestGeneration && (
           <button
-            onClick={handleGenerateContract}
+            onClick={() => {
+                  navigate("/ai-tools/legal/generate", {
+                    state: {
+                      contractId: contractData._id,
+                      contractTitle: contractData.contractTitle,
+                    },
+                  });
+                }}
             className="bg-gradient-to-r from-[#dc2626] to-[#E11D48] text-white font-semibold py-1.5 px-3.5 rounded-lg hover:shadow-xl hover:shadow-[#dc2626]/40 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs tracking-tight whitespace-nowrap"
           >
             <FiZap className="w-3.5 h-3.5" />

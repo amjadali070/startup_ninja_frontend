@@ -1,15 +1,19 @@
 import { type FC, useState, useEffect } from "react";
-import { FiFileText, FiChevronRight, FiInfo, FiLoader, FiChevronLeft } from "react-icons/fi";
+import { FiFileText, FiChevronRight, FiInfo, FiLoader, FiChevronLeft, FiZap } from "react-icons/fi";
 import { ninjaLegalService, ContractDetails } from "../../services/ninja-legal";
 import { ContractListItem, PaginationInfo } from "../../services/ninja-legal";
 import toast from "react-hot-toast";
+
+interface ContractWithStatus extends ContractListItem {
+  isReadyForGeneration?: boolean;
+}
 
 interface ContractGenerationProps {
   onViewContract?: (contractData: ContractDetails) => void;
 }
 
 const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => {
-  const [contracts, setContracts] = useState<ContractListItem[]>([]);
+  const [contracts, setContracts] = useState<ContractWithStatus[]>([]);
   const [loadingContractId, setLoadingContractId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -26,7 +30,7 @@ const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => 
       const response = await ninjaLegalService.listContracts(page, statusFilter);
       
       if (response.success && response.data) {
-        setContracts(response.data);
+        setContracts(response.data as ContractWithStatus[]);
         setPagination(response.pagination);
       } else {
         toast.error(response.message || "Failed to fetch contracts");
@@ -207,6 +211,14 @@ const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => 
                     >
                       {contract.priority.toUpperCase()}
                     </span>
+
+                    {/* Generation Ready Badge */}
+                    {contract.isReadyForGeneration ? (
+                      <span className="flex items-center gap-1 text-[8px] font-bold px-2 py-0.5 rounded-md border bg-green-500/20 text-green-400 border-green-500/40">
+                        <FiZap className="w-2.5 h-2.5" />
+                        READY
+                      </span>
+                    ) : null}
 
                     {isExpired(contract.expiryDate) && (
                       <span className="text-[8px] font-bold px-2 py-0.5 rounded-md border bg-red-500/20 text-red-400 border-red-500/40">
