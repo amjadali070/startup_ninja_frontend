@@ -17,11 +17,37 @@ const ProposalsPage: FC = () => {
   const [isNewProposalModalOpen, setIsNewProposalModalOpen] = useState(false);
   const [proposals, setProposals] = useState<Proposal[]>([]);
 
+  const loadProposals = async () => {
+    const res = await ninjaSalesService.getProposals();
+    if (res.success) setProposals(res.data);
+  };
+
   useEffect(() => {
-    ninjaSalesService.getProposals().then(res => {
-      if (res.success) setProposals(res.data);
-    });
+    loadProposals();
   }, []);
+
+  const handleDownloadPdf = async (id: string) => {
+    const res = await ninjaSalesService.downloadProposalPdf(id);
+    if (!res.success || !res.blob) return;
+    const url = URL.createObjectURL(res.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = res.filename || `proposal_${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSend = async (id: string) => {
+    const res = await ninjaSalesService.sendProposal(id);
+    if (res.success) await loadProposals();
+  };
+
+  const handleConvertToInvoice = async (id: string) => {
+    const res = await ninjaSalesService.convertProposalToInvoice(id);
+    if (res.success) await loadProposals();
+  };
 
   const handleLogout = async () => {
     try {
@@ -94,7 +120,12 @@ const ProposalsPage: FC = () => {
               <SavedTemplates />
             </div>
             <div className="xl:col-span-8">
-              <RecentProposals />
+              <RecentProposals
+                proposals={proposals}
+                onDownloadPdf={handleDownloadPdf}
+                onSend={handleSend}
+                onConvertToInvoice={handleConvertToInvoice}
+              />
             </div>
           </div>
 

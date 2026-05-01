@@ -58,6 +58,7 @@ import ProjectsPage from "./pages/User/NinjaSales/ProjectsPage.tsx";
 import ProjectDetailsPage from "./pages/User/NinjaSales/ProjectDetailsPage.tsx";
 import EditLeadPage from "./pages/User/NinjaSales/EditLeadPage.tsx";
 import EditProjectPage from "./pages/User/NinjaSales/EditProjectPage.tsx";
+import DocumentDetailsPage from "./pages/User/NinjaSales/DocumentDetailsPage.tsx";
 
 function App() {
   return (
@@ -309,6 +310,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditProjectPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/documents/:kind/:id"
+            element={
+              <ProtectedRoute>
+                <DocumentDetailsPage />
               </ProtectedRoute>
             }
           />

@@ -1,20 +1,15 @@
 import { type FC } from "react";
-import { FiFileText, FiClock, FiMoreVertical } from "react-icons/fi";
+import { FiFileText, FiClock, FiDownload, FiSend, FiRepeat } from "react-icons/fi";
+import type { Proposal } from "../../services/ninjaSales";
 
-interface RecentDoc {
-  name: string;
-  client: string;
-  status: "PAID" | "SENT" | "DRAFT";
-  value: string;
+interface RecentProposalsProps {
+  proposals: Proposal[];
+  onDownloadPdf: (id: string) => void;
+  onSend: (id: string) => void;
+  onConvertToInvoice: (id: string) => void;
 }
 
-const recentDocs: RecentDoc[] = [
-  { name: "Q3 Marketing Ops", client: "Solaris Labs", status: "PAID", value: "$18,200" },
-  { name: "Design Audit Retainer", client: "Vortex Tech", status: "SENT", value: "$4,000" },
-  { name: "Mobile App Concept", client: "IndieGames Inc", status: "DRAFT", value: "$12,000" },
-];
-
-const RecentProposals: FC = () => {
+const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, onSend, onConvertToInvoice }) => {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "PAID": return "text-emerald-500 bg-emerald-500/10";
@@ -46,29 +41,56 @@ const RecentProposals: FC = () => {
             </tr>
           </thead>
           <tbody>
-            {recentDocs.map((doc, i) => (
-              <tr key={i} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-all">
+            {proposals.map((p) => (
+              <tr key={p._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-all">
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
                     <FiFileText className="text-white/20" />
-                    <span className="text-sm font-black text-white group-hover:text-red-500 transition-colors uppercase tracking-tight">{doc.name}</span>
+                    <span className="text-sm font-black text-white group-hover:text-red-500 transition-colors uppercase tracking-tight">
+                      {p.projectTitle}
+                      <span className="ml-2 text-[10px] font-black text-white/30 tracking-widest">{p.reference}</span>
+                    </span>
                   </div>
                 </td>
                 <td className="px-6 py-5">
-                  <span className="text-sm font-medium text-gray-400">{doc.client}</span>
+                  <span className="text-sm font-medium text-gray-400">{p.clientName}</span>
                 </td>
                 <td className="px-6 py-5">
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${getStatusStyle(doc.status)}`}>
-                    {doc.status}
+                  <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${getStatusStyle(p.status)}`}>
+                    {p.status}
                   </span>
                 </td>
                 <td className="px-6 py-5">
-                  <span className="text-sm font-black text-white tracking-tight">{doc.value}</span>
+                  <span className="text-sm font-black text-white tracking-tight">
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.total || 0)}
+                  </span>
                 </td>
                 <td className="px-6 py-5">
-                  <button className="text-white/20 hover:text-white transition-colors">
-                    <FiMoreVertical />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => onDownloadPdf(p._id)}
+                      className="text-white/20 hover:text-white transition-colors"
+                      title="Download PDF"
+                    >
+                      <FiDownload />
+                    </button>
+                    <button
+                      onClick={() => onSend(p._id)}
+                      className="text-white/20 hover:text-white transition-colors"
+                      title="Mark as sent"
+                    >
+                      <FiSend />
+                    </button>
+                    {p.docType === "PROPOSAL" && (
+                      <button
+                        onClick={() => onConvertToInvoice(p._id)}
+                        className="text-white/20 hover:text-white transition-colors"
+                        title="Generate invoice from proposal"
+                      >
+                        <FiRepeat />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

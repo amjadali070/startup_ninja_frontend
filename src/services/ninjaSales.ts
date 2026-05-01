@@ -79,7 +79,33 @@ export interface Proposal {
   _id: string;
   userId: string;
   leadId?: string | { _id: string; name: string; company: string };
+  projectId?: string | { _id: string; name: string };
   docType: 'PROPOSAL' | 'INVOICE';
+  clientName: string;
+  projectTitle: string;
+  reference: string;
+  items: PricingItem[];
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  discount: number;
+  total: number;
+  paymentTerms: string;
+  notes: string;
+  clauses?: Array<{ title: string; body: string }>;
+  status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  issuedDate: string;
+  dueDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Invoice {
+  _id: string;
+  userId: string;
+  leadId?: string | { _id: string; name: string; company: string };
+  projectId?: string | { _id: string; name: string };
+  docType: 'INVOICE';
   clientName: string;
   projectTitle: string;
   reference: string;
@@ -565,6 +591,146 @@ export const ninjaSalesService = {
       return await apiClient.delete<{ success: boolean; message: string }>(`/ninja-sales/proposals/${id}`);
     } catch (error: any) {
       return { success: false, message: error.response?.data?.message || 'Failed to delete proposal' };
+    }
+  },
+
+  async sendProposal(id: string): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/proposals/${id}/send`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to send proposal' };
+    }
+  },
+
+  async aiRefineProposal(id: string, instruction?: string): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/proposals/${id}/ai-refine`, { instruction, target: "all" });
+    } catch (error: any) {
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to refine proposal' };
+    }
+  },
+
+  async aiRefineProposalClauses(id: string, instruction?: string): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/proposals/${id}/ai-refine`, { instruction, target: "clauses" });
+    } catch (error: any) {
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to refine clauses' };
+    }
+  },
+
+  async convertProposalToInvoice(id: string): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      // now returns an Invoice (separate module) but we keep response typed as Proposal-compatible
+      return await apiClient.post<ApiSingleResponse<any>>(`/ninja-sales/proposals/${id}/convert-to-invoice`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to generate invoice' };
+    }
+  },
+
+  async downloadProposalPdf(id: string): Promise<{ success: boolean; blob: Blob | null; filename?: string; message?: string }> {
+    try {
+      const client = apiClient.getAxiosInstance();
+      const resp = await client.get(`/ninja-sales/proposals/${id}/pdf`, { responseType: 'blob' });
+      const dispo = resp.headers?.['content-disposition'] as string | undefined;
+      const match = dispo?.match(/filename="([^"]+)"/);
+      const filename = match?.[1];
+      return { success: true, blob: resp.data as Blob, filename };
+    } catch (error: any) {
+      return { success: false, blob: null, message: error.response?.data?.message || 'Failed to download PDF' };
+    }
+  },
+
+  // ── Invoices ───────────────────────────────────────────────────────────────
+
+  async getInvoices(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    leadId?: string;
+    projectId?: string;
+  }): Promise<ApiListResponse<Invoice>> {
+    try {
+      const query = new URLSearchParams();
+      if (params) {
+        Object.entries(params).forEach(([key, val]) => {
+          if (val !== undefined && val !== null && val !== '') query.set(key, String(val));
+        });
+      }
+      const qs = query.toString();
+      return await apiClient.get<ApiListResponse<Invoice>>(`/ninja-sales/invoices${qs ? `?${qs}` : ''}`);
+    } catch (error: any) {
+      return { success: false, data: [], message: error.response?.data?.message || 'Failed to fetch invoices' };
+    }
+  },
+
+  async getInvoiceById(id: string): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.get<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}`);
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to fetch invoice' };
+    }
+  },
+
+  async updateInvoice(id: string, data: Partial<Invoice>): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.put<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}`, data);
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to update invoice' };
+    }
+  },
+
+  async sendInvoice(id: string): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/send`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to send invoice' };
+    }
+  },
+
+  async aiRefineInvoice(id: string, instruction?: string): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/ai-refine`, { instruction });
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to refine invoice' };
+    }
+  },
+
+  async downloadInvoicePdf(id: string): Promise<{ success: boolean; blob: Blob | null; filename?: string; message?: string }> {
+    try {
+      const client = apiClient.getAxiosInstance();
+      const resp = await client.get(`/ninja-sales/invoices/${id}/pdf`, { responseType: 'blob' });
+      const dispo = resp.headers?.['content-disposition'] as string | undefined;
+      const match = dispo?.match(/filename="([^"]+)"/);
+      const filename = match?.[1];
+      return { success: true, blob: resp.data as Blob, filename };
+    } catch (error: any) {
+      return { success: false, blob: null, message: error.response?.data?.message || 'Failed to download invoice PDF' };
+    }
+  },
+
+  // ── Project-linked Documents ───────────────────────────────────────────────
+
+  async getProjectDocuments(projectId: string): Promise<ApiSingleResponse<{ proposals: Proposal[]; invoices: Invoice[] }>> {
+    try {
+      return await apiClient.get<ApiSingleResponse<{ proposals: Proposal[]; invoices: Invoice[] }>>(`/ninja-sales/projects/${projectId}/documents`);
+    } catch (error: any) {
+      return { success: false, data: { proposals: [], invoices: [] }, message: error.response?.data?.message || 'Failed to fetch project documents' };
+    }
+  },
+
+  async generateProposalFromProject(projectId: string, data?: Partial<Proposal>): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/projects/${projectId}/generate-proposal`, data || {});
+    } catch (error: any) {
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to generate proposal' };
+    }
+  },
+
+  async generateInvoiceFromProject(projectId: string, data?: Partial<Invoice>): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/projects/${projectId}/generate-invoice`, data || {});
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to generate invoice' };
     }
   },
 

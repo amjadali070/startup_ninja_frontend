@@ -15,6 +15,7 @@ import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { Project, FollowUp, ProjectAiSuggestions } from "../../../services/ninjaSales";
 import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 import IconSelect from "../../../components/IconSelect";
+import GenerateDocModal from "../../../components/ninja-sales/GenerateDocModal";
 
 const priorityColor: Record<string, string> = {
   urgent: "bg-red-600 text-white", high: "bg-orange-500/20 text-orange-400",
@@ -78,6 +79,10 @@ const ProjectDetailsPage: FC = () => {
   const [aiSuggestions, setAiSuggestions] = useState<ProjectAiSuggestions | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [projectDocs, setProjectDocs] = useState<{ proposals: any[]; invoices: any[] }>({ proposals: [], invoices: [] });
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const fetchProject = useCallback(async () => {
     if (!id) return;
@@ -107,9 +112,21 @@ const ProjectDetailsPage: FC = () => {
 
   useEffect(() => { fetchProject(); fetchFollowUps(); }, [fetchProject, fetchFollowUps]);
 
+  const fetchProjectDocs = useCallback(async () => {
+    if (!id) return;
+    setDocsLoading(true);
+    const res = await ninjaSalesService.getProjectDocuments(id);
+    if (res.success) setProjectDocs(res.data);
+    setDocsLoading(false);
+  }, [id]);
+
   useEffect(() => {
     if (project?._id) loadAiSuggestions();
   }, [project?._id, loadAiSuggestions]);
+
+  useEffect(() => {
+    if (project?._id) fetchProjectDocs();
+  }, [project?._id, fetchProjectDocs]);
 
   const handleStageChange = async (newStage: string) => {
     if (!id || !project) return;
@@ -127,6 +144,32 @@ const ProjectDetailsPage: FC = () => {
     { name: "Initial Quote", ref: "QT-2025-001", date: "Apr 10, 2025", val: `$${(project?.value || 0).toLocaleString()}`, st: "SENT", type: "QUOTE" },
     { name: "Service Agreement", ref: "MSA-001", date: "Apr 12, 2025", val: "--", st: "DRAFT", type: "CONTRACT" },
   ];
+
+  const openGenerate = () => setIsGenerateModalOpen(true);
+
+  const handleGenerateConfirm = async (payload: any) => {
+    if (!id) return;
+    setGenerating(true);
+    try {
+      if (payload.docType === "PROPOSAL") {
+        const res = await ninjaSalesService.generateProposalFromProject(id, payload);
+        if (res.success) {
+          setIsGenerateModalOpen(false);
+          await fetchProjectDocs();
+          navigate(`/ai-tools/sales/documents/proposal/${res.data._id}`);
+        }
+      } else {
+        const res = await ninjaSalesService.generateInvoiceFromProject(id, payload);
+        if (res.success) {
+          setIsGenerateModalOpen(false);
+          await fetchProjectDocs();
+          navigate(`/ai-tools/sales/documents/invoice/${res.data._id}`);
+        }
+      }
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const handleToggleFollowUp = async (fu: FollowUp) => {
     setFollowUps(prev => prev.map(f => f._id === fu._id ? { ...f, completed: !f.completed } : f));
@@ -166,6 +209,9 @@ const ProjectDetailsPage: FC = () => {
                 </button>
                 <button onClick={() => navigate(`/ai-tools/sales/projects/${id}/edit`)} className="h-12 px-8 bg-red-600 hover:bg-red-700 text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-600/20">
                   <FiEdit3 className="w-4 h-4" /><span>Edit Project</span>
+                </button>
+                <button onClick={openGenerate} className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                  <FiFilePlus className="w-4 h-4" /><span>Generate Document</span>
                 </button>
               </div>
             </div>
@@ -398,27 +444,68 @@ const ProjectDetailsPage: FC = () => {
             <section className="bg-[#121212] border border-white/[0.03] rounded-3xl overflow-hidden shadow-2xl">
               <div className="p-6 md:p-8 border-b border-white/[0.03] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-xl bg-red-600/10 border border-red-600/20 flex items-center justify-center"><FiFilePlus className="w-4 h-4 text-red-500" /></div><h2 className="text-sm font-black text-white/40 uppercase tracking-[0.15em]">Proposal & Invoice History</h2></div>
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{dummyDocs.length} Items</span>
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">
+                  {docsLoading ? "Loading..." : `${(projectDocs.proposals?.length || 0) + (projectDocs.invoices?.length || 0)} Items`}
+                </span>
               </div>
               <div className="overflow-x-auto scrollbar-hide">
-                <table className="w-full text-left min-w-[700px]">
+                <table className="w-full text-left min-w-[980px]">
                   <thead><tr className="bg-white/[0.01] border-b border-white/[0.03]">
                     <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Document</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Type</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Client</th>
                     <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Reference</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Date</th>
-                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Value</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Issued</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">{/* Due/Expiry */}Due/Expiry</th>
+                    <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest text-right">Total</th>
                     <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Status</th>
                     <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest text-right">Actions</th>
                   </tr></thead>
                   <tbody>
-                    {dummyDocs.map((doc, i) => (
-                      <tr key={i} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
-                        <td className="px-8 py-6"><div className="flex items-center gap-4"><div className={`p-2.5 rounded-xl border ${doc.type === 'QUOTE' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-white/5 border-white/5 text-white/40'}`}><FiFilePlus className="w-4 h-4" /></div><span className="text-sm font-bold text-white hover:text-red-500 transition-colors cursor-pointer">{doc.name}</span></div></td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.ref}</td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.date}</td>
-                        <td className="px-8 py-6 text-sm font-black text-white">{doc.val}</td>
-                        <td className="px-8 py-6"><span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest uppercase ${doc.st === 'SENT' ? 'bg-white/5 text-white/40' : 'bg-red-500/10 text-red-500'}`}>{doc.st}</span></td>
-                        <td className="px-8 py-6 text-right"><button className="text-white/20 hover:text-white transition-colors"><FiMoreVertical className="w-5 h-5" /></button></td>
+                    {[
+                      ...(projectDocs.proposals || []).map((d: any) => ({ ...d, _kind: "proposal" })),
+                      ...(projectDocs.invoices || []).map((d: any) => ({ ...d, _kind: "invoice" })),
+                    ]
+                      .sort((a: any, b: any) => {
+                        const ta = new Date(a.createdAt || a.issuedDate || 0).getTime();
+                        const tb = new Date(b.createdAt || b.issuedDate || 0).getTime();
+                        return tb - ta;
+                      })
+                      .map((doc: any) => (
+                      <tr key={doc._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-2.5 rounded-xl border ${doc._kind === "invoice" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-white/5 border-white/5 text-white/40"}`}>
+                              <FiFilePlus className="w-4 h-4" />
+                            </div>
+                            <span
+                              className="text-sm font-bold text-white hover:text-red-500 transition-colors cursor-pointer"
+                              onClick={() => navigate(`/ai-tools/sales/documents/${doc._kind}/${doc._id}`)}
+                            >
+                              {`${doc.projectTitle} — ${doc._kind === "invoice" ? "Invoice" : "Proposal"} (${doc.reference})`}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest uppercase ${doc._kind === "invoice" ? "bg-red-500/10 text-red-500" : "bg-white/5 text-white/50"}`}>
+                            {doc._kind === "invoice" ? "INVOICE" : "PROPOSAL"}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/40">{doc.clientName || "—"}</td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.reference}</td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.issuedDate ? new Date(doc.issuedDate).toLocaleDateString() : "—"}</td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.dueDate ? new Date(doc.dueDate).toLocaleDateString() : "—"}</td>
+                        <td className="px-8 py-6 text-sm font-black text-white text-right">${Number(doc.total || 0).toLocaleString()}</td>
+                        <td className="px-8 py-6">
+                          <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest uppercase ${doc.status === "SENT" ? "bg-white/5 text-white/40" : "bg-red-500/10 text-red-500"}`}>
+                            {doc.status}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <button className="text-white/20 hover:text-white transition-colors" onClick={() => navigate(`/ai-tools/sales/documents/${doc._kind}/${doc._id}`)}>
+                            <FiMoreVertical className="w-5 h-5" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -436,6 +523,17 @@ const ProjectDetailsPage: FC = () => {
         onCreated={() => fetchFollowUps()}
         preselectedProjectId={id}
       />
+
+      {project && (
+        <GenerateDocModal
+          isOpen={isGenerateModalOpen}
+          onClose={() => setIsGenerateModalOpen(false)}
+          project={project}
+          defaultType="PROPOSAL"
+          onConfirm={handleGenerateConfirm}
+          isSubmitting={generating}
+        />
+      )}
     </DashboardLayout>
   );
 };
