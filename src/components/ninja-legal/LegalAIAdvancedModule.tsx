@@ -7,8 +7,8 @@ const LegalAIAdvancedModule: FC = () => {
       {/* Content Side */}
       <div className="flex-1 p-6 lg:p-10 z-10 flex flex-col justify-center">
         <div className="flex items-center gap-2 mb-4">
-          <HiLightningBolt className="text-[#EF4444] w-4 h-4" />
-          <span className="text-[10px] font-bold text-[#EF4444] tracking-widest uppercase">
+          <HiLightningBolt className="text-[#dc2626] w-4 h-4" />
+          <span className="text-[10px] font-bold text-[#dc2626] tracking-widest uppercase">
             ADVANCED MODULE
           </span>
         </div>
@@ -24,7 +24,7 @@ const LegalAIAdvancedModule: FC = () => {
         </p>
 
         <div className="flex flex-wrap gap-4">
-          <button className="px-6 py-3 bg-[#EF4444] hover:bg-[#DC2626] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#EF444420] active:scale-95">
+          <button className="px-6 py-3 bg-[#dc2626] hover:bg-[#DC2626] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#dc262620] active:scale-95">
             Draft New Contract
           </button>
           <button className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">

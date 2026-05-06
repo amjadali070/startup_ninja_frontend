@@ -45,6 +45,7 @@ import NinjaFinance from "./pages/User/NinjaFinance.tsx";
 import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
+import ContractGenerationPage from "./pages/User/NinjaLegal/ContractGenerationPage.tsx";
 import NinjaSales from "./pages/User/NinjaSales/NinjaSales.tsx";
 import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
 import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
@@ -342,6 +343,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AuditLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/generate"
+            element={
+              <ProtectedRoute>
+                <ContractGenerationPage />
               </ProtectedRoute>
             }
           />

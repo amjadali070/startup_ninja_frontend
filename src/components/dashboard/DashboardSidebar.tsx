@@ -17,7 +17,7 @@ import {
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
 import { TbApi } from "react-icons/tb";
-import { FaGavel, FaUsers } from "react-icons/fa";
+import { LuHammer,LuUsers  } from "react-icons/lu";
 
 
 interface SidebarSection {
@@ -69,7 +69,7 @@ const navSections: SidebarSection[] = [
       {
         label: "User Management",
         to: "/admin-dashboard/users",
-        icon: <FaUsers className="w-5 h-5" />,
+        icon: <LuUsers className="w-5 h-5" />,
         admin: true,
       },
       {
@@ -121,8 +121,20 @@ const navSections: SidebarSection[] = [
       {
         label: "Ninja Legal",
         to: "/ai-tools/legal",
-        icon: <FaGavel className="w-5 h-5" />,
+        icon: <LuHammer className="w-5 h-5" />,
         admin: false,
+        subItems: [
+          {
+            label: "Dashboard",
+            to: "/ai-tools/legal",
+            icon: <FiFileText className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Contract Generation",
+            to: "/ai-tools/legal/generate",
+            icon: <FiZap className="w-3.5 h-3.5" />,
+          },
+        ],
       },
       // {
       //   label: "Ninja Finance",
@@ -167,7 +179,7 @@ const navSections: SidebarSection[] = [
       {
         label: "Manage Team",
         to: "/manage-team",
-        icon: <FaUsers className="w-5 h-5" />,
+        icon: <LuUsers className="w-5 h-5" />,
         admin: false,
       },
     ],
@@ -397,7 +409,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             )}
           </div>
 
-          <nav className="flex-1 space-y-1.5 overflow-hidden pr-1">
+          <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1 scrollbar-thin custom-scrollbar">
             {filteredSections.map((section, sectionIndex) => (
               <div
                 key={sectionIndex}
