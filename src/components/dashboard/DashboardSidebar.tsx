@@ -13,6 +13,7 @@ import {
   FiTrendingUp,
   FiUsers,
   FiZap,
+  FiFileText,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";

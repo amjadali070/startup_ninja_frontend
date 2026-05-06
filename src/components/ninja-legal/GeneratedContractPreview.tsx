@@ -152,7 +152,7 @@ export const GeneratedContractPreview = ({
       }
 
       // Create PDF from canvas
-      const imgData = canvas.toDataURL("image/png");
+      // const imgData = canvas.toDataURL("image/png");
       
       // Calculate PDF dimensions (letter size)
       const pdf = new jsPDF({

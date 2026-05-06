@@ -1,12 +1,13 @@
 import { type FC, useState, useEffect, useRef, useCallback } from "react";
 import { 
   FiX, FiHelpCircle, FiCalendar, FiMail, FiPhone, FiBriefcase, 
-  FiAward, FiFlag, FiTarget, FiPercent, FiArrowRight, FiShield, 
-  FiClock, FiCheckCircle, FiLoader, FiDollarSign, FiFileText,
+  FiAward, FiPercent, FiArrowRight, FiShield, 
+  FiClock, FiCheckCircle, FiLoader, FiDollarSign,
   FiStar, FiActivity, FiUserCheck, FiUserX, FiHeart, FiThumbsUp,
   FiThumbsDown, FiPauseCircle, FiSlash,
   FiCircle, FiMessageCircle, FiSend, FiTrendingUp, FiLock, FiUnlock,
-  FiAlertTriangle, FiZap as FiZapIcon
+  FiAlertTriangle, FiZap as FiZapIcon,
+  FiFileText
 } from "react-icons/fi";
 import { ninjaSalesService, LeadSearchResult } from "../../services/ninjaSales";
 import IconSelect from "../IconSelect";

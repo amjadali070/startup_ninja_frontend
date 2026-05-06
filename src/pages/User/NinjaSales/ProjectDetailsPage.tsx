@@ -140,11 +140,6 @@ const ProjectDetailsPage: FC = () => {
   const stageIdx = pipelineStages.indexOf(project?.pipelineStage || "new");
   const confidenceDash = 552.92 - ((project?.confidence || 0) / 100) * 552.92;
 
-  const dummyDocs = [
-    { name: "Initial Quote", ref: "QT-2025-001", date: "Apr 10, 2025", val: `$${(project?.value || 0).toLocaleString()}`, st: "SENT", type: "QUOTE" },
-    { name: "Service Agreement", ref: "MSA-001", date: "Apr 12, 2025", val: "--", st: "DRAFT", type: "CONTRACT" },
-  ];
-
   const openGenerate = () => setIsGenerateModalOpen(true);
 
   const handleGenerateConfirm = async (payload: any) => {
