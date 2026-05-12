@@ -59,7 +59,7 @@ const RecentActivityCard: FC = () => {
         const res = await ninjaSalesService.getDashboardStats();
         if (res.success && res.data?.recentActivities) {
           const mapped: ActivityItem[] = res.data.recentActivities
-            .slice(0, 8)
+            .slice(0, 5)
             .map((a: DashboardRecentActivity, i: number) => {
               const { type, link } = mapActivityType(a.type);
               return {
