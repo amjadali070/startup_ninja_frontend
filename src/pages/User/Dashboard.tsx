@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { useNavigate } from "react-router-dom";
 import { PiImageSquareBold } from "react-icons/pi";
-import { FiGlobe, FiMessageSquare } from "react-icons/fi";
+import { FiGlobe, FiMessageSquare, FiFileText, FiTrendingUp } from "react-icons/fi";
 import { RiOrganizationChart } from "react-icons/ri";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import WelcomeBanner from "../../components/dashboard/WelcomeBanner.tsx";
@@ -10,6 +10,10 @@ import QuickActionCard from "../../components/dashboard/QuickActionCard.tsx";
 import NinjaAssistantCard from "../../components/dashboard/NinjaAssistantCard.tsx";
 import ProjectCard from "../../components/dashboard/ProjectCard.tsx";
 import TokenUsageCard from "../../components/dashboard/TokenUsageCard.tsx";
+import SalesPipelineCard from "../../components/dashboard/SalesPipelineCard.tsx";
+import LegalComplianceCard from "../../components/dashboard/LegalComplianceCard.tsx";
+import RecentActivityCard from "../../components/dashboard/RecentActivityCard.tsx";
+import SocialInsightsCard from "../../components/dashboard/SocialInsightsCard.tsx";
 import { userService, type TokenUsage } from "../../services/user.ts";
 import WebBuilderService, {
   type WebsiteProject,
@@ -121,29 +125,43 @@ const Dashboard: React.FC = () => {
         title: "AI Chat",
         description: "Generate content instantly with our advanced AI.",
         buttonLabel: "Generate Content",
-        icon: <FiMessageSquare className="h-12 w-12" />,
+        icon: <FiMessageSquare className="h-5 w-5" />,
         to: "/ai-tools/chat",
       },
       {
-        title: "AI Image Generator",
+        title: "AI Image Gen",
         description: "Create stunning visuals from text prompts.",
         buttonLabel: "Generate Visual",
-        icon: <PiImageSquareBold className="h-12 w-12" />,
+        icon: <PiImageSquareBold className="h-5 w-5" />,
         to: "/ai-tools/image-gen",
       },
       {
-        title: "Website Builder",
+        title: "Web Builder",
         description: "Build professional websites with AI assistance.",
         buttonLabel: "Build Website",
-        icon: <FiGlobe className="h-12 w-12" />,
+        icon: <FiGlobe className="h-5 w-5" />,
         to: "/ai-tools/web-builder",
       },
       {
         title: "Social Pro",
         description: "Automate and manage your social presence.",
-        buttonLabel: "Schedule Content",
-        icon: <RiOrganizationChart className="h-12 w-12" />,
+        buttonLabel: "Schedule Post",
+        icon: <RiOrganizationChart className="h-5 w-5" />,
         to: "/ai-tools/social-pro",
+      },
+      {
+        title: "Ninja Legal",
+        description: "AI-powered legal document generation.",
+        buttonLabel: "Draft Document",
+        icon: <FiFileText className="h-5 w-5" />,
+        to: "/ai-tools/ninja-legal",
+      },
+      {
+        title: "Ninja Sales",
+        description: "AI outreach and smart CRM management.",
+        buttonLabel: "View Pipeline",
+        icon: <FiTrendingUp className="h-5 w-5" />,
+        to: "/ai-tools/ninja-sales",
       },
     ],
     []
@@ -160,8 +178,8 @@ const Dashboard: React.FC = () => {
         <div className="space-y-4 sm:space-y-6">
           <WelcomeBanner name={user.username || user.email || "Ninja"} />
 
-          {/* Quick Actions Grid - 1 col mobile, 2 cols small tablet, 4 cols large screens */}
-          <section className="grid gap-4 sm:gap-5 grid-cols-1 min-[500px]:grid-cols-2 xl:grid-cols-4">
+          {/* Quick Actions Grid */}
+          <section className="grid gap-3 sm:gap-4 grid-cols-2 min-[640px]:grid-cols-3 xl:grid-cols-6">
             {quickActions.map((action) => (
               <QuickActionCard key={action.title} {...action} />
             ))}
@@ -175,8 +193,8 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Ongoing Projects Card */}
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[12px] border-[1.6px] border-[#242424] p-4 shadow-[0px_8px_30px_rgba(0,0,0,0.45)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
-              <div className="pointer-events-none absolute inset-0 rounded-[12px] border-[1.6px] border-transparent" />
+            <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] p-4 shadow-[0px_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-[#2A2A2A] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
+              <div className="pointer-events-none absolute -inset-[1px] rounded-lg bg-gradient-to-r from-[#FF3B3B]/20 via-[#E50000]/10 to-transparent opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative z-10 flex h-full flex-col">
                 <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -226,7 +244,7 @@ const Dashboard: React.FC = () => {
             {/* Token Usage Card */}
             <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
               {loadingTokens ? (
-                <div className="flex h-full w-full items-center justify-center rounded-[12px] border-[1.33px] border-[#191919] bg-[#0D0D0D]">
+                <div className="flex h-full w-full items-center justify-center rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]">
                   <div className="text-white/50 text-sm">Loading...</div>
                 </div>
               ) : tokenUsage ? (
@@ -239,6 +257,17 @@ const Dashboard: React.FC = () => {
                 <TokenUsageCard used={0} limit={10000} resetInHours={24} />
               )}
             </div>
+          </section>
+
+          {/* Insights Grid */}
+          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
+            <SalesPipelineCard />
+            <LegalComplianceCard />
+          </section>
+
+          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-[2fr_1fr]">
+            <RecentActivityCard />
+            <SocialInsightsCard />
           </section>
         </div>
       </main>
