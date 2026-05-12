@@ -47,12 +47,18 @@ interface SubscriptionData {
     generated_images: number;
     social_posts: number;
     websites: number;
+    legal_contracts: number;
+    legal_contract_section_revisions: number;
+    team_members: number;
   };
   limits?: {
     ai_chat_messages: number;
     generated_images: number;
     social_posts: number;
     websites: number;
+    legal_contracts: number;
+    legal_contract_section_revisions: number;
+    team_members: number;
   };
 }
 

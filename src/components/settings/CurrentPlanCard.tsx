@@ -88,13 +88,19 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         social_posts: subscription.usage?.social_posts || 0,
         websites: subscription.usage?.websites || 0,
         website_creation: subscription.usage?.website_creation || 0,
+        legal_contracts: subscription.usage?.legal_contracts || 0,
+        legal_contract_section_revisions: subscription.usage?.legal_contract_section_revisions || 0,
+        team_members: subscription.usage?.team_members || 0,
       },
       limits: {
         ...(subscription.limits || {}),
         ai_chat_messages: subscription.limits?.ai_chat_messages || 10,
         generated_images: subscription.limits?.generated_images || 5,
         social_posts: subscription.limits?.social_posts || 10,
-        websites: subscription.limits?.website_creation ?? subscription.limits?.website_hosting ?? subscription.limits?.websites ?? 1
+        websites: subscription.limits?.website_creation ?? subscription.limits?.website_hosting ?? subscription.limits?.websites ?? 1,
+        legal_contracts: subscription.limits?.legal_contracts || 0,
+        legal_contract_section_revisions: subscription.limits?.legal_contract_section_revisions || 0,
+        team_members: subscription.limits?.team_members || 0,
       }
     };
   }, [subscription]);

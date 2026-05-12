@@ -12,6 +12,9 @@ export interface PlanLimit {
   facebook_page_connect: number;
   chat_bot_messages: number;
   web_builder_sessions: number;
+  team_members: number;
+  legal_contracts: number;
+  legal_contract_section_revisions: number;
 }
 
 export interface Plan {

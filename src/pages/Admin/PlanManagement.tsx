@@ -5,7 +5,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { authService } from '../../services/auth.ts';
 import { planService, Plan, PlanLimit } from '../../services/plan.ts';
 import { toast } from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiCpu, FiGlobe, FiShare2 } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiCpu, FiGlobe, FiShare2, FiUsers, FiFileText } from 'react-icons/fi';
 
 const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<Plan>) => Promise<void> }> = ({ plan, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -33,6 +33,9 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
         `${l.facebook_page_connect === -1 ? 'Unlimited' : l.facebook_page_connect} Facebook Page Connect`,
         `${l.chat_bot_messages === -1 ? 'Unlimited' : l.chat_bot_messages} AI Chatbot Support Message`,
         `${l.web_builder_sessions === -1 ? 'Unlimited' : l.web_builder_sessions} Web Builder Sessions`,
+        `${l.team_members === -1 ? 'Unlimited' : l.team_members} Team Members`,
+        `${l.legal_contracts === -1 ? 'Unlimited' : l.legal_contracts} AI Legal Contracts`,
+        `${l.legal_contract_section_revisions === -1 ? 'Unlimited' : l.legal_contract_section_revisions} Contract Section Revisions`
       ].filter(feature => feature !== "");
 
       await onUpdate(plan._id, { 
@@ -108,6 +111,21 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
             { key: 'web_builder_sessions', label: 'Builder Sessions', type: 'number' },
             { key: 'single_page_website', label: 'Single Page', type: 'boolean' },
             { key: 'multi_page_website', label: 'Multi Page', type: 'boolean' },
+        ] as const
+    },
+    {
+        title: "Team",
+        icon: <FiUsers className="text-orange-500" />,
+        limits: [
+            { key: 'team_members', label: 'Team Members', type: 'number' },
+        ] as const
+    },
+    {
+        title: "Ninja Legal",
+        icon: <FiFileText className="text-indigo-500" />,
+        limits: [
+            { key: 'legal_contracts', label: 'AI Contracts', type: 'number' },
+            { key: 'legal_contract_section_revisions', label: 'Contract Section Revisions', type: 'number' }
         ] as const
     }
   ];

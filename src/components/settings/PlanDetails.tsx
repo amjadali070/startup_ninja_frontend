@@ -6,6 +6,9 @@ export type PlanUsage = {
   social_posts: number;
   websites?: number;
   website_creation?: number;
+  legal_contracts?: number;
+  legal_contract_section_revisions?: number;
+  team_members?: number;
 };
 
 export type PlanLimits = {
@@ -14,6 +17,9 @@ export type PlanLimits = {
   social_posts: number;
   websites?: number;
   website_creation?: number;
+  legal_contracts?: number;
+  legal_contract_section_revisions?: number;
+  team_members?: number;
 };
 
 interface PlanDetailsProps {
@@ -62,6 +68,9 @@ const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
       {renderUsageItem("Generated Images", usage.generated_images || 0, limits.generated_images || 0)}
       {renderUsageItem("Social Posts", usage.social_posts || 0, limits.social_posts || 0)}
       {renderUsageItem("Websites", (usage.website_creation ?? usage.websites) || 0, (limits.website_creation ?? limits.websites) || 0)}
+      {renderUsageItem("Legal Contracts", usage.legal_contracts || 0, limits.legal_contracts || 0)}
+      {renderUsageItem("Contract Revisions", usage.legal_contract_section_revisions || 0, limits.legal_contract_section_revisions || 0)}
+      {renderUsageItem("Team Members", usage.team_members || 0, limits.team_members || 0)}
     </div>
   );
 };
