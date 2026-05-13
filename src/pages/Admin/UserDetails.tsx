@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { adminService } from "../../services/admin";
@@ -85,6 +85,19 @@ const UserDetailsPage: React.FC = () => {
     imageGenLimit: 0,
     websiteLimit: 0,
     socialPostLimit: 0,
+    legalContractsLimit: 0,
+    contractRevisionsLimit: 0,
+    salesLeadsLimit: 0,
+    salesProjectsLimit: 0,
+    aiPostWriterLimit: 0,
+    chatBotMessagesLimit: 0,
+    fbPageConnectLimit: 0,
+    websiteHostingLimit: 0,
+    webBuilderSessionsLimit: 0,
+    singlePageWebsite: false,
+    multiPageWebsite: false,
+    teamMembersLimit: 0,
+    addOnCharge: 0,
     features: [] as string[],
   });
   const [editForm, setEditForm] = useState({
@@ -195,24 +208,45 @@ const UserDetailsPage: React.FC = () => {
         const extendedUser: ExtendedUserDetails = {
           ...response.data.user,
           subscription: response.data.subscription || {
-             plan: 'Free',
-             status: 'active',
-             startDate: new Date().toISOString(),
-             nextBillingDate: new Date().toISOString(),
-             amount: 0,
-             interval: 'month'
+            plan: 'Free',
+            status: 'active',
+            startDate: new Date().toISOString(),
+            nextBillingDate: new Date().toISOString(),
+            amount: 0,
+            interval: 'month'
           },
           usage: response.data.usage || {
-             chatTokensUsed: 0,
-             chatTokensLimit: 0,
-             imageGenUsed: 0,
-             imageGenLimit: 0,
-             websiteUsed: 0,
-             websiteLimit: 0,
-             socialPostsUsed: 0,
-             socialPostLimit: 0,
-             periodStart: new Date().toISOString(),
-             periodEnd: new Date().toISOString()
+            chatTokensUsed: 0,
+            chatTokensLimit: 0,
+            imageGenUsed: 0,
+            imageGenLimit: 0,
+            websiteUsed: 0,
+            websiteLimit: 0,
+            socialPostsUsed: 0,
+            socialPostLimit: 0,
+            legalContractsUsed: 0,
+            legalContractsLimit: 0,
+            legalContractRevisionsUsed: 0,
+            legalContractRevisionsLimit: 0,
+            salesLeadsUsed: 0,
+            salesLeadsLimit: 0,
+            salesProjectsUsed: 0,
+            salesProjectsLimit: 0,
+            aiPostWriterUsed: 0,
+            aiPostWriterLimit: 0,
+            chatBotMessagesUsed: 0,
+            chatBotMessagesLimit: 0,
+            fbPageConnectUsed: 0,
+            fbPageConnectLimit: 0,
+            websiteHostingUsed: 0,
+            websiteHostingLimit: 0,
+            webBuilderSessionsUsed: 0,
+            webBuilderSessionsLimit: 0,
+            singlePageWebsite: false,
+            multiPageWebsite: false,
+
+            periodStart: new Date().toISOString(),
+            periodEnd: new Date().toISOString()
           },
           features: response.data.features || [],
           transactions: response.data.transactions || [],
@@ -241,12 +275,30 @@ const UserDetailsPage: React.FC = () => {
         };
         setUser(extendedUser);
 
+        console.log("Fetched user details:", extendedUser);
+
         setResourceForm({
-          chatTokensLimit: extendedUser.usage.chatTokensLimit,
-          imageGenLimit: extendedUser.usage.imageGenLimit,
-          websiteLimit: extendedUser.usage.websiteLimit || 0,
-          socialPostLimit: extendedUser.usage.socialPostLimit || 0,
+          chatTokensLimit: extendedUser.usage.chatTokensLimit || 0,
+          imageGenLimit: extendedUser.usage.imageGenLimit || 0,
+          websiteLimit: extendedUser.usage.websiteLimit || extendedUser.subscription?.limits?.websites || extendedUser.subscription?.limits?.website_creation || 0,
+          socialPostLimit: extendedUser.usage.socialPostLimit || extendedUser.subscription?.limits?.social_posts || 0,
+          legalContractsLimit: extendedUser.usage.legalContractsLimit || extendedUser.subscription?.limits?.legal_contracts || 0,
+          contractRevisionsLimit: extendedUser.usage.legalContractRevisionsLimit || extendedUser.subscription?.limits?.legal_contract_section_revisions || 0,
+          salesLeadsLimit: extendedUser.usage.salesLeadsLimit || extendedUser.subscription?.limits?.sales_leads || 0,
+          salesProjectsLimit: extendedUser.usage.salesProjectsLimit || extendedUser.subscription?.limits?.sales_projects || 0,
+          teamMembersLimit: extendedUser.usage?.teamMembersLimit || 0,
+
+
+          // Configure new fields
+          aiPostWriterLimit: extendedUser.usage?.aiPostWriterLimit || 0,
+          chatBotMessagesLimit: extendedUser.usage?.chatBotMessagesLimit || 0,
+          fbPageConnectLimit: extendedUser.usage?.fbPageConnectLimit || 0,
+          websiteHostingLimit: extendedUser.usage?.websiteHostingLimit || 0,
+          webBuilderSessionsLimit: extendedUser.usage?.webBuilderSessionsLimit || 0,
+          singlePageWebsite: extendedUser.usage?.singlePageWebsite || false,
+          multiPageWebsite: extendedUser.usage?.multiPageWebsite || false,
           features: extendedUser.features,
+          addOnCharge: 0,
         });
 
         setEditForm({
@@ -388,19 +440,42 @@ const UserDetailsPage: React.FC = () => {
 
   const handleUpdateResources = async () => {
     if (!user) return;
+    try {
+      const payload = {
+        limits: {
+          ai_chat_messages: resourceForm.chatTokensLimit,
+          generated_images: resourceForm.imageGenLimit,
+          websites: resourceForm.websiteLimit,
+          social_posts: resourceForm.socialPostLimit,
+          legal_contracts: resourceForm.legalContractsLimit,
+          legal_contract_section_revisions: resourceForm.contractRevisionsLimit,
+          sales_leads: resourceForm.salesLeadsLimit,
+          sales_projects: resourceForm.salesProjectsLimit,
+          ai_post_writer: resourceForm.aiPostWriterLimit,
+          chat_bot_messages: resourceForm.chatBotMessagesLimit,
+          facebook_page_connect: resourceForm.fbPageConnectLimit,
+          website_hosting: resourceForm.websiteHostingLimit,
+          web_builder_sessions: resourceForm.webBuilderSessionsLimit,
+          single_page_website: resourceForm.singlePageWebsite,
+          multi_page_website: resourceForm.multiPageWebsite,
+          team_members: resourceForm.teamMembersLimit
+        },
+        addOnCharge: resourceForm.addOnCharge
+      };
 
-    setUser({
-      ...user,
-      usage: {
-        ...user.usage,
-        chatTokensLimit: resourceForm.chatTokensLimit,
-        imageGenLimit: resourceForm.imageGenLimit,
-      },
-      features: resourceForm.features,
-    });
+      const response = await adminService.updateUserResources(user._id, payload);
 
-    toast.success("User resources updated successfully");
-    setViewingResources(false);
+      if (response.success) {
+        toast.success("User resources updated successfully");
+        setViewingResources(false);
+        fetchUser(); // Refresh user payload limits immediately
+      } else {
+        console.log("Update failed response:", response);
+        toast.error(response.message || "Failed to update resources.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred while updating resources.");
+    }
   };
 
   const handleUpdateUser = async () => {
@@ -550,3 +625,4 @@ const UserDetailsPage: React.FC = () => {
 };
 
 export default UserDetailsPage;
+

@@ -154,14 +154,14 @@ const Dashboard: React.FC = () => {
         description: "AI-powered legal document generation.",
         buttonLabel: "Draft Document",
         icon: <FiFileText className="h-5 w-5" />,
-        to: "/ai-tools/ninja-legal",
+        to: "/ai-tools/legal",
       },
       {
         title: "Ninja Sales",
         description: "AI outreach and smart CRM management.",
         buttonLabel: "View Pipeline",
         icon: <FiTrendingUp className="h-5 w-5" />,
-        to: "/ai-tools/ninja-sales",
+        to: "/ai-tools/sales",
       },
     ],
     []

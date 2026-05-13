@@ -76,12 +76,12 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
             >
               {user.subscription.plan}
             </span>
-            <button
+            {/* <button
                 onClick={() => setIsEditing(!isEditing)}
                 className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold transition whitespace-nowrap"
             >
                 {isEditing ? 'Cancel Edit' : 'Update Plan'}
-            </button>
+            </button> */}
           </div>
         </div>
 

@@ -178,6 +178,25 @@ export const adminService = {
   /**
    * Delete User
    */
+  async updateUserResources(
+    id: string,
+    data: any
+  ): Promise<AdminApiResponse<any>> {
+    try {
+      const response = await apiClient.put<AdminApiResponse<any>>(
+        `/admin/users/${id}/resources`,
+        data
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update resources",
+        error: error.message,
+      };
+    }
+  },
+
   async deleteUser(id: string): Promise<AdminApiResponse<void>> {
     try {
       const response = await apiClient.delete<AdminApiResponse<void>>(

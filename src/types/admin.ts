@@ -203,8 +203,26 @@ export interface AIUsageStats {
   salesLeadsLimit?: number;
   salesProjectsUsed?: number;
   salesProjectsLimit?: number;
+  teamMembersUsed?: number;
+  teamMembersLimit?: number;
+  
+  aiPostWriterLimit: number;
+  aiPostWriterUsed: number;
+  chatBotMessagesLimit: number;
+  chatBotMessagesUsed: number;
+  fbPageConnectLimit: number;
+  fbPageConnectUsed: number;
+  websiteHostingLimit: number;
+  websiteHostingUsed: number;
+  webBuilderSessionsLimit: number;
+  webBuilderSessionsUsed: number;
+  singlePageWebsite: boolean;
+  multiPageWebsite: boolean;
+
   periodStart: string;
   periodEnd: string;
+
+
 }
 
 export interface UserContentStats {
@@ -222,6 +240,7 @@ export interface UserSubscriptionDetails {
   status: "active" | "canceled" | "past_due";
   startDate: string;
   nextBillingDate: string;
+  limits?: any;
   amount: number;
   interval: "month" | "year";
 }
