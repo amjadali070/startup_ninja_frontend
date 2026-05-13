@@ -151,11 +151,11 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
         return <LeadsListView leads={contentData.leads} />;
       case "Sales Projects":
         return <ProjectsListView projects={contentData.projects} />;
-      case "Legal Contracts":
+      case "AI Contracts":
         return <ContractsListView contracts={contentData.contracts} />;
       default:
         return (
-          <div className="text-gray-400 text-center py-8">No content found</div>
+          <div className="text-gray-400 text-center py-8">No AI Contracts found</div>
         );
     }
   };
@@ -207,7 +207,7 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
             {viewingContent === "Sales Projects" && (
               <FaProjectDiagram className="text-purple-500 text-2xl" />
             )}
-            {viewingContent === "Legal Contracts" && (
+            {viewingContent === "AI Contracts" && (
               <FaFileContract className="text-emerald-500 text-2xl" />
             )}
           </div>

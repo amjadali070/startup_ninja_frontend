@@ -17,7 +17,9 @@ const ProjectsListView: React.FC<ProjectsListViewProps> = ({ projects }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {projects.map((project) => (
+      {projects.map((project) => {
+        const projectStatus = project.status || project.pipelineStage || "new";
+        return (
         <div
           key={project._id}
           className="bg-[#1A1A1A] p-4 rounded-xl border border-[#242424] hover:border-[#333] transition-all"
@@ -33,7 +35,7 @@ const ProjectsListView: React.FC<ProjectsListViewProps> = ({ projects }) => {
               </div>
             </div>
             <span className="px-2 py-1 bg-purple-500/10 text-purple-500 rounded-md text-[10px] font-medium uppercase">
-              {project.status}
+              {projectStatus}
             </span>
           </div>
 
@@ -48,7 +50,8 @@ const ProjectsListView: React.FC<ProjectsListViewProps> = ({ projects }) => {
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

@@ -307,11 +307,13 @@ export interface Website {
 
 export interface Lead {
   _id: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
   email: string;
   company?: string;
-  status: string;
+  status?: string;
+  leadStatus?: string;
   value?: number;
   createdAt: string;
 }
@@ -320,7 +322,8 @@ export interface Project {
   _id: string;
   name: string;
   description?: string;
-  status: string;
+  status?: string;
+  pipelineStage?: string;
   leadId?: string;
   createdAt: string;
 }
@@ -328,8 +331,11 @@ export interface Project {
 export interface Contract {
   _id: string;
   contractTitle: string;
-  type: string;
+  type?: string;
   contractStatus: string;
+  contractWorth?: string | number;
+  priority?: string;
+  purpose?: string;
   clientName?: string;
   createdAt: string;
 }
