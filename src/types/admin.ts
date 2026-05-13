@@ -90,7 +90,7 @@ export interface UserActivity {
 
 export interface UserWithStats {
   user: UserDetails;
-  stats: UserStats;
+  contentStats: UserContentStats;
   loginSessions?: LoginSession[];
   activities?: UserActivity[];
   subscription?: UserSubscriptionDetails;
@@ -195,6 +195,14 @@ export interface AIUsageStats {
   websiteLimit?: number;
   socialPostsUsed?: number;
   socialPostLimit?: number;
+  legalContractsUsed?: number;
+  legalContractsLimit?: number;
+  legalContractRevisionsUsed?: number;
+  legalContractRevisionsLimit?: number;
+  salesLeadsUsed?: number;
+  salesLeadsLimit?: number;
+  salesProjectsUsed?: number;
+  salesProjectsLimit?: number;
   periodStart: string;
   periodEnd: string;
 }
@@ -204,6 +212,9 @@ export interface UserContentStats {
   totalPosts: number;
   totalWebsites: number;
   totalImages: number;
+  totalLeads?: number;
+  totalProjects?: number;
+  totalContracts?: number;
 }
 
 export interface UserSubscriptionDetails {
@@ -292,6 +303,35 @@ export interface Website {
   publishedLink?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Lead {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  company?: string;
+  status: string;
+  value?: number;
+  createdAt: string;
+}
+
+export interface Project {
+  _id: string;
+  name: string;
+  description?: string;
+  status: string;
+  leadId?: string;
+  createdAt: string;
+}
+
+export interface Contract {
+  _id: string;
+  contractTitle: string;
+  type: string;
+  contractStatus: string;
+  clientName?: string;
+  createdAt: string;
 }
 
 export interface WebsiteAnalytics {

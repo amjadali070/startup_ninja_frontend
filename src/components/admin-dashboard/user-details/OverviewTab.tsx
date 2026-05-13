@@ -6,6 +6,10 @@ import {
   FaShareAlt,
   FaCheckCircle,
   FaHistory,
+  FaFileContract,
+  FaFileSignature,
+  FaUsers,
+  FaProjectDiagram,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
 
@@ -26,7 +30,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
               <FaRobot className="text-blue-500" /> AI Chat
             </h3>
             <span className="text-gray-400 text-sm">
-              {Math.round(
+              {user.usage.chatTokensLimit === -1 ? "0" : Math.round(
                 (user.usage.chatTokensUsed / user.usage.chatTokensLimit) * 100
               )}
               %
@@ -36,7 +40,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
             <div
               className="bg-blue-600 h-2.5 rounded-full"
               style={{
-                width: `${Math.min(
+                width: `${user.usage.chatTokensLimit === -1 ? 5 : Math.min(
                   100,
                   (user.usage.chatTokensUsed / user.usage.chatTokensLimit) * 100
                 )}%`,
@@ -46,7 +50,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
           <div className="flex justify-between text-xs text-gray-400">
             <span>
               {user.usage.chatTokensUsed.toLocaleString()} /{" "}
-              {user.usage.chatTokensLimit.toLocaleString()}
+              {user.usage.chatTokensLimit === -1 ? "Unlimited" : user.usage.chatTokensLimit.toLocaleString()}
             </span>
           </div>
         </div>
@@ -58,7 +62,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
               <FaImage className="text-purple-500" /> Images
             </h3>
             <span className="text-gray-400 text-sm">
-              {Math.round(
+              {user.usage.imageGenLimit === -1 ? "0" : Math.round(
                 (user.usage.imageGenUsed / user.usage.imageGenLimit) * 100
               )}
               %
@@ -68,7 +72,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
             <div
               className="bg-purple-600 h-2.5 rounded-full"
               style={{
-                width: `${Math.min(
+                width: `${user.usage.imageGenLimit === -1 ? 5 : Math.min(
                   100,
                   (user.usage.imageGenUsed / user.usage.imageGenLimit) * 100
                 )}%`,
@@ -77,7 +81,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
           </div>
           <div className="flex justify-between text-xs text-gray-400">
             <span>
-              {user.usage.imageGenUsed} / {user.usage.imageGenLimit}
+              {user.usage.imageGenUsed} / {user.usage.imageGenLimit === -1 ? "Unlimited" : user.usage.imageGenLimit}
             </span>
           </div>
         </div>
@@ -112,7 +116,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
           </div>
           <div className="flex justify-between text-xs text-gray-400">
             <span>
-              {user.usage.websiteUsed || 0} / {user.usage.websiteLimit || 1}
+              {user.usage.websiteUsed || 0} / {user.usage.websiteLimit === -1 ? "Unlimited" : (user.usage.websiteLimit || 1)}
             </span>
           </div>
         </div>
@@ -148,7 +152,151 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user, formatDate }) => {
           <div className="flex justify-between text-xs text-gray-400">
             <span>
               {user.usage.socialPostsUsed || 0} /{" "}
-              {user.usage.socialPostLimit || 1}
+              {user.usage.socialPostLimit === -1 ? "Unlimited" : (user.usage.socialPostLimit || 1)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ninja Legal: Contracts */}
+        <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-semibold flex items-center gap-2">
+              <FaFileContract className="text-indigo-500" /> AI Contracts
+            </h3>
+            <span className="text-gray-400 text-sm">
+              {Math.round(
+                ((user.usage.legalContractsUsed || 0) /
+                  (user.usage.legalContractsLimit || 1)) *
+                  100
+              )}
+              %
+            </span>
+          </div>
+          <div className="w-full bg-[#2A2A2A] rounded-full h-2.5 mb-2 overflow-hidden">
+            <div
+              className="bg-indigo-600 h-2.5 rounded-full"
+              style={{
+                width: `${Math.min(
+                  100,
+                  ((user.usage.legalContractsUsed || 0) /
+                    (user.usage.legalContractsLimit || 1)) *
+                    100
+                )}%`,
+              }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>
+              {user.usage.legalContractsUsed || 0} /{" "}
+              {user.usage.legalContractsLimit === -1 ? "Unlimited" : (user.usage.legalContractsLimit || 1)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ninja Legal: Revisions */}
+        <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-semibold flex items-center gap-2">
+              <FaFileSignature className="text-cyan-500" /> Contract Revisions
+            </h3>
+            <span className="text-gray-400 text-sm">
+              {Math.round(
+                ((user.usage.legalContractRevisionsUsed || 0) /
+                  (user.usage.legalContractRevisionsLimit || 1)) *
+                  100
+              )}
+              %
+            </span>
+          </div>
+          <div className="w-full bg-[#2A2A2A] rounded-full h-2.5 mb-2 overflow-hidden">
+            <div
+              className="bg-cyan-600 h-2.5 rounded-full"
+              style={{
+                width: `${Math.min(
+                  100,
+                  ((user.usage.legalContractRevisionsUsed || 0) /
+                    (user.usage.legalContractRevisionsLimit || 1)) *
+                    100
+                )}%`,
+              }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>
+              {user.usage.legalContractRevisionsUsed || 0} /{" "}
+              {user.usage.legalContractRevisionsLimit === -1 ? "Unlimited" : (user.usage.legalContractRevisionsLimit || 1)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ninja Sales: Leads */}
+        <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-semibold flex items-center gap-2">
+              <FaUsers className="text-orange-500" /> Sales Leads
+            </h3>
+            <span className="text-gray-400 text-sm">
+              {Math.round(
+                ((user.usage.salesLeadsUsed || 0) /
+                  (user.usage.salesLeadsLimit || 1)) *
+                  100
+              )}
+              %
+            </span>
+          </div>
+          <div className="w-full bg-[#2A2A2A] rounded-full h-2.5 mb-2 overflow-hidden">
+            <div
+              className="bg-orange-600 h-2.5 rounded-full"
+              style={{
+                width: `${Math.min(
+                  100,
+                  ((user.usage.salesLeadsUsed || 0) /
+                    (user.usage.salesLeadsLimit || 1)) *
+                    100
+                )}%`,
+              }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>
+              {user.usage.salesLeadsUsed || 0} /{" "}
+              {user.usage.salesLeadsLimit === -1 ? "Unlimited" : (user.usage.salesLeadsLimit || 1)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ninja Sales: Projects */}
+        <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-semibold flex items-center gap-2">
+              <FaProjectDiagram className="text-red-500" /> Sales Projects
+            </h3>
+            <span className="text-gray-400 text-sm">
+              {Math.round(
+                ((user.usage.salesProjectsUsed || 0) /
+                  (user.usage.salesProjectsLimit || 1)) *
+                  100
+              )}
+              %
+            </span>
+          </div>
+          <div className="w-full bg-[#2A2A2A] rounded-full h-2.5 mb-2 overflow-hidden">
+            <div
+              className="bg-red-600 h-2.5 rounded-full"
+              style={{
+                width: `${Math.min(
+                  100,
+                  ((user.usage.salesProjectsUsed || 0) /
+                    (user.usage.salesProjectsLimit || 1)) *
+                    100
+                )}%`,
+              }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>
+              {user.usage.salesProjectsUsed || 0} /{" "}
+              {user.usage.salesProjectsLimit === -1 ? "Unlimited" : (user.usage.salesProjectsLimit || 1)}
             </span>
           </div>
         </div>

@@ -391,6 +391,120 @@ export const adminService = {
   },
 
   /**
+   * Get User's Sales Leads
+   */
+  async getUserLeads(
+    userId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<AdminApiResponse<ContentLogsResponse<any>>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+      const response = await apiClient.get<AdminApiResponse<any>>(
+        `/admin/users/${userId}/leads?${queryParams.toString()}`
+      );
+
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: {
+            data: response.data.data,
+            pagination: response.data.pagination,
+          },
+        };
+      }
+      return response as any;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch leads",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get User's Sales Projects
+   */
+  async getUserProjects(
+    userId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<AdminApiResponse<ContentLogsResponse<any>>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+      const response = await apiClient.get<AdminApiResponse<any>>(
+        `/admin/users/${userId}/projects?${queryParams.toString()}`
+      );
+
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: {
+            data: response.data.data,
+            pagination: response.data.pagination,
+          },
+        };
+      }
+      return response as any;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch projects",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Get User's Legal Contracts
+   */
+  async getUserContracts(
+    userId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<AdminApiResponse<ContentLogsResponse<any>>> {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+      const response = await apiClient.get<AdminApiResponse<any>>(
+        `/admin/users/${userId}/contracts?${queryParams.toString()}`
+      );
+
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: {
+            data: response.data.data,
+            pagination: response.data.pagination,
+          },
+        };
+      }
+      return response as any;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch contracts",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
    * Get User's Website Analytics
    * Returns detailed analytics including storage usage
    */

@@ -11,6 +11,9 @@ import type {
   SocialPost,
   Website,
   GeneratedImage,
+  Lead,
+  Project,
+  Contract,
 } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -61,11 +64,17 @@ const UserDetailsPage: React.FC = () => {
     socialPosts: SocialPost[];
     websites: Website[];
     generatedImages: GeneratedImage[];
+    leads: Lead[];
+    projects: Project[];
+    contracts: Contract[];
   }>({
     aiChats: [],
     socialPosts: [],
     websites: [],
     generatedImages: [],
+    leads: [],
+    projects: [],
+    contracts: [],
   });
   const [contentLoading, setContentLoading] = useState(false);
   const [contentPage, setContentPage] = useState(1);
@@ -150,32 +159,38 @@ const UserDetailsPage: React.FC = () => {
 
 
         // Fetch actual content counts
-        const [aiChatsRes, socialPostsRes, websitesRes, generatedImagesRes] = await Promise.all([
+        const [aiChatsRes, socialPostsRes, websitesRes, generatedImagesRes, contractsRes] = await Promise.all([
           adminService.getUserAIChats(userId, { page: 1, limit: 1 }),
           adminService.getUserSocialPosts(userId, { page: 1, limit: 1 }),
           adminService.getUserWebsites(userId, { page: 1, limit: 1 }),
           adminService.getUserGeneratedImages(userId, { page: 1, limit: 1 }),
+          adminService.getUserContracts(userId, { page: 1, limit: 1 }),
         ]);
 
         const totalChats =
           aiChatsRes.success && aiChatsRes.data?.pagination?.total
             ? aiChatsRes.data.pagination.total
-            : response.data.stats.totalChats || 0;
+            : response.data.contentStats.totalChats || 0;
 
         const totalPosts =
           socialPostsRes.success && socialPostsRes.data?.pagination?.total
             ? socialPostsRes.data.pagination.total
-            : response.data.stats.totalPosts || 0;
+            : response.data.contentStats.totalPosts || 0;
 
         const totalWebsites =
           websitesRes.success && websitesRes.data?.pagination?.total
             ? websitesRes.data.pagination.total
-            : response.data.stats.totalWebsites || 0;
+            : response.data.contentStats.totalWebsites || 0;
 
         const totalImages =
           generatedImagesRes.success && generatedImagesRes.data?.pagination?.total
             ? generatedImagesRes.data.pagination.total
-            : response.data.stats.totalImages || 0;
+            : response.data.contentStats.totalImages || 0;
+
+        const totalContracts =
+          contractsRes.success && contractsRes.data?.pagination?.total
+            ? contractsRes.data.pagination.total
+            : response.data.contentStats.totalContracts || 0;
 
         const extendedUser: ExtendedUserDetails = {
           ...response.data.user,
@@ -206,6 +221,9 @@ const UserDetailsPage: React.FC = () => {
             totalPosts: totalPosts,
             totalWebsites: totalWebsites,
             totalImages: totalImages,
+            totalLeads: response.data.contentStats.totalLeads || 0,
+            totalProjects: response.data.contentStats.totalProjects || 0,
+            totalContracts: totalContracts,
           },
           activityLogs:
             response.data.activities?.map((activity) => ({
@@ -319,6 +337,33 @@ const UserDetailsPage: React.FC = () => {
             ...prev,
             generatedImages: response.data?.data || [],
           }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "Sales Leads") {
+        const response = await adminService.getUserLeads(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({ ...prev, leads: response.data!.data }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "Sales Projects") {
+        const response = await adminService.getUserProjects(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({ ...prev, projects: response.data!.data }));
+          setContentTotalPages(response.data.pagination.pages);
+        }
+      } else if (type === "AI Contracts") {
+        const response = await adminService.getUserContracts(userId, {
+          page,
+          limit: 20,
+        });
+        if (response.success && response.data) {
+          setContentData((prev) => ({ ...prev, contracts: response.data!.data }));
           setContentTotalPages(response.data.pagination.pages);
         }
       }

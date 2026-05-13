@@ -6,6 +6,8 @@ import {
   FaGlobe,
   FaImage,
   FaChartBar,
+  FaProjectDiagram,
+  FaFileContract,
 } from "react-icons/fa";
 import LoadingSpinner from "../../LoadingSpinner";
 import ChatDetailView from "./ChatDetailView";
@@ -15,6 +17,9 @@ import WebsitesListView from "./WebsitesListView";
 import GeneratedImagesListView from "./GeneratedImagesListView";
 import WebsiteAnalyticsView from "./WebsiteAnalyticsView";
 import SingleWebsiteAnalyticsView from "./SingleWebsiteAnalyticsView";
+import LeadsListView from "./LeadsListView";
+import ProjectsListView from "./ProjectsListView";
+import ContractsListView from "./ContractsListView";
 import PostDetailModal from "./PostDetailModal";
 import UserProfileHeader from "./UserProfileHeader";
 import type {
@@ -23,6 +28,9 @@ import type {
   SocialPost,
   Website,
   GeneratedImage,
+  Lead,
+  Project,
+  Contract,
 } from "../../../types/admin";
 
 interface ContentHistoryViewProps {
@@ -36,6 +44,9 @@ interface ContentHistoryViewProps {
     socialPosts: SocialPost[];
     websites: Website[];
     generatedImages: GeneratedImage[];
+    leads: Lead[];
+    projects: Project[];
+    contracts: Contract[];
   };
   contentPage: number;
   contentTotalPages: number;
@@ -136,6 +147,12 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
         return <WebsiteAnalyticsView userId={user._id} />;
       case "Generated Images":
         return <GeneratedImagesListView images={contentData.generatedImages} />;
+      case "Sales Leads":
+        return <LeadsListView leads={contentData.leads} />;
+      case "Sales Projects":
+        return <ProjectsListView projects={contentData.projects} />;
+      case "Legal Contracts":
+        return <ContractsListView contracts={contentData.contracts} />;
       default:
         return (
           <div className="text-gray-400 text-center py-8">No content found</div>
@@ -183,6 +200,15 @@ const ContentHistoryView: React.FC<ContentHistoryViewProps> = ({
             )}
             {viewingContent === "Generated Images" && (
               <FaImage className="text-purple-500 text-2xl" />
+            )}
+            {viewingContent === "Sales Leads" && (
+              <FaRobot className="text-blue-500 text-2xl" />
+            )}
+            {viewingContent === "Sales Projects" && (
+              <FaProjectDiagram className="text-purple-500 text-2xl" />
+            )}
+            {viewingContent === "Legal Contracts" && (
+              <FaFileContract className="text-emerald-500 text-2xl" />
             )}
           </div>
           <div>

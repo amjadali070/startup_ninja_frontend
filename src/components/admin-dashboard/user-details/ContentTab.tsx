@@ -1,5 +1,5 @@
 import React from "react";
-import { FaRobot, FaShareAlt, FaGlobe, FaImage } from "react-icons/fa";
+import { FaRobot, FaShareAlt, FaGlobe, FaImage, FaUsers, FaProjectDiagram, FaFileContract } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
 
 interface ContentTabProps {
@@ -80,6 +80,54 @@ const ContentTab: React.FC<ContentTabProps> = ({ user, handleViewContent }) => {
           className="mt-4 text-blue-400 text-sm hover:underline"
         >
           View Gallery
+        </button>
+      </div>
+
+      <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] flex flex-col items-center text-center">
+        <div className="w-12 h-12 rounded-full bg-orange-600/20 flex items-center justify-center mb-4">
+          <FaUsers className="text-orange-500 text-xl" />
+        </div>
+        <h3 className="text-white font-bold text-2xl">
+          {user.contentStats.totalLeads || 0}
+        </h3>
+        <p className="text-gray-400 text-sm mt-1">Sales Leads</p>
+        <button
+          onClick={() => handleViewContent("Sales Leads")}
+          className="mt-4 text-blue-400 text-sm hover:underline"
+        >
+          View Leads
+        </button>
+      </div>
+
+      <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] flex flex-col items-center text-center">
+        <div className="w-12 h-12 rounded-full bg-red-600/20 flex items-center justify-center mb-4">
+          <FaProjectDiagram className="text-red-500 text-xl" />
+        </div>
+        <h3 className="text-white font-bold text-2xl">
+          {user.contentStats.totalProjects || 0}
+        </h3>
+        <p className="text-gray-400 text-sm mt-1">Sales Projects</p>
+        <button
+          onClick={() => handleViewContent("Sales Projects")}
+          className="mt-4 text-blue-400 text-sm hover:underline"
+        >
+          View Projects
+        </button>
+      </div>
+
+      <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#242424] flex flex-col items-center text-center">
+        <div className="w-12 h-12 rounded-full bg-indigo-600/20 flex items-center justify-center mb-4">
+          <FaFileContract className="text-indigo-500 text-xl" />
+        </div>
+        <h3 className="text-white font-bold text-2xl">
+          {user.contentStats.totalContracts || 0}
+        </h3>
+        <p className="text-gray-400 text-sm mt-1">AI Contracts</p>
+        <button
+          onClick={() => handleViewContent("AI Contracts")}
+          className="mt-4 text-blue-400 text-sm hover:underline"
+        >
+          View Contracts
         </button>
       </div>
     </div>
