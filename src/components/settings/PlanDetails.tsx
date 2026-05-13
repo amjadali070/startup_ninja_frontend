@@ -9,6 +9,8 @@ export type PlanUsage = {
   legal_contracts?: number;
   legal_contract_section_revisions?: number;
   team_members?: number;
+  sales_leads?: number;
+  sales_projects?: number;
 };
 
 export type PlanLimits = {
@@ -20,6 +22,8 @@ export type PlanLimits = {
   legal_contracts?: number;
   legal_contract_section_revisions?: number;
   team_members?: number;
+  sales_leads?: number;
+  sales_projects?: number;
 };
 
 interface PlanDetailsProps {
@@ -71,6 +75,8 @@ const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
       {renderUsageItem("Legal Contracts", usage.legal_contracts || 0, limits.legal_contracts || 0)}
       {renderUsageItem("Contract Revisions", usage.legal_contract_section_revisions || 0, limits.legal_contract_section_revisions || 0)}
       {renderUsageItem("Team Members", usage.team_members || 0, limits.team_members || 0)}
+      {renderUsageItem("Sales Leads", usage.sales_leads || 0, limits.sales_leads || 0)}
+      {renderUsageItem("Sales Projects", usage.sales_projects || 0, limits.sales_projects || 0)}
     </div>
   );
 };

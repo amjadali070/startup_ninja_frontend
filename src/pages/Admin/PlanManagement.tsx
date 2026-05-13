@@ -5,7 +5,7 @@ import DashboardLayout from '../../layouts/DashboardLayout';
 import { authService } from '../../services/auth.ts';
 import { planService, Plan, PlanLimit } from '../../services/plan.ts';
 import { toast } from 'react-hot-toast';
-import { FiEdit2, FiCheck, FiCpu, FiGlobe, FiShare2, FiUsers, FiFileText } from 'react-icons/fi';
+import { FiEdit2, FiCheck, FiCpu, FiGlobe, FiShare2, FiUsers, FiFileText, FiTrendingUp } from 'react-icons/fi';
 
 const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<Plan>) => Promise<void> }> = ({ plan, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -35,7 +35,9 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
         `${l.web_builder_sessions === -1 ? 'Unlimited' : l.web_builder_sessions} Web Builder Sessions`,
         `${l.team_members === -1 ? 'Unlimited' : l.team_members} Team Members`,
         `${l.legal_contracts === -1 ? 'Unlimited' : l.legal_contracts} AI Legal Contracts`,
-        `${l.legal_contract_section_revisions === -1 ? 'Unlimited' : l.legal_contract_section_revisions} Contract Section Revisions`
+        `${l.legal_contract_section_revisions === -1 ? 'Unlimited' : l.legal_contract_section_revisions} Contract Section Revisions`,
+        `${l.sales_leads === -1 ? 'Unlimited' : l.sales_leads} Sales Leads`,
+        `${l.sales_projects === -1 ? 'Unlimited' : l.sales_projects} Sales Projects`
       ].filter(feature => feature !== "");
 
       await onUpdate(plan._id, { 
@@ -118,6 +120,14 @@ const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<P
         icon: <FiUsers className="text-orange-500" />,
         limits: [
             { key: 'team_members', label: 'Team Members', type: 'number' },
+        ] as const
+    },
+    {
+        title: "Ninja Sales",
+        icon: <FiTrendingUp className="text-red-500" />,
+        limits: [
+            { key: 'sales_leads', label: 'Sales Leads', type: 'number' },
+            { key: 'sales_projects', label: 'Sales Projects', type: 'number' }
         ] as const
     },
     {

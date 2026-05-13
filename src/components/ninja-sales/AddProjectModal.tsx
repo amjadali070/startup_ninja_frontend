@@ -49,6 +49,7 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
   const [isSearching, setIsSearching] = useState(false);
   const [isExistingLead, setIsExistingLead] = useState(false);
   const [possibleMatchDismissed, setPossibleMatchDismissed] = useState(false);
+  const [error, setError] = useState<{ message: string; limit?: number; usage?: number; feature?: string } | null>(null);
   const emailRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -102,7 +103,7 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
       confidence: "50", priority: "medium", nextStep: "", competitor: "",
       forecastedCloseDate: "", urgency: "", budgetConfirmed: false,
     });
-    setSelectedLeadId(null); setIsExistingLead(false); setSearchResults([]); setPossibleMatchDismissed(false);
+    setSelectedLeadId(null); setIsExistingLead(false); setSearchResults([]); setPossibleMatchDismissed(false); setError(null);
   };
 
   const handleSubmit = async () => {
@@ -131,7 +132,18 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
       budgetConfirmed: formData.budgetConfirmed,
     });
     setSaving(false);
-    if (res.success) { onCreated?.(); onClose(); resetForm(); }
+    if (res.success) { 
+      onCreated?.(); 
+      onClose(); 
+      resetForm(); 
+    } else {
+      setError({ 
+        message: res.message || "Failed to create project",
+        limit: (res as any).limit,
+        usage: (res as any).usage,
+        feature: (res as any).feature
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -153,6 +165,29 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
         <div className="border-t border-[#1C1C1F] mx-6" />
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+          
+          {error && (
+            <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/10 flex gap-4 animate-in slide-in-from-top-2 duration-300">
+              <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0">
+                <FiLock className="w-5 h-5 text-red-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-bold text-white leading-tight">Subscription Limit Reached</p>
+                <p className="text-sm text-gray-400 mt-1 leading-relaxed">
+                  {error.message}
+                </p>
+                <button 
+                  onClick={() => window.location.href = '/settings'}
+                  className="mt-3 text-xs font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors flex items-center gap-1.5"
+                >
+                  Upgrade Plan to Continue <FiArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <button onClick={() => setError(null)} className="shrink-0 p-1 hover:bg-white/5 rounded-md transition-colors text-gray-500 hover:text-white self-start">
+                <FiX className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* SECTION 1: CLIENT INFORMATION */}
           <section className="space-y-6">

@@ -15,6 +15,8 @@ export interface PlanLimit {
   team_members: number;
   legal_contracts: number;
   legal_contract_section_revisions: number;
+  sales_leads: number;
+  sales_projects: number;
 }
 
 export interface Plan {

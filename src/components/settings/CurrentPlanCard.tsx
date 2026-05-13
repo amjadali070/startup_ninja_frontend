@@ -15,14 +15,18 @@ interface SubscriptionData {
     generated_images: number;
     social_posts: number;
     websites: number;
-    [key: string]: number;
+    sales_leads?: number;
+    sales_projects?: number;
+    [key: string]: number | undefined;
   };
   limits?: {
     ai_chat_messages: number;
     generated_images: number;
     social_posts: number;
     websites: number;
-    [key: string]: number;
+    sales_leads?: number;
+    sales_projects?: number;
+    [key: string]: number | undefined;
   };
 }
 
@@ -91,6 +95,8 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         legal_contracts: subscription.usage?.legal_contracts || 0,
         legal_contract_section_revisions: subscription.usage?.legal_contract_section_revisions || 0,
         team_members: subscription.usage?.team_members || 0,
+        sales_leads: subscription.usage?.sales_leads || 0,
+        sales_projects: subscription.usage?.sales_projects || 0,
       },
       limits: {
         ...(subscription.limits || {}),
@@ -101,6 +107,8 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         legal_contracts: subscription.limits?.legal_contracts || 0,
         legal_contract_section_revisions: subscription.limits?.legal_contract_section_revisions || 0,
         team_members: subscription.limits?.team_members || 0,
+        sales_leads: subscription.limits?.sales_leads || 0,
+        sales_projects: subscription.limits?.sales_projects || 0,
       }
     };
   }, [subscription]);
