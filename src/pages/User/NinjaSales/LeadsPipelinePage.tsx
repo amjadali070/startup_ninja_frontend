@@ -67,10 +67,6 @@ const LeadsPipelinePage: FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleExport = () => {
-    console.log("Export CSV triggered");
-  };
-
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
@@ -153,7 +149,6 @@ const LeadsPipelinePage: FC = () => {
             title="Projects Pipeline"
             subtitle="Track your deals across pipeline stages — monitor business velocity."
             onNewDeal={handleNewLead}
-            onExport={handleExport}
           />
 
           <SalesStatGrid stats={stats} />

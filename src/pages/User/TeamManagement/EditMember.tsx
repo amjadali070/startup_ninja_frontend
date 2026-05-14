@@ -240,8 +240,6 @@ const EditMember: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {[
                       { id: 'sales', label: 'Ninja Sales' },
-                      { id: 'ops', label: 'Ninja Ops' },
-                      { id: 'finance', label: 'Ninja Finance' },
                       { id: 'legal', label: 'Ninja Legal' }
                     ].map((module) => {
                       const isAllowed = !isManager || user?.permissions?.[module.id as keyof typeof user.permissions];

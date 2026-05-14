@@ -40,9 +40,6 @@ const NinjaSales: FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleExport = () => {
-    console.log("Export CSV triggered");
-  };
 
   const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
 
@@ -71,7 +68,7 @@ const NinjaSales: FC = () => {
     >
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen">
-          <NinjaSalesHeader onNewDeal={handleNewDeal} onExport={handleExport} />
+          <NinjaSalesHeader onNewDeal={handleNewDeal} />
 
           <SalesStatGrid stats={dashboardStats} />
 

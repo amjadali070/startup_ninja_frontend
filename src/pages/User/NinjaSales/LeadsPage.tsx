@@ -43,10 +43,6 @@ const LeadsPage: FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleExport = () => {
-    console.log("Export CSV triggered");
-  };
-
   const formatValue = (v: number) =>
     v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`;
 
@@ -71,7 +67,6 @@ const LeadsPage: FC = () => {
             title="Lead Management" 
             subtitle="Intelligent Lead Tracking — Managing your potential revenue growth."
             onNewDeal={handleNewLead} 
-            onExport={handleExport} 
           />
 
           <SalesStatGrid stats={stats} />

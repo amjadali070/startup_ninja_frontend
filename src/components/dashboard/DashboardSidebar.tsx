@@ -207,12 +207,20 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const location = useLocation();
 
   const isSubUser = !!userData?.addedBy;
+  const isTeamSalesOnlyUser =
+    isSubUser &&
+    (userData?.teamRole === "Member" || userData?.teamRole === "Manager");
 
   // Flatten sections and filter by admin role and team permissions
   const filteredSections = navSections
     .map(section => {
-      // Hide Tools section completely for sub-users
-      if (isSubUser && section.sectionLabel === "Tools") {
+      // Team members/managers should only see Ninja Sales navigation.
+      if (isTeamSalesOnlyUser) {
+        if (section.sectionLabel !== "Enterprise Tools") {
+          return { ...section, items: [] };
+        }
+      } else if (isSubUser && section.sectionLabel === "Tools") {
+        // Other sub-user cases: hide generic tools section.
         return { ...section, items: [] };
       }
 
@@ -225,6 +233,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
           // If standard user isn't a sub-user, show everything
           if (!isSubUser) return true;
+
+          // Team sales-only users can only access Ninja Sales item.
+          if (isTeamSalesOnlyUser) {
+            return section.sectionLabel === "Enterprise Tools" && item.label === "Ninja Sales";
+          }
 
           // If sub-user, check permissions for Enterprise Tools
           if (section.sectionLabel === "Enterprise Tools") {
@@ -340,7 +353,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   to={
                     userData?.role === "admin"
                       ? "/admin-dashboard"
-                      : "/dashboard"
+                      : isTeamSalesOnlyUser
+                        ? "/ai-tools/sales"
+                        : "/dashboard"
                   }
                   className="flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all duration-300 ease-in-out mt-2 animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
                 >
@@ -375,7 +390,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     to={
                       userData?.role === "admin"
                         ? "/admin-dashboard"
-                        : "/dashboard"
+                        : isTeamSalesOnlyUser
+                          ? "/ai-tools/sales"
+                          : "/dashboard"
                     }
                     className="flex-1 min-w-0 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
                   >

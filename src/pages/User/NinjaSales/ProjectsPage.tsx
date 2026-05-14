@@ -48,7 +48,7 @@ const ProjectsPage: FC = () => {
     <DashboardLayout activePath="/ai-tools/sales/projects" title="Projects Management - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen pb-10">
-          <NinjaSalesHeader title="Project Management" subtitle="Track and manage all your active deals and projects." newButtonText="New Deal" onNewDeal={handleNewDeal} onExport={() => console.log("Export")} />
+          <NinjaSalesHeader title="Project Management" subtitle="Track and manage all your active deals and projects." newButtonText="New Deal" onNewDeal={handleNewDeal} />
           <SalesStatGrid stats={stats} />
 
           <div className="pb-10">

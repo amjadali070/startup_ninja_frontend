@@ -1,11 +1,25 @@
 import { type FC } from "react";
-import { FiPlus, FiFileText, FiCreditCard } from "react-icons/fi";
+import { FiUsers, FiBriefcase, FiMessageCircle } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const SalesQuickActions: FC = () => {
+  const navigate = useNavigate();
   const actions = [
-    { label: "PROPOSAL", icon: <FiFileText className="w-5 h-5" /> },
-    { label: "INVOICE", icon: <FiCreditCard className="w-5 h-5" /> },
-    { label: "NEW LEAD", icon: <FiPlus className="w-5 h-5" /> },
+    {
+      label: "LEADS",
+      icon: <FiUsers className="w-5 h-5" />,
+      onClick: () => navigate("/ai-tools/sales/leads"),
+    },
+    {
+      label: "PROJECTS",
+      icon: <FiBriefcase className="w-5 h-5" />,
+      onClick: () => navigate("/ai-tools/sales/projects"),
+    },
+    {
+      label: "FOLLOW UPS",
+      icon: <FiMessageCircle className="w-5 h-5" />,
+      onClick: () => navigate("/ai-tools/sales/follow-ups"),
+    },
   ];
 
   return (
@@ -15,6 +29,8 @@ const SalesQuickActions: FC = () => {
         {actions.map((action, i) => (
           <button
             key={i}
+            type="button"
+            onClick={action.onClick}
             className="flex-1 group flex flex-col items-center justify-center gap-4 bg-[#121212] border border-white/[0.03] rounded-2xl p-6 hover:bg-[#161616] hover:border-[#EF444420] transition-all shadow-xl active:scale-95"
           >
             <div className="bg-[#EF444410] p-4 rounded-2xl border border-[#EF444415] shadow-lg text-[#EF4444] transition-transform duration-300 group-hover:scale-110">

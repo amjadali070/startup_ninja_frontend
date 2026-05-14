@@ -11,6 +11,14 @@ export interface User {
   loginType?: 'Apple' | 'Microsoft' | 'Google' | 'Email';
   status?: 'active' | 'inactive';
   isEmailVerified?: boolean;
+  addedBy?: string;
+  teamRole?: 'Member' | 'Manager' | string;
+  permissions?: {
+    sales?: boolean;
+    ops?: boolean;
+    finance?: boolean;
+    legal?: boolean;
+  };
 }
 
 export interface AuthResponse {

@@ -89,7 +89,11 @@ const Login: React.FC = () => {
           
           setError("");
           login(response.user, response.token, response.refreshToken, rememberMe); // update context
-          navigate("/dashboard");
+          const isTeamSalesUser =
+            !!response.user?.addedBy &&
+            (response.user?.teamRole === "Member" ||
+              response.user?.teamRole === "Manager");
+          navigate(isTeamSalesUser ? "/ai-tools/sales" : "/dashboard");
         } else {
           setError(response.message || "Login failed");
         }
@@ -129,7 +133,11 @@ const Login: React.FC = () => {
         setShowEmailVerification(false);
         // Show success toast
         toast.success("Email verified successfully! Welcome to Startup Ninja!");
-        navigate("/dashboard");
+        const isTeamSalesUser =
+          !!response.user?.addedBy &&
+          (response.user?.teamRole === "Member" ||
+            response.user?.teamRole === "Manager");
+        navigate(isTeamSalesUser ? "/ai-tools/sales" : "/dashboard");
       } else {
         throw new Error(response.message || "Verification failed");
       }
@@ -179,7 +187,11 @@ const Login: React.FC = () => {
     setError("");
     if (response.token && response.user) {
       login(response.user, response.token, response.refreshToken, true);
-      navigate("/dashboard");
+        const isTeamSalesUser =
+          !!response.user?.addedBy &&
+          (response.user?.teamRole === "Member" ||
+            response.user?.teamRole === "Manager");
+        navigate(isTeamSalesUser ? "/ai-tools/sales" : "/dashboard");
     }
   };
 

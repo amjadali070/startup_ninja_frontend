@@ -607,6 +607,11 @@ const Settings: FC = () => {
                   onDeleteAccount={handleDeleteAccount}
                   isDeleting={isDeletingAccount}
                 />
+
+                <PlansOverview
+                  currentPlan={subscription?.plan || "Free"}
+                  onSelectPlan={handleSelectPlan}
+                />
               </div>
 
               <aside className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
@@ -621,11 +626,6 @@ const Settings: FC = () => {
               </aside>
             </div>
 
-            {/* Plans Overview Section */}
-            <PlansOverview 
-                currentPlan={subscription?.plan || 'Free'} 
-                onSelectPlan={handleSelectPlan} 
-            />
           </div>
         </div>
       </main>
