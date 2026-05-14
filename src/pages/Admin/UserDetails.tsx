@@ -476,7 +476,7 @@ const UserDetailsPage: React.FC = () => {
         team_members: resourceForm.teamMembersLimit,
       };
 
-      // if (resourceForm.addOnCharge > 0) {
+      if (resourceForm.addOnCharge > 0) {
         const payload = {
           userId: user._id,
           price: resourceForm.addOnCharge,
@@ -491,23 +491,23 @@ const UserDetailsPage: React.FC = () => {
         } else {
           toast.error(response.message || "Failed to create proposal");
         }
-      // }
-      //  else {
-      //   const payload = {
-      //     limits: limitsPayload,
-      //     addOnCharge: 0,
-      //     activeFeatureList: resourceForm.activeFeatureList,
-      //   };
-      //   const response = await adminService.updateUserResources(user._id, payload);
-      //   if (response.success) {
-      //     toast.success("User resources updated successfully");
-      //     setViewingResources(false);
-      //     fetchUser();
-      //   } else {
-      //     console.log("Update failed response:", response);
-      //     toast.error(response.message || "Failed to update resources.");
-      //   }
-      // }
+      }
+       else {
+        const payload = {
+          limits: limitsPayload,
+          addOnCharge: 0,
+          activeFeatureList: resourceForm.activeFeatureList,
+        };
+        const response = await adminService.updateUserResources(user._id, payload);
+        if (response.success) {
+          toast.success("User resources updated successfully");
+          setViewingResources(false);
+          fetchUser();
+        } else {
+          console.log("Update failed response:", response);
+          toast.error(response.message || "Failed to update resources.");
+        }
+      }
     } catch (err: any) {
       toast.error(err.message || "An error occurred while updating resources.");
     }
