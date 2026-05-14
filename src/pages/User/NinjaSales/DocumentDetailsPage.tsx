@@ -9,6 +9,45 @@ import { HiSparkles } from "react-icons/hi";
 import toast from "react-hot-toast";
 
 type DocKind = "proposal" | "invoice";
+type ClauseDraft = { id: string; title: string; body: string };
+
+const makeClauseId = () =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+const createClauseDraft = (title: string, body: string): ClauseDraft => ({
+  id: makeClauseId(),
+  title,
+  body,
+});
+
+const ClauseRichEditor: FC<{
+  value: string;
+  onChange: (html: string) => void;
+}> = ({ value, onChange }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // Prevent caret jump/focus loss while user is actively typing.
+    if (document.activeElement === el) return;
+    if (el.innerHTML !== value) el.innerHTML = value || "<p></p>";
+  }, [value]);
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={() => onChange(ref.current?.innerHTML || "")}
+        className="min-h-[120px] bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-sm text-white/80 outline-none focus:border-red-500/30"
+      />
+    </div>
+  );
+};
 
 const DocumentDetailsPage: FC = () => {
   const { kind, id } = useParams();
@@ -30,7 +69,7 @@ const DocumentDetailsPage: FC = () => {
   const [notes, setNotes] = useState("");
   const [companyLogoUrl, setCompanyLogoUrl] = useState("");
   const [signatureUrl, setSignatureUrl] = useState("");
-  const [clauses, setClauses] = useState<Array<{ title: string; body: string }>>([]);
+  const [clauses, setClauses] = useState<ClauseDraft[]>([]);
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [items, setItems] = useState<Array<PricingItem & { _id?: string }>>([]);
@@ -81,7 +120,7 @@ const DocumentDetailsPage: FC = () => {
           setClauses(
             c
               .filter((x: any) => x && typeof x.title === "string" && typeof x.body === "string")
-              .map((x: any) => ({ title: x.title, body: x.body }))
+              .map((x: any) => createClauseDraft(x.title, x.body))
           );
           setTaxRate(res.data.taxRate || 0);
           setDiscount(res.data.discount || 0);
@@ -150,7 +189,7 @@ const DocumentDetailsPage: FC = () => {
           notes,
           companyLogoUrl,
           signatureUrl,
-          clauses,
+          clauses: clauses.map((c) => ({ title: c.title, body: c.body })),
           taxRate,
           discount,
           items,
@@ -181,7 +220,7 @@ const DocumentDetailsPage: FC = () => {
           setNotes(res.data.notes || "");
           setPaymentTerms(res.data.paymentTerms || "");
           const c = Array.isArray(res.data.clauses) ? res.data.clauses : [];
-          if (c.length) setClauses(c.map((x: any) => ({ title: x.title, body: x.body })));
+          if (c.length) setClauses(c.map((x: any) => createClauseDraft(x.title, x.body)));
         }
       }
       await load();
@@ -198,7 +237,7 @@ const DocumentDetailsPage: FC = () => {
       const res = await ninjaSalesService.aiRefineProposalClauses(id, instruction);
       if (res.success) {
         const c = Array.isArray(res.data.clauses) ? res.data.clauses : [];
-        if (c.length) setClauses(c.map((x: any) => ({ title: x.title, body: x.body })));
+        if (c.length) setClauses(c.map((x: any) => createClauseDraft(x.title, x.body)));
       }
       await load();
     } finally {
@@ -246,37 +285,16 @@ const DocumentDetailsPage: FC = () => {
   const handleUpdateItem = (idx: number, field: keyof PricingItem, value: any) =>
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));
 
-  const addClause = () => setClauses((prev) => [...prev, { title: `Clause ${prev.length + 1}`, body: "<p></p>" }]);
+  const addClause = () =>
+    setClauses((prev) => [
+      ...prev,
+      createClauseDraft(`Clause ${prev.length + 1}`, "<p></p>"),
+    ]);
   const removeClause = (idx: number) => setClauses((prev) => prev.filter((_, i) => i !== idx));
   const updateClauseTitle = (idx: number, title: string) =>
     setClauses((prev) => prev.map((c, i) => (i === idx ? { ...c, title } : c)));
   const updateClauseBody = (idx: number, body: string) =>
     setClauses((prev) => prev.map((c, i) => (i === idx ? { ...c, body } : c)));
-
-  const ClauseRichEditor: FC<{
-    value: string;
-    onChange: (html: string) => void;
-  }> = ({ value, onChange }) => {
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      if (el.innerHTML !== value) el.innerHTML = value || "<p></p>";
-    }, [value]);
-
-    return (
-      <div>
-        <div
-          ref={ref}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={() => onChange(ref.current?.innerHTML || "")}
-          className="min-h-[120px] bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-sm text-white/80 outline-none focus:border-red-500/30"
-        />
-      </div>
-    );
-  };
 
   return (
     <DashboardLayout
@@ -520,7 +538,7 @@ const DocumentDetailsPage: FC = () => {
                         <div className="text-white/30 text-sm">No clauses yet. Click “+ Add” or use “Refine Clauses”.</div>
                       ) : (
                         clauses.map((c, idx) => (
-                          <div key={idx} className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] space-y-3">
+                          <div key={c.id} className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] space-y-3">
                             <div className="flex items-center gap-3">
                               <input
                                 value={c.title}

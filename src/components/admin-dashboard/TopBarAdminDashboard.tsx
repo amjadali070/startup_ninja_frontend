@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FC } from 'react';
-import { FiSearch, FiSettings } from 'react-icons/fi';
+import { FiSettings } from 'react-icons/fi';
 import { HiMiniBellAlert } from 'react-icons/hi2';
 import { TbLogout2 } from 'react-icons/tb';
 
@@ -155,23 +155,6 @@ const TopBarAdminDashboard: FC<DashboardTopbarProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
-          <div className="hidden sm:flex items-center rounded-md bg-white/5 border border-white/10 px-2 sm:px-3 py-1.5 sm:py-2 w-[180px] sm:w-[220px] lg:w-[280px]">
-            <FiSearch className="w-3.5 h-3.5 text-white/40 flex-shrink-0" />
-            <input
-              type="search"
-              placeholder="Search tools, templates..."
-              className="ml-2 bg-transparent text-[10px] sm:text-xs text-white placeholder:text-white/40 focus:outline-none w-full"
-            />
-          </div>
-
-          <button
-            type="button"
-            className="sm:hidden flex h-8 w-8 items-center justify-center rounded-md bg-white/5 border border-white/10"
-            aria-label="Search"
-          >
-            <FiSearch className="w-3.5 h-3.5 text-white/40" />
-          </button>
-
           <button
             type="button"
             className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center"
