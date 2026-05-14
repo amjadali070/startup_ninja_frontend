@@ -4,7 +4,7 @@ import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useAuth } from "../../../hooks/useAuth";
 import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { Proposal, Invoice, PricingItem } from "../../../services/ninjaSales";
-import { FiArrowLeft, FiDownload, FiSave, FiSend } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiSave } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
 import toast from "react-hot-toast";
 
@@ -28,12 +28,16 @@ const DocumentDetailsPage: FC = () => {
   const [issuedDate, setIssuedDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [companyLogoUrl, setCompanyLogoUrl] = useState("");
+  const [signatureUrl, setSignatureUrl] = useState("");
   const [clauses, setClauses] = useState<Array<{ title: string; body: string }>>([]);
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [items, setItems] = useState<Array<PricingItem & { _id?: string }>>([]);
 
   const instructionRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
 
   const subtotal = useMemo(() => items.reduce((acc, item) => acc + (Number(item.qty) || 0) * (Number(item.rate) || 0), 0), [items]);
   const taxAmount = useMemo(() => (subtotal * (Number(taxRate) || 0)) / 100, [subtotal, taxRate]);
@@ -55,6 +59,8 @@ const DocumentDetailsPage: FC = () => {
           setIssuedDate(res.data.issuedDate ? new Date(res.data.issuedDate).toISOString().slice(0, 10) : "");
           setDueDate(res.data.dueDate ? new Date(res.data.dueDate).toISOString().slice(0, 10) : "");
           setNotes(res.data.notes || "");
+          setCompanyLogoUrl(res.data.companyLogoUrl || "");
+          setSignatureUrl(res.data.signatureUrl || "");
           setTaxRate(res.data.taxRate || 0);
           setDiscount(res.data.discount || 0);
           setItems(res.data.items || []);
@@ -69,6 +75,8 @@ const DocumentDetailsPage: FC = () => {
           setIssuedDate(res.data.issuedDate ? new Date(res.data.issuedDate).toISOString().slice(0, 10) : "");
           setDueDate(res.data.dueDate ? new Date(res.data.dueDate).toISOString().slice(0, 10) : "");
           setNotes(res.data.notes || "");
+          setCompanyLogoUrl(res.data.companyLogoUrl || "");
+          setSignatureUrl(res.data.signatureUrl || "");
           const c = Array.isArray(res.data.clauses) ? res.data.clauses : [];
           setClauses(
             c
@@ -124,6 +132,8 @@ const DocumentDetailsPage: FC = () => {
           issuedDate: issuedDate ? new Date(issuedDate).toISOString() : undefined,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
           notes,
+          companyLogoUrl,
+          signatureUrl,
           taxRate,
           discount,
           items,
@@ -138,6 +148,8 @@ const DocumentDetailsPage: FC = () => {
           issuedDate: issuedDate ? new Date(issuedDate).toISOString() : undefined,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
           notes,
+          companyLogoUrl,
+          signatureUrl,
           clauses,
           taxRate,
           discount,
@@ -150,13 +162,6 @@ const DocumentDetailsPage: FC = () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleSend = async () => {
-    if (!id) return;
-    if (docKind === "invoice") await ninjaSalesService.sendInvoice(id);
-    else await ninjaSalesService.sendProposal(id);
-    await load();
   };
 
   const handleRefine = async () => {
@@ -201,6 +206,39 @@ const DocumentDetailsPage: FC = () => {
     }
   };
 
+  const handleAssetUpload = async (type: "companyLogo" | "signature", file?: File | null) => {
+    if (!id || !file) return;
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    try {
+      const response =
+        docKind === "invoice"
+          ? await ninjaSalesService.uploadInvoiceAssets(id, {
+              companyLogo: type === "companyLogo" ? file : undefined,
+              signature: type === "signature" ? file : undefined,
+            })
+          : await ninjaSalesService.uploadProposalAssets(id, {
+              companyLogo: type === "companyLogo" ? file : undefined,
+              signature: type === "signature" ? file : undefined,
+            });
+
+      if (!response.success || !response.data) {
+        toast.error(response.message || "Failed to upload image");
+        return;
+      }
+
+      setCompanyLogoUrl(response.data.companyLogoUrl || "");
+      setSignatureUrl(response.data.signatureUrl || "");
+      toast.success(type === "companyLogo" ? "Company logo uploaded" : "Signature uploaded");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload image");
+    }
+  };
+
   const handleAddItem = () => {
     setItems((prev) => [...prev, { description: "New Item", qty: 1, rate: 0 }]);
   };
@@ -227,38 +265,8 @@ const DocumentDetailsPage: FC = () => {
       if (el.innerHTML !== value) el.innerHTML = value || "<p></p>";
     }, [value]);
 
-    const exec = (cmd: string, arg?: string) => {
-      if (!ref.current) return;
-      ref.current.focus();
-      document.execCommand(cmd, false, arg);
-      onChange(ref.current.innerHTML);
-    };
-
     return (
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => exec("bold")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            B
-          </button>
-          <button type="button" onClick={() => exec("italic")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            I
-          </button>
-          <button type="button" onClick={() => exec("underline")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            U
-          </button>
-          <button type="button" onClick={() => exec("insertUnorderedList")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            • List
-          </button>
-          <button type="button" onClick={() => exec("insertOrderedList")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            1. List
-          </button>
-          <button type="button" onClick={() => exec("formatBlock", "p")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            P
-          </button>
-          <button type="button" onClick={() => exec("formatBlock", "h4")} className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10">
-            H
-          </button>
-        </div>
+      <div>
         <div
           ref={ref}
           contentEditable
@@ -305,10 +313,6 @@ const DocumentDetailsPage: FC = () => {
                       <button onClick={downloadPdf} className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 flex items-center gap-2">
                         <FiDownload className="w-4 h-4" />
                         PDF
-                      </button>
-                      <button onClick={handleSend} className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 flex items-center gap-2">
-                        <FiSend className="w-4 h-4" />
-                        Send
                       </button>
                       <button
                         onClick={handleSave}
@@ -372,6 +376,66 @@ const DocumentDetailsPage: FC = () => {
                       </div>
                     </div>
                   )}
+                </div>
+
+                <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 shadow-2xl space-y-4">
+                  <h3 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                    Branding (Optional)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                        Company Logo
+                      </label>
+                      <input
+                        ref={logoInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleAssetUpload("companyLogo", e.target.files?.[0])}
+                      />
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => logoInputRef.current?.click()}
+                          className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+                        >
+                          Upload Logo
+                        </button>
+                        {companyLogoUrl ? (
+                          <img src={companyLogoUrl} alt="Company Logo" className="h-10 w-auto rounded bg-white p-1" />
+                        ) : (
+                          <span className="text-xs text-white/40">Not uploaded</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                        Signature
+                      </label>
+                      <input
+                        ref={signatureInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleAssetUpload("signature", e.target.files?.[0])}
+                      />
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => signatureInputRef.current?.click()}
+                          className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+                        >
+                          Upload Signature
+                        </button>
+                        {signatureUrl ? (
+                          <img src={signatureUrl} alt="Signature" className="h-10 w-auto rounded bg-white p-1" />
+                        ) : (
+                          <span className="text-xs text-white/40">Not uploaded</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 shadow-2xl space-y-4">
@@ -489,6 +553,11 @@ const DocumentDetailsPage: FC = () => {
                       <p className="text-xs text-black/50 font-bold uppercase">Document Preview</p>
                     </div>
                     <div className="text-right">
+                      {companyLogoUrl && (
+                        <div className="mb-2 flex justify-end">
+                          <img src={companyLogoUrl} alt="Company Logo" className="h-12 w-auto object-contain" />
+                        </div>
+                      )}
                       <p className="text-4xl font-black uppercase">{docKind}</p>
                       <p className="text-xs font-black text-black/40">{doc.reference}</p>
                     </div>
@@ -571,9 +640,22 @@ const DocumentDetailsPage: FC = () => {
                         <div className="text-[11px] text-black/50 font-bold uppercase pt-2">
                           Terms: <span className="text-black">{paymentTerms}</span>
                         </div>
+                        {signatureUrl && (
+                          <div className="pt-3">
+                            <p className="text-[10px] text-black/40 font-bold uppercase mb-1">Authorized Signature</p>
+                            <img src={signatureUrl} alt="Signature" className="h-16 w-auto object-contain" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
+
+                  {(docKind === "proposal" || docKind === "invoice") && (
+                    <div className="mt-10 pt-4 border-t border-black/10 flex items-center gap-2 text-[11px] text-black/50 font-bold">
+                      <img src="/favicon.svg" alt="Startup Ninja" className="w-4 h-4" />
+                      <span>Made with Startup Ninja</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

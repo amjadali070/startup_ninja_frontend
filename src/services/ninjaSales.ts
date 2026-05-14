@@ -92,6 +92,10 @@ export interface Proposal {
   total: number;
   paymentTerms: string;
   notes: string;
+  companyLogoUrl?: string;
+  companyLogoKey?: string;
+  signatureUrl?: string;
+  signatureKey?: string;
   clauses?: Array<{ title: string; body: string }>;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
   issuedDate: string;
@@ -117,6 +121,10 @@ export interface Invoice {
   total: number;
   paymentTerms: string;
   notes: string;
+  companyLogoUrl?: string;
+  companyLogoKey?: string;
+  signatureUrl?: string;
+  signatureKey?: string;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
   issuedDate: string;
   dueDate: string;
@@ -618,6 +626,30 @@ export const ninjaSalesService = {
     }
   },
 
+  async uploadProposalAssets(
+    id: string,
+    files: { companyLogo?: File; signature?: File }
+  ): Promise<ApiSingleResponse<Proposal>> {
+    try {
+      const formData = new FormData();
+      if (files.companyLogo) formData.append("companyLogo", files.companyLogo);
+      if (files.signature) formData.append("signature", files.signature);
+      const client = apiClient.getAxiosInstance();
+      const response = await client.post<ApiSingleResponse<Proposal>>(
+        `/ninja-sales/proposals/${id}/assets`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      return response.data;
+    } catch (error: any) {
+      return {
+        success: false,
+        data: {} as Proposal,
+        message: error.response?.data?.message || "Failed to upload proposal assets",
+      };
+    }
+  },
+
   async convertProposalToInvoice(id: string): Promise<ApiSingleResponse<Proposal>> {
     try {
       // now returns an Invoice (separate module) but we keep response typed as Proposal-compatible
@@ -692,6 +724,30 @@ export const ninjaSalesService = {
       return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/ai-refine`, { instruction });
     } catch (error: any) {
       return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to refine invoice' };
+    }
+  },
+
+  async uploadInvoiceAssets(
+    id: string,
+    files: { companyLogo?: File; signature?: File }
+  ): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      const formData = new FormData();
+      if (files.companyLogo) formData.append("companyLogo", files.companyLogo);
+      if (files.signature) formData.append("signature", files.signature);
+      const client = apiClient.getAxiosInstance();
+      const response = await client.post<ApiSingleResponse<Invoice>>(
+        `/ninja-sales/invoices/${id}/assets`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      return response.data;
+    } catch (error: any) {
+      return {
+        success: false,
+        data: {} as Invoice,
+        message: error.response?.data?.message || "Failed to upload invoice assets",
+      };
     }
   },
 
