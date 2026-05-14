@@ -1,28 +1,59 @@
 // Admin Dashboard Types
 
-export interface DashboardMetric {
-  value: string | number;
-  label: string;
-  trendPercentage?: string;
-  trendType?: "positive" | "negative" | "neutral";
-}
-
 export interface DashboardStats {
-  metrics: {
-    totalUsers: DashboardMetric;
-    activeUsers: DashboardMetric;
-    newUsers: DashboardMetric;
-    contentGenerated: DashboardMetric;
-    moderationQueue: DashboardMetric;
+  kpis: Array<{
+    id: string;
+    title: string;
+    value: number | string;
+    subtitle?: string;
+    format?: "currency";
+  }>;
+  userInsights: {
+    totalUsers: number;
+    activeUsers24h: number;
+    verifiedUsers: number;
+    unverifiedUsers: number;
+    adminUsers: number;
+    newUsers30d: number;
   };
-  systemHealth: {
-    requestsPerSecond: string;
-    avgLatency: string;
-    errorRate: string;
-    uptime: string;
+  revenue: {
+    currentMonthSubscriptionRevenue: number;
+    totalSubscriptionRevenue: number;
+    currentMonthTransactions: number;
+    activeSubscriptions: number;
+    totalApiBalance: number;
+    totalApiCredit: number;
+    totalApiUsed: number;
   };
-  totalPosts: number;
-  totalWebsites: number;
+  services: Array<{
+    id: string;
+    name: string;
+    metrics: Array<{
+      label: string;
+      value: number;
+    }>;
+  }>;
+  insights: {
+    revenueByMonth: Array<{
+      label: string;
+      value: number;
+    }>;
+    usersByDay: Array<{
+      label: string;
+      value: number;
+    }>;
+    subscriptionsByPlan: Array<{
+      label: string;
+      value: number;
+    }>;
+  };
+  serviceHealth: Array<{
+    id: string;
+    name: string;
+    status: "healthy" | "degraded" | "down" | string;
+    detail: string;
+  }>;
+  generatedAt: string;
 }
 
 export interface AIModel {

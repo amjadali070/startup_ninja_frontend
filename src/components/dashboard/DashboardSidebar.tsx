@@ -430,10 +430,13 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
                 {/* Section Items */}
                 {section.items.map((item) => {
-                  const navActive =
-                    location.pathname === item.to ||
-                    activePath === item.to ||
-                    location.pathname.startsWith(item.to);
+                  const isExactMatch =
+                    location.pathname === item.to || activePath === item.to;
+                  const isNestedMatch =
+                    !item.end &&
+                    (location.pathname === item.to ||
+                      location.pathname.startsWith(`${item.to}/`));
+                  const navActive = isExactMatch || isNestedMatch;
                   const dataIsActiveValue = navActive.toString();
 
                   return (
