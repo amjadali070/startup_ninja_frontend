@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+﻿import { apiClient } from "./apiClient";
 import type {
   AdminApiResponse,
   DashboardStats,
@@ -192,6 +192,24 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to update resources",
+        error: error.message,
+      };
+    }
+  },
+
+  async createCustomProposal(
+    data: { userId: string; price: number; limits: any; activeFeatureList: Record<string, number> }
+  ): Promise<AdminApiResponse<any>> {
+    try {
+      const response = await apiClient.post<AdminApiResponse<any>>(
+        `/admin/users/${data.userId}/custom-proposal`,
+        data
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to create proposal",
         error: error.message,
       };
     }
@@ -810,3 +828,5 @@ export const adminService = {
     }
   },
 };
+
+

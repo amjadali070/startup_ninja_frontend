@@ -46,6 +46,16 @@ interface DashboardSidebarProps {
   userData: UserProfile | null;
 }
 
+const FEATURE_KEY_BY_LABEL: Record<string, string> = {
+  "AI Chat": "ai_chat",
+  "AI Image": "ai_image_gen",
+  "Web Builder": "web_builder",
+  "Social Pro": "social_pro",
+  "Ninja Legal": "ninja_legal",
+  "Ninja Sales": "ninja_sales",
+  "Manage Team": "ninja_sales",
+};
+
 const navSections: SidebarSection[] = [
   {
     items: [
@@ -207,12 +217,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const location = useLocation();
 
   const isSubUser = !!userData?.addedBy;
+  const isCustomPlan = userData?.subscription?.plan === "custom";
+  const activeFeatureList = userData?.subscription?.activeFeatureList || {};
 
   // Flatten sections and filter by admin role and team permissions
   const filteredSections = navSections
     .map(section => {
-      // Hide Tools section completely for sub-users
-      if (isSubUser && section.sectionLabel === "Tools") {
+      // Hide Tools section completely for sub-users unless they are on a custom plan
+      if (isSubUser && section.sectionLabel === "Tools" && !isCustomPlan) {
         return { ...section, items: [] };
       }
 
@@ -223,8 +235,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         } else {
           if (item.admin) return false;
 
-          // If standard user isn't a sub-user, show everything
+
+          if (isCustomPlan) {
+            const featureKey = FEATURE_KEY_BY_LABEL[item.label];
+            if (featureKey) {
+              return activeFeatureList[featureKey] === 1 || activeFeatureList[featureKey] === true;
+            }
+            return true;
+          }
           if (!isSubUser) return true;
+
 
           // If sub-user, check permissions for Enterprise Tools
           if (section.sectionLabel === "Enterprise Tools") {

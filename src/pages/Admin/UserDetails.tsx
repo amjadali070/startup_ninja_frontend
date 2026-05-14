@@ -99,6 +99,14 @@ const UserDetailsPage: React.FC = () => {
     teamMembersLimit: 0,
     addOnCharge: 0,
     features: [] as string[],
+    activeFeatureList: {
+      ai_chat: 1,
+      ai_image_gen: 1,
+      web_builder: 1,
+      social_pro: 1,
+      ninja_legal: 1,
+      ninja_sales: 1,
+    } as Record<string, number>,
   });
   const [editForm, setEditForm] = useState({
     fullname: "",
@@ -298,6 +306,14 @@ const UserDetailsPage: React.FC = () => {
           singlePageWebsite: extendedUser.usage?.singlePageWebsite || false,
           multiPageWebsite: extendedUser.usage?.multiPageWebsite || false,
           features: extendedUser.features,
+          activeFeatureList: (extendedUser.subscription?.activeFeatureList as Record<string, number>) || {
+            ai_chat: 1,
+            ai_image_gen: 1,
+            web_builder: 1,
+            social_pro: 1,
+            ninja_legal: 1,
+            ninja_sales: 1,
+          },
           addOnCharge: 0,
         });
 
@@ -441,38 +457,57 @@ const UserDetailsPage: React.FC = () => {
   const handleUpdateResources = async () => {
     if (!user) return;
     try {
-      const payload = {
-        limits: {
-          ai_chat_messages: resourceForm.chatTokensLimit,
-          generated_images: resourceForm.imageGenLimit,
-          websites: resourceForm.websiteLimit,
-          social_posts: resourceForm.socialPostLimit,
-          legal_contracts: resourceForm.legalContractsLimit,
-          legal_contract_section_revisions: resourceForm.contractRevisionsLimit,
-          sales_leads: resourceForm.salesLeadsLimit,
-          sales_projects: resourceForm.salesProjectsLimit,
-          ai_post_writer: resourceForm.aiPostWriterLimit,
-          chat_bot_messages: resourceForm.chatBotMessagesLimit,
-          facebook_page_connect: resourceForm.fbPageConnectLimit,
-          website_hosting: resourceForm.websiteHostingLimit,
-          web_builder_sessions: resourceForm.webBuilderSessionsLimit,
-          single_page_website: resourceForm.singlePageWebsite,
-          multi_page_website: resourceForm.multiPageWebsite,
-          team_members: resourceForm.teamMembersLimit
-        },
-        addOnCharge: resourceForm.addOnCharge
+      const limitsPayload = {
+        ai_chat_messages: resourceForm.chatTokensLimit,
+        generated_images: resourceForm.imageGenLimit,
+        website_creation: resourceForm.websiteLimit,
+        social_posts: resourceForm.socialPostLimit,
+        legal_contracts: resourceForm.legalContractsLimit,
+        legal_contract_section_revisions: resourceForm.contractRevisionsLimit,
+        sales_leads: resourceForm.salesLeadsLimit,
+        sales_projects: resourceForm.salesProjectsLimit,
+        ai_post_writer: resourceForm.aiPostWriterLimit,
+        chat_bot_messages: resourceForm.chatBotMessagesLimit,
+        facebook_page_connect: resourceForm.fbPageConnectLimit,
+        website_hosting: resourceForm.websiteHostingLimit,
+        web_builder_sessions: resourceForm.webBuilderSessionsLimit,
+        single_page_website: resourceForm.singlePageWebsite,
+        multi_page_website: resourceForm.multiPageWebsite,
+        team_members: resourceForm.teamMembersLimit,
       };
 
-      const response = await adminService.updateUserResources(user._id, payload);
-
-      if (response.success) {
-        toast.success("User resources updated successfully");
-        setViewingResources(false);
-        fetchUser(); // Refresh user payload limits immediately
-      } else {
-        console.log("Update failed response:", response);
-        toast.error(response.message || "Failed to update resources.");
-      }
+      // if (resourceForm.addOnCharge > 0) {
+        const payload = {
+          userId: user._id,
+          price: resourceForm.addOnCharge,
+          limits: limitsPayload,
+          activeFeatureList: resourceForm.activeFeatureList,
+        };
+        const response = await adminService.createCustomProposal(payload);
+        if (response.success) {
+          toast.success("Custom Payment Link generated & emailed to user!");
+          setViewingResources(false);
+          fetchUser();
+        } else {
+          toast.error(response.message || "Failed to create proposal");
+        }
+      // }
+      //  else {
+      //   const payload = {
+      //     limits: limitsPayload,
+      //     addOnCharge: 0,
+      //     activeFeatureList: resourceForm.activeFeatureList,
+      //   };
+      //   const response = await adminService.updateUserResources(user._id, payload);
+      //   if (response.success) {
+      //     toast.success("User resources updated successfully");
+      //     setViewingResources(false);
+      //     fetchUser();
+      //   } else {
+      //     console.log("Update failed response:", response);
+      //     toast.error(response.message || "Failed to update resources.");
+      //   }
+      // }
     } catch (err: any) {
       toast.error(err.message || "An error occurred while updating resources.");
     }
@@ -496,13 +531,15 @@ const UserDetailsPage: React.FC = () => {
   };
 
   const toggleFeature = (feature: string) => {
-    setResourceForm((prev) => {
-      const exists = prev.features.includes(feature);
+    setResourceForm((prev:any) => {
+      const current = (prev.activeFeatureList && typeof prev.activeFeatureList === 'object') ? prev.activeFeatureList : {};
+      const exists = current[feature] === 1 || current[feature] === true;
       return {
         ...prev,
-        features: exists
-          ? prev.features.filter((f) => f !== feature)
-          : [...prev.features, feature],
+        activeFeatureList: {
+          ...current,
+          [feature]: exists ? 0 : 1,
+        },
       };
     });
   };
@@ -625,4 +662,5 @@ const UserDetailsPage: React.FC = () => {
 };
 
 export default UserDetailsPage;
+
 

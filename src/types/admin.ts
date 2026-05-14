@@ -272,6 +272,7 @@ export interface UserSubscriptionDetails {
   startDate: string;
   nextBillingDate: string;
   limits?: any;
+  activeFeatureList?: Record<string, number>;
   amount: number;
   interval: "month" | "year";
 }

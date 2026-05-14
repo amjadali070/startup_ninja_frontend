@@ -15,6 +15,7 @@ export interface UserProfile {
     finance: boolean;
     legal: boolean;
   };
+  subscription?: any;
   createdAt: string;
   updatedAt: string;
 }

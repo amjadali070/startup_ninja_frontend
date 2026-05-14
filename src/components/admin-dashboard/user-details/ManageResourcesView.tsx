@@ -22,6 +22,7 @@ export interface ResourceForm {
   teamMembersLimit: number;
   addOnCharge: number;
   features: string[];
+  activeFeatureList: Record<string, number>;
 }
 
 interface ManageResourcesViewProps {
@@ -33,12 +34,22 @@ interface ManageResourcesViewProps {
   toggleFeature: (feature: string) => void;
 }
 
+const FEATURE_ITEMS = [
+  { key: "ai_chat", label: "Ai Chat" },
+  { key: "ai_image_gen", label: "Ai image gen" },
+  { key: "web_builder", label: "Web Builder" },
+  { key: "social_pro", label: "Social Pro" },
+  { key: "ninja_legal", label: "Ninja Legal" },
+  { key: "ninja_sales", label: "Ninja Sales" },
+];
+
 const ManageResourcesView: React.FC<ManageResourcesViewProps> = ({
   user,
   resourceForm,
   setResourceForm,
   setViewingResources,
   handleUpdateResources,
+  toggleFeature
 }) => {
   const [isSaving, setIsSaving] = useState(false);
 
@@ -50,6 +61,8 @@ const ManageResourcesView: React.FC<ManageResourcesViewProps> = ({
       setIsSaving(false);
     }
   };
+
+  const isFeatureActive = (key: string) => (resourceForm.activeFeatureList?.[key] ?? 0) === 1;
 
   const renderInput = (label: string, field: keyof ResourceForm, used?: number | string) => (
     <div className="bg-[#0F0F0F] rounded-lg px-4 py-3 border border-gray-800/50 hover:border-gray-700 transition-colors flex items-center justify-between min-h-[44px]">
@@ -140,6 +153,28 @@ const ManageResourcesView: React.FC<ManageResourcesViewProps> = ({
               )}
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="mb-8 bg-[#161616] p-6 rounded-2xl border border-white/5 shadow-xl">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h4 className="text-sm font-bold text-white">Active Feature List</h4>
+            <p className="text-xs text-gray-400 mt-1">Toggle the feature keys that should be active for this custom plan.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {FEATURE_ITEMS.map((feature) => (
+            <label key={feature.key} className="flex items-center gap-3 bg-[#0F0F0F] p-3 rounded-lg border border-gray-800/50 hover:border-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isFeatureActive(feature.key)}
+                onChange={() => toggleFeature(feature.key)}
+                className="w-4 h-4 rounded-sm accent-red-500"
+              />
+              <span className="text-sm text-white">{feature.label}</span>
+            </label>
+          ))}
         </div>
       </div>
 
@@ -241,7 +276,7 @@ const ManageResourcesView: React.FC<ManageResourcesViewProps> = ({
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold group-focus-within:text-white transition-colors">$</span>
                     <input
                         type="number"
-                        min="0"
+                        min="1"
                         step="0.01"
                         value={resourceForm.addOnCharge || 0}
                         onChange={(e) => setResourceForm({ ...resourceForm, addOnCharge: Number(e.target.value) })}
@@ -257,3 +292,4 @@ const ManageResourcesView: React.FC<ManageResourcesViewProps> = ({
 };
 
 export default ManageResourcesView;
+
