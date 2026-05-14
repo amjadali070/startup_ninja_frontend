@@ -30,11 +30,21 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === "password") {
+      if (!value) {
+        setPasswordError("Password is required.");
+      } else if (value.length < 6) {
+        setPasswordError("Password must be at least 6 characters long.");
+      } else {
+        setPasswordError("");
+      }
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -50,6 +60,15 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const password = formData.password || "";
+    if (!password) {
+      setPasswordError("Password is required.");
+      return;
+    }
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters long.");
+      return;
+    }
     onConfirm(formData);
     onClose();
   };
@@ -132,7 +151,11 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
+                      className={`w-full bg-white/5 border rounded-2xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:ring-2 transition-all ${
+                        passwordError
+                          ? "border-red-500 focus:ring-red-500/20 focus:border-red-500/50"
+                          : "border-white/10 focus:ring-red-500/20 focus:border-red-500/50"
+                      }`}
                     />
                     <button
                       type="button"
@@ -142,6 +165,9 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                       {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
                     </button>
                   </div>
+                  {passwordError && (
+                    <p className="text-[11px] text-red-400 ml-1 mt-1">{passwordError}</p>
+                  )}
                 </div>
               </div>
 
@@ -200,8 +226,6 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
                     { id: 'sales', label: 'Ninja Sales' },
-                    { id: 'ops', label: 'Ninja Ops' },
-                    { id: 'finance', label: 'Ninja Finance' },
                     { id: 'legal', label: 'Ninja Legal' }
                   ].map((module) => {
                     // Check if manager is allowed to delegate this module

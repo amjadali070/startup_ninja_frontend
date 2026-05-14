@@ -16,6 +16,7 @@ interface DashboardTopbarProps {
   onLogout: () => Promise<void> | void;
   onSettings?: () => void;
   title?: string;
+  hideSettingsAndNotifications?: boolean;
 }
 
 const DashboardTopbar: FC<DashboardTopbarProps> = ({
@@ -26,6 +27,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   onLogout,
   onSettings,
   title = "Dashboard",
+  hideSettingsAndNotifications = false,
 }) => {
   const displayName = userName && userName.trim() ? userName : "Ninja";
   const initials = displayName
@@ -53,6 +55,11 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
   }, []);
 
   useEffect(() => {
+    if (hideSettingsAndNotifications) {
+      setNotifications([]);
+      setUnread(0);
+      return;
+    }
     const fetchNotifications = async () => {
       try {
         const response = await notificationsService.list(1, 50);
@@ -69,7 +76,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
     // Set up polling every minute to capture background jobs like subscription reminders
     const intervalId = setInterval(fetchNotifications, 60000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [hideSettingsAndNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,17 +152,19 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
           </h1>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsNotificationModalOpen(true)}
-            className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center"
-            aria-label="Notifications"
-          >
-            <HiMiniBellAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            {unread > 0 && (
-              <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#FF3B3B]" />
-            )}
-          </button>
+          {!hideSettingsAndNotifications && (
+            <button
+              type="button"
+              onClick={() => setIsNotificationModalOpen(true)}
+              className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center"
+              aria-label="Notifications"
+            >
+              <HiMiniBellAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {unread > 0 && (
+                <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#FF3B3B]" />
+              )}
+            </button>
+          )}
 
           <div className="flex items-center gap-1.5 sm:gap-2" ref={menuRef}>
             <div className="hidden sm:flex flex-col text-right">
@@ -213,19 +222,21 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
                     </div>
                   </div>
                   <div role="none" className="py-1">
-                    <button
-                      type="button"
-                      onClick={handleSettingsClick}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs font-semibold text-white/85 transition-colors hover:bg-white/10 focus:outline-none"
-                      role="menuitem"
-                    >
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/8 text-white">
-                        <FiSettings className="h-4 w-4" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span>Settings</span>
-                      </div>
-                    </button>
+                    {!hideSettingsAndNotifications && (
+                      <button
+                        type="button"
+                        onClick={handleSettingsClick}
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs font-semibold text-white/85 transition-colors hover:bg-white/10 focus:outline-none"
+                        role="menuitem"
+                      >
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/8 text-white">
+                          <FiSettings className="h-4 w-4" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span>Settings</span>
+                        </div>
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={handleLogoutClick}
@@ -250,34 +261,36 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
         </div>
       </div>
 
-      <NotificationModal
-        isOpen={isNotificationModalOpen}
-        onClose={() => setIsNotificationModalOpen(false)}
-        notifications={notifications.map((n) => ({
-          id: n._id,
-          type: (n.type as any) || "info",
-          title: n.title,
-          message: n.message,
-          timestamp: new Date(n.createdAt).toLocaleString(),
-          read: n.read,
-        }))}
-        onMarkAsRead={handleMarkAsRead}
-        onOpenItem={(id) => {
-          const item = notifications.find((n) => n._id === id);
-          if (item?.type === "warning" || item?.type === "error") {
-            // Subscription payment/expire related
-            setIsNotificationModalOpen(false);
-            navigate(`/settings?tab=billing`);
-            return;
-          }
-          
-          const scheduledPostId = (item?.metadata as any)?.scheduledPostId;
-          if (scheduledPostId) {
-            setIsNotificationModalOpen(false);
-            navigate(`/ai-tools/social-pro/post/${scheduledPostId}`);
-          }
-        }}
-      />
+      {!hideSettingsAndNotifications && (
+        <NotificationModal
+          isOpen={isNotificationModalOpen}
+          onClose={() => setIsNotificationModalOpen(false)}
+          notifications={notifications.map((n) => ({
+            id: n._id,
+            type: (n.type as any) || "info",
+            title: n.title,
+            message: n.message,
+            timestamp: new Date(n.createdAt).toLocaleString(),
+            read: n.read,
+          }))}
+          onMarkAsRead={handleMarkAsRead}
+          onOpenItem={(id) => {
+            const item = notifications.find((n) => n._id === id);
+            if (item?.type === "warning" || item?.type === "error") {
+              // Subscription payment/expire related
+              setIsNotificationModalOpen(false);
+              navigate(`/settings?tab=billing`);
+              return;
+            }
+            
+            const scheduledPostId = (item?.metadata as any)?.scheduledPostId;
+            if (scheduledPostId) {
+              setIsNotificationModalOpen(false);
+              navigate(`/ai-tools/social-pro/post/${scheduledPostId}`);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

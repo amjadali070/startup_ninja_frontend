@@ -914,6 +914,9 @@ export const ninjaSalesService = {
     type?: string;
     page?: number;
     limit?: number;
+    startDate?: string;
+    endDate?: string;
+    search?: string;
   }): Promise<ApiListResponse<SalesActivity>> {
     try {
       const query = new URLSearchParams();

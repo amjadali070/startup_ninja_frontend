@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
-  FiSearch, FiMoreVertical, FiExternalLink, FiFilter, FiLoader,
+  FiSearch, FiEdit2, FiExternalLink, FiFilter, FiLoader,
   FiCircle, FiMessageCircle, FiUserCheck, FiSend, FiTrendingUp,
   FiPauseCircle, FiUnlock, FiCheckCircle, FiLock,
   FiFlag, FiAlertTriangle, FiArrowRight, FiClock, FiZap
@@ -237,12 +237,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link to={`/ai-tools/sales/projects/${project._id}/edit`} className="p-2 text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                        <FiExternalLink className="w-4 h-4" />
+                      <Link
+                        to={`/ai-tools/sales/projects/${project._id}/edit`}
+                        className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                        title="Edit project"
+                        aria-label="Edit project"
+                      >
+                        <FiEdit2 className="w-4 h-4" />
                       </Link>
-                      <button className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                        <FiMoreVertical className="w-4 h-4" />
-                      </button>
                     </div>
                   </td>
                 </tr>

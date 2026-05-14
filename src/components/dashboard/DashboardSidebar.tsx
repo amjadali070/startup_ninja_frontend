@@ -219,51 +219,84 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const isSubUser = !!userData?.addedBy;
   const isCustomPlan = userData?.subscription?.plan === "custom";
   const activeFeatureList = userData?.subscription?.activeFeatureList || {};
+  const isTeamSalesOnlyUser =
+    isSubUser &&
+    (userData?.teamRole === "Member" || userData?.teamRole === "Manager");
 
   // Flatten sections and filter by admin role and team permissions
-  const filteredSections = navSections
-    .map(section => {
-      // Hide Tools section completely for sub-users unless they are on a custom plan
-      if (isSubUser && section.sectionLabel === "Tools" && !isCustomPlan) {
+const filteredSections = navSections
+  .map((section) => {
+
+    // Team members/managers should only see Ninja Sales navigation.
+    if (isTeamSalesOnlyUser) {
+      if (section.sectionLabel !== "Enterprise Tools") {
         return { ...section, items: [] };
       }
+    }
 
-      const filteredItems = section.items.filter(item => {
-        // Handle System Admin vs Normal User
-        if (userData?.role === "admin") {
-          return item.admin;
-        } else {
-          if (item.admin) return false;
+    // Hide Tools section completely for sub-users unless they are on a custom plan
+    if (isSubUser && section.sectionLabel === "Tools" && !isCustomPlan) {
+      return { ...section, items: [] };
+    }
 
+    const filteredItems = section.items.filter((item) => {
 
-          if (isCustomPlan) {
-            const featureKey = FEATURE_KEY_BY_LABEL[item.label];
-            if (featureKey) {
-              return activeFeatureList[featureKey] === 1 || activeFeatureList[featureKey] === true;
-            }
-            return true;
-          }
-          if (!isSubUser) return true;
+      // Handle System Admin vs Normal User
+      if (userData?.role === "admin") {
+        return item.admin;
+      } else {
 
+        if (item.admin) return false;
 
-          // If sub-user, check permissions for Enterprise Tools
-          if (section.sectionLabel === "Enterprise Tools") {
-            const perms: any = userData?.permissions || {};
-            if (item.label === "Ninja Legal" && !perms.legal) return false;
-            if (item.label === "Ninja Finance" && !perms.finance) return false;
-            if (item.label === "Ninja Ops" && !perms.ops) return false;
-            if (item.label === "Ninja Sales" && !perms.sales) return false;
-            // Sub-users shouldn't manage the team unless they are Managers
-            if (item.label === "Manage Team" && userData?.teamRole !== "Manager") return false;
+        if (isCustomPlan) {
+          const featureKey = FEATURE_KEY_BY_LABEL[item.label];
+
+          if (featureKey) {
+            return (
+              activeFeatureList[featureKey] === 1 ||
+              activeFeatureList[featureKey] === true
+            );
           }
 
-          // Let Dashboard, Settings through for sub-users
           return true;
         }
-      });
-      return { ...section, items: filteredItems };
-    })
-    .filter(section => section.items.length > 0);
+
+        if (!isSubUser) return true;
+
+        // Team sales-only users can only access Ninja Sales item.
+        if (isTeamSalesOnlyUser) {
+          return (
+            section.sectionLabel === "Enterprise Tools" &&
+            item.label === "Ninja Sales"
+          );
+        }
+
+        // If sub-user, check permissions for Enterprise Tools
+        if (section.sectionLabel === "Enterprise Tools") {
+          const perms: any = userData?.permissions || {};
+
+          if (item.label === "Ninja Legal" && !perms.legal) return false;
+          if (item.label === "Ninja Finance" && !perms.finance) return false;
+          if (item.label === "Ninja Ops" && !perms.ops) return false;
+          if (item.label === "Ninja Sales" && !perms.sales) return false;
+
+          // Sub-users shouldn't manage the team unless they are Managers
+          if (
+            item.label === "Manage Team" &&
+            userData?.teamRole !== "Manager"
+          ) {
+            return false;
+          }
+        }
+
+        // Let Dashboard, Settings through for sub-users
+        return true;
+      }
+    });
+
+    return { ...section, items: filteredItems };
+  })
+  .filter((section) => section.items.length > 0);
 
   useEffect(() => {
     setIsMobileOpen(false);
@@ -360,7 +393,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   to={
                     userData?.role === "admin"
                       ? "/admin-dashboard"
-                      : "/dashboard"
+                      : isTeamSalesOnlyUser
+                        ? "/ai-tools/sales"
+                        : "/dashboard"
                   }
                   className="flex items-center justify-center p-2 rounded-lg hover:bg-white/5 transition-all duration-300 ease-in-out mt-2 animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
                 >
@@ -395,7 +430,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     to={
                       userData?.role === "admin"
                         ? "/admin-dashboard"
-                        : "/dashboard"
+                        : isTeamSalesOnlyUser
+                          ? "/ai-tools/sales"
+                          : "/dashboard"
                     }
                     className="flex-1 min-w-0 transition-all duration-300 ease-in-out animate-[fadeIn_0.3s_ease-in-out,scaleIn_0.3s_ease-in-out]"
                   >

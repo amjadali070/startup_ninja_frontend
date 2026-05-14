@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 // Restricts routes for unauthenticated users only
@@ -6,18 +6,28 @@ export const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, user, loading } = useAuth();
   if (loading) return null;
   if(isAuthenticated){
-    return user.role == 'admin' ? <Navigate to="/admin-dashboard" replace /> : <Navigate to="/dashboard" replace />;
+    if (user?.role === 'admin') return <Navigate to="/admin-dashboard" replace />;
+    const isTeamSalesUser = !!user?.addedBy && (user?.teamRole === 'Member' || user?.teamRole === 'Manager');
+    return isTeamSalesUser ? <Navigate to="/ai-tools/sales" replace /> : <Navigate to="/dashboard" replace />;
   }
   return children;
 };
 
 // Protects routes for authenticated users only
 export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const location = useLocation();
   const { isAuthenticated, loading, user } = useAuth();
   if (loading) return null; 
-  return isAuthenticated && user?.role !== 'admin' 
-    ? children 
-    : <Navigate to="/login" replace />;
+  if (!isAuthenticated || user?.role === 'admin') {
+    return <Navigate to="/login" replace />;
+  }
+
+  const isTeamSalesUser = !!user?.addedBy && (user?.teamRole === 'Member' || user?.teamRole === 'Manager');
+  if (isTeamSalesUser && !location.pathname.startsWith('/ai-tools/sales')) {
+    return <Navigate to="/ai-tools/sales" replace />;
+  }
+
+  return children;
 };
 
 // Restricts routes for admin users only

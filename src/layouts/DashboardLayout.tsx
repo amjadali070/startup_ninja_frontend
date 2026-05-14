@@ -87,6 +87,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const displayName = profile.username || profile.email || "Ninja";
   const isChatbotVisible = !location.pathname.startsWith('/admin-dashboard');
+  const isTeamMemberLogin = !!profile.addedBy;
 
   return (
     <>
@@ -101,6 +102,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             username={profile.username}
             onLogout={onLogout}
             onSettings={onSettings}
+            hideSettingsAndNotifications={isTeamMemberLogin}
           />
           <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
             {children}

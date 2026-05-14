@@ -50,8 +50,6 @@ const MemberDetails: React.FC = () => {
               avatar: found.fullname ? found.fullname.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : "U",
               permissions: [
                 { name: "Ninja Sales", active: found.permissions?.sales || false },
-                { name: "Ninja Ops", active: found.permissions?.ops || false },
-                { name: "Ninja Finance", active: found.permissions?.finance || false },
                 { name: "Ninja Legal", active: found.permissions?.legal || false }
               ],
               lastActive: "Active recently",
@@ -249,26 +247,6 @@ const MemberDetails: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Productivity Card */}
-                  <div className="bg-[#0B0B0F] border border-white/10 rounded-[32px] p-8">
-                    <h4 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Workspace Engagement</h4>
-                    <div className="space-y-6">
-                      <div>
-                        <div className="flex justify-between text-xs mb-2">
-                          <span className="text-white/60">Module Usage</span>
-                          <span className="text-red-500 font-bold">85%</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-red-600 to-red-900 w-[85%]" />
-                        </div>
-                      </div>
-                      <div className="pt-4 border-t border-white/5">
-                        <p className="text-white/30 text-xs italic">
-                          Verified member since {member.joinedDate}. Access levels are managed at the organization layer.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </>

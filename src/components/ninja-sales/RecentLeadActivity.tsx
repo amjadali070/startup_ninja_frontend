@@ -109,7 +109,7 @@ const RecentLeadActivity: FC<RecentLeadActivityProps> = ({ activities = [] }) =>
       <div className="pt-2 border-t border-white/[0.04]">
         <button
           type="button"
-          onClick={() => navigate("/ai-tools/sales/leads")}
+          onClick={() => navigate("/ai-tools/sales/activities")}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04] hover:border-white/[0.08] transition-all duration-300 group/btn active:scale-[0.98]"
         >
           <span className="text-xs font-semibold text-white/50 group-hover/btn:text-white/70 tracking-wide transition-colors">View All Activity</span>

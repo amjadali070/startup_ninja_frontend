@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   FiSearch, 
-  FiMoreVertical, 
-  FiMail, 
-  FiPhone, 
+  FiEdit2,
   FiExternalLink, 
   FiFilter,
   FiFilePlus,
@@ -25,6 +23,7 @@ interface LeadsTableProps {
 }
 
 const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   /** Account owner or Manager may assign (matches ninja-sales backend) */
   const canAssignLeads = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
@@ -243,14 +242,14 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
                 </td>
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2 transition-opacity duration-300">
-                    <button className="p-2 text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                      <FiMail className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                      <FiPhone className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
-                      <FiMoreVertical className="w-4 h-4" />
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/ai-tools/sales/leads/${lead._id}/edit`)}
+                      className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                      title="Edit lead"
+                      aria-label="Edit lead"
+                    >
+                      <FiEdit2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
