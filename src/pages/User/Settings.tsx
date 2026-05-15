@@ -64,7 +64,7 @@ interface SubscriptionData {
 
 const Settings: FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, updateUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -302,6 +302,7 @@ const Settings: FC = () => {
       const response = await userService.updateProfile(payload);
       if (response.success && response.user) {
         setProfile(response.user);
+        updateUser(response.user);
         setSelectedImageFile(null); // Clear selected file after success
         const updatedForm: ProfileFormState = {
           ...profileForm,

@@ -248,16 +248,15 @@ const filteredSections = navSections
 
         if (item.admin) return false;
 
+        const featureKey = FEATURE_KEY_BY_LABEL[item.label];
+        if (featureKey && activeFeatureList[featureKey] !== undefined) {
+          return (
+            activeFeatureList[featureKey] === 1 ||
+            activeFeatureList[featureKey] === true
+          );
+        }
+
         if (isCustomPlan) {
-          const featureKey = FEATURE_KEY_BY_LABEL[item.label];
-
-          if (featureKey) {
-            return (
-              activeFeatureList[featureKey] === 1 ||
-              activeFeatureList[featureKey] === true
-            );
-          }
-
           return true;
         }
 

@@ -9,6 +9,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (userData: User, token: string, refreshToken?: string, rememberMe?: boolean) => void;
+  updateUser: (userData: User) => void;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -42,6 +43,16 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
     setUser(userData);
   }, []);
 
+  const updateUser = useCallback((userData: User) => {
+    setUser(userData);
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      sessionStorage.setItem('user', JSON.stringify(userData));
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       if (user?.id) {
@@ -67,7 +78,7 @@ const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element => {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, token, loading, login, updateUser, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

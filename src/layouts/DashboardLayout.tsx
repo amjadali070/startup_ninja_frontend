@@ -25,9 +25,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation(); // MUST be at top before any conditional returns
-  const { logout } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { logout, user: authUser, updateUser } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(authUser);
+  const [loading, setLoading] = useState(!authUser);
   const [error, setError] = useState<string | null>(null);
 
   const resolvedProfilePicture = useMemo(() => {
@@ -37,10 +37,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-
         const response = await userService.getProfile();
         if (response.success && response.user) {
           setProfile(response.user);
+          updateUser(response.user);
         } else {
           if (response.message === "User not found") {
             await logout();
@@ -59,6 +59,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty array - only run once on mount
+
+  // Sync profile if authUser changes elsewhere
+  useEffect(() => {
+    if (authUser) {
+      setProfile(authUser);
+    }
+  }, [authUser]);
 
   if (loading) {
     return <LoadingSpinner fullscreen variant="dark" />;
