@@ -218,15 +218,15 @@ const Dashboard: React.FC = () => {
         <div className="space-y-4 sm:space-y-6">
           <WelcomeBanner name={user.username || user.email || "Ninja"} />
 
-          {/* Quick Actions Grid */}
-          <section className="grid gap-3 sm:gap-4 grid-cols-2 min-[640px]:grid-cols-3 xl:grid-cols-6">
+          {/* Quick Actions Grid (responsive auto-fit) */}
+          <section className="grid gap-3 sm:gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
             {filteredQuickActions.map((action) => (
               <QuickActionCard key={action.title} {...action} />
             ))}
           </section>
 
-          {/* Main Content Grid - Single column until large tablet, then 2 cols, then 3 cols on xl */}
-          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] xl:items-stretch xl:pb-2">
+          {/* Main Content Grid - responsive auto-fit so cards fill space */}
+          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-stretch">
             {/* Ninja Assistant Card - AI Chat */}
             {isFeatureActive("ai_chat") && (
               <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
@@ -303,13 +303,13 @@ const Dashboard: React.FC = () => {
             </div>
           </section>
 
-          {/* Insights Grid */}
-          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
+          {/* Insights Grid - responsive */}
+          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
             {isFeatureActive("ninja_sales") && <SalesPipelineCard />}
             {isFeatureActive("ninja_legal") && <LegalComplianceCard />}
           </section>
 
-          <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-[2fr_1fr]">
+          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
             {isFeatureActive("ninja_sales") && <RecentActivityCard />}
             {isFeatureActive("social_pro") && <SocialInsightsCard />}
           </section>
