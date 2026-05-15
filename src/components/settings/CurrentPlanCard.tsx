@@ -7,8 +7,11 @@ import { Plan } from '../../services/plan';
 // Define the subscription data interface matching what's passed from parent
 interface SubscriptionData {
   plan: string;
+  planId?: string;
   status: 'active' | 'inactive' | 'cancelled';
   cancelAtPeriodEnd?: boolean;
+  price?: number;
+  currency?: string;
   nextBillingDate?: string;
   usage?: {
     ai_chat_messages: number;
@@ -65,13 +68,16 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
     const planName = subscription.plan;
     
     // Price logic - dynamic
-    let price = '$0.00';
+    let price = subscription.price !== undefined 
+        ? `${subscription.currency === 'USD' || !subscription.currency ? '$' : subscription.currency}${subscription.price.toFixed(2)}`
+        : '$0.00';
+
     if (plans.length > 0) {
-        const matchedPlan = plans.find(p => p.name.toLowerCase() === planName.toLowerCase() || p.key === planName.toLowerCase());
+        const matchedPlan = plans.find(p => p.name.toLowerCase() === planName.toLowerCase() || p.key === planName.toLowerCase() || p.key === subscription.planId);
         if (matchedPlan) {
             price = `$${matchedPlan.price.toFixed(2)}`;
         }
-    } else {
+    } else if (subscription.price === undefined) {
         // Fallback or keep 0
         if (planName.toLowerCase() === 'basic') price = '$24.99';
         else if (planName.toLowerCase() === 'standard') price = '$49.99';

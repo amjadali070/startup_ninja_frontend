@@ -58,7 +58,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
     fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty array - only run once on mount
+  }, [location.pathname, updateUser]); // Empty array - only run once on mount
 
   // Sync profile if authUser changes elsewhere
   useEffect(() => {

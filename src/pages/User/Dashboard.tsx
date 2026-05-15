@@ -179,31 +179,31 @@ const Dashboard: React.FC = () => {
 
   // Filter quick actions based on subscription plan and active features
   const filteredQuickActions = useMemo<QuickActionConfig[]>(() => {
-    const isCustomPlan = user?.subscription?.plan === "custom";
-    const activeFeatureList = user?.subscription?.activeFeatureList || {};
+    const activeFeatureList = user?.subscription?.activeFeatureList;
 
-    if (isCustomPlan) {
-      return quickActions.filter((action) => {
-        const featureKey = FEATURE_KEY_BY_ACTION[action.title];
-        if (featureKey) {
-          return (
-            activeFeatureList[featureKey] === 1 ||
-            activeFeatureList[featureKey] === true
-          );
-        }
-        return true;
-      });
-    }
+    // If activeFeatureList is not available at all, show all actions as fallback
+    if (!activeFeatureList) return quickActions;
 
-    return quickActions;
-  }, [quickActions, user?.subscription?.plan, user?.subscription?.activeFeatureList]);
+    return quickActions.filter((action) => {
+      const featureKey = FEATURE_KEY_BY_ACTION[action.title];
+      if (featureKey) {
+        // Only hide if explicitly set to 0 or false
+        return (
+          activeFeatureList[featureKey] === 1 ||
+          activeFeatureList[featureKey] === true
+        );
+      }
+      return true;
+    });
+  }, [quickActions, user?.subscription?.activeFeatureList]);
 
   // Helper function to check if a feature is active
   const isFeatureActive = (featureKey: string): boolean => {
-    const isCustomPlan = user?.subscription?.plan === "custom";
-    const activeFeatureList = user?.subscription?.activeFeatureList || {};
+    const activeFeatureList = user?.subscription?.activeFeatureList;
 
-    if (!isCustomPlan) return true; // Show all features for non-custom plans
+    // If activeFeatureList is not available, default to showing the feature
+    if (!activeFeatureList) return true;
+
     return activeFeatureList[featureKey] === 1 || activeFeatureList[featureKey] === true;
   };
 
@@ -225,18 +225,30 @@ const Dashboard: React.FC = () => {
             ))}
           </section>
 
-          {/* Main Content Grid - responsive auto-fit so cards fill space */}
-          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-stretch">
-            {/* Ninja Assistant Card - AI Chat */}
+          {/* Main Content Grid - Responsive layout that adjusts based on active features */}
+          <section className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(20,minmax(0,1fr))] items-stretch">
+            {/* Ninja Assistant Card - AI Chat (30% width on lg: 6/20) */}
             {isFeatureActive("ai_chat") && (
-              <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
+              <div className={`flex h-full w-full min-h-[280px] sm:min-h-[320px] ${
+                !isFeatureActive("web_builder") && !(isFeatureActive("ai_chat") || isFeatureActive("ai_image_gen"))
+                ? "lg:col-span-full" 
+                : !isFeatureActive("web_builder") 
+                ? "lg:col-[span_12_/_span_12]" 
+                : "lg:col-[span_6_/_span_6]"
+              }`}>
                 <NinjaAssistantCard suggestions={assistantSuggestions} />
               </div>
             )}
 
-            {/* Ongoing Projects Card - Web Builder */}
+            {/* Ongoing Projects Card - Web Builder (45% width on lg: 9/20) */}
             {isFeatureActive("web_builder") && (
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] p-4 shadow-[0px_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-[#2A2A2A] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
+              <div className={`group relative flex h-full flex-col overflow-hidden rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] p-4 shadow-[0px_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-[#2A2A2A] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px] ${
+                !isFeatureActive("ai_chat") && !(isFeatureActive("ai_chat") || isFeatureActive("ai_image_gen"))
+                ? "lg:col-span-full"
+                : !isFeatureActive("ai_chat") || !(isFeatureActive("ai_chat") || isFeatureActive("ai_image_gen"))
+                ? "lg:col-[span_12_/_span_12]"
+                : "lg:col-[span_9_/_span_9]"
+              }`}>
                 <div className="pointer-events-none absolute -inset-[1px] rounded-lg bg-gradient-to-r from-[#FF3B3B]/20 via-[#E50000]/10 to-transparent opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -285,34 +297,46 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
-            {/* Token Usage Card */}
-            <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
-              {loadingTokens ? (
-                <div className="flex h-full w-full items-center justify-center rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]">
-                  <div className="text-white/50 text-sm">Loading...</div>
-                </div>
-              ) : tokenUsage ? (
-                <TokenUsageCard
-                  used={tokenUsage.chatTokensUsed}
-                  limit={tokenUsage.chatTokensLimit}
-                  resetInHours={tokenUsage.resetInHours}
-                />
-              ) : (
-                <TokenUsageCard used={0} limit={10000} resetInHours={24} />
-              )}
-            </div>
+            {/* Token Usage Card (25% width on lg: 5/20) - Only shown if AI features are active */}
+            {(isFeatureActive("ai_chat") || isFeatureActive("ai_image_gen")) && (
+              <div className={`flex h-full w-full min-h-[280px] sm:min-h-[320px] ${
+                !isFeatureActive("ai_chat") && !isFeatureActive("web_builder")
+                ? "lg:col-span-full"
+                : !isFeatureActive("ai_chat") || !isFeatureActive("web_builder")
+                ? "lg:col-[span_12_/_span_12]"
+                : "lg:col-[span_5_/_span_5]"
+              }`}>
+                {loadingTokens ? (
+                  <div className="flex h-full w-full items-center justify-center rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]">
+                    <div className="text-white/50 text-sm">Loading...</div>
+                  </div>
+                ) : tokenUsage ? (
+                  <TokenUsageCard
+                    used={tokenUsage.chatTokensUsed}
+                    limit={tokenUsage.chatTokensLimit}
+                    resetInHours={tokenUsage.resetInHours}
+                  />
+                ) : (
+                  <TokenUsageCard used={0} limit={10000} resetInHours={24} />
+                )}
+              </div>
+            )}
           </section>
 
-          {/* Insights Grid - responsive */}
-          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
-            {isFeatureActive("ninja_sales") && <SalesPipelineCard />}
-            {isFeatureActive("ninja_legal") && <LegalComplianceCard />}
-          </section>
+          {/* Insights Grid - only shown if at least one insight module is active */}
+          {(isFeatureActive("ninja_sales") || isFeatureActive("ninja_legal")) && (
+            <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
+              {isFeatureActive("ninja_sales") && <SalesPipelineCard />}
+              {isFeatureActive("ninja_legal") && <LegalComplianceCard />}
+            </section>
+          )}
 
-          <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
-            {isFeatureActive("ninja_sales") && <RecentActivityCard />}
-            {isFeatureActive("social_pro") && <SocialInsightsCard />}
-          </section>
+          {(isFeatureActive("ninja_sales") || isFeatureActive("social_pro")) && (
+            <section className="grid gap-4 sm:gap-6 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-stretch">
+              {isFeatureActive("ninja_sales") && <RecentActivityCard />}
+              {isFeatureActive("social_pro") && <SocialInsightsCard />}
+            </section>
+          )}
         </div>
       </main>
     </DashboardLayout>
