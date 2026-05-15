@@ -27,6 +27,16 @@ interface QuickActionConfig {
   to?: string;
 }
 
+// Feature key mapping for quick actions
+const FEATURE_KEY_BY_ACTION: Record<string, string> = {
+  "AI Chat": "ai_chat",
+  "AI Image Gen": "ai_image_gen",
+  "Web Builder": "web_builder",
+  "Social Pro": "social_pro",
+  "Ninja Legal": "ninja_legal",
+  "Ninja Sales": "ninja_sales",
+};
+
 const assistantSuggestions = [
   "Help me write a compelling value proposition for my startup",
   "Generate 10 creative marketing ideas for a new product launch",
@@ -167,6 +177,36 @@ const Dashboard: React.FC = () => {
     []
   );
 
+  // Filter quick actions based on subscription plan and active features
+  const filteredQuickActions = useMemo<QuickActionConfig[]>(() => {
+    const isCustomPlan = user?.subscription?.plan === "custom";
+    const activeFeatureList = user?.subscription?.activeFeatureList || {};
+
+    if (isCustomPlan) {
+      return quickActions.filter((action) => {
+        const featureKey = FEATURE_KEY_BY_ACTION[action.title];
+        if (featureKey) {
+          return (
+            activeFeatureList[featureKey] === 1 ||
+            activeFeatureList[featureKey] === true
+          );
+        }
+        return true;
+      });
+    }
+
+    return quickActions;
+  }, [quickActions, user?.subscription?.plan, user?.subscription?.activeFeatureList]);
+
+  // Helper function to check if a feature is active
+  const isFeatureActive = (featureKey: string): boolean => {
+    const isCustomPlan = user?.subscription?.plan === "custom";
+    const activeFeatureList = user?.subscription?.activeFeatureList || {};
+
+    if (!isCustomPlan) return true; // Show all features for non-custom plans
+    return activeFeatureList[featureKey] === 1 || activeFeatureList[featureKey] === true;
+  };
+
   return (
     <DashboardLayout
       activePath="/dashboard"
@@ -180,66 +220,70 @@ const Dashboard: React.FC = () => {
 
           {/* Quick Actions Grid */}
           <section className="grid gap-3 sm:gap-4 grid-cols-2 min-[640px]:grid-cols-3 xl:grid-cols-6">
-            {quickActions.map((action) => (
+            {filteredQuickActions.map((action) => (
               <QuickActionCard key={action.title} {...action} />
             ))}
           </section>
 
           {/* Main Content Grid - Single column until large tablet, then 2 cols, then 3 cols on xl */}
           <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] xl:items-stretch xl:pb-2">
-            {/* Ninja Assistant Card */}
-            <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
-              <NinjaAssistantCard suggestions={assistantSuggestions} />
-            </div>
+            {/* Ninja Assistant Card - AI Chat */}
+            {isFeatureActive("ai_chat") && (
+              <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
+                <NinjaAssistantCard suggestions={assistantSuggestions} />
+              </div>
+            )}
 
-            {/* Ongoing Projects Card */}
-            <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] p-4 shadow-[0px_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-[#2A2A2A] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
-              <div className="pointer-events-none absolute -inset-[1px] rounded-lg bg-gradient-to-r from-[#FF3B3B]/20 via-[#E50000]/10 to-transparent opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="relative z-10 flex h-full flex-col">
-                <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="font-plus-jakarta text-lg font-semibold leading-tight text-white sm:text-[20px] sm:leading-[26px] lg:text-[22px] lg:leading-[28px]">
-                      Ongoing Projects
-                    </h3>
-                    <p className="mt-1 font-plus-jakarta text-xs text-white/55 sm:text-[13px]">
-                      Keep track of your workspace progress in real time.
-                    </p>
+            {/* Ongoing Projects Card - Web Builder */}
+            {isFeatureActive("web_builder") && (
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-[#242424] bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] p-4 shadow-[0px_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-[#2A2A2A] hover:shadow-[0px_12px_32px_rgba(0,0,0,0.5)] sm:p-6 lg:p-8 min-h-[280px] sm:min-h-[320px]">
+                <div className="pointer-events-none absolute -inset-[1px] rounded-lg bg-gradient-to-r from-[#FF3B3B]/20 via-[#E50000]/10 to-transparent opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="relative z-10 flex h-full flex-col">
+                  <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="font-plus-jakarta text-lg font-semibold leading-tight text-white sm:text-[20px] sm:leading-[26px] lg:text-[22px] lg:leading-[28px]">
+                        Ongoing Projects
+                      </h3>
+                      <p className="mt-1 font-plus-jakarta text-xs text-white/55 sm:text-[13px]">
+                        Keep track of your workspace progress in real time.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 sm:mt-8 flex flex-1 flex-col justify-start gap-4 sm:gap-6">
+                    {loadingProjects ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-white/50 text-sm">
+                          Loading projects...
+                        </div>
+                      </div>
+                    ) : recentProjects.length > 0 ? (
+                      recentProjects.map((project: WebsiteProject) => (
+                        <ProjectCard
+                          key={project._id}
+                          websiteId={project._id}
+                          title={project.websiteTitle || "Untitled Project"}
+                          status={project.publishedLink ? "Live" : "Draft"}
+                          lastUpdated={getRelativeTime(project.updatedAt)}
+                        />
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <p className="text-white/60 text-sm">
+                          No draft projects yet
+                        </p>
+                        <button
+                          onClick={() => navigate("/ai-tools/web-builder")}
+                          className="mt-4 text-xs text-[#FF3B3B] hover:text-[#E50000] transition-colors"
+                        >
+                          Create your first website →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="mt-6 sm:mt-8 flex flex-1 flex-col justify-start gap-4 sm:gap-6">
-                  {loadingProjects ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="text-white/50 text-sm">
-                        Loading projects...
-                      </div>
-                    </div>
-                  ) : recentProjects.length > 0 ? (
-                    recentProjects.map((project: WebsiteProject) => (
-                      <ProjectCard
-                        key={project._id}
-                        websiteId={project._id}
-                        title={project.websiteTitle || "Untitled Project"}
-                        status={project.publishedLink ? "Live" : "Draft"}
-                        lastUpdated={getRelativeTime(project.updatedAt)}
-                      />
-                    ))
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <p className="text-white/60 text-sm">
-                        No draft projects yet
-                      </p>
-                      <button
-                        onClick={() => navigate("/ai-tools/web-builder")}
-                        className="mt-4 text-xs text-[#FF3B3B] hover:text-[#E50000] transition-colors"
-                      >
-                        Create your first website →
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
-            </div>
+            )}
 
             {/* Token Usage Card */}
             <div className="flex h-full w-full min-h-[280px] sm:min-h-[320px]">
@@ -261,13 +305,13 @@ const Dashboard: React.FC = () => {
 
           {/* Insights Grid */}
           <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 items-stretch">
-            <SalesPipelineCard />
-            <LegalComplianceCard />
+            {isFeatureActive("ninja_sales") && <SalesPipelineCard />}
+            {isFeatureActive("ninja_legal") && <LegalComplianceCard />}
           </section>
 
           <section className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-[2fr_1fr]">
-            <RecentActivityCard />
-            <SocialInsightsCard />
+            {isFeatureActive("ninja_sales") && <RecentActivityCard />}
+            {isFeatureActive("social_pro") && <SocialInsightsCard />}
           </section>
         </div>
       </main>
