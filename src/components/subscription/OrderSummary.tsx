@@ -48,14 +48,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle, pla
 
     // Fallback
     const prices: Record<string, { monthly: number; annual: number }> = {
-      startup: { monthly: 9, annual: 90 },
-      pro: { monthly: 29, annual: 290 },
+      founder: { monthly: 24.99, annual: 239.88 },
+      growth: { monthly: 29, annual: 290 },
       enterprise: { monthly: 99, annual: 990 },
-      basic: { monthly: 24.99, annual: 239.88 }
     };
     
     const planKey = planName.toLowerCase().replace(' plan', '');
-    const price = prices[planKey] || prices.pro;
+    const price = prices[planKey] || prices.growth;
     const amount = billingCycle === 'annual' ? price.annual : price.monthly;
     const savings = billingCycle === 'annual' ? (price.monthly * 12 - price.annual) : 0;
     

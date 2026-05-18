@@ -128,13 +128,14 @@ const PricingMain: React.FC = () => {
                // Calculate price based on cycle
                // Monthly cycle: use plan.price
                // Annual cycle: use plan.discountPrice (assumed to be monthly cost when annual)
+               const isEnterprise = plan.name.toLowerCase() === 'enterprise' || plan.name.toLowerCase() === 'enterprise plan';
                const displayPrice = billingCycle === "monthly" ? plan.price : (plan.discountPrice || plan.price);
                const isPopular = plan.isPopular;
 
                return (
               <div
                 key={plan._id || index}
-                className={`relative rounded-lg p-8 border transition-all duration-300 ${
+                className={`relative rounded-lg p-8 border transition-all duration-300 flex flex-col ${
                   isPopular ? "scale-105" : ""
                 }`}
                 style={{
@@ -160,58 +161,96 @@ const PricingMain: React.FC = () => {
                 )}
 
                 <h3 className="text-3xl font-bold mb-2">{plan.name}</h3>
-                <p className="mb-6" style={{ color: "#CCCCCC" }}>
+                <p className="mb-6 h-12 flex-none" style={{ color: "#CCCCCC" }}>
                   {plan.description || "Unlock powerful features."}
                 </p>
 
-                <div className="mb-8">
-                  <span className="text-5xl font-bold">
-                    ${displayPrice}
-                  </span>
-                  <span className="ml-2" style={{ color: "#CCCCCC" }}>
-                    /month
-                  </span>
-                  {billingCycle === "annual" && (
-                    <p className="text-sm text-green-500 mt-2">
-                      Billed ${(displayPrice * 12).toFixed(2)}/year
-                    </p>
-                  )}
-                </div>
+                {isEnterprise ? (
+                  <div className="mb-8 flex-none">
+                    <span className="text-5xl font-bold">Custom</span>
+                    <span className="ml-2" style={{ color: "#CCCCCC" }}>
+                        Pricing
+                    </span>
+                    {billingCycle === "annual" && (
+                      <p className="text-sm mt-2 opacity-0">Spacer</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mb-8 flex-none">
+                    <span className="text-5xl font-bold">
+                      ${displayPrice}
+                    </span>
+                    <span className="ml-2" style={{ color: "#CCCCCC" }}>
+                      /month
+                    </span>
+                    {billingCycle === "annual" && (
+                      <p className="text-sm text-green-500 mt-2">
+                        Billed ${(displayPrice * 12).toFixed(2)}/year
+                      </p>
+                    )}
+                  </div>
+                )}
 
-                <Link
-                  to={displayPrice === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
-                  className={`block w-full py-4 rounded-lg font-bold text-center mb-8 transition-all duration-300 ${
-                    isPopular
-                      ? "hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
-                      : "hover:opacity-80"
-                  }`}
-                  style={
-                    isPopular
-                      ? {
-                          background:
-                            "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
-                        }
-                      : {
-                          background:
-                            "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
-                        }
-                  }
-                >
-                  {displayPrice === 0 ? "START FOR FREE" : "GET STARTED"}
-                </Link>
+                {isEnterprise ? (
+                    <button
+                        className="block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none cursor-default"
+                        style={{ pointerEvents: 'none', background: "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)" }}
+                    >
+                        Contact for pricing
+                    </button>
+                ) : (
+                    <Link
+                      to={displayPrice === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
+                      className={`block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none transition-all duration-300 ${
+                        isPopular
+                          ? "hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
+                          : "hover:opacity-80"
+                      }`}
+                      style={
+                        isPopular
+                          ? {
+                              background:
+                                "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
+                            }
+                          : {
+                              background:
+                                "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
+                            }
+                      }
+                    >
+                      {displayPrice === 0 ? "START FOR FREE" : "GET STARTED"}
+                    </Link>
+                )}
 
                 <ul className="space-y-4">
-                  {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start">
-                        <FaCheck
-                          className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
-                          style={{ color: "#D23621" }}
-                        />
-                      <span style={{ color: "#CCCCCC" }}>
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
+                  {isEnterprise ? (
+                      plan.features.map((feature, idx) => {
+                          const featureName = feature.replace(/^[0-9,]+\s*/, '');
+                          return (
+                            <li key={idx} className="flex items-start">
+                                <FaCheck
+                                  className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
+                                  style={{ color: "#D23621" }}
+                                />
+                              <span style={{ color: "#CCCCCC" }} className="capitalize">
+                                Custom {featureName}
+                              </span>
+                            </li>
+                          );
+                      })
+                  ) : (
+                      plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start">
+                            <FaCheck
+                              className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
+                              style={{ color: "#D23621" }}
+                            />
+                          <span style={{ color: "#CCCCCC" }}>
+                            {feature}
+                          </span>
+                        </li>
+                      ))
+                  )}
                 </ul>
               </div>
             );

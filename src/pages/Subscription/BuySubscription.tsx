@@ -11,7 +11,7 @@ const BuySubscription: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   
-  const planName = searchParams.get('plan') || 'Basic';
+  const planName = searchParams.get('plan') || 'Founder';
   const billingCycle = searchParams.get('billing') || 'monthly';
   
   const [step, setStep] = useState(isAuthenticated ? 2 : 1);

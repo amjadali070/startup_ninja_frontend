@@ -17,18 +17,35 @@ interface SubscriptionData {
     ai_chat_messages: number;
     generated_images: number;
     social_posts: number;
+    ai_post_writer?: number;
+    chat_bot_messages?: number;
+    facebook_page_connect?: number;
+    web_builder_sessions?: number;
     websites: number;
+    website_creation?: number;
     sales_leads?: number;
     sales_projects?: number;
+    legal_contracts?: number;
+    legal_contract_section_revisions?: number;
+    team_members?: number;
     [key: string]: number | undefined;
   };
   limits?: {
     ai_chat_messages: number;
     generated_images: number;
     social_posts: number;
+    ai_post_writer?: number;
+    chat_bot_messages?: number;
+    facebook_page_connect?: number;
+    web_builder_sessions?: number;
     websites: number;
+    website_creation?: number;
+    website_hosting?: number;
     sales_leads?: number;
     sales_projects?: number;
+    legal_contracts?: number;
+    legal_contract_section_revisions?: number;
+    team_members?: number;
     [key: string]: number | undefined;
   };
 }
@@ -79,8 +96,8 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         }
     } else if (subscription.price === undefined) {
         // Fallback or keep 0
-        if (planName.toLowerCase() === 'basic') price = '$24.99';
-        else if (planName.toLowerCase() === 'standard') price = '$49.99';
+        if (planName.toLowerCase() === 'founder') price = '$24.99';
+        else if (planName.toLowerCase() === 'growth') price = '$49.99';
         else if (planName.toLowerCase() === 'enterprise') price = '$149.99';
     }
 
@@ -94,8 +111,12 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         : 'N/A',
       usage: {
         ai_chat_messages: subscription.usage?.ai_chat_messages || 0,
+        ai_post_writer: subscription.usage?.ai_post_writer || 0,
         generated_images: subscription.usage?.generated_images || 0,
+        chat_bot_messages: subscription.usage?.chat_bot_messages || 0,
         social_posts: subscription.usage?.social_posts || 0,
+        facebook_page_connect: subscription.usage?.facebook_page_connect || 0,
+        web_builder_sessions: subscription.usage?.web_builder_sessions || 0,
         websites: subscription.usage?.websites || 0,
         website_creation: subscription.usage?.website_creation || 0,
         legal_contracts: subscription.usage?.legal_contracts || 0,
@@ -107,8 +128,12 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       limits: {
         ...(subscription.limits || {}),
         ai_chat_messages: subscription.limits?.ai_chat_messages || 10,
+        ai_post_writer: subscription.limits?.ai_post_writer || 5,
         generated_images: subscription.limits?.generated_images || 5,
+        chat_bot_messages: subscription.limits?.chat_bot_messages || 0,
         social_posts: subscription.limits?.social_posts || 10,
+        facebook_page_connect: subscription.limits?.facebook_page_connect || 1,
+        web_builder_sessions: subscription.limits?.web_builder_sessions || 3,
         websites: subscription.limits?.website_creation ?? subscription.limits?.website_hosting ?? subscription.limits?.websites ?? 1,
         legal_contracts: subscription.limits?.legal_contracts || 0,
         legal_contract_section_revisions: subscription.limits?.legal_contract_section_revisions || 0,
@@ -157,7 +182,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
     <>
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
+      <div className="flex items-center justify-between mb-1 xs:mb-1 sm:mb-1">
         <div className="text-gray-400 text-xs xs:text-sm">Current Plan</div>
         <div className={`text-xs font-medium px-2 py-1 rounded border capitalize ${badgeClass}`}>
           {statusText}

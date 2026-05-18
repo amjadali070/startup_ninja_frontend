@@ -148,7 +148,7 @@ const UserManagementTable: React.FC = () => {
 
   // Helper to get dummy subscription
   const getSubscription = (userId: string) => {
-    const types = ["Free", "Basic", "Pro", "Enterprise"];
+    const types = ["Free", "Founder", "Growth", "Enterprise"];
     // Use userId to deterministically pick a type so it doesn't change on re-render
     const index = userId.charCodeAt(userId.length - 1) % types.length;
     return types[index];
@@ -204,8 +204,8 @@ const UserManagementTable: React.FC = () => {
           >
             <option value="">All Plans</option>
             <option value="Free">Free</option>
-            <option value="Basic">Basic</option>
-            <option value="Pro">Pro</option>
+            <option value="Founder">Founder</option>
+            <option value="Growth">Growth</option>
             <option value="Enterprise">Enterprise</option>
           </select>
         </div>

@@ -122,7 +122,7 @@ export const pricingCardPlugin = (editor: Editor) => {
             changeProp: true,
           },
         ],
-        plan: "Basic Plan",
+        plan: "Founder",
         price: "$19",
         period: "/month",
         features: "10,000 Monthly Requests\n24/7 Support\nAdvanced Analytics\nAPI Access",
@@ -130,7 +130,7 @@ export const pricingCardPlugin = (editor: Editor) => {
         popular: false,
         components: `
           <div class="pricing-card-header">
-            <h3 class="pricing-plan">Basic Plan</h3>
+            <h3 class="pricing-plan">Founder</h3>
             <div class="pricing-price">
               <span class="pricing-amount">$19</span>
               <span class="pricing-period">/month</span>

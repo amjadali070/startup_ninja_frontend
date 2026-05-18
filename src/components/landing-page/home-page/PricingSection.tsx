@@ -60,6 +60,7 @@ export default function PricingSection() {
             ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
                 {paidPlans.map((plan, index) => {
+                    const isEnterprise = plan.name.toLowerCase() === 'enterprise' || plan.name.toLowerCase() === 'enterprise plan';
                     const displayPrice = billingCycle === "monthly" ? plan.price : (plan.discountPrice || plan.price);
                     const isPopular = plan.isPopular;
 
@@ -78,33 +79,61 @@ export default function PricingSection() {
                         }
                     >
                         <h3 className="text-xl font-semibold mb-4">{plan.name}</h3>
-                        <div className="flex items-end mb-4">
-                            <span className="text-4xl font-bold">${displayPrice}</span>
-                            <span className="text-gray-400 text-lg ml-1">
-                                {billingCycle === "monthly" ? "/monthly" : "/month (billed yearly)"}
-                            </span>
-                        </div>
+                        
+                        {isEnterprise ? (
+                            <div className="flex items-end mb-4">
+                                <span className="text-4xl font-bold">Custom Pricing</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-end mb-4">
+                                <span className="text-4xl font-bold">${displayPrice}</span>
+                                <span className="text-gray-400 text-lg ml-1">
+                                    {billingCycle === "monthly" ? "/monthly" : "/month (billed yearly)"}
+                                </span>
+                            </div>
+                        )}
                         <p className="text-gray-300 mb-6 h-12">{plan.description || "Unlock powerful features."}</p>
 
-                        <Link 
-                            to={`/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
-                            state={{ from: 'pricing' }}
-                            className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition"
-                        >
-                            GET STARTED
-                        </Link>
+                        {isEnterprise ? (
+                            <button 
+                                className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md cursor-default"
+                                style={{ pointerEvents: 'none' }}
+                            >
+                                Contact for pricing
+                            </button>
+                        ) : (
+                            <Link 
+                                to={`/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
+                                state={{ from: 'pricing' }}
+                                className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition"
+                            >
+                                GET STARTED
+                            </Link>
+                        )}
 
                         <div className="border-t border-red-900/50 pt-6 flex-grow">
                             <p className="text-gray-300 mb-4 font-medium">
                                 Plan features:
                             </p>
                             <div className="flex flex-col gap-3">
-                                {plan.features.map((feature, i) => (
-                                    <div key={i} className="flex items-start">
-                                        <FaCheckCircle className="text-red-500 w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
-                                        <span className="text-gray-300 text-sm leading-tight">{feature}</span>
-                                    </div>
-                                ))}
+                                {isEnterprise ? (
+                                    plan.features.map((feature, i) => {
+                                        const featureName = feature.replace(/^[0-9,]+\s*/, '');
+                                        return (
+                                            <div key={i} className="flex items-start">
+                                                <FaCheckCircle className="text-red-500 w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
+                                                <span className="text-gray-300 text-sm leading-tight capitalize">Custom {featureName}</span>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    plan.features.map((feature, i) => (
+                                        <div key={i} className="flex items-start">
+                                            <FaCheckCircle className="text-red-500 w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
+                                            <span className="text-gray-300 text-sm leading-tight">{feature}</span>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

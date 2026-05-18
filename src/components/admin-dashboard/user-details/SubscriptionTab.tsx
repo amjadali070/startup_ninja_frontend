@@ -16,7 +16,7 @@ interface SubscriptionTabProps {
 
 const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [planName, setPlanName] = useState("Basic");
+  const [planName, setPlanName] = useState("Founder");
   const [billingCycle, setBillingCycle] = useState("monthly");
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -67,9 +67,9 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
               className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ${
                 (user.subscription.plan || "").includes("Enterprise")
                   ? "bg-purple-600/20 text-purple-400 border border-purple-500/30"
-                  : (user.subscription.plan || "").includes("Standard")
+                  : (user.subscription.plan || "").includes("Growth")
                   ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
-                  : (user.subscription.plan || "").includes("Basic")
+                  : (user.subscription.plan || "").includes("Founder")
                   ? "bg-green-600/20 text-green-400 border border-green-500/30"
                   : "bg-gray-600/20 text-gray-400 border border-gray-500/30"
               }`}
@@ -97,8 +97,8 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                             className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
                         >
                             <option value="Free">Free</option>
-                            <option value="Basic">Basic</option>
-                            <option value="Standard">Standard (Pro)</option>
+                            <option value="Founder">Founder</option>
+                            <option value="Growth">Growth</option>
                             <option value="Enterprise">Enterprise</option>
                         </select>
                     </div>
