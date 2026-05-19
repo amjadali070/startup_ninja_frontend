@@ -189,7 +189,7 @@ const ContactMain: React.FC = () => {
                 </p>
               </div>
 
-              <div
+              {/* <div
                 className="rounded-lg p-6 border"
                 style={{
                   background:
@@ -214,7 +214,7 @@ const ContactMain: React.FC = () => {
                 >
                   Browse Docs →
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
