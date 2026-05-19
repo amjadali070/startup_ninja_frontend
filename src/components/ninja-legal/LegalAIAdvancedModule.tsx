@@ -1,7 +1,11 @@
 import { type FC } from "react";
 import { HiLightningBolt } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
-const LegalAIAdvancedModule: FC = () => {
+interface LegalAIAdvancedModuleProps {
+  onNewContract: () => void;
+}
+const LegalAIAdvancedModule: FC<LegalAIAdvancedModuleProps> = ({ onNewContract }) => {
   return (
     <div className="relative w-full h-auto md:h-[340px] overflow-hidden rounded-[24px] border border-white/5 bg-[#121212] flex flex-col md:flex-row group font-plus-jakarta">
       {/* Content Side */}
@@ -24,12 +28,15 @@ const LegalAIAdvancedModule: FC = () => {
         </p>
 
         <div className="flex flex-wrap gap-4">
-          <button className="px-6 py-3 bg-[#dc2626] hover:bg-[#DC2626] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#dc262620] active:scale-95">
+          <button 
+            className="px-6 py-3 bg-[#dc2626] hover:bg-[#DC2626] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#dc262620] active:scale-95"
+            onClick={onNewContract}
+          >
             Draft New Contract
           </button>
-          <button className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">
-            Audit Compliance
-          </button>
+          <Link to="/ai-tools/legal/generate" className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">
+            Contract Generation
+          </Link>
         </div>
       </div>
 

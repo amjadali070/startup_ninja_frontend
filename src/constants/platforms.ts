@@ -1,5 +1,5 @@
 import { FaFacebook, FaInstagram } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+// import { FaXTwitter } from 'react-icons/fa6';
 import { FiLinkedin } from 'react-icons/fi';
 
 // Theme colors centralization (match existing usage)
@@ -60,21 +60,21 @@ export const PLATFORM_LIST: PlatformMeta[] = [
       background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #E04163 0%, #863CB1 100%)',
     },
   },
-  {
-    id: 'x',
-    name: 'X (Twitter)',
-    icon: FaXTwitter,
-    colors: {
-      brand: '#1DA1F2',
-      unselectedBg: 'bg-white/10',
-      selectedBg: 'bg-[#1DA1F2] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-white/30',
-      selectedBorder: 'border-[#1590d8]/80',
-      iconColor: 'text-white',
-      textColor: 'text-white',
-      background: '#FFFFFF0D',
-    },
-  },
+  // {
+  //   id: 'x',
+  //   name: 'X (Twitter)',
+  //   icon: FaXTwitter,
+  //   colors: {
+  //     brand: '#1DA1F2',
+  //     unselectedBg: 'bg-white/10',
+  //     selectedBg: 'bg-[#1DA1F2] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
+  //     unselectedBorder: 'border-white/30',
+  //     selectedBorder: 'border-[#1590d8]/80',
+  //     iconColor: 'text-white',
+  //     textColor: 'text-white',
+  //     background: '#FFFFFF0D',
+  //   },
+  // },
   {
     id: 'linkedin',
     name: 'LinkedIn',

@@ -17,7 +17,6 @@ import {
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
-import { TbApi } from "react-icons/tb";
 import { LuHammer,LuUsers  } from "react-icons/lu";
 
 
@@ -89,12 +88,12 @@ const navSections: SidebarSection[] = [
         icon: <RiMoneyDollarBoxFill className="w-5 h-5" />,
         admin: true,
       },
-      {
-        label: "API Management",
-        to: "/admin-dashboard/api-management",
-        icon: <TbApi className="w-5 h-5" />,
-        admin: true,
-      },
+      // {
+      //   label: "API Management",
+      //   to: "/admin-dashboard/api-management",
+      //   icon: <TbApi className="w-5 h-5" />,
+      //   admin: true,
+      // },
     ],
   },
   {

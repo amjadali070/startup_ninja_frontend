@@ -151,7 +151,7 @@ const NinjaLegal: FC = () => {
           </div>
 
           <div className="mb-10">
-            <LegalAIAdvancedModule />
+            <LegalAIAdvancedModule onNewContract={handleNewContract}/>
           </div>
 
         </div>

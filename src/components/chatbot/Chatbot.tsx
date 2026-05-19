@@ -235,39 +235,39 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
     };
   }, [isOpen, updateLayoutOffsets]);
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (!isMounted) {
-      return;
-    }
+  // const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+  //   if (!isMounted) {
+  //     return;
+  //   }
 
-    event.preventDefault();
-    buttonRef.current?.setPointerCapture(event.pointerId);
-    if (buttonRef.current) {
-      buttonRef.current.style.transition = "none";
-    }
-    if (animationFrameRef.current !== null) {
-      window.cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-    pointerIdRef.current = event.pointerId;
-    startPointerRef.current = { x: event.clientX, y: event.clientY };
-    movedRef.current = false;
+  //   event.preventDefault();
+  //   buttonRef.current?.setPointerCapture(event.pointerId);
+  //   if (buttonRef.current) {
+  //     buttonRef.current.style.transition = "none";
+  //   }
+  //   if (animationFrameRef.current !== null) {
+  //     window.cancelAnimationFrame(animationFrameRef.current);
+  //     animationFrameRef.current = null;
+  //   }
+  //   pointerIdRef.current = event.pointerId;
+  //   startPointerRef.current = { x: event.clientX, y: event.clientY };
+  //   movedRef.current = false;
 
-    const rect = buttonRef.current?.getBoundingClientRect();
-    pointerOffsetRef.current = {
-      x: event.clientX - (rect?.left ?? positionRef.current.x),
-      y: event.clientY - (rect?.top ?? positionRef.current.y),
-    };
+  //   const rect = buttonRef.current?.getBoundingClientRect();
+  //   pointerOffsetRef.current = {
+  //     x: event.clientX - (rect?.left ?? positionRef.current.x),
+  //     y: event.clientY - (rect?.top ?? positionRef.current.y),
+  //   };
 
-    setIsDragging(true);
-  };
+  //   setIsDragging(true);
+  // };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      setIsOpen(true);
-    }
-  };
+  // const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+  //   if (event.key === "Enter" || event.key === " ") {
+  //     event.preventDefault();
+  //     setIsOpen(true);
+  //   }
+  // };
 
   const loadChats = useCallback(async () => {
     try {
@@ -608,7 +608,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
         </div>
       )}
 
-      <button
+      {/* <button
         ref={buttonRef}
         type="button"
         onPointerDown={handlePointerDown}
@@ -624,7 +624,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
           className="h-5 w-5 sm:h-6 sm:w-6"
         />
         <span className="sr-only">Open chatbot</span>
-      </button>
+      </button> */}
     </>
   );
 };

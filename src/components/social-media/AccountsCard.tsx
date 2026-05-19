@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin, FaTrash, FaPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/social-media/oauth/linkedin';
@@ -32,16 +32,16 @@ const AccountsCard: React.FC = () => {
       isConnected: false,
       isPlaceholder: false,
     },
-    {
-      id: 'twitter',
-      name: PLATFORM_BY_ID.x?.name || 'X (Twitter)',
-      username: 'Not Connected',
-      icon: FaTwitter,
-      iconColor: 'text-white',
-      status: 'Not Connected',
-      isConnected: false,
-      isPlaceholder: false,
-    },
+    // {
+    //   id: 'twitter',
+    //   name: PLATFORM_BY_ID.x?.name || 'X (Twitter)',
+    //   username: 'Not Connected',
+    //   icon: FaTwitter,
+    //   iconColor: 'text-white',
+    //   status: 'Not Connected',
+    //   isConnected: false,
+    //   isPlaceholder: false,
+    // },
     {
       id: 'linkedin',
       name: PLATFORM_BY_ID.linkedin?.name || 'LinkedIn',

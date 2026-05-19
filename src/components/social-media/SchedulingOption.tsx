@@ -3,7 +3,7 @@ import {
   FaCalendarAlt,
   FaFacebook,
   FaInstagram,
-  FaTwitter,
+  // FaTwitter,
   FaLinkedin,
   FaPlus,
   FaTrash,
@@ -32,7 +32,7 @@ type Platform = {
 const allPlatforms: Platform[] = [
   { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
   { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
-  { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
+  // { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
   { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
 ];
 
@@ -278,7 +278,8 @@ const SchedulingOption: React.FC = () => {
     );
 
     if (selectedSupportedPlatforms.length === 0) {
-      toast.error('Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish');
+      toast.error('Please select at least one platform (LinkedIn, Instagram, or Facebook) to publish');
+      // toast.error('Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish');
       return;
     }
 

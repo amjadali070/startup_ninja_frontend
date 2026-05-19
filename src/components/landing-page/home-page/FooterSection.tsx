@@ -103,9 +103,9 @@ const FooterSection = () => {
         <Link to="/contact" className="hover:text-white">
           Contact Us
         </Link>
-        <Link to="/documentation" className="hover:text-white">
+        {/* <Link to="/documentation" className="hover:text-white">
           Documentation
-        </Link>
+        </Link> */}
         <Link to="/pricing" className="hover:text-white">
           Pricing
         </Link>
@@ -114,7 +114,7 @@ const FooterSection = () => {
         </Link>
       </div>
       <p className="mt-2 text-md p-2">
-        Startup Ninja &copy; 2025 All rights reserved
+        Startup Ninja &copy; {new Date().getFullYear()} All rights reserved
       </p>
     </footer>
   );

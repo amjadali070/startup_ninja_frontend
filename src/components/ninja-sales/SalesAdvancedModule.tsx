@@ -43,17 +43,17 @@ const SalesAdvancedModule: FC = () => {
         <div className="flex flex-wrap gap-4">
           <button
             type="button"
-            onClick={() => navigate("/ai-tools/sales/follow-ups")}
+            onClick={() => navigate("/ai-tools/sales/leads")}
             className="px-6 py-3 bg-[#E50000] hover:bg-[#CC0000] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#EF444420] active:scale-95 uppercase tracking-widest"
           >
-            Open follow-ups
+            Open Leads
           </button>
           <button
             type="button"
-            onClick={() => navigate("/ai-tools/sales/proposals")}
+            onClick={() => navigate("/ai-tools/sales/projects")}
             className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95 uppercase tracking-widest"
           >
-            Proposals
+           Open Projects
           </button>
         </div>
       </div>
