@@ -62,6 +62,7 @@ import EditProjectPage from "./pages/User/NinjaSales/EditProjectPage.tsx";
 import DocumentDetailsPage from "./pages/User/NinjaSales/DocumentDetailsPage.tsx";
 import AllActivitiesPage from "./pages/User/NinjaSales/AllActivitiesPage.tsx";
 import Unsubscribe from "./pages/Unsubscribe.tsx";
+import LiveChatWidget from "./components/LiveChatWidget.tsx";
 
 function App() {
   return (
@@ -505,6 +506,7 @@ function App() {
           }}
         />
         <SessionExpiredModal />
+        <LiveChatWidget />
       </div>
     </AuthProvider>
   );
