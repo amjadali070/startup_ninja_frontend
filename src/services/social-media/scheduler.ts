@@ -1,4 +1,5 @@
 import { apiClient } from '../apiClient';
+import { buildUTCFromTimezone } from '../../utils/date';
 
 export interface SchedulePostRequest {
   caption?: string;
@@ -8,6 +9,10 @@ export interface SchedulePostRequest {
   schedules?: Array<{ platform: 'facebook' | 'instagram' | 'x' | 'linkedin'; date: string; time: string }>;
   imageFile?: File | null;
   targetAccounts?: Record<string, string[]>;
+  /** IANA timezone of the user (e.g. "America/New_York"). When provided the
+   *  frontend converts each schedule's date+time to a UTC ISO string before
+   *  sending, and also passes the timezone so the backend can store it. */
+  timezone?: string;
 }
 
 export interface SchedulePostResponse {
@@ -24,10 +29,25 @@ class SchedulerService {
     if (req.caption) formData.append('caption', req.caption);
     formData.append('platforms', JSON.stringify(req.platforms));
     if (req.schedules && req.schedules.length > 0) {
-      formData.append('schedules', JSON.stringify(req.schedules));
+      // If a timezone is provided, convert each schedule's local date+time to
+      // a UTC ISO string so the backend always receives unambiguous UTC times.
+      if (req.timezone) {
+        const utcSchedules = req.schedules.map(s => ({
+          platform: s.platform,
+          scheduledAt: buildUTCFromTimezone(s.date, s.time, req.timezone!),
+          // Keep original date/time as fallback fields
+          date: s.date,
+          time: s.time,
+        }));
+        formData.append('schedules', JSON.stringify(utcSchedules));
+        formData.append('timezone', req.timezone);
+      } else {
+        formData.append('schedules', JSON.stringify(req.schedules));
+      }
     } else if (req.scheduledDate && req.scheduledTime) {
       formData.append('scheduledDate', req.scheduledDate);
       formData.append('scheduledTime', req.scheduledTime);
+      if (req.timezone) formData.append('timezone', req.timezone);
     }
     if (req.imageFile) formData.append('image', req.imageFile);
     if (req.targetAccounts) {

@@ -1,5 +1,6 @@
 import { type FC, type ChangeEvent, type FormEvent } from "react";
 import { FiChevronDown } from "react-icons/fi";
+import { TIMEZONE_GROUPS } from "../../constants/timezones";
 
 export type LanguageRegionFormState = {
   language: string;
@@ -24,54 +25,18 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
       <div className="mb-2 xs:mb-1 sm:mb-1">
-        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-2">
-           Timezone
+        <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-1">
+          Timezone
         </h3>
+        <p className="text-gray-400 text-xs xs:text-sm">
+          Used to schedule your social media posts at the correct local time.
+        </p>
       </div>
 
       {/* Form Section */}
-      <form onSubmit={onSubmit}>
-        {/* Language Field */}
-        {/* <div className="mb-3 xs:mb-4">
-          <label
-            htmlFor="language"
-            className="block text-white text-sm xs:text-base font-bold mb-2"
-          >
-            Language
-          </label>
-          <div className="relative">
-            <select
-              id="language"
-              name="language"
-              value={form.language}
-              onChange={onChange}
-              className="w-full appearance-none rounded-lg border border-white/10 bg-[#1A1A1A] px-3 py-2.5 xs:py-3 pr-10 text-white focus:border-white/20 focus:outline-none cursor-pointer text-sm xs:text-base"
-            >
-              <option value="English">English</option>
-              <option value="Spanish">Spanish</option>
-              <option value="French">French</option>
-              <option value="German">German</option>
-              <option value="Italian">Italian</option>
-              <option value="Portuguese">Portuguese</option>
-              <option value="Chinese">Chinese</option>
-              <option value="Japanese">Japanese</option>
-              <option value="Korean">Korean</option>
-              <option value="Arabic">Arabic</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-              <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
-            </div>
-          </div>
-        </div> */}
-
+      <form onSubmit={onSubmit} className="mt-4">
         {/* Timezone Field */}
         <div className="mb-3 xs:mb-4">
-          <label
-            htmlFor="timezone"
-            className="block text-white text-sm xs:text-base font-bold mb-2"
-          >
-           
-          </label>
           <div className="relative">
             <select
               id="timezone"
@@ -80,67 +45,32 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
               onChange={onChange}
               className="w-full appearance-none rounded-lg border border-white/10 bg-[#1A1A1A] px-3 py-2.5 xs:py-3 pr-10 text-white focus:border-white/20 focus:outline-none cursor-pointer text-sm xs:text-base"
             >
-              <option value="PST (Pacific Standard Time)">
-                PST (Pacific Standard Time)
+              <option value="" disabled>
+                — Select your timezone —
               </option>
-              <option value="EST (Eastern Standard Time)">
-                EST (Eastern Standard Time)
-              </option>
-              <option value="CST (Central Standard Time)">
-                CST (Central Standard Time)
-              </option>
-              <option value="MST (Mountain Standard Time)">
-                MST (Mountain Standard Time)
-              </option>
-              <option value="GMT (Greenwich Mean Time)">
-                GMT (Greenwich Mean Time)
-              </option>
-              <option value="CET (Central European Time)">
-                CET (Central European Time)
-              </option>
-              <option value="JST (Japan Standard Time)">
-                JST (Japan Standard Time)
-              </option>
-              <option value="AEST (Australian Eastern Standard Time)">
-                AEST (Australian Eastern Standard Time)
-              </option>
+              {TIMEZONE_GROUPS.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.options.map((tz) => (
+                    <option key={tz.value} value={tz.value}>
+                      {tz.label} ({tz.offset})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
               <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
             </div>
           </div>
-        </div>
 
-        {/* Date Format Field
-        <div className="mb-4 xs:mb-6">
-          <label
-            htmlFor="dateFormat"
-            className="block text-white text-sm xs:text-base font-bold mb-2"
-          >
-            Date Format
-          </label>
-          <div className="relative">
-            <select
-              id="dateFormat"
-              name="dateFormat"
-              value={form.dateFormat}
-              onChange={onChange}
-              className="w-full appearance-none rounded-lg border border-white/10 bg-[#1A1A1A] px-3 py-2.5 xs:py-3 pr-10 text-white focus:border-white/20 focus:outline-none cursor-pointer text-sm xs:text-base"
-            >
-              <option value="MM/DD/YY">MM/DD/YY</option>
-              <option value="DD/MM/YY">DD/MM/YY</option>
-              <option value="YY/MM/DD">YY/MM/DD</option>
-              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-              <option value="YYYY/MM/DD">YYYY/MM/DD</option>
-              <option value="MMM DD, YYYY">MMM DD, YYYY</option>
-              <option value="DD MMM YYYY">DD MMM YYYY</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-              <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
-            </div>
-          </div>
-        </div> */}
+          {/* Show current selection as IANA id for transparency */}
+          {form.timezone && (
+            <p className="mt-1.5 text-xs text-gray-500">
+              IANA ID:{" "}
+              <span className="font-mono text-gray-400">{form.timezone}</span>
+            </p>
+          )}
+        </div>
 
         {/* Action Button */}
         <div className="flex gap-2 xs:gap-3">

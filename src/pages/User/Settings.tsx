@@ -37,6 +37,7 @@ import {
 } from "../../services/user.ts";
 import { planService, Plan } from "../../services/plan.ts";
 import { resolveProfilePictureUrl } from "../../utils/profile.ts";
+import { TIMEZONE_OPTIONS } from "../../constants/timezones.ts";
 
 interface SubscriptionData {
   plan: string;
@@ -218,9 +219,22 @@ const Settings: FC = () => {
         }
 
         if (preferencesRes.success && preferencesRes.data) {
+          // Resolve legacy display-string timezone values to IANA ids
+          const rawTz = preferencesRes.data.timezone ?? '';
+          const resolvedTz = rawTz.includes('/')
+            ? rawTz
+            : (TIMEZONE_OPTIONS.find(
+                (o) => o.legacy === rawTz || o.label === rawTz || o.value === rawTz
+              )?.value ?? rawTz);
+
+          // Keep localStorage cache in sync so SchedulingOption can read it
+          if (resolvedTz) {
+            localStorage.setItem('userTimezone', resolvedTz);
+          }
+
           setLanguageRegionForm({
             language: preferencesRes.data.language,
-            timezone: preferencesRes.data.timezone,
+            timezone: resolvedTz,
             dateFormat: preferencesRes.data.dateFormat,
           });
         }
@@ -435,7 +449,11 @@ const Settings: FC = () => {
       });
 
       if (response.success) {
-        toast.success("Language and region settings updated successfully.");
+        // Keep localStorage cache in sync for SchedulingOption
+        if (languageRegionForm.timezone) {
+          localStorage.setItem('userTimezone', languageRegionForm.timezone);
+        }
+        toast.success("Timezone updated successfully.");
       } else {
         toast.error(response.message || "Failed to update preferences.");
       }

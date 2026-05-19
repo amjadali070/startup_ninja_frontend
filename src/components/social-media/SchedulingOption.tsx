@@ -21,6 +21,7 @@ import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../const
 import { buildLocalDate } from '../../utils/date';
 import PublishingOverlay from './PublishingOverlay';
 import { emitScheduledPostsRefresh } from '../../utils/postStatusEvents';
+import { useUserTimezone } from '../../hooks/useUserTimezone';
 
 type Platform = {
   id: 'facebook' | 'instagram' | 'x' | 'linkedin';
@@ -48,6 +49,7 @@ type ScheduledPlatform = {
 const SchedulingOption: React.FC = () => {
   const { postData, triggerRefreshPosts } = usePost();
   const { user } = useAuth();
+  const { ianaTimezone, displayLabel, isSet: timezoneIsSet } = useUserTimezone();
   const [isSchedulingEnabled, setIsSchedulingEnabled] = useState(true);
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -164,6 +166,27 @@ const SchedulingOption: React.FC = () => {
       return;
     }
 
+    // Warn if the user has not set a timezone yet
+    if (!timezoneIsSet) {
+      toast(
+        (t) => (
+          <span>
+            No timezone set.{' '}
+            <a
+              href="/settings"
+              className="underline font-semibold"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Go to Settings → Timezone
+            </a>{' '}
+            to set your timezone so posts are scheduled at the right time.
+          </span>
+        ),
+        { duration: 8000, icon: '🕐' }
+      );
+      // Don't block — let them schedule using UTC as fallback
+    }
+
     const supportedPlatforms = ['linkedin', 'x', 'instagram', 'facebook'] as const;
     const itemsToSchedule = scheduledPlatforms.filter(p => supportedPlatforms.includes(p.platform));
 
@@ -237,6 +260,7 @@ const SchedulingOption: React.FC = () => {
         })),
         imageFile,
         targetAccounts: postData.targetAccounts,
+        timezone: ianaTimezone,
       });
 
       if (resp.success) {
@@ -424,9 +448,27 @@ const SchedulingOption: React.FC = () => {
   return (
     <div className="w-full rounded-2xl p-4 lg:p-6 border border-gray-800">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
-        <h2 className="text-white text-lg md:text-xl font-bold font-plus-jakarta">
-          Scheduling Options
-        </h2>
+        <div>
+          <h2 className="text-white text-lg md:text-xl font-bold font-plus-jakarta">
+            Scheduling Options
+          </h2>
+          {/* Timezone indicator */}
+          <p className="text-xs text-gray-400 mt-0.5">
+            {timezoneIsSet ? (
+              <>
+                Times are in{' '}
+                <span className="text-gray-200 font-medium">{displayLabel}</span>
+              </>
+            ) : (
+              <a
+                href="/settings"
+                className="text-yellow-400 hover:text-yellow-300 underline"
+              >
+                ⚠ Set your timezone in Settings
+              </a>
+            )}
+          </p>
+        </div>
         
         <div className="flex items-center gap-3">
           <span className="text-white text-sm font-medium">Enable scheduling</span>
