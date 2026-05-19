@@ -61,6 +61,7 @@ import EditLeadPage from "./pages/User/NinjaSales/EditLeadPage.tsx";
 import EditProjectPage from "./pages/User/NinjaSales/EditProjectPage.tsx";
 import DocumentDetailsPage from "./pages/User/NinjaSales/DocumentDetailsPage.tsx";
 import AllActivitiesPage from "./pages/User/NinjaSales/AllActivitiesPage.tsx";
+import Unsubscribe from "./pages/Unsubscribe.tsx";
 
 function App() {
   return (
@@ -137,6 +138,8 @@ function App() {
           />
           <Route path="/buy-subscription" element={<BuySubscription />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          {/* Unsubscribe — public, no auth, accessible directly from email links */}
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
 
           {/* Protected User Routes */}
           <Route

@@ -190,6 +190,38 @@ export const userService = {
   },
 
   /**
+   * Unsubscribe from emails via signed token (public — no auth required)
+   */
+  async unsubscribe(token: string): Promise<{ success: boolean; message: string; email?: string; alreadyUnsubscribed?: boolean }> {
+    try {
+      const response = await apiClient.get<{ success: boolean; message: string; email?: string; alreadyUnsubscribed?: boolean }>(
+        `/user/unsubscribe?token=${encodeURIComponent(token)}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to process unsubscribe request',
+      };
+    }
+  },
+
+  /**
+   * Re-subscribe to emails (authenticated)
+   */
+  async resubscribe(): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>('/user/resubscribe');
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to re-subscribe',
+      };
+    }
+  },
+
+  /**
    * Delete user account
    */
   async deleteAccount(password?: string): Promise<{ success: boolean; message: string }> {
