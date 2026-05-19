@@ -186,7 +186,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         <div className="text-gray-400 text-xs xs:text-sm">Current Plan</div>
         <div className={`text-xs font-medium px-2 py-1 rounded border capitalize ${badgeClass}`}>
           {statusText}
-        </div>
+        </div> 
       </div>
 
       {/* Plan Details */}

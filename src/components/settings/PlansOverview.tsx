@@ -14,7 +14,7 @@ import {
   FiLayout,
   FiBarChart2,
 } from 'react-icons/fi';
-import { planService, Plan, PlanLimit } from '../../services/plan';
+import { planService, Plan } from '../../services/plan';
 
 // ─── Limit label + icon map ───────────────────────────────────────────────────
 const LIMIT_META: Record<
@@ -37,7 +37,7 @@ const LIMIT_META: Record<
   sales_projects:                  { label: 'Sales Projects',          Icon: FiBarChart2,     color: 'text-green-300'   },
 };
 
-const formatLimitValue = (key: string, value: any): string => {
+const formatLimitValue = (_key: string, value: any): string => {
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (value === -1 || value >= 999999) return 'Unlimited';
   if (value === 0) return 'Not included';
