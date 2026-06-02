@@ -36,29 +36,23 @@ interface FormErrors {
 }
 
 const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContractCreated }) => {
-  const [contractTitle, setContractTitle] = useState("Service Agreement - Acme Corp");
-  const [purpose, setPurpose] = useState("This contract outlines the terms and conditions for providing professional consulting services, including project scope, deliverables, timelines, and payment terms.");
-  const [priority, setPriority] = useState("high");
-  const [contractWorth, setContractWorth] = useState("50000");
-  const [termsConditions, setTermsConditions] = useState("1. Payment Terms: 50% upfront, 50% upon completion\n2. Timeline: 6 months from contract start date\n3. Confidentiality: All proprietary information must be kept confidential for 5 years after project completion\n4. Liability: Each party's liability capped at 100% of contract value\n5. Termination: Either party may terminate with 30 days written notice");
-  const [contractStatus, setContractStatus] = useState("active");
-  const [expiryDate, setExpiryDate] = useState("2025-04-13");
+  const [contractTitle, setContractTitle] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [priority, setPriority] = useState("");
+  const [contractWorth, setContractWorth] = useState("");
+  const [termsConditions, setTermsConditions] = useState("");
+  const [contractStatus, setContractStatus] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   
   const [parties, setParties] = useState<Party[]>([
     {
-      name: "John Smith",
+      name: "",
       type: "individual",
-      email: "john.smith@example.com",
-      address: "123 Business Ave, New York, NY 10001"
+      email: "",
+      address: ""
     },
-    {
-      name: "Acme Corporation",
-      type: "company",
-      email: "legal@acmecorp.com",
-      address: "456 Corporate Blvd, San Francisco, CA 94105"
-    }
   ]);
 
   const addParty = () => {
@@ -178,27 +172,22 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
 
   const handleClose = () => {
     // Reset form on close to sample data
-    setContractTitle("Service Agreement - Acme Corp");
-    setPurpose("This contract outlines the terms and conditions for providing professional consulting services, including project scope, deliverables, timelines, and payment terms.");
-    setPriority("high");
-    setContractWorth("50000");
-    setTermsConditions("1. Payment Terms: 50% upfront, 50% upon completion\n2. Timeline: 6 months from contract start date\n3. Confidentiality: All proprietary information must be kept confidential for 5 years after project completion\n4. Liability: Each party's liability capped at 100% of contract value\n5. Termination: Either party may terminate with 30 days written notice");
+    setContractTitle("");
+    setPurpose("");
+    setPriority("");
+    setContractWorth("");
+    setTermsConditions("");
     setContractStatus("active");
-    setExpiryDate("2025-04-13");
+    setExpiryDate("");
     setParties([
-      {
-        name: "John Smith",
-        type: "individual",
-        email: "john.smith@example.com",
-        address: "123 Business Ave, New York, NY 10001"
-      },
-      {
-        name: "Acme Corporation",
-        type: "company",
-        email: "legal@acmecorp.com",
-        address: "456 Corporate Blvd, San Francisco, CA 94105"
-      }
-    ]);
+            {
+              name: "",
+              type: "individual",
+              email: "",
+              address: ""
+            },
+            
+          ]);
     setErrors({});
     onClose();
   };

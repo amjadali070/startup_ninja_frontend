@@ -376,13 +376,13 @@ const Login: React.FC = () => {
               <span className="text-[#9CA3AF] text-[11px] sm:text-[12px] leading-tight">
                 Administrator?
               </span>
-              <button
+              {/* <button
                 type="button"
                 onClick={() => navigate("/admin/login")}
                 className="text-[11px] sm:text-[12px] font-semibold leading-tight text-orange-500 hover:text-orange-400 transition-colors duration-200"
               >
                 Admin Portal →
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
