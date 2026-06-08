@@ -1,47 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService, { LinkedInConnectionStatus } from '../../services/social-media/oauth/linkedin';
 import twitterService, { TwitterConnectionStatus} from '../../services/social-media/oauth/twitter';
-import instagramService, { InstagramConnectionStatus } from '../../services/social-media/oauth/instagram';
-import facebookService, { FacebookConnectionStatus } from '../../services/social-media/oauth/facebook';
+// import instagramService, { InstagramConnectionStatus } from '../../services/social-media/oauth/instagram';
+// import facebookService, { FacebookConnectionStatus } from '../../services/social-media/oauth/facebook';
 import { PLATFORM_BY_ID } from '../../constants/platforms';
 
 const AccountsCard: React.FC = () => {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState([
-    {
-      id: 'facebook',
-      name: PLATFORM_BY_ID.facebook?.name || 'Facebook',
-      username: 'Not Connected',
-      icon: FaFacebook,
-      iconColor: 'text-[#1877F2]',
-      status: 'Not Connected',
-      isConnected: false,
-      isPlaceholder: false,
-      pages: [] as any[],
-    },
-    {
-      id: 'instagram',
-      name: PLATFORM_BY_ID.instagram?.name || 'Instagram',
-      username: 'Not Connected',
-      icon: FaInstagram,
-      iconColor: 'text-[#E4405F]',
-      status: 'Not Connected',
-      isConnected: false,
-      isPlaceholder: false,
-    },
-    // {
-    //   id: 'twitter',
-    //   name: PLATFORM_BY_ID.x?.name || 'X (Twitter)',
-    //   username: 'Not Connected',
-    //   icon: FaTwitter,
-    //   iconColor: 'text-white',
-    //   status: 'Not Connected',
-    //   isConnected: false,
-    //   isPlaceholder: false,
-    // },
     {
       id: 'linkedin',
       name: PLATFORM_BY_ID.linkedin?.name || 'LinkedIn',
@@ -52,20 +21,41 @@ const AccountsCard: React.FC = () => {
       isConnected: false,
       isPlaceholder: false,
     },
+    {
+      id: 'facebook',
+      name: PLATFORM_BY_ID.facebook?.name || 'Facebook',
+      username: 'Coming Soon',
+      icon: FaFacebook,
+      iconColor: 'text-[#1877F2]',
+      status: 'Soon',
+      isConnected: false,
+      isPlaceholder: true,
+      pages: [] as any[],
+    },
+    {
+      id: 'instagram',
+      name: PLATFORM_BY_ID.instagram?.name || 'Instagram',
+      username: 'Coming Soon',
+      icon: FaInstagram,
+      iconColor: 'text-[#E4405F]',
+      status: 'Soon',
+      isConnected: false,
+      isPlaceholder: true,
+    },
   ]);
 
   const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
   const [twitterStatus, setTwitterStatus] = useState<TwitterConnectionStatus | null>(null);
-  const [instagramStatus, setInstagramStatus] = useState<InstagramConnectionStatus | null>(null);
-  const [facebookStatus, setFacebookStatus] = useState<FacebookConnectionStatus | null>(null);
+  // const [instagramStatus, setInstagramStatus] = useState<any | null>(null);
+  // const [facebookStatus, setFacebookStatus] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Check connection status on component mount
   useEffect(() => {
     checkLinkedInStatus(false); // Always check on mount
     checkTwitterStatus(false); // Always check on mount
-    checkInstagramStatus(false); // Always check on mount
-    checkFacebookStatus(false); // Always check on mount
+    // checkInstagramStatus(false); // Always check on mount
+    // checkFacebookStatus(false); // Always check on mount
     
     // Check for OAuth callback parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -109,6 +99,7 @@ const AccountsCard: React.FC = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    /* Commented out Instagram and Facebook callback handling for now
     // Instagram callback handling
     if (urlParams.get('instagram_connected') === 'true') {
       const username = urlParams.get('username');
@@ -148,6 +139,7 @@ const AccountsCard: React.FC = () => {
       // Clean up URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    */
   }, []);
 
   const checkLinkedInStatus = async (skipIfAlreadyConnected = false) => {
@@ -236,6 +228,7 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  /* Commented out status checks for Instagram and Facebook
   const checkInstagramStatus = async (skipIfAlreadyConnected = false) => {
     // Only check status if user is authenticated
     if (!user?.id) {
@@ -322,7 +315,7 @@ const AccountsCard: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  */
 
   const handleToggleConnection = async (accountId: string) => {
     if (accountId === 'linkedin') {
@@ -330,9 +323,9 @@ const AccountsCard: React.FC = () => {
     } else if (accountId === 'twitter') {
       await handleTwitterConnection();
     } else if (accountId === 'instagram') {
-      await handleInstagramConnection();
+      toast.error('Instagram integration is coming soon!');
     } else if (accountId === 'facebook') {
-      await handleFacebookConnection();
+      toast.error('Facebook integration is coming soon!');
     } else {
       // For other platforms, show coming soon message
       toast.error(`${accounts.find(a => a.id === accountId)?.name} integration is coming soon!`);
@@ -532,6 +525,7 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  /* Commented out Instagram and Facebook connection handlers
   const handleInstagramConnection = async () => {
     if (!user?.id) {
       toast.error('Please log into your Startup Ninja account first, then try connecting Instagram again.');
@@ -810,6 +804,7 @@ const AccountsCard: React.FC = () => {
         toast.error(error.message || 'Failed to remove page');
     }
   };
+  */
 
   return (
     <>
@@ -845,25 +840,25 @@ const AccountsCard: React.FC = () => {
 
               {/* Right side - Status and button */}
               <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                      account.isConnected ? 'bg-green-500' : 
-                      account.isPlaceholder ? 'bg-gray-500' : 'bg-[#DE0500]'
-                  }`} />
-                  <span 
-                    className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
-                      account.isConnected 
-                        ? 'text-green-500' 
-                          : account.isPlaceholder 
-                          ? 'text-gray-500'
-                        : 'text-[#DE0500]'
-                    }`}
-                  >
-                    {account.status}
-                  </span>
-                </div>
+                {!account.isPlaceholder && (
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                        account.isConnected ? 'bg-green-500' : 'bg-[#DE0500]'
+                    }`} />
+                    <span 
+                      className={`text-xs sm:text-sm font-medium whitespace-nowrap ${
+                        account.isConnected 
+                          ? 'text-green-500' 
+                          : 'text-[#DE0500]'
+                      }`}
+                    >
+                      {account.status}
+                    </span>
+                  </div>
+                )}
                 
                 <div className="flex gap-2">
+                    {/* Facebook page syncing commented out for now
                     {account.id === 'facebook' && account.isConnected && (
                         <button
                             onClick={handleSyncFacebookPages}
@@ -873,25 +868,27 @@ const AccountsCard: React.FC = () => {
                             <FaPlus className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} /> Add Page
                         </button>
                     )}
+                    */}
                     <button
                       onClick={() => handleToggleConnection(account.id)}
-                        disabled={isLoading || (account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook')}
+                        disabled={isLoading || account.isPlaceholder}
                         className={`px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                         account.isConnected
                           ? 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-transparent'
-                            : account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook'
-                            ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                            : account.isPlaceholder
+                            ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700/50'
                           : 'bg-green-600 hover:bg-green-700 text-white'
                       }`}
                     >
                         {account.isConnected ? 'Disconnect' : 
-                         account.isPlaceholder && account.id !== 'linkedin' && account.id !== 'twitter' && account.id !== 'instagram' && account.id !== 'facebook' ? 'Soon' : 'Connect'}
+                         account.isPlaceholder ? 'Coming Soon' : 'Connect'}
                     </button>
                 </div>
               </div>
             </div>
             
-            {/* Facebook Pages List */}
+            {/* Facebook Pages List (commented out for now) */}
+            {/*
             {account.id === 'facebook' && account.pages && account.pages.length > 0 && (
                 <div className="mt-3 pl-2 sm:pl-9 space-y-2 border-t border-gray-800 pt-3">
                    <div className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Connected Pages</div>
@@ -913,7 +910,6 @@ const AccountsCard: React.FC = () => {
                               <span className="text-sm text-gray-200 font-medium truncate">{page.name}</span>
                               <span className="text-[10px] text-gray-500 truncate">{page.category || 'Page'}</span>
                           </div>
-                          {/* Status Indicator for Page */}
                           <div className="ml-auto flex items-center gap-1">
                               <button
                                 onClick={() => handleRemovePage(page.id)}
@@ -927,6 +923,7 @@ const AccountsCard: React.FC = () => {
                    ))}
                 </div>
             )}
+            */}
           </div>
         ))}
       </div>

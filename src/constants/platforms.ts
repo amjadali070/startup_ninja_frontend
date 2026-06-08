@@ -31,6 +31,21 @@ export interface PlatformMeta {
 
 export const PLATFORM_LIST: PlatformMeta[] = [
   {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    icon: FiLinkedin,
+    colors: {
+      brand: '#0A66C2',
+      unselectedBg: 'bg-[#0A66C2]/10',
+      selectedBg: 'bg-gradient-to-r from-[#0A66C2] to-[#004182] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
+      unselectedBorder: 'border-[#0A66C2]/30',
+      selectedBorder: 'border-[#004182]/80',
+      iconColor: 'text-white',
+      textColor: 'text-white',
+      background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #0077B5 0%, #005986 100%)',
+    },
+  },
+  {
     id: 'facebook',
     name: 'Facebook',
     icon: FaFacebook,
@@ -75,21 +90,6 @@ export const PLATFORM_LIST: PlatformMeta[] = [
   //     background: '#FFFFFF0D',
   //   },
   // },
-  {
-    id: 'linkedin',
-    name: 'LinkedIn',
-    icon: FiLinkedin,
-    colors: {
-      brand: '#0A66C2',
-      unselectedBg: 'bg-[#0A66C2]/10',
-      selectedBg: 'bg-gradient-to-r from-[#0A66C2] to-[#004182] shadow-[inset_0_-8px_24px_rgba(0,0,0,0.35)]',
-      unselectedBorder: 'border-[#0A66C2]/30',
-      selectedBorder: 'border-[#004182]/80',
-      iconColor: 'text-white',
-      textColor: 'text-white',
-      background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), linear-gradient(90deg, #0077B5 0%, #005986 100%)',
-    },
-  },
 ];
 
 export const PLATFORM_BY_ID = PLATFORM_LIST.reduce<Record<string, PlatformMeta>>((acc, p) => {

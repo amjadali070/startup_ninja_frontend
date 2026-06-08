@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   FaCalendarAlt,
-  FaFacebook,
-  FaInstagram,
+  // FaFacebook,
+  // FaInstagram,
   // FaTwitter,
   FaLinkedin,
   FaPlus,
@@ -14,8 +14,8 @@ import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService from '../../services/social-media/oauth/linkedin';
 import twitterService from '../../services/social-media/oauth/twitter';
-import instagramService from '../../services/social-media/oauth/instagram';
-import facebookService from '../../services/social-media/oauth/facebook';
+// import instagramService from '../../services/social-media/oauth/instagram';
+// import facebookService from '../../services/social-media/oauth/facebook';
 import schedulerService from '../../services/social-media/scheduler';
 import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
 import { buildLocalDate } from '../../utils/date';
@@ -31,8 +31,8 @@ type Platform = {
 };
 
 const allPlatforms: Platform[] = [
-  { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
-  { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
+  // { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
+  // { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
   // { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
   { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
 ];
@@ -56,9 +56,12 @@ const SchedulingOption: React.FC = () => {
   const [isScheduling, setIsScheduling] = useState(false);
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([]);
-  const [fbPages, setFbPages] = useState<any[]>([]);
+  // const [fbPages, setFbPages] = useState<any[]>([]);
+  const fbPages: any[] = [];
 
   useEffect(() => {
+    // Commented out local Facebook page status check
+    /*
     if (user?.id) {
        facebookService.getConnectionStatus(user.id).then(res => {
           if (res.pages) {
@@ -66,6 +69,7 @@ const SchedulingOption: React.FC = () => {
           }
        }).catch(() => {});
     }
+    */
   }, [user]);
 
   // Sync effect removed for manual control
@@ -367,7 +371,8 @@ const SchedulingOption: React.FC = () => {
         }
       }
 
-      // Post to Instagram if selected (pre-validate image required)
+      // Post to Instagram if selected (pre-validate image required) (commented out for now)
+      /*
       if (postData.selectedPlatforms.includes('instagram')) {
         const imageExists = postData.files.find(f => f.type === 'image');
         if (!imageExists) {
@@ -401,6 +406,7 @@ const SchedulingOption: React.FC = () => {
           errors.push(`Facebook: ${msg}`);
         }
       }
+      */
 
       // Show appropriate notification based on results
       // Show appropriate notification based on results

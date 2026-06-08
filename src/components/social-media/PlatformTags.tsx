@@ -4,14 +4,15 @@ import { toast } from 'react-hot-toast';
 import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
 import { PLATFORM_LIST } from '../../constants/platforms';
-import facebookService from '../../services/social-media/oauth/facebook';
+// import facebookService from '../../services/social-media/oauth/facebook';
 import PageSelectionModal from './PageSelectionModal';
 
 const PlatformTags: React.FC = () => {
   const { postData, updateSelectedPlatforms, updateTargetAccounts } = usePost();
   const { user } = useAuth();
   const [isFbModalOpen, setIsFbModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const loading = false;
 
   const platforms = PLATFORM_LIST;
 
@@ -25,7 +26,13 @@ const PlatformTags: React.FC = () => {
       return;
     }
 
-    // If selecting Facebook, check pages
+    if (platformId === 'facebook' || platformId === 'instagram') {
+      toast.error(`${platformId === 'facebook' ? 'Facebook' : 'Instagram'} integration is coming soon!`);
+      return;
+    }
+
+    // If selecting Facebook, check pages (commented out for coming soon status)
+    /*
     if (platformId === 'facebook') {
       if (!user?.id) {
         toast.error('User not authenticated');
@@ -63,6 +70,7 @@ const PlatformTags: React.FC = () => {
       }
       return;
     }
+    */
 
     // Default for other platforms
     updateSelectedPlatforms([...postData.selectedPlatforms, platformId]);
@@ -82,6 +90,8 @@ const PlatformTags: React.FC = () => {
           const isSelected = postData.selectedPlatforms.includes(platform.id);
           const IconComponent = platform.icon;
           
+          const isComingSoon = platform.id === 'facebook' || platform.id === 'instagram';
+          
           return (
             <button
               key={platform.id}
@@ -91,7 +101,7 @@ const PlatformTags: React.FC = () => {
                 isSelected
                   ? `${platform.colors.selectedBg} ${platform.colors.selectedBorder} ${platform.colors.textColor}`
                   : `${platform.colors.unselectedBg} ${platform.colors.unselectedBorder} ${platform.colors.textColor}/70 hover:${platform.colors.textColor} hover:${platform.colors.selectedBorder}`
-              } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              } ${loading || isComingSoon ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {/* Checkmark icon for selected platforms */}
               {isSelected && (
@@ -102,6 +112,9 @@ const PlatformTags: React.FC = () => {
               
               <IconComponent className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${platform.colors.iconColor} ${isSelected ? 'opacity-100' : 'opacity-70'}`} />
               <span className="text-xs sm:text-sm md:text-base font-medium">{platform.name}</span>
+              {isComingSoon && (
+                <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-wider whitespace-nowrap">Coming Soon</span>
+              )}
             </button>
           );
         })}
