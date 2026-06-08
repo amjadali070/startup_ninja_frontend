@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { useAuth } from "../hooks/useAuth";
+// import { useEffect, useRef } from "react";
+// import { useAuth } from "../hooks/useAuth";
 
-const LIVECHAT_LICENSE = 19730364;
+// const LIVECHAT_LICENSE = Number(import.meta.env.VITE_LIVECHAT_LICENSE);
 
 declare global {
   interface Window {
@@ -21,6 +21,7 @@ declare global {
 }
 
 export default function LiveChatWidget() {
+  /* Commented out LiveChat Widget injection for now
   const { user } = useAuth();
   const injected = useRef(false);
 
@@ -31,7 +32,7 @@ export default function LiveChatWidget() {
 
     window.__lc = window.__lc || {};
     window.__lc.license = LIVECHAT_LICENSE;
-    window.__lc.integration_name = "manual_onboarding";
+    window.__lc.integration_name = "manual_restart_trial";
     window.__lc.product_name = "livechat";
 
     (function (n: Window, t: Document, c: typeof Array.prototype.slice) {
@@ -81,12 +82,7 @@ export default function LiveChatWidget() {
       // widget not ready yet — queued calls flush on load
     }
   }, [user]);
+  */
 
-  return (
-    <noscript>
-      <a href={`https://www.livechat.com/chat-with/${LIVECHAT_LICENSE}/`} rel="nofollow">
-        Chat with us
-      </a>
-    </noscript>
-  );
+  return null;
 }

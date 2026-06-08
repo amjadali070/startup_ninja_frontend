@@ -979,7 +979,7 @@ Defined in `index.css`:
 ### LiveChat
 
 - Component: `components/LiveChatWidget.tsx`
-- License: `19730364`
+- License: `19731177`
 - Injects the LiveChat tracking script once on mount
 - Automatically passes logged-in user's name and email to LiveChat so agents see visitor identity
 - To change the button/widget color: LiveChat dashboard → Settings → Chat widget → Customization → Theme color → `#DE0500`
