@@ -18,6 +18,10 @@ services:
         VITE_SYSTEM_IP: ${VITE_SYSTEM_IP}
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+        VITE_MICROSOFT_CLIENT_ID: ${VITE_MICROSOFT_CLIENT_ID}
+        VITE_MICROSOFT_TENANT_ID: ${VITE_MICROSOFT_TENANT_ID}
+        VITE_MICROSOFT_REDIRECT_URI: ${VITE_MICROSOFT_REDIRECT_URI}
+        VITE_GOOGLE_FONTS_API_KEY: ${VITE_GOOGLE_FONTS_API_KEY}
     container_name: startup-ninja-frontend-dev
     restart: always
     # Ports removed - accessed via nginx-proxy (backend network)
