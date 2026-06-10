@@ -95,12 +95,12 @@ export default function PricingSection() {
                         <p className="text-gray-300 mb-6 h-12">{plan.description || "Unlock powerful features."}</p>
 
                         {isEnterprise ? (
-                            <button 
-                                className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md cursor-default"
-                                style={{ pointerEvents: 'none' }}
+                            <Link 
+                                to="/contact?plan=enterprise"
+                                className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition"
                             >
                                 Contact for pricing
-                            </button>
+                            </Link>
                         ) : (
                             <Link 
                                 to={`/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}

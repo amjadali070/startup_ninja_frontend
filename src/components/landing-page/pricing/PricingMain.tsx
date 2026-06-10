@@ -192,12 +192,13 @@ const PricingMain: React.FC = () => {
                 )}
 
                 {isEnterprise ? (
-                    <button
-                        className="block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none cursor-default"
-                        style={{ pointerEvents: 'none', background: "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)" }}
+                    <Link
+                        to="/contact?plan=enterprise"
+                        className="block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none hover:opacity-85 transition-opacity"
+                        style={{ background: "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)" }}
                     >
                         Contact for pricing
-                    </button>
+                    </Link>
                 ) : (
                     <Link
                       to={displayPrice === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}

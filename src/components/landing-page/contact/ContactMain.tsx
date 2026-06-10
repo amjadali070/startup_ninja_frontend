@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEnvelope, FaUser, FaComment, FaRocket } from "react-icons/fa";
+import { apiClient } from "../../../services/apiClient";
 
 const ContactMain: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,10 +9,58 @@ const ContactMain: React.FC = () => {
     subject: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get("plan");
+    if (plan && plan.toLowerCase() === "enterprise") {
+      setFormData(prev => ({
+        ...prev,
+        subject: "Enterprise Plan Inquiry",
+        message: "Hi, I'm interested in the Enterprise plan for my business. Please contact me with more information regarding custom limits and features."
+      }));
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    setSuccess(false);
 
+    try {
+      const response = await apiClient.post("/user/contact-email", {
+        toEmail: "support@startupninja.ai",
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+
+      if (response.success) {
+        setSuccess(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setError(response.message || "Failed to send message. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Failed to submit contact form", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to send message. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -42,6 +91,17 @@ const ContactMain: React.FC = () => {
             }}
           >
             <h2 className="text-3xl font-bold mb-6">Send Us a Message</h2>
+
+            {success && (
+              <div className="p-4 mb-6 text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg">
+                ✅ Thank you! Your message has been sent successfully. We will get back to you within 24 hours.
+              </div>
+            )}
+            {error && (
+              <div className="p-4 mb-6 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">
+                ❌ {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -125,13 +185,14 @@ const ContactMain: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+                disabled={submitting}
+                className="w-full py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background:
                     "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
                 }}
               >
-                SEND MESSAGE
+                {submitting ? "SENDING..." : "SEND MESSAGE"}
               </button>
             </form>
           </div>
@@ -182,14 +243,14 @@ const ContactMain: React.FC = () => {
               >
                 <h3 className="text-xl font-bold mb-4">Email Support</h3>
                 <p className="mb-2" style={{ color: "#CCCCCC" }}>
-                  support@startupninja.com
+                  support@startupninja.ai
                 </p>
                 <p className="text-sm" style={{ color: "#999" }}>
                   We respond within 24 hours
                 </p>
               </div>
 
-              {/* <div
+              <div
                 className="rounded-lg p-6 border"
                 style={{
                   background:
@@ -214,7 +275,7 @@ const ContactMain: React.FC = () => {
                 >
                   Browse Docs →
                 </a>
-              </div> */}
+              </div>
             </div>
           </div>
         </div>
