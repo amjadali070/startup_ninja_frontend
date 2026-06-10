@@ -289,10 +289,10 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
       try {
         const response = await planService.getAllPlans();
         if (response.success && response.data) {
-          const paidPlans = response.data.filter(
-            (p: Plan) => p.price > 0 && p.key !== 'free' && p.name.toLowerCase() !== 'free plan'
+          const sortedPlans = [...response.data].sort(
+            (a: Plan, b: Plan) => a.price - b.price
           );
-          setPlans(paidPlans);
+          setPlans(sortedPlans);
         }
       } catch (err) {
         console.error('Failed to load plans', err);
