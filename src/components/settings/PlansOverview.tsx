@@ -279,6 +279,15 @@ interface PlansOverviewProps {
   onSelectPlan: (planName: string) => void;
 }
 
+const getPlanTier = (planName: string): number => {
+  const normalized = planName.toLowerCase();
+  if (normalized.includes('free')) return 0;
+  if (normalized.includes('founder')) return 1;
+  if (normalized.includes('growth')) return 2;
+  if (normalized.includes('enterprise')) return 3;
+  return 0;
+};
+
 const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -312,13 +321,11 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
         style: 'bg-white/5 text-gray-400 cursor-default border border-white/5',
       };
     }
-    const currentPlanObj = plans.find(
-      (p) =>
-        p.name.toLowerCase() === currentPlan.toLowerCase() ||
-        p.key === currentPlan.toLowerCase()
-    );
-    const currentPrice = currentPlanObj ? currentPlanObj.price : 0;
-    if (plan.price > currentPrice) {
+
+    const currentTier = getPlanTier(currentPlan);
+    const planTier = getPlanTier(plan.name);
+
+    if (planTier > currentTier) {
       return {
         text: 'Upgrade',
         disabled: false,

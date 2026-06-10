@@ -10,6 +10,15 @@ interface PlanSelectionModalProps {
   onSelectPlan: (planName: string) => void;
 }
 
+const getPlanTier = (planName: string): number => {
+  const normalized = planName.toLowerCase();
+  if (normalized.includes('free')) return 0;
+  if (normalized.includes('founder')) return 1;
+  if (normalized.includes('growth')) return 2;
+  if (normalized.includes('enterprise')) return 3;
+  return 0;
+};
+
 const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
   isOpen,
   onClose,
@@ -56,10 +65,10 @@ const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
       };
     }
     
-    const currentPlanObj = plans.find(p => p.name.toLowerCase() === currentPlan.toLowerCase() || p.key === currentPlan.toLowerCase());
-    const currentPrice = currentPlanObj ? currentPlanObj.price : 0;
+    const currentTier = getPlanTier(currentPlan);
+    const planTier = getPlanTier(plan.name);
 
-    if (plan.price > currentPrice) {
+    if (planTier > currentTier) {
       return { 
         text: "Upgrade", 
         disabled: false, 
