@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaEnvelope, FaBuilding, FaClock } from "react-icons/fa";
+import { apiClient } from "../../../services/apiClient";
 
 const BookDemoMain: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -8,10 +9,46 @@ const BookDemoMain: React.FC = () => {
     company: "",
     message: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    setSuccess(false);
 
+    try {
+      const response = await apiClient.post("/user/contact-email", {
+        toEmail: "support@startupninja.ai",
+        name: formData.name,
+        email: formData.email,
+        subject: `Demo Booking Request: ${formData.company || "No Company Specified"}`,
+        message: `Company: ${formData.company || "N/A"}\n\nGoals/Learn details:\n${formData.message}`,
+      });
+
+      if (response.success) {
+        setSuccess(true);
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          message: "",
+        });
+      } else {
+        setError(response.message || "Failed to submit demo request. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Failed to submit demo booking form", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to submit demo request. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const demoFeatures = [
@@ -52,6 +89,17 @@ const BookDemoMain: React.FC = () => {
           >
             <h2 className="text-3xl font-bold mb-6">Book Your Demo</h2>
 
+            {success && (
+              <div className="p-4 mb-6 text-sm text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg">
+                ✅ Thank you! Your demo request has been submitted successfully. We will get back to you shortly.
+              </div>
+            )}
+            {error && (
+              <div className="p-4 mb-6 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">
+                ❌ {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold mb-2 flex items-center">
@@ -61,11 +109,12 @@ const BookDemoMain: React.FC = () => {
                 <input
                   type="text"
                   required
+                  disabled={submitting}
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333]"
+                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333] disabled:opacity-50"
                   placeholder="John Doe"
                   onFocus={(e) =>
                     (e.currentTarget.style.borderColor = "#D23621")
@@ -82,11 +131,12 @@ const BookDemoMain: React.FC = () => {
                 <input
                   type="email"
                   required
+                  disabled={submitting}
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333]"
+                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333] disabled:opacity-50"
                   placeholder="john@company.com"
                   onFocus={(e) =>
                     (e.currentTarget.style.borderColor = "#D23621")
@@ -102,11 +152,12 @@ const BookDemoMain: React.FC = () => {
                 </label>
                 <input
                   type="text"
+                  disabled={submitting}
                   value={formData.company}
                   onChange={(e) =>
                     setFormData({ ...formData, company: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333]"
+                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors border border-[#333] disabled:opacity-50"
                   placeholder="Your Company"
                   onFocus={(e) =>
                     (e.currentTarget.style.borderColor = "#D23621")
@@ -120,12 +171,13 @@ const BookDemoMain: React.FC = () => {
                   What would you like to learn about?
                 </label>
                 <textarea
+                  disabled={submitting}
                   value={formData.message}
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
                   rows={4}
-                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors resize-none border border-[#333]"
+                  className="w-full px-4 py-3 bg-[#151515] rounded-lg focus:outline-none transition-colors resize-none border border-[#333] disabled:opacity-50"
                   placeholder="Tell us about your goals..."
                   onFocus={(e) =>
                     (e.currentTarget.style.borderColor = "#D23621")
@@ -136,13 +188,14 @@ const BookDemoMain: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300"
+                disabled={submitting}
+                className="w-full py-4 rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background:
                     "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
                 }}
               >
-                BOOK DEMO
+                {submitting ? "SUBMITTING..." : "BOOK DEMO"}
               </button>
             </form>
           </div>
