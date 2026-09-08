@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { adminService } from "../../../services/admin";
+import { planService, Plan } from "../../../services/plan";
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -16,11 +17,20 @@ interface SubscriptionTabProps {
 
 const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [planName, setPlanName] = useState("Founder");
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [planName, setPlanName] = useState("Go");
   const [billingCycle, setBillingCycle] = useState("monthly");
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    planService.getAllPlans().then((res) => {
+      if (res.success && res.data) {
+        setPlans(res.data.filter((p: Plan) => p.key !== "free"));
+      }
+    }).catch(() => {});
+  }, []);
 
   const handleAssignPlan = async () => {
     if (paymentStatus === "paid" && !invoiceNumber) {
@@ -65,11 +75,11 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
           <div className="flex items-center gap-3">
             <span
               className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide ${
-                (user.subscription.plan || "").includes("Enterprise")
+                /business|custom/i.test(user.subscription.plan || "")
                   ? "bg-purple-600/20 text-purple-400 border border-purple-500/30"
-                  : (user.subscription.plan || "").includes("Growth")
+                  : /pro/i.test(user.subscription.plan || "")
                   ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
-                  : (user.subscription.plan || "").includes("Founder")
+                  : /go/i.test(user.subscription.plan || "")
                   ? "bg-green-600/20 text-green-400 border border-green-500/30"
                   : "bg-gray-600/20 text-gray-400 border border-gray-500/30"
               }`}
@@ -91,15 +101,14 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                     <div>
                         <label className="block text-gray-400 mb-1.5">Select Plan</label>
-                        <select 
-                            value={planName} 
+                        <select
+                            value={planName}
                             onChange={(e) => setPlanName(e.target.value)}
                             className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
                         >
-                            <option value="Free">Free</option>
-                            <option value="Founder">Founder</option>
-                            <option value="Growth">Growth</option>
-                            <option value="Enterprise">Enterprise</option>
+                            {plans.map((p) => (
+                              <option key={p.key} value={p.name}>{p.name}</option>
+                            ))}
                         </select>
                     </div>
                     <div>

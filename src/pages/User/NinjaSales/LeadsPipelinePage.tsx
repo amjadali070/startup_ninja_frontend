@@ -7,6 +7,7 @@ import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesSt
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import { FiFilter, FiCalendar, FiUser, FiTrendingUp, FiAlertTriangle, FiDollarSign, FiGlobe, FiSearch } from "react-icons/fi";
 import { DropResult } from "@hello-pangea/dnd";
+import toast from "react-hot-toast";
 import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
 import IconSelect from "../../../components/IconSelect";
 import { ninjaSalesService } from "../../../services/ninjaSales";
@@ -19,6 +20,8 @@ const emptyColumns: Column[] = [
   { id: "negotiation", title: "Negotiation", cards: [] },
   { id: "converted", title: "Converted", cards: [] },
   { id: "closed-won", title: "Closed Won", cards: [] },
+  { id: "closed-lost", title: "Closed Lost", cards: [] },
+  { id: "hold", title: "Hold", cards: [] },
 ];
 
 const LeadsPipelinePage: FC = () => {
@@ -67,11 +70,34 @@ const LeadsPipelinePage: FC = () => {
     setIsAddModalOpen(true);
   };
 
+  const persistMove = async (
+    prevSnapshot: Column[],
+    cardId: string,
+    fromStage: string,
+    toStage: string,
+    newIndex: number,
+    toTitle: string
+  ) => {
+    const res = await ninjaSalesService.movePipelineCard({
+      leadId: cardId,
+      fromStage,
+      toStage,
+      newIndex,
+    });
+    if (res.success) {
+      if (fromStage !== toStage) toast.success(`Moved to ${toTitle}`);
+    } else {
+      setKanbanData(prevSnapshot);
+      toast.error(res.message || "Could not move card — please try again");
+    }
+  };
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
+    const prevSnapshot = kanbanData;
     const newCols = [...kanbanData];
     const sourceColIndex = newCols.findIndex(col => col.id === source.droppableId);
     const destColIndex = newCols.findIndex(col => col.id === destination.droppableId);
@@ -91,12 +117,28 @@ const LeadsPipelinePage: FC = () => {
     }
     setKanbanData(newCols);
 
-    ninjaSalesService.movePipelineCard({
-      leadId: movedCard.id,
-      fromStage: source.droppableId,
-      toStage: destination.droppableId,
-      newIndex: destination.index,
-    });
+    persistMove(prevSnapshot, movedCard.id, source.droppableId, destination.droppableId, destination.index, destCol.title);
+  };
+
+  const handleCardStageChange = (cardId: string, fromStage: string, toStage: string) => {
+    if (fromStage === toStage) return;
+    const prevSnapshot = kanbanData;
+    const sourceColIndex = kanbanData.findIndex(col => col.id === fromStage);
+    const destColIndex = kanbanData.findIndex(col => col.id === toStage);
+    if (sourceColIndex === -1 || destColIndex === -1) return;
+
+    const sourceCol = { ...kanbanData[sourceColIndex], cards: [...kanbanData[sourceColIndex].cards] };
+    const cardIdx = sourceCol.cards.findIndex(c => c.id === cardId);
+    if (cardIdx === -1) return;
+    const [movedCard] = sourceCol.cards.splice(cardIdx, 1);
+    const destCol = { ...kanbanData[destColIndex], cards: [...kanbanData[destColIndex].cards, movedCard] };
+
+    const newCols = [...kanbanData];
+    newCols[sourceColIndex] = sourceCol;
+    newCols[destColIndex] = destCol;
+    setKanbanData(newCols);
+
+    persistMove(prevSnapshot, cardId, fromStage, toStage, destCol.cards.length - 1, destCol.title);
   };
 
   const filteredColumns = useMemo(() => {
@@ -148,6 +190,7 @@ const LeadsPipelinePage: FC = () => {
           <NinjaSalesHeader
             title="Projects Pipeline"
             subtitle="Track your deals across pipeline stages — monitor business velocity."
+            newButtonText="New Deal"
             onNewDeal={handleNewLead}
           />
 
@@ -238,7 +281,7 @@ const LeadsPipelinePage: FC = () => {
 
           {/* Pipeline Kanban Section */}
           <div className="mt-8 pt-4 overflow-hidden">
-            <PipelineKanban columns={filteredColumns} onDragEnd={onDragEnd} />
+            <PipelineKanban columns={filteredColumns} onDragEnd={onDragEnd} onStageChange={handleCardStageChange} />
           </div>
 
         </div>

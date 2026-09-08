@@ -8,14 +8,17 @@ interface PlanSelectionModalProps {
   onClose: () => void;
   currentPlan: string;
   onSelectPlan: (planName: string) => void;
+  onSelectDowngrade?: (planName: string) => void;
 }
 
 const getPlanTier = (planName: string): number => {
   const normalized = planName.toLowerCase();
   if (normalized.includes('free')) return 0;
-  if (normalized.includes('founder')) return 1;
-  if (normalized.includes('growth')) return 2;
-  if (normalized.includes('enterprise')) return 3;
+  // Go Student is the same tier as Go (a discounted Go, not a step below it)
+  if (normalized.includes('go')) return 1;
+  if (normalized.includes('pro')) return 2;
+  if (normalized.includes('business')) return 3;
+  if (normalized.includes('custom')) return 4;
   return 0;
 };
 
@@ -24,6 +27,7 @@ const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
   onClose,
   currentPlan,
   onSelectPlan,
+  onSelectDowngrade,
 }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,7 +173,10 @@ const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
                     {/* Action Button */}
                     <button
                     onClick={() => {
-                        if (!buttonState.disabled) {
+                        if (buttonState.disabled) return;
+                        if (buttonState.text === "Downgrade" && onSelectDowngrade) {
+                            onSelectDowngrade(plan.name);
+                        } else {
                             onSelectPlan(plan.name);
                         }
                     }}

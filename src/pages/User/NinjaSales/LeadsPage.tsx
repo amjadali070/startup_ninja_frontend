@@ -5,14 +5,16 @@ import { useAuth } from "../../../hooks/useAuth";
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import LeadsTable from "../../../components/ninja-sales/LeadsTable";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
-import { FiUsers, FiTrendingUp, FiTarget, FiZap } from "react-icons/fi";
-import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
+import { FiUsers, FiTrendingUp, FiTarget, FiZap, FiTrash2 } from "react-icons/fi";
+import CreateLeadModal from "../../../components/ninja-sales/CreateLeadModal";
+import TrashModal from "../../../components/ninja-sales/TrashModal";
 import { apiClient } from "../../../services/apiClient";
 
 const LeadsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [leadStats, setLeadStats] = useState({ totalLeads: 0, conversions: 0, leadsValue: 0, winRate: 0 });
 
@@ -63,10 +65,13 @@ const LeadsPage: FC = () => {
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen pb-10">
           
-          <NinjaSalesHeader 
-            title="Lead Management" 
+          <NinjaSalesHeader
+            title="Lead Management"
             subtitle="Intelligent Lead Tracking — Managing your potential revenue growth."
-            onNewDeal={handleNewLead} 
+            onNewDeal={handleNewLead}
+            secondaryButtonText="Trash"
+            secondaryButtonIcon={<FiTrash2 className="h-4 w-4" />}
+            onSecondaryAction={() => setIsTrashOpen(true)}
           />
 
           <SalesStatGrid stats={stats} />
@@ -82,10 +87,16 @@ const LeadsPage: FC = () => {
         </div>
       </main>
 
-      <AddProjectModal 
-        isOpen={isAddModalOpen} 
+      <CreateLeadModal
+        isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onCreated={() => setRefreshKey(k => k + 1)}
+      />
+
+      <TrashModal
+        isOpen={isTrashOpen}
+        onClose={() => setIsTrashOpen(false)}
+        onRestored={() => setRefreshKey(k => k + 1)}
       />
     </DashboardLayout>
   );

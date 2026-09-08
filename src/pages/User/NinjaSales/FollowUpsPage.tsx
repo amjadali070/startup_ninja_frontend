@@ -6,6 +6,7 @@ import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import FollowUpTable from "../../../components/ninja-sales/FollowUpTable";
 import AIOutreachAssistant from "../../../components/ninja-sales/AIOutreachAssistant";
+import RemindersBanner from "../../../components/ninja-sales/RemindersBanner";
 import { FiCalendar, FiAlertTriangle, FiClock, FiCheckCircle } from "react-icons/fi";
 import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 import { ninjaSalesService } from "../../../services/ninjaSales";
@@ -76,6 +77,8 @@ const FollowUpsPage: FC = () => {
             newButtonText="New Outreach" 
             onNewDeal={handleNewOutreach} 
           />
+
+          <RemindersBanner />
 
           <SalesStatGrid stats={stats} />
 

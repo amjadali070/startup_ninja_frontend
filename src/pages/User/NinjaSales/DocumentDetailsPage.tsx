@@ -4,9 +4,27 @@ import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useAuth } from "../../../hooks/useAuth";
 import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { Proposal, Invoice, PricingItem } from "../../../services/ninjaSales";
-import { FiArrowLeft, FiDownload, FiSave } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiSave, FiSend, FiCheckCircle, FiBookmark } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
 import toast from "react-hot-toast";
+
+const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "INR"];
+
+const statusStyle: Record<string, string> = {
+  PAID: "text-emerald-500 bg-emerald-500/10",
+  SENT: "text-red-500 bg-red-500/10",
+  OVERDUE: "text-orange-400 bg-orange-500/10",
+  CANCELLED: "text-white/30 bg-white/5",
+  DRAFT: "text-white/40 bg-white/5",
+};
+
+const formatMoney = (value: number, currency: string) => {
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(value || 0);
+  } catch {
+    return `${currency || "USD"} ${(value || 0).toLocaleString()}`;
+  }
+};
 
 type DocKind = "proposal" | "invoice";
 type ClauseDraft = { id: string; title: string; body: string };
@@ -58,17 +76,26 @@ const DocumentDetailsPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refining, setRefining] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [markingPaid, setMarkingPaid] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
   const [doc, setDoc] = useState<Proposal | Invoice | null>(null);
 
   // editable fields
   const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const [projectTitle, setProjectTitle] = useState("");
+  const [currency, setCurrency] = useState("USD");
   const [paymentTerms, setPaymentTerms] = useState("");
   const [issuedDate, setIssuedDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
   const [companyLogoUrl, setCompanyLogoUrl] = useState("");
   const [signatureUrl, setSignatureUrl] = useState("");
+  const [senderCompanyName, setSenderCompanyName] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
+  const [senderTaxId, setSenderTaxId] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [clauses, setClauses] = useState<ClauseDraft[]>([]);
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
@@ -93,13 +120,19 @@ const DocumentDetailsPage: FC = () => {
         if (res.success) {
           setDoc(res.data);
           setClientName(res.data.clientName || "");
+          setClientEmail(res.data.clientEmail || "");
           setProjectTitle(res.data.projectTitle || "");
+          setCurrency(res.data.currency || "USD");
           setPaymentTerms(res.data.paymentTerms || "");
           setIssuedDate(res.data.issuedDate ? new Date(res.data.issuedDate).toISOString().slice(0, 10) : "");
           setDueDate(res.data.dueDate ? new Date(res.data.dueDate).toISOString().slice(0, 10) : "");
           setNotes(res.data.notes || "");
           setCompanyLogoUrl(res.data.companyLogoUrl || "");
           setSignatureUrl(res.data.signatureUrl || "");
+          setSenderCompanyName(res.data.senderCompanyName || "");
+          setSenderAddress(res.data.senderAddress || "");
+          setSenderTaxId(res.data.senderTaxId || "");
+          setSenderEmail(res.data.senderEmail || "");
           setTaxRate(res.data.taxRate || 0);
           setDiscount(res.data.discount || 0);
           setItems(res.data.items || []);
@@ -109,13 +142,19 @@ const DocumentDetailsPage: FC = () => {
         if (res.success) {
           setDoc(res.data);
           setClientName(res.data.clientName || "");
+          setClientEmail(res.data.clientEmail || "");
           setProjectTitle(res.data.projectTitle || "");
+          setCurrency(res.data.currency || "USD");
           setPaymentTerms(res.data.paymentTerms || "");
           setIssuedDate(res.data.issuedDate ? new Date(res.data.issuedDate).toISOString().slice(0, 10) : "");
           setDueDate(res.data.dueDate ? new Date(res.data.dueDate).toISOString().slice(0, 10) : "");
           setNotes(res.data.notes || "");
           setCompanyLogoUrl(res.data.companyLogoUrl || "");
           setSignatureUrl(res.data.signatureUrl || "");
+          setSenderCompanyName(res.data.senderCompanyName || "");
+          setSenderAddress(res.data.senderAddress || "");
+          setSenderTaxId(res.data.senderTaxId || "");
+          setSenderEmail(res.data.senderEmail || "");
           const c = Array.isArray(res.data.clauses) ? res.data.clauses : [];
           setClauses(
             c
@@ -148,7 +187,10 @@ const DocumentDetailsPage: FC = () => {
   const downloadPdf = async () => {
     if (!id) return;
     const res = docKind === "invoice" ? await ninjaSalesService.downloadInvoicePdf(id) : await ninjaSalesService.downloadProposalPdf(id);
-    if (!res.success || !res.blob) return;
+    if (!res.success || !res.blob) {
+      toast.error(res.message || "Failed to generate PDF");
+      return;
+    }
     const url = URL.createObjectURL(res.blob);
     const a = document.createElement("a");
     a.href = url;
@@ -166,13 +208,19 @@ const DocumentDetailsPage: FC = () => {
       if (docKind === "invoice") {
         const res = await ninjaSalesService.updateInvoice(id, {
           clientName,
+          clientEmail,
           projectTitle,
+          currency,
           paymentTerms,
           issuedDate: issuedDate ? new Date(issuedDate).toISOString() : undefined,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
           notes,
           companyLogoUrl,
           signatureUrl,
+          senderCompanyName,
+          senderAddress,
+          senderTaxId,
+          senderEmail,
           taxRate,
           discount,
           items,
@@ -182,13 +230,19 @@ const DocumentDetailsPage: FC = () => {
       } else {
         const res = await ninjaSalesService.updateProposal(id, {
           clientName,
+          clientEmail,
           projectTitle,
+          currency,
           paymentTerms,
           issuedDate: issuedDate ? new Date(issuedDate).toISOString() : undefined,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
           notes,
           companyLogoUrl,
           signatureUrl,
+          senderCompanyName,
+          senderAddress,
+          senderTaxId,
+          senderEmail,
           clauses: clauses.map((c) => ({ title: c.title, body: c.body })),
           taxRate,
           discount,
@@ -200,6 +254,80 @@ const DocumentDetailsPage: FC = () => {
       await load();
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!id) return;
+    let email = clientEmail.trim();
+    if (!email) {
+      const entered = window.prompt("This client has no email on file. Enter an email address to send to:");
+      if (!entered) return;
+      email = entered.trim();
+      setClientEmail(email);
+    }
+    setSending(true);
+    try {
+      const res = docKind === "invoice"
+        ? await ninjaSalesService.sendInvoice(id, email)
+        : await ninjaSalesService.sendProposal(id, email);
+      if (res.success) {
+        toast.success(res.message || "Sent");
+        await load();
+      } else if (res.code === "NO_SMTP_CONFIG") {
+        toast.error(
+          (t) => (
+            <span>
+              {res.message}{" "}
+              <button
+                onClick={() => { toast.dismiss(t.id); navigate("/settings"); }}
+                className="underline font-bold"
+              >
+                Open Settings
+              </button>
+            </span>
+          ),
+          { duration: 8000 }
+        );
+      } else {
+        toast.error(res.message || "Failed to send");
+      }
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleMarkPaid = async () => {
+    if (!id || docKind !== "invoice") return;
+    setMarkingPaid(true);
+    try {
+      const res = await ninjaSalesService.markInvoicePaid(id);
+      if (res.success) {
+        toast.success("Marked as paid");
+        await load();
+      } else {
+        toast.error(res.message || "Failed to mark as paid");
+      }
+    } finally {
+      setMarkingPaid(false);
+    }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!id) return;
+    const name = window.prompt("Name this template:", projectTitle || "");
+    if (!name || !name.trim()) return;
+    setSavingTemplate(true);
+    try {
+      const res = await ninjaSalesService.createTemplateFromDocument({
+        name: name.trim(),
+        docType: docKind === "invoice" ? "INVOICE" : "PROPOSAL",
+        documentId: id,
+      });
+      if (res.success) toast.success("Saved as template");
+      else toast.error(res.message || "Failed to save template");
+    } finally {
+      setSavingTemplate(false);
     }
   };
 
@@ -322,15 +450,32 @@ const DocumentDetailsPage: FC = () => {
               {/* Left: Editor */}
               <div className="xl:col-span-5 space-y-6">
                 <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-3">
                     <div>
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{docKind.toUpperCase()}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{docKind.toUpperCase()}</p>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${statusStyle[doc.status] || "text-white/40 bg-white/5"}`}>{doc.status}</span>
+                      </div>
                       <p className="text-sm font-black text-white/90 tracking-tight">{doc.reference}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={handleSaveAsTemplate} disabled={savingTemplate} className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 flex items-center gap-2 disabled:opacity-50">
+                        <FiBookmark className="w-4 h-4" />
+                        {savingTemplate ? "Saving..." : "Save as Template"}
+                      </button>
                       <button onClick={downloadPdf} className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 flex items-center gap-2">
                         <FiDownload className="w-4 h-4" />
                         PDF
+                      </button>
+                      {docKind === "invoice" && doc.status !== "PAID" && doc.status !== "CANCELLED" && (
+                        <button onClick={handleMarkPaid} disabled={markingPaid} className="h-10 px-4 bg-emerald-600/10 border border-emerald-600/30 text-emerald-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600/20 flex items-center gap-2 disabled:opacity-50">
+                          <FiCheckCircle className="w-4 h-4" />
+                          {markingPaid ? "Marking..." : "Mark Paid"}
+                        </button>
+                      )}
+                      <button onClick={handleSend} disabled={sending} className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 flex items-center gap-2 disabled:opacity-50">
+                        <FiSend className="w-4 h-4" />
+                        {sending ? "Sending..." : "Email to Client"}
                       </button>
                       <button
                         onClick={handleSave}
@@ -351,8 +496,21 @@ const DocumentDetailsPage: FC = () => {
                       <input value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30" />
                     </div>
                     <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Client Email</label>
+                      <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@company.com" className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30 placeholder:text-white/20 placeholder:font-medium" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Title</label>
                       <input value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Currency</label>
+                      <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30">
+                        {CURRENCIES.map((c) => <option key={c} value={c} className="bg-[#121212]">{c}</option>)}
+                      </select>
                     </div>
                   </div>
 
@@ -394,6 +552,32 @@ const DocumentDetailsPage: FC = () => {
                       </div>
                     </div>
                   )}
+                </div>
+
+                <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 shadow-2xl space-y-4">
+                  <h3 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
+                    From (Your Company)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Company Name</label>
+                      <input value={senderCompanyName} onChange={(e) => setSenderCompanyName(e.target.value)} placeholder="Your company name" className="w-full h-11 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30 placeholder:text-white/20 placeholder:font-medium" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Reply-To Email</label>
+                      <input type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="you@company.com" className="w-full h-11 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30 placeholder:text-white/20 placeholder:font-medium" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Address</label>
+                      <input value={senderAddress} onChange={(e) => setSenderAddress(e.target.value)} placeholder="Street, City, Country" className="w-full h-11 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30 placeholder:text-white/20 placeholder:font-medium" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Tax ID (Optional)</label>
+                      <input value={senderTaxId} onChange={(e) => setSenderTaxId(e.target.value)} placeholder="VAT / EIN / Tax ID" className="w-full h-11 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30 placeholder:text-white/20 placeholder:font-medium" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 shadow-2xl space-y-4">
@@ -477,7 +661,7 @@ const DocumentDetailsPage: FC = () => {
                   </div>
                   <div className="pt-4 border-t border-white/5 flex justify-between">
                     <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Total</span>
-                    <span className="text-lg font-black text-red-500">${Math.round(total).toLocaleString()}</span>
+                    <span className="text-lg font-black text-red-500">{formatMoney(total, currency)}</span>
                   </div>
                 </div>
 
@@ -582,9 +766,19 @@ const DocumentDetailsPage: FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 gap-8 mb-10">
-                    <div>
-                      <p className="text-xs font-black text-black/40 uppercase">Prepared For</p>
-                      <p className="text-lg font-black">{clientName}</p>
+                    <div className="space-y-4">
+                      {(senderCompanyName || senderAddress) && (
+                        <div>
+                          <p className="text-xs font-black text-black/40 uppercase">From</p>
+                          {senderCompanyName && <p className="text-sm font-black">{senderCompanyName}</p>}
+                          {senderAddress && <p className="text-xs text-black/60">{senderAddress}</p>}
+                          {senderTaxId && <p className="text-xs text-black/40">Tax ID: {senderTaxId}</p>}
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-xs font-black text-black/40 uppercase">Prepared For</p>
+                        <p className="text-lg font-black">{clientName}</p>
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-black text-black/40 uppercase">Issued</p>
@@ -626,8 +820,8 @@ const DocumentDetailsPage: FC = () => {
                           <tr key={idx} className="border-t">
                             <td className="py-3 font-bold">{it.description}</td>
                             <td className="py-3 text-center">{it.qty}</td>
-                            <td className="py-3 text-right">${Number(it.rate || 0).toLocaleString()}</td>
-                            <td className="py-3 text-right font-black">${(Number(it.qty || 0) * Number(it.rate || 0)).toLocaleString()}</td>
+                            <td className="py-3 text-right">{formatMoney(Number(it.rate || 0), currency)}</td>
+                            <td className="py-3 text-right font-black">{formatMoney(Number(it.qty || 0) * Number(it.rate || 0), currency)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -637,23 +831,23 @@ const DocumentDetailsPage: FC = () => {
                       <div className="w-64 space-y-2 text-sm">
                         <div className="flex justify-between text-black/60 font-bold">
                           <span>Subtotal</span>
-                          <span>${subtotal.toLocaleString()}</span>
+                          <span>{formatMoney(subtotal, currency)}</span>
                         </div>
                         {docKind === "invoice" && taxRate > 0 && (
                           <div className="flex justify-between text-black/60 font-bold">
                             <span>Tax ({taxRate}%)</span>
-                            <span>${taxAmount.toLocaleString()}</span>
+                            <span>{formatMoney(taxAmount, currency)}</span>
                           </div>
                         )}
                         {docKind === "invoice" && discount > 0 && (
                           <div className="flex justify-between text-black/60 font-bold">
                             <span>Discount</span>
-                            <span>-${discount.toLocaleString()}</span>
+                            <span>-{formatMoney(discount, currency)}</span>
                           </div>
                         )}
                         <div className="flex justify-between text-black font-black text-lg border-t pt-2">
                           <span>Total</span>
-                          <span className="text-red-600">${Math.round(total).toLocaleString()}</span>
+                          <span className="text-red-600">{formatMoney(total, currency)}</span>
                         </div>
                         <div className="text-[11px] text-black/50 font-bold uppercase pt-2">
                           Terms: <span className="text-black">{paymentTerms}</span>

@@ -26,9 +26,12 @@ interface Column {
 interface PipelineKanbanProps {
   columns: Column[];
   onDragEnd: (result: DropResult) => void;
+  onStageChange?: (cardId: string, fromStage: string, toStage: string) => void;
 }
 
-const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) => {
+const NON_PRIMARY_STAGES = new Set(["hold"]);
+
+const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd, onStageChange }) => {
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
       case "HIGH": return "bg-red-600 text-white";
@@ -57,15 +60,22 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide min-h-[600px] select-none">
-        {columns.map((column) => (
-          <div key={column.id} className="min-w-[280px] sm:min-w-[300px] lg:min-w-[260px] flex-1 flex flex-col gap-4">
+        {columns.map((column) => {
+          const isNonPrimary = NON_PRIMARY_STAGES.has(column.id);
+          return (
+          <div key={column.id} className={`min-w-[280px] sm:min-w-[300px] lg:min-w-[260px] flex-1 flex flex-col gap-4 ${isNonPrimary ? 'opacity-80' : ''}`}>
             {/* Column Header */}
             <div className="flex items-center justify-between px-2 h-8">
               <h3 className="text-xs font-black text-white/90 uppercase tracking-wider flex items-center gap-2">
-                {column.title} 
+                {column.title}
                 <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white/5 text-[10px] font-black text-white/40">
                   {column.cards.length}
                 </span>
+                {isNonPrimary && (
+                  <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-white/5 text-white/25 border border-dashed border-white/10">
+                    Non-primary
+                  </span>
+                )}
               </h3>
               <button className="text-white/30 hover:text-white transition-colors">
                 <FiMoreHorizontal />
@@ -75,28 +85,42 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
             {/* Cards Area */}
             <Droppable droppableId={column.id}>
               {(provided, snapshot) => (
-                <div 
+                <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className={`flex-1 space-y-5 rounded-3xl transition-all p-1 min-h-[150px] ${snapshot.isDraggingOver ? 'bg-red-600/5 ring-1 ring-red-600/10' : ''}`}
+                  className={`flex-1 space-y-5 rounded-3xl transition-all p-1 min-h-[150px] ${snapshot.isDraggingOver ? 'bg-red-600/5 ring-1 ring-red-600/10' : ''} ${isNonPrimary ? 'border border-dashed border-white/[0.06]' : ''}`}
                 >
                   {column.cards.map((card, index) => (
                     <Draggable key={card.id} draggableId={card.id} index={index}>
                       {(provided, snapshot) => (
-                        <div 
+                        <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           style={{ ...provided.draggableProps.style }}
                           className={`bg-[#121212] border border-white/[0.03] rounded-2xl p-5 sm:p-6 shadow-xl transition-all group relative overflow-hidden flex flex-col shrink-0 ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-2xl ring-2 ring-red-600/40 z-50' : 'hover:border-red-500/30'}`}
                         >
-                          <div className="flex items-start justify-between mb-3.5 shrink-0">
+                          <div className="flex items-start justify-between mb-3.5 shrink-0 gap-2">
                             <span className={`text-[10px] font-black px-2 py-0.5 rounded ${getPriorityStyle(card.priority)}`}>
                               {card.priority}
                             </span>
-                            <div className="flex items-center gap-1">
-                              <MdDragIndicator className="hidden group-hover:block w-5 h-5 text-white/20 transition-all cursor-grab active:cursor-grabbing" />
-                              <div className="flex gap-1 group-hover:hidden transition-opacity">
+                            <div className="flex items-center gap-2">
+                              {onStageChange && (
+                                <select
+                                  value={column.id}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onChange={(e) => onStageChange(card.id, column.id, e.target.value)}
+                                  className="bg-white/[0.04] border border-white/10 rounded-md text-[9px] font-bold text-white/60 uppercase tracking-wide px-1.5 py-1 focus:outline-none focus:border-red-500/50 hover:bg-white/[0.08] transition-colors cursor-pointer max-w-[92px]"
+                                  title="Change stage"
+                                >
+                                  {columns.map((c) => (
+                                    <option key={c.id} value={c.id} className="bg-[#121212] text-white">{c.title}</option>
+                                  ))}
+                                </select>
+                              )}
+                              <MdDragIndicator className="hidden group-hover:block w-5 h-5 text-white/20 transition-all cursor-grab active:cursor-grabbing shrink-0" />
+                              <div className="flex gap-1 group-hover:hidden transition-opacity shrink-0">
                                 <div className="w-1 h-1 bg-white/20 rounded-full" />
                                 <div className="w-1 h-1 bg-white/20 rounded-full" />
                                 <div className="w-1 h-1 bg-white/20 rounded-full" />
@@ -155,7 +179,8 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd }) =
               )}
             </Droppable>
           </div>
-        ))}
+          );
+        })}
       </div>
     </DragDropContext>
   );

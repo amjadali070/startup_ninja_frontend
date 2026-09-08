@@ -7,15 +7,17 @@ import {
   FiTarget, FiDollarSign, FiClock, FiShield, FiFilePlus,
   FiMoreVertical, FiSend, FiPhone, FiMail, FiBriefcase, FiAward,
   FiCircle, FiMessageCircle, FiUserCheck, FiTrendingUp, FiPauseCircle, FiUnlock, FiLock,
-  FiRefreshCw
+  FiRefreshCw, FiTrash2
 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
+import toast from "react-hot-toast";
 import { apiClient } from "../../../services/apiClient";
 import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { Project, FollowUp, ProjectAiSuggestions } from "../../../services/ninjaSales";
 import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 import IconSelect from "../../../components/IconSelect";
 import GenerateDocModal from "../../../components/ninja-sales/GenerateDocModal";
+import AlertModal from "../../../components/AlertModal";
 
 const priorityColor: Record<string, string> = {
   urgent: "bg-red-600 text-white", high: "bg-orange-500/20 text-orange-400",
@@ -71,9 +73,13 @@ const stageOptions = [
 const ProjectDetailsPage: FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  /** Same rule the backend enforces for delete: only the account owner or a manager */
+  const canDelete = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<ProjectAiSuggestions | null>(null);
@@ -135,6 +141,20 @@ const ProjectDetailsPage: FC = () => {
   };
 
   const handleLogout = async () => { try { await logout(); } catch {} finally { navigate("/login", { replace: true }); } };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    const res = await ninjaSalesService.deleteProject(id);
+    setDeleting(false);
+    if (res.success) {
+      toast.success("Project moved to trash");
+      navigate("/ai-tools/sales/projects");
+    } else {
+      toast.error(res.message || "Could not delete project");
+      setIsDeleteOpen(false);
+    }
+  };
 
   const lead = project?.leadId && typeof project.leadId === "object" ? project.leadId : null;
   const stageIdx = pipelineStages.indexOf(project?.pipelineStage || "new");
@@ -208,6 +228,11 @@ const ProjectDetailsPage: FC = () => {
                 <button onClick={openGenerate} className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                   <FiFilePlus className="w-4 h-4" /><span>Generate Document</span>
                 </button>
+                {canDelete && (
+                  <button onClick={() => setIsDeleteOpen(true)} className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:text-red-500 hover:bg-red-500/10 transition-all">
+                    <FiTrash2 className="w-4 h-4" /><span>Delete</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -529,6 +554,19 @@ const ProjectDetailsPage: FC = () => {
           isSubmitting={generating}
         />
       )}
+
+      <AlertModal
+        isOpen={isDeleteOpen}
+        type="danger"
+        action="delete"
+        title="Delete this project?"
+        message={`"${project?.name}" will be moved to trash, along with any linked follow-ups — recoverable from Trash. Proposals and invoices already generated for it are not affected.`}
+        confirmText="Delete Project"
+        loadingText="Deleting..."
+        isLoading={deleting}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDelete}
+      />
     </DashboardLayout>
   );
 };

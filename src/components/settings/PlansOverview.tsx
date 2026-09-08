@@ -50,6 +50,8 @@ interface PlanDetailModalProps {
   currentPlan: string;
   onClose: () => void;
   onSelectPlan: (name: string) => void;
+  onSelectDowngrade?: (name: string) => void;
+  isDowngrade: boolean;
 }
 
 const PlanDetailModal: FC<PlanDetailModalProps> = ({
@@ -57,6 +59,8 @@ const PlanDetailModal: FC<PlanDetailModalProps> = ({
   currentPlan,
   onClose,
   onSelectPlan,
+  onSelectDowngrade,
+  isDowngrade,
 }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const isCurrent = plan.name.toLowerCase() === currentPlan.toLowerCase();
@@ -251,7 +255,11 @@ const PlanDetailModal: FC<PlanDetailModalProps> = ({
           <button
             onClick={() => {
               if (!isCurrent) {
-                onSelectPlan(plan.name);
+                if (isDowngrade && onSelectDowngrade) {
+                  onSelectDowngrade(plan.name);
+                } else {
+                  onSelectPlan(plan.name);
+                }
                 onClose();
               }
             }}
@@ -277,18 +285,21 @@ const PlanDetailModal: FC<PlanDetailModalProps> = ({
 interface PlansOverviewProps {
   currentPlan: string;
   onSelectPlan: (planName: string) => void;
+  onSelectDowngrade?: (planName: string) => void;
 }
 
 const getPlanTier = (planName: string): number => {
   const normalized = planName.toLowerCase();
   if (normalized.includes('free')) return 0;
-  if (normalized.includes('founder')) return 1;
-  if (normalized.includes('growth')) return 2;
-  if (normalized.includes('enterprise')) return 3;
+  // Go Student is the same tier as Go (a discounted Go, not a step below it)
+  if (normalized.includes('go')) return 1;
+  if (normalized.includes('pro')) return 2;
+  if (normalized.includes('business')) return 3;
+  if (normalized.includes('custom')) return 4;
   return 0;
 };
 
-const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) => {
+const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan, onSelectDowngrade }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -298,7 +309,11 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
       try {
         const response = await planService.getAllPlans();
         if (response.success && response.data) {
-          const sortedPlans = [...response.data].sort(
+          // 'free' is an internal fallback tier (assigned when a subscription
+          // lapses/expires), not a marketed product — same filter already
+          // applied in PlanSelectionModal/PricingMain/PricingSection.
+          const marketedPlans = response.data.filter((p: Plan) => p.key !== 'free');
+          const sortedPlans = [...marketedPlans].sort(
             (a: Plan, b: Plan) => a.price - b.price
           );
           setPlans(sortedPlans);
@@ -439,15 +454,19 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
                     className="flex justify-end"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {buttonState.text !== 'Downgrade' && (
-                      <button
-                        onClick={() => onSelectPlan(plan.name)}
-                        disabled={buttonState.disabled}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${buttonState.style}`}
-                      >
-                        {buttonState.text}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        if (buttonState.text === 'Downgrade' && onSelectDowngrade) {
+                          onSelectDowngrade(plan.name);
+                        } else {
+                          onSelectPlan(plan.name);
+                        }
+                      }}
+                      disabled={buttonState.disabled}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${buttonState.style}`}
+                    >
+                      {buttonState.text}
+                    </button>
                   </div>
                 </div>
 
@@ -468,6 +487,8 @@ const PlansOverview: FC<PlansOverviewProps> = ({ currentPlan, onSelectPlan }) =>
           currentPlan={currentPlan}
           onClose={() => setSelectedPlan(null)}
           onSelectPlan={onSelectPlan}
+          onSelectDowngrade={onSelectDowngrade}
+          isDowngrade={getPlanTier(selectedPlan.name) <= getPlanTier(currentPlan) && selectedPlan.name.toLowerCase() !== currentPlan.toLowerCase()}
         />
       )}
     </>

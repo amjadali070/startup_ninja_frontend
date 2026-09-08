@@ -60,7 +60,7 @@ export default function PricingSection() {
             ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
                 {paidPlans.map((plan, index) => {
-                    const isEnterprise = plan.name.toLowerCase() === 'enterprise' || plan.name.toLowerCase() === 'enterprise plan';
+                    const isEnterprise = plan.key === 'custom' || plan.name.toLowerCase() === 'custom';
                     const displayPrice = billingCycle === "monthly" ? plan.price : (plan.discountPrice || plan.price);
                     const isPopular = plan.isPopular;
 
@@ -96,7 +96,7 @@ export default function PricingSection() {
 
                         {isEnterprise ? (
                             <Link 
-                                to="/contact?plan=enterprise"
+                                to="/contact?plan=custom"
                                 className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-md font-semibold mb-6 shadow-md hover:shadow-red-600/40 transition"
                             >
                                 Contact for pricing

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  FiSearch, 
+import {
+  FiSearch,
   FiEdit2,
-  FiExternalLink, 
+  FiTrash2,
+  FiExternalLink,
   FiFilter,
   FiFilePlus,
   FiMessageCircle,
@@ -12,9 +13,12 @@ import {
   FiActivity,
   FiAward,
   FiLoader,
+  FiUsers,
 } from "react-icons/fi";
+import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
 import LeadAssigneePicker from "./LeadAssigneePicker";
+import AlertModal from "../AlertModal";
 import { ninjaSalesService, Lead, TeamAssigneeMember } from "../../services/ninjaSales";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -27,6 +31,10 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
   const { user } = useAuth();
   /** Account owner or Manager may assign (matches ninja-sales backend) */
   const canAssignLeads = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
+  /** Same rule the backend enforces for delete: only the account owner or a manager */
+  const canDelete = canAssignLeads;
+  const [deleteTarget, setDeleteTarget] = useState<Lead | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -102,6 +110,21 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [search, statusFilter]);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await ninjaSalesService.deleteLead(deleteTarget._id);
+    setDeleting(false);
+    if (res.success) {
+      const n = res.data?.cascaded?.projects || 0;
+      toast.success(n > 0 ? `Lead and ${n} linked project${n === 1 ? "" : "s"} moved to trash` : "Lead moved to trash");
+      setDeleteTarget(null);
+      fetchLeads();
+    } else {
+      toast.error(res.message || "Could not delete lead");
+    }
+  };
 
   const getRelativeTime = (dateStr: string) => {
     if (!dateStr) return "N/A";
@@ -181,7 +204,15 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
           </thead>
           <tbody>
             {leads.length === 0 ? (
-              <tr><td colSpan={7} className="px-6 py-16 text-center text-white/30 text-sm">No leads found. Create your first lead to get started.</td></tr>
+              <tr><td colSpan={7} className="px-6 py-16">
+                <div className="flex flex-col items-center justify-center text-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
+                    <FiUsers className="w-6 h-6 text-white/15" />
+                  </div>
+                  <p className="text-sm font-bold text-white/40">No leads yet</p>
+                  <p className="text-xs text-white/20 max-w-xs">Click "New Lead" above to add your first contact.</p>
+                </div>
+              </td></tr>
             ) : leads.map((lead) => (
               <tr
                 key={lead._id}
@@ -251,6 +282,17 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
                     >
                       <FiEdit2 className="w-4 h-4" />
                     </button>
+                    {canDelete && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(lead); }}
+                        className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                        title="Delete lead"
+                        aria-label="Delete lead"
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -291,6 +333,19 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
           </button>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={!!deleteTarget}
+        type="danger"
+        action="delete"
+        title="Delete this lead?"
+        message={`"${deleteTarget?.name}" will be moved to trash, along with any linked projects, tasks and follow-ups — all recoverable from Trash. Proposals and invoices already generated for this lead are not affected and stay in your Proposals/Invoices list.`}
+        confirmText="Delete Lead"
+        loadingText="Deleting..."
+        isLoading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

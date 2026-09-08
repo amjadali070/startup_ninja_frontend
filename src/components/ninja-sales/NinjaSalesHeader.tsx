@@ -66,14 +66,16 @@ const NinjaSalesHeader: FC<NinjaSalesHeaderProps> = ({
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={onNewDeal}
-              className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
-            >
-              {newButtonIcon}
-              <span>{newButtonText}</span>
-            </button>
+            {onNewDeal && (
+              <button
+                type="button"
+                onClick={onNewDeal}
+                className="font-plus-jakarta inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[#DC2626] to-[#B91C1C] px-3.5 py-2 text-xs font-medium text-white transition-all duration-200 hover:shadow-lg sm:px-6 sm:py-2.5 sm:text-sm shadow-2xl shadow-[#EF444420] whitespace-nowrap"
+              >
+                {newButtonIcon}
+                <span>{newButtonText}</span>
+              </button>
+            )}
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   FiSend,
   FiEdit3,
@@ -34,6 +35,7 @@ function buildMailtoHref(to: string, subject: string, body: string): string {
 }
 
 const AIOutreachAssistant: FC = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlProjectId = searchParams.get("draftProject") || "";
   const urlFollowUpId = searchParams.get("draftFollowUp") || "";
@@ -49,6 +51,7 @@ const AIOutreachAssistant: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState(false);
   const [mailClientModalOpen, setMailClientModalOpen] = useState(false);
   const pendingMailtoHrefRef = useRef<string | null>(null);
 
@@ -247,6 +250,43 @@ const AIOutreachAssistant: FC = () => {
     }
   };
 
+  const handleSend = async () => {
+    if (!draft?.body) return;
+    let to = recipientEmail;
+    if (!to) {
+      const entered = window.prompt("No email on file for this lead. Enter an address to send to:");
+      if (!entered || !entered.trim()) return;
+      to = entered.trim();
+    }
+    setSending(true);
+    const res = await ninjaSalesService.postOutreachSend({
+      leadId: undefined,
+      projectId: selectedProjectId || undefined,
+      followUpId: selectedFollowUpId || undefined,
+      recipientEmail: to,
+      subject: `Follow-up — ${draft.intentLabel || "Ninja Sales"}`,
+      body: draft.body,
+    });
+    setSending(false);
+    if (res.success) {
+      toast.success(res.message || "Email sent");
+    } else if (res.code === "NO_SMTP_CONFIG") {
+      toast.error(
+        (t) => (
+          <span>
+            {res.message}{" "}
+            <button onClick={() => { toast.dismiss(t.id); navigate("/ai-tools/sales/email-settings"); }} className="underline font-bold">
+              Set Up Email Sending
+            </button>
+          </span>
+        ),
+        { duration: 8000 }
+      );
+    } else {
+      toast.error(res.message || "Failed to send email");
+    }
+  };
+
   const handleEditInClient = () => {
     if (!draft?.body) return;
     const subject = `Follow-up — ${draft.intentLabel || "Ninja Sales"}`;
@@ -383,12 +423,13 @@ const AIOutreachAssistant: FC = () => {
             <div className="space-y-4 mt-8">
               <button
                 type="button"
-                className="w-full h-14 bg-red-600/40 text-white/50 rounded-2xl flex items-center justify-center gap-3 font-black cursor-not-allowed"
-                disabled
-                title="Connect your email provider to send from here"
+                onClick={handleSend}
+                disabled={sending}
+                className="w-full h-14 bg-red-600 hover:bg-red-700 text-white rounded-2xl flex items-center justify-center gap-3 font-black transition-all disabled:opacity-50 shadow-lg shadow-red-600/20"
+                title="Send this email now, through your own connected SMTP account"
               >
-                <FiSend className="w-5 h-5" />
-                <span className="uppercase tracking-widest">Send (coming soon)</span>
+                {sending ? <FiLoader className="w-5 h-5 animate-spin" /> : <FiSend className="w-5 h-5" />}
+                <span className="uppercase tracking-widest">{sending ? "Sending..." : "Send"}</span>
               </button>
 
               <div className="grid grid-cols-2 gap-4">

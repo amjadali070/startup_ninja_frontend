@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { authService } from "../../services/auth";
-import CreateWebsiteModal from "../../components/web-builder/CreateWebsiteModal";
+import CreateWebsiteWizard from "../../components/web-builder/CreateWebsiteWizard";
 import DomainSettingsModal from "../../components/web-builder/DomainSettingsModal";
 import VerifyDomainModal from "../../components/web-builder/VerifyDomainModal";
-// import PagesManagerModal from "../../components/web-builder/PagesManagerModal";
+import PagesManagerModal from "../../components/web-builder/PagesManagerModal";
 import {
   FiCheckCircle,
   FiEdit2,
@@ -17,8 +17,16 @@ import {
   FiSmartphone,
   FiSettings,
   FiSearch,
+  FiMoreVertical,
+  FiTrash2,
+  FiFile,
+  FiShare2,
 } from "react-icons/fi";
+import DeleteWebsiteModal from "../../components/web-builder/DeleteWebsiteModal";
+import PublishWebsiteModal from "../../components/web-builder/PublishWebsiteModal";
+import { PREVIEW_DEVICE_SIZES } from "../../components/web-builder/config/previewDevices";
 import SEOSettingsModal from "../../components/web-builder/SEOSettingsModal";
+import SocialLinksModal from "../../components/web-builder/SocialLinksModal";
 import { CiDesktop } from "react-icons/ci";
 import { SlScreenTablet } from "react-icons/sl";
 import { BiPlus } from "react-icons/bi";
@@ -45,10 +53,19 @@ const WebBuilder: FC = () => {
   const [selectedSEOWebsite, setSelectedSEOWebsite] = useState<any | null>(
     null
   );
-  // const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
-  // const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(
-  //   null
-  // );
+  const [isSocialLinksModalOpen, setIsSocialLinksModalOpen] = useState(false);
+  const [selectedSocialLinksWebsite, setSelectedSocialLinksWebsite] = useState<any | null>(
+    null
+  );
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [websiteToDelete, setWebsiteToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [websiteToPublish, setWebsiteToPublish] = useState<any | null>(null);
+  const [isPublishingWebsite, setIsPublishingWebsite] = useState(false);
+  const [isPagesModalOpen, setIsPagesModalOpen] = useState(false);
+  const [selectedPagesWebsite, setSelectedPagesWebsite] = useState<any | null>(
+    null
+  );
   // const [previewMap, setPreviewMap] = useState<{ [id: string]: string }>({});
   const [previewWebsite, setPreviewWebsite] = useState<any | null>(null);
   const [previewDevice, setPreviewDevice] = useState<
@@ -60,9 +77,16 @@ const WebBuilder: FC = () => {
       navigate("/login", { replace: true });
       return;
     }
+    // AuthProvider hydrates `user` from storage asynchronously, one tick
+    // after this effect can first fire — waiting on user?.id in the deps
+    // (rather than an empty array) makes this re-run once it's actually
+    // populated, instead of silently no-op'ing and showing a false "No
+    // Websites Yet" on a direct/hard navigation to this page.
+    if (!user?.id) return;
 
     fetchWebsites();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // useEffect(() => {
   //   const buildPreviews = async () => {
@@ -89,7 +113,23 @@ const WebBuilder: FC = () => {
 
     const response = await WebBuilderService.getUserWebsites(user.id);
     if (response.success && response.data) {
-      setWebsites(response.data);
+      const freshWebsites = response.data;
+      setWebsites(freshWebsites);
+
+      // Real bug found and fixed: selectedDomainWebsite is a separate piece
+      // of state, captured once when the domain modal opens — calling
+      // fetchWebsites() (onUpdate()) refreshes the card list behind it, but
+      // never touched this reference, so VerifyDomainModal kept rendering
+      // its "pending, here's your DNS records" view forever, even right
+      // after a real, successful verification (confirmed live: the success
+      // toast fired correctly, but the modal itself never advanced past the
+      // pending panel). Only matters for the domain modals specifically —
+      // they're the only ones where the user stays in the modal watching an
+      // async status change; SEO/Social Links/Delete all close immediately
+      // after their action, so this staleness was never visible there.
+      setSelectedDomainWebsite((prev: any) =>
+        prev ? freshWebsites.find((w: any) => w._id === prev._id) || prev : prev
+      );
     } else {
       console.error(response.message);
     }
@@ -151,13 +191,7 @@ const WebBuilder: FC = () => {
 
     if (!previewWebsite) return null;
 
-    const deviceSizes: any = {
-      desktop: { width: "100%", maxWidth: "1200px" },
-      tablet: { width: "768px", maxWidth: "992px" },
-      mobile: { width: "420px", maxWidth: "600px" },
-    };
-
-    const current = deviceSizes[previewDevice];
+    const current = PREVIEW_DEVICE_SIZES[previewDevice];
 
     const handleClose = () => {
       setClosing(true);
@@ -261,10 +295,69 @@ const WebBuilder: FC = () => {
     setIsSEOModalOpen(true);
   };
 
-  // const handleOpenPagesManager = (site: any) => {
-  //   setSelectedPagesWebsite(site);
-  //   setIsPagesModalOpen(true);
-  // };
+  const handleOpenSocialLinks = (site: any) => {
+    setSelectedSocialLinksWebsite(site);
+    setIsSocialLinksModalOpen(true);
+  };
+
+  const handleDeleteWebsite = (site: any) => {
+    setWebsiteToDelete(site);
+  };
+
+  const handleConfirmDeleteWebsite = async () => {
+    if (!websiteToDelete || !user?.id) return;
+    setIsDeleting(true);
+    try {
+      const response = await WebBuilderService.deleteWebsite(
+        user.id,
+        websiteToDelete._id
+      );
+      if (response.success) {
+        toast.success("Website deleted");
+        setWebsiteToDelete(null);
+        fetchWebsites();
+      } else {
+        toast.error(response.message || "Failed to delete website");
+      }
+    } catch (err) {
+      toast.error("Failed to delete website");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleOpenPagesManager = (site: any) => {
+    setSelectedPagesWebsite(site);
+    setIsPagesModalOpen(true);
+  };
+
+  const handleOpenPublishModal = (site: any) => {
+    setWebsiteToPublish(site);
+  };
+
+  const handleConfirmPublishWebsite = async () => {
+    if (!websiteToPublish || !user?.id) return;
+    setIsPublishingWebsite(true);
+    try {
+      const websiteHtml = await generateHTML(websiteToPublish.websiteData);
+      const response = await WebBuilderService.publishWebsite(
+        user.id,
+        websiteToPublish._id,
+        websiteHtml
+      );
+      if (response.success) {
+        toast.success("Website published successfully!");
+        setWebsiteToPublish(null);
+        fetchWebsites();
+      } else {
+        toast.error(response.message || "Failed to publish website");
+      }
+    } catch (err) {
+      toast.error("Failed to publish website");
+    } finally {
+      setIsPublishingWebsite(false);
+    }
+  };
 
   const handlePreviewStaging = async (site: any) => {
     if (!site.websiteData || Object.keys(site.websiteData).length === 0) return;
@@ -426,23 +519,64 @@ const WebBuilder: FC = () => {
                           </p>
 
                           <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                            <span
-                              className={`flex items-center gap-1 font-medium ${
-                                site.status === 1
-                                  ? "text-green-500"
-                                  : "text-red-500"
-                              }`}
-                            >
-                              {site.status === 1 ? (
+                            {isPublished ? (
+                              <button
+                                type="button"
+                                title="View Published Website"
+                                onClick={() =>
+                                  window.open(
+                                    site.publishedLink.startsWith("http")
+                                      ? site.publishedLink
+                                      : `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
+                                    "_blank"
+                                  )
+                                }
+                                className="flex items-center gap-1 font-medium text-green-500 hover:text-green-400 hover:underline"
+                              >
                                 <FiCheckCircle className="w-4 h-4" />
-                              ) : (
+                                Published
+                              </button>
+                            ) : (
+                              <span className="flex items-center gap-1 font-medium text-red-500">
                                 <FiMinusCircle className="w-4 h-4" />
-                              )}
-                              {site.status === 1 ? "Published" : "Draft"}
-                            </span>
+                                Draft
+                              </span>
+                            )}
                             <span>{createdTime}</span>
                           </div>
-                          {/* Action Buttons */}
+
+                          {/* Domain/SSL status — feedback.md asks to "show domain
+                              connection, SSL and publishing status clearly"; this
+                              used to be invisible unless you opened the overflow
+                              menu. Clicking it jumps straight to the same modal
+                              the overflow menu's "Domain Settings" opens. */}
+                          {site.customDomain && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDomainSettings(site)}
+                              title={
+                                site.customDomainStatus === "verified"
+                                  ? "Domain verified — an HTTPS certificate is being provisioned automatically"
+                                  : "Domain connected — DNS verification pending"
+                              }
+                              className={`w-full flex items-center gap-1.5 text-[11px] mb-3 px-2 py-1.5 rounded-md border ${
+                                site.customDomainStatus === "verified"
+                                  ? "text-green-500 border-green-900/40 bg-green-500/5 hover:bg-green-500/10"
+                                  : "text-yellow-500 border-yellow-900/40 bg-yellow-500/5 hover:bg-yellow-500/10"
+                              }`}
+                            >
+                              <FiGlobe className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="truncate flex-1 text-left">{site.customDomain}</span>
+                              <span className="flex-shrink-0 font-medium">
+                                {site.customDomainStatus === "verified" ? "Domain Verified" : "Pending DNS"}
+                              </span>
+                            </button>
+                          )}
+
+                          {/* Action Buttons — feedback.md asks for "Edit, Preview
+                              and Publish only" on this list; Domain/SEO/Delete
+                              are real but secondary, so they live in the
+                              overflow menu instead of cluttering the primary row. */}
                           <div className="flex flex-col gap-2">
                             {/* Primary Action */}
                             <button
@@ -454,44 +588,7 @@ const WebBuilder: FC = () => {
                               Edit Website
                             </button>
 
-                            {/* Secondary Actions Row */}
                             <div className="flex items-center gap-2">
-                              {/* Domain Settings */}
-                              <button
-                                title={
-                                  isPublished
-                                    ? "Custom Domain Settings"
-                                    : "Publish your website first to connect a domain"
-                                }
-                                disabled={!isPublished}
-                                onClick={() => handleOpenDomainSettings(site)}
-                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
-                                  isPublished
-                                    ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
-                                    : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
-                                }`}
-                              >
-                                <FiSettings className="w-4 h-4" />
-                              </button>
-
-                              {/* SEO Settings */}
-                              <button
-                                title="SEO Settings"
-                                onClick={() => handleOpenSEOSettings(site)}
-                                className="flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
-                              >
-                                <FiSearch className="w-4 h-4" />
-                              </button>
-
-                              {/* Pages Manager */}
-                              {/* <button
-                                title="Manage Pages"
-                                onClick={() => handleOpenPagesManager(site)}
-                                className="flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
-                              >
-                                <FiFile className="w-4 h-4" />
-                              </button> */}
-
                               {/* Staging Preview */}
                               <button
                                 title={
@@ -501,40 +598,107 @@ const WebBuilder: FC = () => {
                                 }
                                 disabled={!hasWebsiteData}
                                 onClick={() => handlePreviewStaging(site)}
-                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
+                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 border text-xs font-medium ${
                                   hasWebsiteData
                                     ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
                                     : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
                                 }`}
                               >
-                                <FiEye className="w-4 h-4" />
+                                <FiEye className="w-4 h-4" /> Preview
                               </button>
 
-                              {/* Published Link */}
+                              {/* Real one-click publish — reuses the same headless-GrapesJS
+                                  generateHTML() helper Preview Staging already relies on to turn
+                                  the stored websiteData into final HTML, so this doesn't need the
+                                  full editor open at all. Status pill above (when published)
+                                  doubles as "view live". */}
                               <button
                                 title={
-                                  isPublished
-                                    ? "Preview Published Website"
-                                    : "Website not published yet"
+                                  !hasWebsiteData
+                                    ? "Nothing to publish yet — edit the website first"
+                                    : isPublished
+                                    ? "Republish latest changes"
+                                    : "Publish Website"
                                 }
-                                disabled={!isPublished}
-                                onClick={() =>
-                                  isPublished &&
-                                  window.open(
-                                    site.publishedLink.startsWith("http")
-                                      ? site.publishedLink
-                                      : `${WEB_BUILDER_SERVICE_URL}${site.publishedLink}`,
-                                    "_blank"
-                                  )
-                                }
-                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center border ${
-                                  isPublished
+                                disabled={!hasWebsiteData}
+                                onClick={() => handleOpenPublishModal(site)}
+                                className={`flex-1 p-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 border text-xs font-medium ${
+                                  hasWebsiteData
                                     ? "bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border-[#333]"
                                     : "bg-[#1a1a1a] text-gray-600 cursor-not-allowed opacity-60 border-transparent"
                                 }`}
                               >
-                                <FiGlobe className="w-4 h-4" />
+                                <FiGlobe className="w-4 h-4" /> Publish
                               </button>
+
+                              {/* Overflow: Domain / SEO / Delete */}
+                              <div className="relative">
+                                <button
+                                  title="More options"
+                                  onClick={() =>
+                                    setOpenMenuId(openMenuId === site._id ? null : site._id)
+                                  }
+                                  className="p-2.5 rounded-lg transition-all flex items-center justify-center bg-[#252525] text-gray-300 hover:text-white hover:bg-[#333] border border-[#333]"
+                                >
+                                  <FiMoreVertical className="w-4 h-4" />
+                                </button>
+                                {openMenuId === site._id && (
+                                  <>
+                                    <div
+                                      className="fixed inset-0 z-10"
+                                      onClick={() => setOpenMenuId(null)}
+                                    />
+                                    <div className="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg bg-[#1a1a1a] border border-[#333] shadow-xl py-1">
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          handleOpenDomainSettings(site);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-gray-300 hover:bg-white/5 hover:text-white"
+                                      >
+                                        <FiSettings className="w-3.5 h-3.5" /> Domain Settings
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          handleOpenSEOSettings(site);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-gray-300 hover:bg-white/5 hover:text-white"
+                                      >
+                                        <FiSearch className="w-3.5 h-3.5" /> SEO Settings
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          handleOpenSocialLinks(site);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-gray-300 hover:bg-white/5 hover:text-white"
+                                      >
+                                        <FiShare2 className="w-3.5 h-3.5" /> Social Links
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          handleOpenPagesManager(site);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-gray-300 hover:bg-white/5 hover:text-white"
+                                      >
+                                        <FiFile className="w-3.5 h-3.5" /> Manage Pages
+                                      </button>
+                                      <div className="my-1 border-t border-[#333]" />
+                                      <button
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          handleDeleteWebsite(site);
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                                      >
+                                        <FiTrash2 className="w-3.5 h-3.5" /> Delete Website
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -545,7 +709,7 @@ const WebBuilder: FC = () => {
               </div>
             )}
           </div>
-          <CreateWebsiteModal
+          <CreateWebsiteWizard
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onCreated={fetchWebsites}
@@ -571,11 +735,39 @@ const WebBuilder: FC = () => {
             onUpdate={fetchWebsites}
           />
 
-          {/* <PagesManagerModal
+          <SocialLinksModal
+            isOpen={isSocialLinksModalOpen}
+            onClose={() => setIsSocialLinksModalOpen(false)}
+            website={selectedSocialLinksWebsite}
+            onUpdate={fetchWebsites}
+          />
+
+          <DeleteWebsiteModal
+            isOpen={!!websiteToDelete}
+            websiteTitle={websiteToDelete?.websiteTitle || websiteToDelete?.title || "this website"}
+            onClose={() => {
+              if (!isDeleting) setWebsiteToDelete(null);
+            }}
+            onConfirm={handleConfirmDeleteWebsite}
+            isDeleting={isDeleting}
+          />
+
+          <PublishWebsiteModal
+            isOpen={!!websiteToPublish}
+            websiteTitle={websiteToPublish?.websiteTitle || websiteToPublish?.title || "this website"}
+            isRepublish={!!websiteToPublish?.publishedLink}
+            onClose={() => {
+              if (!isPublishingWebsite) setWebsiteToPublish(null);
+            }}
+            onConfirm={handleConfirmPublishWebsite}
+            isPublishing={isPublishingWebsite}
+          />
+
+          <PagesManagerModal
             isOpen={isPagesModalOpen}
             onClose={() => setIsPagesModalOpen(false)}
             website={selectedPagesWebsite}
-          /> */}
+          />
         </div>
       </main>
       {previewWebsite && <PreviewModal />}

@@ -1,16 +1,19 @@
 import { type FC, useEffect, useMemo, useState } from "react";
-import { FiX, FiFileText, FiDollarSign, FiClock, FiCheckCircle } from "react-icons/fi";
+import { FiX, FiFileText, FiDollarSign, FiClock, FiCheckCircle, FiSearch, FiFolder, FiLoader } from "react-icons/fi";
 import type { Project } from "../../services/ninjaSales";
+import { ninjaSalesService } from "../../services/ninjaSales";
 
 type DocType = "PROPOSAL" | "INVOICE";
 
 interface GenerateDocModalProps {
   isOpen: boolean;
   onClose: () => void;
-  project: Project;
+  /** Pre-supplied when generating from a known project (e.g. ProjectDetailsPage). Omit to let the user search and pick one first (e.g. from the standalone Proposals/Invoices pages). */
+  project?: Project | null;
   defaultType: DocType;
   onConfirm: (payload: {
     docType: DocType;
+    projectId: string;
     clientName?: string;
     paymentTerms?: string;
     dueDate?: string;
@@ -21,14 +24,92 @@ interface GenerateDocModalProps {
   isSubmitting?: boolean;
 }
 
+const ProjectPicker: FC<{ onPick: (p: Project) => void }> = ({ onPick }) => {
+  const [query, setQuery] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const res = await ninjaSalesService.getProjects({ limit: 100 });
+      if (!cancelled && res.success) setProjects(res.data);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) => {
+      const lead = p.leadId && typeof p.leadId === "object" ? p.leadId : null;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        lead?.name?.toLowerCase().includes(q) ||
+        lead?.company?.toLowerCase().includes(q)
+      );
+    });
+  }, [projects, query]);
+
+  return (
+    <div className="p-6 space-y-4">
+      <p className="text-gray-400 text-sm">Which deal is this document for?</p>
+      <div className="relative">
+        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search projects or clients..."
+          className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all placeholder:text-gray-600"
+        />
+      </div>
+      <div className="max-h-80 overflow-y-auto space-y-2 custom-scrollbar">
+        {loading ? (
+          <div className="flex items-center justify-center py-10 text-white/40">
+            <FiLoader className="w-5 h-5 animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-white/30 text-sm py-10">
+            {projects.length === 0 ? "No projects yet — create a deal first." : "No projects match your search."}
+          </p>
+        ) : (
+          filtered.map((p) => {
+            const lead = p.leadId && typeof p.leadId === "object" ? p.leadId : null;
+            return (
+              <button
+                key={p._id}
+                type="button"
+                onClick={() => onPick(p)}
+                className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/[0.02] hover:border-[#E11D48]/40 hover:bg-white/[0.04] transition-all text-left"
+              >
+                <div className="w-9 h-9 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center shrink-0">
+                  <FiFolder className="w-4 h-4 text-red-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-white truncate">{p.name}</p>
+                  <p className="text-xs text-white/40 truncate">{lead?.company || lead?.name || "No lead"} · {p.currency || "USD"} {(p.value || 0).toLocaleString()}</p>
+                </div>
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
+
 const GenerateDocModal: FC<GenerateDocModalProps> = ({
   isOpen,
   onClose,
-  project,
+  project: preSuppliedProject,
   defaultType,
   onConfirm,
   isSubmitting,
 }) => {
+  const [project, setProject] = useState<Project | null | undefined>(preSuppliedProject);
   const [docType, setDocType] = useState<DocType>(defaultType);
   const [clientName, setClientName] = useState("");
   const [paymentTerms, setPaymentTerms] = useState(defaultType === "INVOICE" ? "Net 30 Days" : "50% Upfront, 50% Completion");
@@ -37,13 +118,18 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState("");
 
-  const lead = project.leadId && typeof project.leadId === "object" ? project.leadId : null;
+  useEffect(() => {
+    if (isOpen) setProject(preSuppliedProject);
+  }, [isOpen, preSuppliedProject]);
+
+  const lead = project?.leadId && typeof project.leadId === "object" ? project.leadId : null;
 
   const suggestedClient = useMemo(() => {
     return lead?.company || lead?.name || "";
   }, [lead?.company, lead?.name]);
 
   const suggestedNotes = useMemo(() => {
+    if (!project) return "";
     const lines: string[] = [];
     if (project.description) lines.push(project.description);
     if (project.nextStep) lines.push(`Next step: ${project.nextStep}`);
@@ -52,28 +138,21 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
     if (typeof project.budgetConfirmed === "boolean") lines.push(`Budget confirmed: ${project.budgetConfirmed ? "Yes" : "No"}`);
     if (project.forecastedCloseDate) lines.push(`Deadline: ${new Date(project.forecastedCloseDate).toLocaleDateString("en-US")}`);
     return lines.filter(Boolean).join("\n");
-  }, [
-    project.description,
-    project.nextStep,
-    project.competitor,
-    project.urgency,
-    project.budgetConfirmed,
-    project.forecastedCloseDate,
-  ]);
+  }, [project]);
 
   const suggestedDueDate = useMemo(() => {
-    if (!project.forecastedCloseDate) return "";
+    if (!project?.forecastedCloseDate) return "";
     const d = new Date(project.forecastedCloseDate);
     // yyyy-mm-dd
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
-  }, [project.forecastedCloseDate]);
+  }, [project?.forecastedCloseDate]);
 
   // Autofill when opening modal (project/lead data)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !project) return;
     setDocType(defaultType);
     setClientName(suggestedClient);
     setNotes(suggestedNotes);
@@ -81,13 +160,16 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
     setDiscount(0);
     setPaymentTerms(defaultType === "INVOICE" ? "Net 30 Days" : "50% Upfront, 50% Completion");
     setDueDate(suggestedDueDate);
-  }, [isOpen, defaultType, suggestedClient, suggestedNotes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, defaultType, project?._id]);
 
   if (!isOpen) return null;
 
   const handleConfirm = () => {
+    if (!project) return;
     onConfirm({
       docType,
+      projectId: project._id,
       clientName: clientName || suggestedClient || undefined,
       paymentTerms,
       dueDate: dueDate || suggestedDueDate || undefined,
@@ -96,6 +178,26 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
       discount: docType === "INVOICE" ? discount : 0,
     });
   };
+
+  if (!project) {
+    return (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="relative w-full max-w-2xl bg-[#0A0A0B] border border-[#1C1C1F] rounded-xl shadow-2xl overflow-hidden">
+          <div className="p-6 pb-4 flex justify-between items-start">
+            <div className="flex items-center gap-2">
+              <FiFileText className="text-[#E11D48] w-5 h-5" />
+              <h2 className="text-2xl font-bold text-white tracking-tight">Generate {defaultType === "PROPOSAL" ? "Proposal" : "Invoice"}</h2>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
+              <FiX className="w-6 h-6" />
+            </button>
+          </div>
+          <div className="border-t border-[#1C1C1F] mx-6" />
+          <ProjectPicker onPick={setProject} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">

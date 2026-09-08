@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef, type FC } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FiEdit3 } from "react-icons/fi";
+import { FiEdit3, FiX } from "react-icons/fi";
 import { ImFileText } from "react-icons/im";
 import { PiBrainLight } from "react-icons/pi";
 import { FaHistory } from "react-icons/fa";
@@ -13,8 +13,10 @@ import ChatMessagesList from "../../components/ai-chat/ChatMessagesList.tsx";
 import ChatHistorySidebar from "../../components/ai-chat/ChatHistorySidebar.tsx";
 import DeleteChatModal from "../../components/ai-chat/DeleteChatModal.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
+import { useDraftPersistence } from "../../hooks/useDraftPersistence.ts";
 import { authService } from "../../services/auth.ts";
 import { aiContentService } from "../../services/ai-chat/ai-content.ts";
+import { memoryService } from "../../services/ai-chat/memory.ts";
 import { userService, type UserProfile } from "../../services/user.ts";
 import { resolveProfilePictureUrl } from "../../utils/profile.ts";
 import { ChatMessage, Chat } from "../../types/ai-content";
@@ -48,8 +50,10 @@ const quickActions = [
 const AIChat: FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { logout } = useAuth();
-  const [prompt, setPrompt] = useState("");
+  const { logout, user } = useAuth();
+  const [prompt, setPrompt, clearPromptDraft] = useDraftPersistence(
+    `chat-prompt:${user?.id || "guest"}`
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | null>(
     searchParams.get("chatId")
@@ -67,6 +71,17 @@ const AIChat: FC = () => {
     title: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [enableSearch, setEnableSearch] = useState(false);
+  const [editingMessage, setEditingMessage] = useState<{
+    id: string;
+    originalContent: string;
+  } | null>(null);
+  const [followUps, setFollowUps] = useState<string[]>([]);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const stopRequestedRef = useRef(false);
+  const pendingFullTextRef = useRef<string>("");
 
   // Get user profile picture
   const userProfilePicture = userProfile?.profilePicture
@@ -245,6 +260,8 @@ const AIChat: FC = () => {
       cancelAnimationFrame(typingIntervalRef.current);
     }
 
+    setIsRevealing(true);
+
     let currentIndex = 0;
     const totalLength = fullText.length;
     let lastTime = performance.now();
@@ -275,162 +292,496 @@ const AIChat: FC = () => {
         typingIntervalRef.current = requestAnimationFrame(animate);
       } else {
         typingIntervalRef.current = null;
+        setIsRevealing(false);
       }
     };
 
     typingIntervalRef.current = requestAnimationFrame(animate);
   }, []);
 
-  const handleComposerSubmit = useCallback(async () => {
-    const trimmedPrompt = prompt.trim();
+  // Reveals assistant text via the client-side typewriter animation, unless
+  // the user already hit Stop while the response was still in flight — in
+  // that case skip straight to showing the full text (no real network
+  // streaming exists to actually cancel, see plan.md's Phase 2 scoping note).
+  const revealAssistantText = useCallback(
+    (fullText: string) => {
+      pendingFullTextRef.current = fullText;
+      if (stopRequestedRef.current) {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (!last || last.role !== "assistant") return prev;
+          next[next.length - 1] = { ...last, content: fullText };
+          return next;
+        });
+        return;
+      }
+      typeWriterAppend(fullText);
+    },
+    [typeWriterAppend]
+  );
 
-    if (!trimmedPrompt || isGenerating) {
-      return false;
+  const handleStopGenerating = useCallback(() => {
+    stopRequestedRef.current = true;
+    if (typingIntervalRef.current) {
+      cancelAnimationFrame(typingIntervalRef.current);
+      typingIntervalRef.current = null;
     }
-
-    setIsGenerating(true);
-    setError(null);
-
-    const userMessage: ChatMessage = { role: "user", content: trimmedPrompt };
-
-    setMessages((prev) => [...prev, userMessage]);
-
-    // Clear the prompt immediately after adding the message
-    setPrompt("");
-
-    try {
-      const response = await aiContentService.generateChatMessage({
-        message: trimmedPrompt,
-        chatId: currentChatId || undefined,
+    if (pendingFullTextRef.current) {
+      const fullText = pendingFullTextRef.current;
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (!last || last.role !== "assistant") return prev;
+        next[next.length - 1] = { ...last, content: fullText };
+        return next;
       });
+    }
+    setIsRevealing(false);
+    setIsGenerating(false);
+  }, []);
 
-      if (response.success && response.data) {
-        if (!currentChatId && response.data.chatId) {
-          setCurrentChatId(response.data.chatId);
-          setSearchParams({ chatId: response.data.chatId });
-        }
+  // Core "send a message" flow, parameterized so both the composer (reading
+  // from `prompt`/`selectedFiles` state) and follow-up chip clicks (passing
+  // explicit text, bypassing state to avoid a stale-closure race) can share it.
+  const submitUserMessage = useCallback(
+    async (text: string, files: File[]) => {
+      if (!text && files.length === 0) {
+        return false;
+      }
 
-        const serverMessages = response.data.messages || [];
+      stopRequestedRef.current = false;
+      setIsGenerating(true);
+      setError(null);
+      setFollowUps([]);
 
-        const assistantMessages = serverMessages.filter(
-          (m) => m.role === "assistant"
-        );
-        const lastAssistantMessage =
-          assistantMessages[assistantMessages.length - 1];
-        const finalText = lastAssistantMessage?.content || "";
+      const userMessage: ChatMessage = {
+        role: "user",
+        content: text,
+        attachments: files.map((f) => ({ filename: f.name, fileType: f.type })),
+      };
 
-        if (finalText) {
-          const newUserMessage = serverMessages.find((m) => m.role === "user");
+      setMessages((prev) => [...prev, userMessage]);
 
-          setMessages((prevMessages) => {
-            const withoutEmptyAssistant = prevMessages.filter(
-              (msg) => !(msg.role === "assistant" && !msg.content)
-            );
+      if (files.length > 0) {
+        setUploadProgress(0);
+      }
 
-            const lastMessage =
-              withoutEmptyAssistant[withoutEmptyAssistant.length - 1];
-            const isLastMessageOurUserMessage =
-              lastMessage &&
-              lastMessage.role === "user" &&
-              lastMessage.content === trimmedPrompt;
+      try {
+        const response = await aiContentService.generateChatMessage({
+          message: text,
+          chatId: currentChatId || undefined,
+          files: files.length ? files : undefined,
+          enableSearch,
+          onUploadProgress: files.length > 0 ? setUploadProgress : undefined,
+        });
 
-            if (isLastMessageOurUserMessage) {
-              return [
-                ...withoutEmptyAssistant,
-                { role: "assistant", content: "" },
-              ];
-            }
+        if (response.success && response.data) {
+          if (!currentChatId && response.data.chatId) {
+            setCurrentChatId(response.data.chatId);
+            setSearchParams({ chatId: response.data.chatId });
+          }
 
-            let messagesToReturn = [...withoutEmptyAssistant];
-            if (newUserMessage && !isLastMessageOurUserMessage) {
-              messagesToReturn.push(newUserMessage);
-            }
+          const serverMessages = response.data.messages || [];
 
-            messagesToReturn.push({ role: "assistant", content: "" });
+          const assistantMessages = serverMessages.filter(
+            (m) => m.role === "assistant"
+          );
+          const lastAssistantMessage =
+            assistantMessages[assistantMessages.length - 1];
+          const finalText = lastAssistantMessage?.content || "";
 
-            return messagesToReturn;
-          });
+          if (finalText) {
+            const newUserMessage = serverMessages.find((m) => m.role === "user");
 
-          setTimeout(() => {
-            typeWriterAppend(finalText);
-          }, 30);
-        } else {
-          setMessages((prevMessages) => {
-            const newUserMessage = serverMessages.find(
-              (m) => m.role === "user"
-            );
-            if (newUserMessage) {
-              const hasUserMessage = prevMessages.some(
-                (msg) =>
-                  msg.role === "user" &&
-                  msg.content === newUserMessage.content &&
-                  prevMessages.indexOf(msg) ===
-                    prevMessages.length -
-                      1 -
-                      prevMessages
-                        .slice()
-                        .reverse()
-                        .findIndex((m) => m.role === "user")
+            setMessages((prevMessages) => {
+              const withoutEmptyAssistant = prevMessages.filter(
+                (msg) => !(msg.role === "assistant" && !msg.content)
               );
 
-              if (!hasUserMessage) {
-                return [...prevMessages, newUserMessage];
+              const lastMessage =
+                withoutEmptyAssistant[withoutEmptyAssistant.length - 1];
+              const isLastMessageOurUserMessage =
+                lastMessage &&
+                lastMessage.role === "user" &&
+                lastMessage.content === text;
+
+              // Carry sources/_id/timestamp onto the placeholder up front so
+              // citations render immediately instead of waiting for the
+              // typewriter reveal to finish (it only ever animates .content).
+              const placeholder: ChatMessage = {
+                ...lastAssistantMessage,
+                content: "",
+              };
+
+              if (isLastMessageOurUserMessage) {
+                // Swap the optimistic local message for the server's version
+                // — it carries the real _id the Edit button needs, plus
+                // server-confirmed attachment metadata.
+                const withServerUserMessage = [...withoutEmptyAssistant];
+                if (newUserMessage) {
+                  withServerUserMessage[withServerUserMessage.length - 1] =
+                    newUserMessage;
+                }
+                return [...withServerUserMessage, placeholder];
               }
-            }
-            return prevMessages;
-          });
-          setError("No response received from assistant");
+
+              let messagesToReturn = [...withoutEmptyAssistant];
+              if (newUserMessage && !isLastMessageOurUserMessage) {
+                messagesToReturn.push(newUserMessage);
+              }
+
+              messagesToReturn.push(placeholder);
+
+              return messagesToReturn;
+            });
+
+            setFollowUps(response.data.followUps || []);
+
+            setTimeout(() => {
+              revealAssistantText(finalText);
+            }, 30);
+          } else {
+            setMessages((prevMessages) => {
+              const newUserMessage = serverMessages.find(
+                (m) => m.role === "user"
+              );
+              if (newUserMessage) {
+                const hasUserMessage = prevMessages.some(
+                  (msg) =>
+                    msg.role === "user" &&
+                    msg.content === newUserMessage.content &&
+                    prevMessages.indexOf(msg) ===
+                      prevMessages.length -
+                        1 -
+                        prevMessages
+                          .slice()
+                          .reverse()
+                          .findIndex((m) => m.role === "user")
+                );
+
+                if (!hasUserMessage) {
+                  return [...prevMessages, newUserMessage];
+                }
+              }
+              return prevMessages;
+            });
+            setError("No response received from assistant");
+          }
+
+          await loadUserChats(false);
+
+          return true;
+        } else {
+          setError(response.message || "Failed to generate response");
+          setMessages((prev) =>
+            prev.filter((msg, index) => {
+              return !(
+                msg.role === "user" &&
+                msg.content === text &&
+                index === prev.length - 1
+              );
+            })
+          );
+          return false;
         }
-
-        await loadUserChats(false);
-
-        return true;
-      } else {
-        setError(response.message || "Failed to generate response");
+      } catch (submissionError) {
+        console.error("AI chat prompt submission failed:", submissionError);
+        setError("Failed to send message. Please try again.");
         setMessages((prev) =>
           prev.filter((msg, index) => {
             return !(
               msg.role === "user" &&
-              msg.content === trimmedPrompt &&
+              msg.content === text &&
               index === prev.length - 1
             );
           })
         );
         return false;
+      } finally {
+        setIsGenerating(false);
+        setUploadProgress(null);
       }
-    } catch (submissionError) {
-      console.error("AI chat prompt submission failed:", submissionError);
-      setError("Failed to send message. Please try again.");
-      setMessages((prev) =>
-        prev.filter((msg, index) => {
-          return !(
-            msg.role === "user" &&
-            msg.content === trimmedPrompt &&
-            index === prev.length - 1
-          );
-        })
-      );
+    },
+    [currentChatId, enableSearch, loadUserChats, revealAssistantText, setSearchParams]
+  );
+
+  const handleSubmitEdit = useCallback(
+    async (newContent: string) => {
+      const trimmed = newContent.trim();
+      if (!currentChatId || !editingMessage || !trimmed) {
+        setEditingMessage(null);
+        return false;
+      }
+
+      stopRequestedRef.current = false;
+      setError(null);
+      setFollowUps([]);
+      setIsGenerating(true);
+
+      const editedId = editingMessage.id;
+      setEditingMessage(null);
+
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m._id === editedId);
+        return idx === -1 ? prev : prev.slice(0, idx);
+      });
+
+      try {
+        const response = await aiContentService.editMessage(
+          currentChatId,
+          editedId,
+          trimmed
+        );
+
+        if (response.success && response.data) {
+          const serverMessages = response.data.messages || [];
+          const userMsg = serverMessages.find((m) => m.role === "user");
+          const assistantMsg = serverMessages.find((m) => m.role === "assistant");
+
+          setMessages((prev) => [
+            ...prev,
+            ...(userMsg ? [userMsg] : []),
+            ...(assistantMsg ? [{ ...assistantMsg, content: "" }] : []),
+          ]);
+
+          setFollowUps(response.data.followUps || []);
+
+          if (assistantMsg?.content) {
+            setTimeout(() => {
+              revealAssistantText(assistantMsg.content);
+            }, 30);
+          }
+
+          await loadUserChats(false);
+          return true;
+        } else {
+          setError(response.message || "Failed to edit message");
+          return false;
+        }
+      } catch (err) {
+        console.error("Failed to edit message:", err);
+        setError("Failed to edit message");
+        return false;
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [currentChatId, editingMessage, loadUserChats, revealAssistantText]
+  );
+
+  const handleComposerSubmit = useCallback(async () => {
+    const trimmedPrompt = prompt.trim();
+
+    if (
+      (!trimmedPrompt && selectedFiles.length === 0) ||
+      isGenerating ||
+      isRevealing
+    ) {
       return false;
+    }
+
+    if (editingMessage) {
+      setPrompt("");
+      clearPromptDraft();
+      setSelectedFiles([]);
+      return handleSubmitEdit(trimmedPrompt);
+    }
+
+    const files = selectedFiles;
+    setPrompt("");
+    clearPromptDraft();
+    setSelectedFiles([]);
+
+    return submitUserMessage(trimmedPrompt, files);
+  }, [
+    prompt,
+    selectedFiles,
+    isGenerating,
+    isRevealing,
+    editingMessage,
+    handleSubmitEdit,
+    submitUserMessage,
+    clearPromptDraft,
+  ]);
+
+  const handleRegenerate = useCallback(async () => {
+    if (!currentChatId || isGenerating || isRevealing) return;
+
+    // Regenerating the last response makes any pending edit-of-an-earlier
+    // message stale — clear it so the "Editing message" banner and prefilled
+    // composer don't linger and cause a confusing truncation on the next send.
+    if (editingMessage) {
+      setEditingMessage(null);
+      setPrompt("");
+      clearPromptDraft();
+    }
+
+    stopRequestedRef.current = false;
+    setError(null);
+    setFollowUps([]);
+    setIsGenerating(true);
+
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.role === "assistant") {
+        return [...prev.slice(0, -1), { role: "assistant", content: "" }];
+      }
+      return prev;
+    });
+
+    try {
+      const response = await aiContentService.regenerateMessage(currentChatId);
+
+      if (response.success && response.data?.message) {
+        const newMessage = response.data.message;
+
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = { ...newMessage, content: "" };
+          }
+          return next;
+        });
+
+        setFollowUps(response.data.followUps || []);
+
+        if (newMessage.content) {
+          setTimeout(() => {
+            revealAssistantText(newMessage.content);
+          }, 30);
+        } else {
+          setError("No response received from assistant");
+        }
+
+        await loadUserChats(false);
+      } else {
+        setError(response.message || "Failed to regenerate response");
+      }
+    } catch (err) {
+      console.error("Failed to regenerate response:", err);
+      setError("Failed to regenerate response");
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, currentChatId, isGenerating, loadUserChats, typeWriterAppend]);
+  }, [
+    currentChatId,
+    isGenerating,
+    isRevealing,
+    editingMessage,
+    clearPromptDraft,
+    loadUserChats,
+    revealAssistantText,
+  ]);
+
+  const handleEditMessage = useCallback(
+    (messageId: string, currentContent: string) => {
+      // editMessage has no file-upload support server-side — drop any
+      // pending selection so it can't be silently discarded on submit.
+      setSelectedFiles([]);
+      setEditingMessage({ id: messageId, originalContent: currentContent });
+      setPrompt(currentContent);
+    },
+    [setPrompt]
+  );
+
+  const handleCancelEditMessage = useCallback(() => {
+    setEditingMessage(null);
+    setPrompt("");
+    clearPromptDraft();
+  }, [clearPromptDraft]);
+
+  const handleSaveMemory = useCallback(
+    async (content: string) => {
+      try {
+        const response = await memoryService.createMemory(
+          content,
+          currentChatId || undefined
+        );
+        if (response.success) {
+          toast.success("Saved to memory");
+        } else {
+          toast.error(response.message || "Failed to save memory");
+        }
+      } catch (err) {
+        console.error("Failed to save memory:", err);
+        toast.error("Failed to save memory");
+      }
+    },
+    [currentChatId]
+  );
+
+  const handleFollowUpClick = useCallback(
+    (followUpPrompt: string) => {
+      if (isGenerating || isRevealing) return;
+      // Sending a follow-up abandons any pending edit-of-an-earlier-message
+      // — clear it so the stale "Editing message" banner/draft don't linger
+      // and cause a confusing truncation on a later send.
+      if (editingMessage) {
+        setEditingMessage(null);
+        setPrompt("");
+        clearPromptDraft();
+      }
+      submitUserMessage(followUpPrompt.trim(), []);
+    },
+    [isGenerating, isRevealing, editingMessage, clearPromptDraft, submitUserMessage]
+  );
+
+  const handleFilesSelected = useCallback((files: File[]) => {
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, 5));
+  }, []);
+
+  const handleRemoveFile = useCallback((index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleToggleSearch = useCallback(() => {
+    setEnableSearch((prev) => !prev);
+  }, []);
+
+  const handleSearchChats = useCallback(async (query: string) => {
+    const response = await aiContentService.getUserChats(query);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    return [];
+  }, []);
 
   const handleQuickAction = useCallback((template: string) => {
     setPrompt(template);
   }, []);
 
   const handleNewChat = useCallback(() => {
+    if (typingIntervalRef.current) {
+      cancelAnimationFrame(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+    stopRequestedRef.current = false;
+    pendingFullTextRef.current = "";
+    setIsRevealing(false);
     setCurrentChatId(null);
     setMessages([]);
     setPrompt("");
     setError(null);
     setSearchParams({});
+    setSelectedFiles([]);
+    setEditingMessage(null);
+    setFollowUps([]);
+    setEnableSearch(false);
   }, [setSearchParams]);
 
   const handleSelectChat = useCallback(
     (chatId: string) => {
       if (chatId !== currentChatId) {
+        if (typingIntervalRef.current) {
+          cancelAnimationFrame(typingIntervalRef.current);
+          typingIntervalRef.current = null;
+        }
+        setIsRevealing(false);
+        setSelectedFiles([]);
+        setEditingMessage(null);
+        setFollowUps([]);
         loadChatHistory(chatId);
       }
       if (window.innerWidth < 1024) {
@@ -570,10 +921,28 @@ const AIChat: FC = () => {
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-4 sm:px-6 md:px-10 xl:px-14">
           <ChatMessagesList
             messages={messages}
-            isGenerating={isGenerating}
+            isGenerating={isGenerating || isRevealing}
             userProfilePicture={userProfilePicture}
             error={error}
+            followUps={followUps}
+            onEditMessage={handleEditMessage}
+            onRegenerate={handleRegenerate}
+            onSaveMemory={handleSaveMemory}
+            onFollowUpClick={handleFollowUpClick}
           />
+
+          {editingMessage && (
+            <div className="flex-shrink-0 mb-2 flex items-center justify-between gap-2 px-4 py-2 rounded-lg bg-[#DE0500]/5 border border-[#DE0500]/20 text-xs text-white/70">
+              <span>Editing message — sending will regenerate the response from this point.</span>
+              <button
+                onClick={handleCancelEditMessage}
+                className="text-white/50 hover:text-white flex-shrink-0"
+                aria-label="Cancel editing"
+              >
+                <FiX className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
 
           <div className="flex-shrink-0 w-full">
             <AIChatComposer
@@ -581,10 +950,20 @@ const AIChat: FC = () => {
               onPromptChange={(value) => setPrompt(value)}
               onSubmit={handleComposerSubmit}
               onNewChat={handleNewChat}
-              isGenerating={isGenerating}
+              isGenerating={isGenerating || isRevealing}
               onExportPdf={currentChatId ? () => handleExport("pdf") : undefined}
               onExportDocx={currentChatId ? () => handleExport("docx") : undefined}
               className="w-full"
+              selectedFiles={selectedFiles}
+              onFilesSelected={editingMessage ? undefined : handleFilesSelected}
+              onRemoveFile={handleRemoveFile}
+              uploadProgress={uploadProgress}
+              onStopGenerating={handleStopGenerating}
+              enableSearch={enableSearch}
+              onToggleSearch={handleToggleSearch}
+              placeholder={
+                editingMessage ? "Edit your message..." : "Ask me anything..."
+              }
             />
           </div>
 
@@ -616,6 +995,7 @@ const AIChat: FC = () => {
           onRenameChat={handleRenameChat}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
+          onSearch={handleSearchChats}
         />
 
         <DeleteChatModal

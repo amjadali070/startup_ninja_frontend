@@ -8,7 +8,10 @@ import {
   FiRefreshCw, FiFilter, FiFolder, FiUser,
 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
+import toast from "react-hot-toast";
 import NewTaskModal from "../../../components/ninja-sales/NewTaskModal";
+import CreateDealModal from "../../../components/ninja-sales/CreateDealModal";
+import AlertModal from "../../../components/AlertModal";
 import IconSelect from "../../../components/IconSelect";
 import type { SelectOption } from "../../../components/IconSelect";
 import {
@@ -19,15 +22,24 @@ import {
   Project,
   FollowUp,
   LeadAiSuggestions,
+  Proposal,
+  Invoice,
+  LeadScore,
 } from "../../../services/ninjaSales";
 
 const LeadDetailsPage: FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  /** Same rule the backend enforces for delete: only the account owner or a manager */
+  const canDelete = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
   const [timelineFilter, setTimelineFilter] = useState("ALL");
   const [isCopied, setIsCopied] = useState(false);
+  const [sendingDraft, setSendingDraft] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,11 +50,15 @@ const LeadDetailsPage: FC = () => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<SalesTask | null>(null);
   const [leadFollowUps, setLeadFollowUps] = useState<FollowUp[]>([]);
+  const [leadDocs, setLeadDocs] = useState<{ proposals: Proposal[]; invoices: Invoice[] }>({ proposals: [], invoices: [] });
+  const [docsLoading, setDocsLoading] = useState(false);
 
   const [aiScopeProjectId, setAiScopeProjectId] = useState<string>("");
   const [leadAi, setLeadAi] = useState<LeadAiSuggestions | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [leadScore, setLeadScore] = useState<LeadScore | null>(null);
+  const [leadScoreLoading, setLeadScoreLoading] = useState(false);
 
   const fetchLead = useCallback(async () => {
     if (!id) return;
@@ -81,11 +97,26 @@ const LeadDetailsPage: FC = () => {
     if (res.success) setActivities(res.data);
   }, [id]);
 
+  const fetchLeadDocs = useCallback(async () => {
+    if (!id) return;
+    setDocsLoading(true);
+    const [proposalsRes, invoicesRes] = await Promise.all([
+      ninjaSalesService.getProposals({ leadId: id, limit: 50 }),
+      ninjaSalesService.getInvoices({ leadId: id, limit: 50 }),
+    ]);
+    setLeadDocs({
+      proposals: proposalsRes.success ? proposalsRes.data : [],
+      invoices: invoicesRes.success ? invoicesRes.data : [],
+    });
+    setDocsLoading(false);
+  }, [id]);
+
   useEffect(() => {
     fetchLead();
     fetchTasks();
     fetchActivities();
-  }, [fetchLead, fetchTasks, fetchActivities]);
+    fetchLeadDocs();
+  }, [fetchLead, fetchTasks, fetchActivities, fetchLeadDocs]);
 
   useEffect(() => {
     setAiScopeProjectId("");
@@ -120,6 +151,19 @@ const LeadDetailsPage: FC = () => {
     if (loading || !lead) return;
     loadLeadAi();
   }, [loading, lead, loadLeadAi]);
+
+  useEffect(() => {
+    if (loading || !id) return;
+    let cancelled = false;
+    (async () => {
+      setLeadScoreLoading(true);
+      const res = await ninjaSalesService.postLeadScore(id);
+      if (cancelled) return;
+      if (res.success) setLeadScore(res.data);
+      setLeadScoreLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [loading, id]);
 
   const handleToggleTask = async (taskId: string) => {
     const task = tasks.find(t => t._id === taskId);
@@ -172,6 +216,42 @@ const LeadDetailsPage: FC = () => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const handleSendDraft = async () => {
+    const text = leadAi?.draftSnippet?.trim();
+    if (!text || !id) return;
+    let to = lead?.email?.trim() || "";
+    if (!to) {
+      const entered = window.prompt("No email on file for this lead. Enter an address to send to:");
+      if (!entered || !entered.trim()) return;
+      to = entered.trim();
+    }
+    setSendingDraft(true);
+    const res = await ninjaSalesService.postOutreachSend({
+      leadId: id,
+      recipientEmail: to,
+      subject: `Following up${lead?.name ? ` — ${lead.name}` : ""}`,
+      body: text,
+    });
+    setSendingDraft(false);
+    if (res.success) {
+      toast.success(res.message || "Email sent");
+    } else if (res.code === "NO_SMTP_CONFIG") {
+      toast.error(
+        (t) => (
+          <span>
+            {res.message}{" "}
+            <button onClick={() => { toast.dismiss(t.id); navigate("/ai-tools/sales/email-settings"); }} className="underline font-bold">
+              Set Up Email Sending
+            </button>
+          </span>
+        ),
+        { duration: 8000 }
+      );
+    } else {
+      toast.error(res.message || "Failed to send email");
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -184,6 +264,21 @@ const LeadDetailsPage: FC = () => {
 
   const handleOpenSettings = () => {
     navigate("/settings");
+  };
+
+  const handleDeleteLead = async () => {
+    if (!id) return;
+    setDeleting(true);
+    const res = await ninjaSalesService.deleteLead(id);
+    setDeleting(false);
+    if (res.success) {
+      const n = res.data?.cascaded?.projects || 0;
+      toast.success(n > 0 ? `Lead and ${n} linked project${n === 1 ? "" : "s"} moved to trash` : "Lead moved to trash");
+      navigate("/ai-tools/sales/leads");
+    } else {
+      toast.error(res.message || "Could not delete lead");
+      setIsDeleteOpen(false);
+    }
   };
 
   return (
@@ -216,20 +311,34 @@ const LeadDetailsPage: FC = () => {
               <p className="text-base md:text-lg font-medium text-white/50">Sales Lead</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 xl:flex items-center gap-3 w-full xl:w-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex items-center gap-3 w-full xl:w-auto">
               <button
                 onClick={() => navigate(`/ai-tools/sales/leads/${id}/edit`)}
                 className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                 <FiEdit3 className="w-4 h-4" />
                 <span>Edit Lead</span>
               </button>
-              <button 
+              <button
+                onClick={() => setIsDealModalOpen(true)}
+                className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                <FiPlus className="w-4 h-4" />
+                <span>Add Deal</span>
+              </button>
+              <button
                 onClick={() => navigate('/ai-tools/sales/proposals')}
                 className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
                 <FiFilePlus className="w-4 h-4" />
                 <span>Create Invoice</span>
               </button>
-              <button 
+              {canDelete && (
+                <button
+                  onClick={() => setIsDeleteOpen(true)}
+                  className="h-12 px-6 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:text-red-500 hover:bg-red-500/10 transition-all">
+                  <FiTrash2 className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              )}
+              <button
                 onClick={() => navigate('/ai-tools/sales/proposals')}
                 className="h-12 px-8 bg-red-600 hover:bg-red-700 text-white rounded-2xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-600/20">
                 <FiSend className="w-4 h-4" />
@@ -310,6 +419,29 @@ const LeadDetailsPage: FC = () => {
                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Decision Maker</p>
                    <p className={`text-sm font-bold ${lead?.decisionMaker ? "text-emerald-500" : "text-white/30"}`}>{lead?.decisionMaker ? "Yes" : "No"}</p>
                  </div>
+               </div>
+
+               <div className="mt-5 pt-5 border-t border-white/5 space-y-2">
+                 <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">AI Lead Score</p>
+                 {leadScoreLoading ? (
+                   <div className="flex items-center gap-2 text-white/30 py-1">
+                     <FiLoader className="w-3.5 h-3.5 animate-spin" />
+                     <span className="text-[10px] font-bold uppercase tracking-widest">Scoring</span>
+                   </div>
+                 ) : leadScore ? (
+                   <>
+                     <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                       leadScore.tier === "Hot" ? "bg-red-600/20 text-red-500" :
+                       leadScore.tier === "Warm" ? "bg-orange-500/15 text-orange-400" :
+                       "bg-white/10 text-white/40"
+                     }`}>
+                       {leadScore.tier}
+                     </span>
+                     <p className="text-xs font-medium text-white/50 leading-relaxed">{leadScore.reason}</p>
+                   </>
+                 ) : (
+                   <p className="text-xs text-white/25">Not enough data yet</p>
+                 )}
                </div>
 
                {lead?.notes && (
@@ -552,14 +684,25 @@ const LeadDetailsPage: FC = () => {
                      Best time to follow up: <span className="text-red-500">{leadAi.bestTimeToFollowUp || "—"}</span>
                    </span>
                  </div>
-                 <button
-                   type="button"
-                   onClick={handleCopyDraft}
-                   disabled={!leadAi.draftSnippet?.trim()}
-                   className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                 >
-                   {isCopied ? "Copied!" : "Copy Draft"}
-                 </button>
+                 <div className="flex items-center gap-4">
+                   <button
+                     type="button"
+                     onClick={handleCopyDraft}
+                     disabled={!leadAi.draftSnippet?.trim()}
+                     className="text-[10px] font-black text-white/50 uppercase tracking-widest hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                   >
+                     {isCopied ? "Copied!" : "Copy Draft"}
+                   </button>
+                   <button
+                     type="button"
+                     onClick={handleSendDraft}
+                     disabled={!leadAi.draftSnippet?.trim() || sendingDraft}
+                     className="flex items-center gap-1.5 text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                   >
+                     {sendingDraft ? <FiLoader className="w-3 h-3 animate-spin" /> : null}
+                     {sendingDraft ? "Sending..." : "Send"}
+                   </button>
+                 </div>
                </div>
                )}
             </div>
@@ -663,69 +806,113 @@ const LeadDetailsPage: FC = () => {
           <section className="bg-[#121212] border border-white/[0.03] rounded-3xl overflow-hidden shadow-2xl">
             <div className="p-6 md:p-8 border-b border-white/[0.03] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <h2 className="text-sm font-black text-white/90 uppercase tracking-[0.2em]">Proposal & Invoice History</h2>
-              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">3 Items Total</span>
+              <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">
+                {docsLoading ? "Loading..." : `${(leadDocs.proposals?.length || 0) + (leadDocs.invoices?.length || 0)} Items`}
+              </span>
             </div>
-            
-            <div className="overflow-x-auto scrollbar-hide">
-               <table className="w-full text-left min-w-[800px]">
-                 <thead>
-                    <tr className="bg-white/[0.01] border-b border-white/[0.03]">
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Document Name</th>
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Reference</th>
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Date</th>
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Value</th>
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Status</th>
-                      <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest text-right">Actions</th>
-                    </tr>
-                 </thead>
-                 <tbody>
-                    {[
-                      { name: "Initial Quote", ref: "QT-2024-089", date: "Oct 15, 2024", val: "$280,000.00", st: "SENT", type: "QUOTE" },
-                      { name: "Master Services Agreement", ref: "MSA-NEB-24", date: "Oct 16, 2024", val: "--", st: "DRAFT", type: "CONTRACT" },
-                      { name: "Invoice #SN-102", ref: "INV-SN-102", date: "Oct 10, 2024", val: "$45,000.00", st: "PAID", type: "INVOICE" },
-                    ].map((doc, i) => (
-                      <tr key={i} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
-                        <td className="px-8 py-6">
-                           <div className="flex items-center gap-4">
-                             <div className={`p-2.5 rounded-xl border transition-all ${doc.type === 'INVOICE' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-white/5 border-white/5 text-white/40'}`}>
-                               <FiFilePlus className="w-5 h-5 flex-shrink-0" />
-                             </div>
-                             <span 
-                               onClick={() => navigate('/ai-tools/sales/proposals')}
-                               className="text-sm font-black text-white uppercase tracking-tight hover:text-red-500 transition-colors cursor-pointer"
-                             >
-                               {doc.name}
-                             </span>
-                           </div>
-                        </td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30 uppercase tracking-tight">{doc.ref}</td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.date}</td>
-                        <td className="px-8 py-6 text-sm font-black text-white tracking-tight">{doc.val}</td>
-                        <td className="px-8 py-6">
-                           <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest ${doc.st === 'PAID' ? 'bg-emerald-500/10 text-emerald-500' : doc.st === 'SENT' ? 'bg-white/5 text-white/40' : 'bg-red-500/10 text-red-500'}`}>
-                             {doc.st}
-                           </span>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                           <button className="text-white/20 hover:text-white transition-colors">
-                             <FiMoreVertical className="w-5 h-5" />
-                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                 </tbody>
-               </table>
-            </div>
+
+            {(() => {
+              const combined = [
+                ...(leadDocs.proposals || []).map((d: any) => ({ ...d, _kind: "proposal" })),
+                ...(leadDocs.invoices || []).map((d: any) => ({ ...d, _kind: "invoice" })),
+              ].sort((a: any, b: any) => {
+                const ta = new Date(a.createdAt || a.issuedDate || 0).getTime();
+                const tb = new Date(b.createdAt || b.issuedDate || 0).getTime();
+                return tb - ta;
+              });
+
+              if (!docsLoading && combined.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <FiFilePlus className="w-8 h-8 text-white/10 mb-3" />
+                    <p className="text-sm font-bold text-white/25">No proposals or invoices yet for this lead</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="overflow-x-auto scrollbar-hide">
+                   <table className="w-full text-left min-w-[800px]">
+                     <thead>
+                        <tr className="bg-white/[0.01] border-b border-white/[0.03]">
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Document Name</th>
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Reference</th>
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Date</th>
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Value</th>
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest">Status</th>
+                          <th className="px-8 py-5 text-[9px] font-black text-white/30 uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {combined.map((doc: any) => (
+                          <tr key={doc._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
+                            <td className="px-8 py-6">
+                               <div className="flex items-center gap-4">
+                                 <div className={`p-2.5 rounded-xl border transition-all ${doc._kind === 'invoice' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-white/5 border-white/5 text-white/40'}`}>
+                                   <FiFilePlus className="w-5 h-5 flex-shrink-0" />
+                                 </div>
+                                 <span
+                                   onClick={() => navigate(`/ai-tools/sales/documents/${doc._kind}/${doc._id}`)}
+                                   className="text-sm font-black text-white uppercase tracking-tight hover:text-red-500 transition-colors cursor-pointer"
+                                 >
+                                   {doc.projectTitle ? `${doc.projectTitle} — ${doc._kind === "invoice" ? "Invoice" : "Proposal"}` : (doc._kind === "invoice" ? "Invoice" : "Proposal")}
+                                 </span>
+                               </div>
+                            </td>
+                            <td className="px-8 py-6 text-sm font-medium text-white/30 uppercase tracking-tight">{doc.reference || "—"}</td>
+                            <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.issuedDate ? new Date(doc.issuedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</td>
+                            <td className="px-8 py-6 text-sm font-black text-white tracking-tight">${Number(doc.total || 0).toLocaleString()}</td>
+                            <td className="px-8 py-6">
+                               <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest ${doc.status === 'PAID' ? 'bg-emerald-500/10 text-emerald-500' : doc.status === 'SENT' ? 'bg-white/5 text-white/40' : 'bg-red-500/10 text-red-500'}`}>
+                                 {doc.status || "DRAFT"}
+                               </span>
+                            </td>
+                            <td className="px-8 py-6 text-right">
+                               <button className="text-white/20 hover:text-white transition-colors" onClick={() => navigate(`/ai-tools/sales/documents/${doc._kind}/${doc._id}`)}>
+                                 <FiMoreVertical className="w-5 h-5" />
+                               </button>
+                            </td>
+                          </tr>
+                        ))}
+                     </tbody>
+                   </table>
+                </div>
+              );
+            })()}
           </section>
 
         </div>
         )}
       </main>
 
-      <NewTaskModal 
-        isOpen={isTaskModalOpen} 
-        onClose={() => setIsTaskModalOpen(false)} 
+      <NewTaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
         onTaskCreate={handleAddTask}
+      />
+
+      {id && (
+        <CreateDealModal
+          isOpen={isDealModalOpen}
+          onClose={() => setIsDealModalOpen(false)}
+          onCreated={() => fetchLead()}
+          leadId={id}
+          leadName={lead?.name}
+          leadCompany={lead?.company}
+        />
+      )}
+
+      <AlertModal
+        isOpen={isDeleteOpen}
+        type="danger"
+        action="delete"
+        title="Delete this lead?"
+        message={`"${lead?.name}" will be moved to trash${projects.length > 0 ? `, along with ${projects.length} linked project${projects.length === 1 ? "" : "s"} and their follow-ups` : ""} — all recoverable from Trash. Proposals and invoices already generated for this lead are not affected.`}
+        confirmText="Delete Lead"
+        loadingText="Deleting..."
+        isLoading={deleting}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteLead}
       />
 
       {selectedTask && (

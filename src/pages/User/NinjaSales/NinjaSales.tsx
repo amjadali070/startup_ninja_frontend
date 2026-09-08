@@ -10,6 +10,7 @@ import PipelineSnapshot from "../../../components/ninja-sales/PipelineSnapshot.t
 import RevenueForecast from "../../../components/ninja-sales/RevenueForecast.tsx";
 import RecentLeadActivity from "../../../components/ninja-sales/RecentLeadActivity.tsx";
 import AIFollowupSuggestions from "../../../components/ninja-sales/AIFollowupSuggestions.tsx";
+import WhoToContactToday from "../../../components/ninja-sales/WhoToContactToday.tsx";
 import TopOpportunities from "../../../components/ninja-sales/TopOpportunities.tsx";
 import SalesQuickActions from "../../../components/ninja-sales/SalesQuickActions.tsx";
 import SalesAdvancedModule from "../../../components/ninja-sales/SalesAdvancedModule.tsx";
@@ -93,6 +94,12 @@ const NinjaSales: FC = () => {
             </div>
             <div className="lg:col-span-2">
               <SalesQuickActions />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            <div className="lg:col-span-12">
+              <WhoToContactToday />
             </div>
           </div>
 

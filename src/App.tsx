@@ -15,6 +15,7 @@ import AdminLogin from "./pages/Auth/AdminLogin.tsx";
 import PaymentSuccess from "./pages/Subscription/PaymentSuccess.tsx";
 import BuySubscription from "./pages/Subscription/BuySubscription.tsx";
 import AIChat from "./pages/User/AIChat.tsx";
+import ChatMemories from "./pages/User/ChatMemories.tsx";
 import AIImageGen from "./pages/User/AIImageGen.tsx";
 import SocialMediaStudio from "./pages/User/SocialMediaStudio.tsx";
 import PostDetails from "./pages/User/PostDetails.tsx";
@@ -39,6 +40,7 @@ import WebsiteBuilderStudio from "./components/web-builder/WebsiteBuilderStudio.
 import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
+import StudentVerifications from "./pages/Admin/StudentVerifications.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
 import NinjaFinance from "./pages/User/NinjaFinance.tsx";
@@ -54,6 +56,8 @@ import EditMember from "./pages/User/TeamManagement/EditMember.tsx";
 import LeadsPipelinePage from "./pages/User/NinjaSales/LeadsPipelinePage.tsx";
 import FollowUpsPage from "./pages/User/NinjaSales/FollowUpsPage.tsx";
 import ProposalsPage from "./pages/User/NinjaSales/ProposalsPage.tsx";
+import InvoicesPage from "./pages/User/NinjaSales/InvoicesPage.tsx";
+import EmailSettingsPage from "./pages/User/NinjaSales/EmailSettingsPage.tsx";
 import LeadDetailsPage from "./pages/User/NinjaSales/LeadDetailsPage.tsx";
 import ProjectsPage from "./pages/User/NinjaSales/ProjectsPage.tsx";
 import ProjectDetailsPage from "./pages/User/NinjaSales/ProjectDetailsPage.tsx";
@@ -200,6 +204,14 @@ function App() {
             }
           />
           <Route
+            path="/ai-tools/chat/memories"
+            element={
+              <ProtectedRoute>
+                <ChatMemories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ai-tools/image-gen"
             element={
               <ProtectedRoute>
@@ -300,6 +312,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProposalsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/invoices"
+            element={
+              <ProtectedRoute>
+                <InvoicesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/sales/email-settings"
+            element={
+              <ProtectedRoute>
+                <EmailSettingsPage />
               </ProtectedRoute>
             }
           />
@@ -470,6 +498,14 @@ function App() {
             element={
               <AdminRoute>
                 <PlanManagement />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/student-verifications"
+            element={
+              <AdminRoute>
+                <StudentVerifications />
               </AdminRoute>
             }
           />

@@ -7,6 +7,7 @@ import { authService } from '../../services/auth.ts';
 import type { RegisterRequest } from '../../types/auth.ts';
 import { COUNTRY_OPTIONS } from '../../data/countries.ts';
 import EmailVerificationModal from '../../components/EmailVerificationModal.tsx';
+import AlertModal from '../../components/AlertModal.tsx';
 import toast from 'react-hot-toast';
 
 const getFlagUrl = (iso2: string, size: number = 32) => {
@@ -92,6 +93,7 @@ const Register: React.FC = () => {
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [showCancelVerifyConfirm, setShowCancelVerifyConfirm] = useState(false);
   const [verificationData, setVerificationData] = useState<{
     userId: string;
     email: string;
@@ -354,15 +356,18 @@ const Register: React.FC = () => {
   };
 
   const handleCloseVerificationModal = () => {
-    // Show alert when user cancels verification
-    if (window.confirm('Are you sure you want to cancel email verification? You can verify your email later when you try to login again.')) {
-      setShowEmailVerification(false);
-      setVerificationData(null);
-      toast('You can verify your email later by trying to login again.', {
-        icon: 'ℹ️',
-        duration: 4000,
-      });
-    }
+    // Ask for confirmation before discarding an in-progress verification
+    setShowCancelVerifyConfirm(true);
+  };
+
+  const confirmCancelVerification = () => {
+    setShowCancelVerifyConfirm(false);
+    setShowEmailVerification(false);
+    setVerificationData(null);
+    toast('You can verify your email later by trying to login again.', {
+      icon: 'ℹ️',
+      duration: 4000,
+    });
   };
 
   return (
@@ -677,6 +682,18 @@ const Register: React.FC = () => {
         onResendCode={handleResendOTP}
         email={verificationData?.email || ''}
         loading={verificationLoading}
+      />
+
+      <AlertModal
+        isOpen={showCancelVerifyConfirm}
+        type="warning"
+        action="custom"
+        title="Cancel email verification?"
+        message="You can verify your email later when you try to login again."
+        confirmText="Cancel Verification"
+        cancelText="Keep Verifying"
+        onClose={() => setShowCancelVerifyConfirm(false)}
+        onConfirm={confirmCancelVerification}
       />
     </div>
   );

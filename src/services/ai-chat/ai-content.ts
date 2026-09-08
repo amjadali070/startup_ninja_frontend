@@ -2,6 +2,7 @@ import { apiClient } from "../apiClient";
 import {
   GenerateChatMessageRequest,
   GenerateChatMessageResponse,
+  RegenerateMessageResponse,
   GetUserChatsResponse,
   GetChatHistoryResponse,
   DeleteChatResponse,
@@ -11,16 +12,49 @@ import {
 
 export const aiContentService = {
   /**
-   * Generate AI content (create new chat or continue existing)
+   * Generate AI content (create new chat or continue existing).
+   * Sends multipart/form-data when files are attached (the browser sets
+   * the correct boundary itself even if a Content-Type is specified —
+   * same pattern already used for the Phase 1 student-verification
+   * upload), plain JSON otherwise.
    */
   async generateChatMessage(
     request: GenerateChatMessageRequest
   ): Promise<GenerateChatMessageResponse> {
     try {
-      const response = await apiClient.post<GenerateChatMessageResponse>(
-        "/ai-content/chat",
-        request
-      );
+      let response: GenerateChatMessageResponse;
+      if (request.files && request.files.length > 0) {
+        const formData = new FormData();
+        formData.append("message", request.message);
+        if (request.chatId) formData.append("chatId", request.chatId);
+        if (request.enableSearch) formData.append("enableSearch", "true");
+        request.files.forEach((file) => formData.append("files", file));
+
+        response = await apiClient.post<GenerateChatMessageResponse>(
+          "/ai-content/chat",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: request.onUploadProgress
+              ? (evt) => {
+                  const percent = evt.total
+                    ? Math.round((evt.loaded / evt.total) * 100)
+                    : 0;
+                  request.onUploadProgress!(percent);
+                }
+              : undefined,
+          }
+        );
+      } else {
+        response = await apiClient.post<GenerateChatMessageResponse>(
+          "/ai-content/chat",
+          {
+            message: request.message,
+            chatId: request.chatId,
+            enableSearch: request.enableSearch,
+          }
+        );
+      }
       return response;
     } catch (error: any) {
       return {
@@ -33,12 +67,54 @@ export const aiContentService = {
   },
 
   /**
-   * Get all chats for the authenticated user
+   * Edit a previous user message and regenerate the response
    */
-  async getUserChats(): Promise<GetUserChatsResponse> {
+  async editMessage(
+    chatId: string,
+    messageId: string,
+    content: string
+  ): Promise<GenerateChatMessageResponse> {
+    try {
+      const response = await apiClient.put<GenerateChatMessageResponse>(
+        `/ai-content/chat/${chatId}/message/${messageId}`,
+        { content }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to edit message",
+      };
+    }
+  },
+
+  /**
+   * Regenerate the last assistant response in a chat
+   */
+  async regenerateMessage(chatId: string): Promise<RegenerateMessageResponse> {
+    try {
+      const response = await apiClient.post<RegenerateMessageResponse>(
+        `/ai-content/chat/${chatId}/regenerate`,
+        {}
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to regenerate response",
+      };
+    }
+  },
+
+  /**
+   * Get all chats for the authenticated user, optionally filtered by a
+   * search query across titles/prompts/response text.
+   */
+  async getUserChats(query?: string): Promise<GetUserChatsResponse> {
     try {
       const response = await apiClient.get<GetUserChatsResponse>(
-        "/ai-content/chats"
+        "/ai-content/chats",
+        query ? { params: { q: query } } : undefined
       );
       return response;
     } catch (error: any) {
@@ -118,7 +194,7 @@ export const aiContentService = {
         `/ai-content/chat/${chatId}/export?format=${format}`,
         { responseType: "blob" }
       );
-      
+
       return data;
     } catch (error: any) {
       return {

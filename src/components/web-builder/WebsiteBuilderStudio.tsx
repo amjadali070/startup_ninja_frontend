@@ -23,12 +23,15 @@ import "@grapesjs/studio-sdk/style";
 import { useLocation, useNavigate } from "react-router-dom";
 import WebBuilderService, {
   WebsiteProject,
+  WebsiteVersion as WebsiteVersionType,
 } from "../../services/web-builder/WebBuilderService";
 import GalleryService from "../../services/web-builder/GalleryService";
+import { imageGenService } from "../../services/imageGenService";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import html2canvas from "html2canvas";
-import DemoTemplates from "./config/DemoTemplates";
+import TemplateService from "../../services/web-builder/TemplateService";
+import { PREVIEW_DEVICE_SIZES } from "./config/previewDevices";
 import LoadingSpinner from "../LoadingSpinner";
 import { FaFileDownload } from "react-icons/fa";
 import { MdDelete, MdClose, MdWebStories } from "react-icons/md";
@@ -101,6 +104,39 @@ const WebsiteBuilderStudio: FC = () => {
   const location = useLocation();
   const { user, token } = useAuth();
 
+  // Auto-save itself already existed (SDK storage manager) but had no
+  // visible state at all — feedback.md explicitly asks for "show saved
+  // state" alongside auto-save/undo/version history.
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+  // Version history — didn't exist at all before (backend model had no
+  // capacity for it, single overwritten websiteData blob). Rendered as a
+  // plain React overlay rather than through the GrapesJS Studio SDK's own
+  // declarative layout system — the SDK's icon-only toolbar buttons proved
+  // difficult to target reliably even for automated testing, so anything
+  // needing dependable interaction/verification goes here instead.
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versions, setVersions] = useState<WebsiteVersionType[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+  const [restoringVersionId, setRestoringVersionId] = useState<string | null>(null);
+
+  // "Ask Ninja" — feedback.md asks for an always-visible control for
+  // plain-English changes, plus AI Rewrite Section / AI Redesign Section /
+  // AI Regenerate Image. websiteData is an unstructured GrapesJS blob with
+  // no backend concept of "sections" (see plan.md 3.4), so this operates on
+  // whatever's currently selected in the editor (or the whole page if
+  // nothing is), rather than the backend identifying a section itself.
+  // Rendered as a plain React overlay for the same reliability reasons as
+  // the save-status/History UI above — an SDK sidebar button also can't be
+  // "always visible" the way a floating control can.
+  const [askNinjaOpen, setAskNinjaOpen] = useState(false);
+  const [askNinjaInstruction, setAskNinjaInstruction] = useState("");
+  const [askNinjaBusy, setAskNinjaBusy] = useState<
+    "idle" | "rewrite" | "redesign" | "ask" | "image"
+  >("idle");
+  const [askNinjaSelection, setAskNinjaSelection] = useState<{ label: string; isImage: boolean } | null>(null);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const websiteId = params.get("id");
@@ -111,14 +147,16 @@ const WebsiteBuilderStudio: FC = () => {
       return;
     }
 
+    // AuthProvider hydrates `user` from storage asynchronously — on a fresh
+    // tab load (e.g. the wizard's window.open) this effect can fire before
+    // it's populated. Previously this used an unguarded `user.id`, which
+    // threw and bounced straight back to the dashboard; wait instead, same
+    // fix as the dashboard's Recent Websites race.
+    if (!user?.id) return;
+
     // Fetch website data
     const fetchWebsiteData = async () => {
       try {
-        if (!user.id) {
-          navigate("/ai-tools/web-builder", { replace: true });
-          return;
-        }
-
         const response = await WebBuilderService.getWebsiteData(
           user.id,
           websiteId
@@ -140,7 +178,7 @@ const WebsiteBuilderStudio: FC = () => {
       }
     };
     fetchWebsiteData();
-  }, [location.search, navigate]);
+  }, [location.search, user?.id, navigate]);
 
   if (loading) {
     return (
@@ -161,10 +199,12 @@ const WebsiteBuilderStudio: FC = () => {
   }
 
   const saveToServer = async (project: any) => {
+    setSaveStatus("saving");
     try {
       const iframe = document.querySelector(".gjs-frame") as HTMLIFrameElement;
       if (!iframe || !iframe.contentWindow || !iframe.contentDocument) {
         toast.error("There is an issue when saving website");
+        setSaveStatus("error");
         return;
       }
 
@@ -199,6 +239,7 @@ const WebsiteBuilderStudio: FC = () => {
     } catch (err) {
       console.error(err);
       toast.error("There is an issue when saving website");
+      setSaveStatus("error");
     }
   };
 
@@ -212,15 +253,215 @@ const WebsiteBuilderStudio: FC = () => {
       );
 
       if (response.success) {
-
+        setSaveStatus("saved");
+        setLastSavedAt(new Date());
         toast.success("Website saved successfully!");
       } else {
-
+        setSaveStatus("error");
         toast.error(response.message);
       }
     } catch (err) {
       console.error("Save failed:", err);
+      setSaveStatus("error");
       toast.error("Failed to save website!");
+    }
+  };
+
+  const openVersionHistory = async () => {
+    setShowVersionHistory(true);
+    setLoadingVersions(true);
+    try {
+      const response = await WebBuilderService.listVersions(user.id, websiteData._id);
+      if (response.success) {
+        setVersions(response.data || []);
+      } else {
+        toast.error(response.message || "Failed to load version history");
+      }
+    } catch (err) {
+      toast.error("Failed to load version history");
+    } finally {
+      setLoadingVersions(false);
+    }
+  };
+
+  const handleRestoreVersion = async (versionId: string) => {
+    setRestoringVersionId(versionId);
+    try {
+      const response = await WebBuilderService.restoreVersion(user.id, websiteData._id, versionId);
+      if (response.success) {
+        toast.success("Version restored — reloading editor...");
+        // Simplest safe way to get the restored websiteData into the live
+        // GrapesJS editor: reload, so the existing storage.onLoad path picks
+        // it up fresh from the server, the same way it already does on a
+        // normal page load. Manipulating the live SDK instance's loaded
+        // project in place would be far more fragile.
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        toast.error(response.message || "Failed to restore version");
+        setRestoringVersionId(null);
+      }
+    } catch (err) {
+      toast.error("Failed to restore version");
+      setRestoringVersionId(null);
+    }
+  };
+
+  // Reads the current page's exported HTML with styles inlined (same export
+  // path previewWebsite already uses) — optionally scoped to just one
+  // component by temporarily tagging it with a unique marker attribute.
+  // component.toHTML() alone isn't enough here: this project's style
+  // manager writes class-based CSS rules (that's why previewWebsite needs
+  // a dedicated "styles: inline" export step for the whole page), so a
+  // single component's outerHTML on its own wouldn't carry its visual
+  // styling — the model backing the AI edit needs to see actual styles.
+  const extractHtmlForAiEdit = async (editor: any, selected: any): Promise<string> => {
+    const marker = selected ? `ninja-ai-${Date.now()}` : null;
+    if (selected && marker) {
+      selected.setAttributes({ ...selected.getAttributes(), "data-ninja-ai-marker": marker });
+    }
+    try {
+      const files = (await editor.runCommand("studio:projectFiles", {
+        styles: "inline",
+      })) as { name: string; mimeType: string; content: string; pageId?: string; page?: any }[];
+      const Pages = editor.Pages;
+      const selectedPage = Pages?.getSelected?.();
+      const selectedPageId = selectedPage?.id || selectedPage?.getId?.();
+      const htmlFile =
+        files.find(
+          (f) =>
+            f.mimeType === "text/html" &&
+            (f.pageId === selectedPageId ||
+              f.page?.id === selectedPageId ||
+              f.name?.includes?.(selectedPageId || ""))
+        ) || files.find((f) => f.mimeType === "text/html");
+
+      if (!htmlFile) return "";
+      if (!marker) return htmlFile.content;
+
+      const doc = new DOMParser().parseFromString(htmlFile.content, "text/html");
+      const target = doc.querySelector(`[data-ninja-ai-marker="${marker}"]`);
+      if (!target) return "";
+      target.removeAttribute("data-ninja-ai-marker");
+      return target.outerHTML;
+    } finally {
+      if (selected && marker) {
+        const attrs = { ...selected.getAttributes() };
+        delete attrs["data-ninja-ai-marker"];
+        selected.setAttributes(attrs);
+      }
+    }
+  };
+
+  // Swaps AI-edited HTML back into the live component tree in place of
+  // whatever was selected (preserving its position among its siblings), or
+  // replaces the whole page when nothing was selected.
+  const applyAiEditResult = (editor: any, selected: any, newHtml: string) => {
+    const parent = selected?.parent?.();
+    if (selected && parent) {
+      const index = parent.components().indexOf(selected);
+      selected.remove();
+      const added = parent.components().add(newHtml, { at: index });
+      const newComp = Array.isArray(added) ? added[0] : added;
+      if (newComp) editor.select(newComp);
+      return;
+    }
+    editor.setComponents(newHtml);
+  };
+
+  const runAskNinja = async (
+    mode: "ask" | "rewrite" | "redesign",
+    instructionOverride?: string
+  ) => {
+    const editor: any = editorRef.current;
+    if (!editor) return;
+
+    const instruction = (instructionOverride ?? askNinjaInstruction).trim();
+    if (!instruction) {
+      toast.error("Tell Ninja what to change first.");
+      return;
+    }
+
+    const selected = editor.getSelected?.();
+    setAskNinjaBusy(mode);
+    try {
+      const html = await extractHtmlForAiEdit(editor, selected);
+      if (!html) {
+        toast.error("Couldn't read that content — try selecting it again.");
+        return;
+      }
+
+      const response = await WebBuilderService.aiEditSection(
+        user.id,
+        websiteData._id,
+        html,
+        instruction,
+        mode
+      );
+
+      if (!response.success || !response.data?.html) {
+        toast.error(response.message || "Ninja couldn't make that change.");
+        return;
+      }
+
+      applyAiEditResult(editor, selected, response.data.html);
+      try {
+        editor.store();
+      } catch (e) {}
+
+      toast.success("Ninja applied your changes!");
+      setAskNinjaInstruction("");
+      setAskNinjaOpen(false);
+    } catch (err) {
+      console.error("Ask Ninja failed:", err);
+      toast.error("Ninja couldn't make that change. Try again.");
+    } finally {
+      setAskNinjaBusy("idle");
+    }
+  };
+
+  const handleRegenerateImage = async () => {
+    const editor: any = editorRef.current;
+    const selected = editor?.getSelected?.();
+    if (!editor || !selected) return;
+
+    const prompt =
+      askNinjaInstruction.trim() ||
+      selected.getAttributes?.()?.alt ||
+      "A professional, high-quality image that fits this website's content and style";
+
+    setAskNinjaBusy("image");
+    try {
+      const response = await imageGenService.generateImage({
+        prompt,
+        aspectRatio: "1:1",
+        style: "photorealistic",
+      });
+
+      if (!response.success || !response.data?.imageUrl) {
+        toast.error(response.message || "Image generation failed.");
+        return;
+      }
+
+      const imageUrl = response.data.imageUrl;
+      const tag = selected.get?.("tagName")?.toLowerCase?.();
+      if (tag === "img") {
+        selected.setAttributes({ ...selected.getAttributes(), src: imageUrl });
+      } else {
+        selected.addStyle({ "background-image": `url(${imageUrl})` });
+      }
+
+      try {
+        editor.store();
+      } catch (e) {}
+
+      toast.success("New image generated!");
+      setAskNinjaInstruction("");
+      setAskNinjaOpen(false);
+    } catch (err) {
+      console.error("Regenerate image failed:", err);
+      toast.error("Couldn't generate a new image. Try again.");
+    } finally {
+      setAskNinjaBusy("idle");
     }
   };
 
@@ -318,17 +559,14 @@ const WebsiteBuilderStudio: FC = () => {
       ? normalizeDesktopMediaQueries(htmlFile.content)
       : "";
 
-    const deviceSizes: Record<
-      string,
-      {
-        width: string;
-        maxWidth: string;
-      }
-    > = {
-      desktop: { width: "100%", maxWidth: "1200px" },
-      tablet: { width: "768px", maxWidth: "992px" },
-      mobile: { width: "568px", maxWidth: "768px" },
-    };
+    // Shared with the dashboard's PreviewModal (WebBuilder.tsx) so both
+    // preview surfaces use identical breakpoints — they previously diverged
+    // silently (mobile was 568-768px here vs 420-600px there). Widened back
+    // to a string index here since the SDK's own button callbacks pass
+    // loosely-typed device values, not the literal "desktop"|"tablet"|"mobile"
+    // union.
+    const deviceSizes: Record<string, { width: string; maxWidth: string }> =
+      PREVIEW_DEVICE_SIZES;
 
     let currentDevice = previewDevice;
 
@@ -947,6 +1185,25 @@ const WebsiteBuilderStudio: FC = () => {
             setTimeout(() => addDeviceIcons(), 100);
           });
 
+          // Keeps the Ask Ninja panel's "what am I editing" label in sync —
+          // GrapesJS canvas selection changes don't otherwise trigger a
+          // React re-render since editorRef is a plain ref, not state.
+          const updateSelectionInfo = () => {
+            const selected = editor.getSelected?.();
+            if (!selected) {
+              setAskNinjaSelection(null);
+              return;
+            }
+            const tag = selected.get?.("tagName")?.toLowerCase?.() || "element";
+            const bg = selected.getStyle?.()?.["background-image"];
+            setAskNinjaSelection({
+              label: tag,
+              isImage: tag === "img" || (!!bg && bg !== "none"),
+            });
+          };
+          editor.on("component:selected", updateSelectionInfo);
+          editor.on("component:deselected", updateSelectionInfo);
+
           const observer = new MutationObserver(() => {
             addDeviceIcons();
           });
@@ -955,6 +1212,19 @@ const WebsiteBuilderStudio: FC = () => {
             childList: true,
             subtree: true,
           });
+
+          // Wizard hand-off: Step 3's "Publish" button opens the editor with
+          // this seeded draft already loaded and asks for one more explicit
+          // confirmation here (publishWebsite just opens the existing
+          // confirmation modal, it doesn't publish by itself) rather than
+          // silently publishing a business's live site without them ever
+          // seeing it.
+          try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("autopublish") === "1") {
+              setTimeout(() => publishWebsite(editor), 800);
+            }
+          } catch {}
         }}
         options={{
           pages: {
@@ -1206,6 +1476,17 @@ const WebsiteBuilderStudio: FC = () => {
                             });
                           },
                         },
+                        {
+                          id: "add-blocks-label",
+                          type: "text",
+                          content: "Content",
+                          style: {
+                            fontSize: "9px",
+                            color: "#888",
+                            textAlign: "center",
+                            marginTop: "-6px",
+                          },
+                        },
                         // Pages Button
                         {
                           id: "pages-manager",
@@ -1270,6 +1551,17 @@ const WebsiteBuilderStudio: FC = () => {
                                 ],
                               },
                             });
+                          },
+                        },
+                        {
+                          id: "pages-manager-label",
+                          type: "text",
+                          content: "Pages",
+                          style: {
+                            fontSize: "9px",
+                            color: "#888",
+                            textAlign: "center",
+                            marginTop: "-6px",
                           },
                         },
                         // Layers Button
@@ -1411,7 +1703,17 @@ const WebsiteBuilderStudio: FC = () => {
                             });
                           },
                         },
-                        
+                        {
+                          id: "global-styles-label",
+                          type: "text",
+                          content: "Design",
+                          style: {
+                            fontSize: "9px",
+                            color: "#888",
+                            textAlign: "center",
+                            marginTop: "-6px",
+                          },
+                        },
                         {
                           id: "openAssetsButtonId",
                           type: "button",
@@ -1633,6 +1935,112 @@ const WebsiteBuilderStudio: FC = () => {
                                   {
                                     type: "panelPageSettings",
                                     content: { itemsPerRow: 1 },
+                                  },
+                                ],
+                              },
+                            });
+                          },
+                        },
+                        {
+                          id: "global-setting-label",
+                          type: "text",
+                          content: "Settings",
+                          style: {
+                            fontSize: "9px",
+                            color: "#888",
+                            textAlign: "center",
+                            marginTop: "-6px",
+                          },
+                        },
+                        // Advanced Button — surfaces the code view (raw
+                        // HTML/CSS export), which existed in the SDK but was
+                        // fully switched off (display:none + its trigger
+                        // commented out) rather than organized as an
+                        // explicit "Advanced" area the way feedback.md asks
+                        // for. Also houses "Animate Selected" (previously a
+                        // top-toolbar button) since detailed animation
+                        // settings are the other thing feedback.md names as
+                        // belonging here.
+                        {
+                          id: "advanced-panel",
+                          type: "button",
+                          icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6z" fill="#CCCCCC"/>
+                                                    </svg>`,
+                          tooltip: "Advanced",
+                          onClick: ({ editor }: any) => {
+                            editor.runCommand("studio:layoutToggle", {
+                              id: "advanced-panel-content",
+                              header: false,
+                              placer: {
+                                type: "absolute",
+                                position: "left",
+                                title: "Advanced",
+                                size: "l",
+                              },
+                              layout: {
+                                type: "column",
+                                style: { gap: 20, padding: 10, overflow: "auto" },
+                                children: [
+                                  {
+                                    type: "row",
+                                    style: {
+                                      padding: "10px 0",
+                                      fontWeight: "bold",
+                                      fontSize: "1rem",
+                                      color: "#fff",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                    },
+                                    children: [
+                                      "Advanced",
+                                      {
+                                        type: "button",
+                                        icon: '<svg width="20" height="20" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="#fff" stroke-width="2"/><path d="M6 6L18 18" stroke="#fff" stroke-width="2"/></svg>',
+                                        style: { background: "none", border: "none", cursor: "pointer", marginLeft: "10px" },
+                                        tooltip: "Close",
+                                        onClick: ({ editor }: any) => {
+                                          editor.runCommand("studio:layoutRemove", { id: "advanced-panel-content" });
+                                        },
+                                      },
+                                    ],
+                                  },
+                                  {
+                                    type: "text",
+                                    content: "For code-level and animation changes — most people won't need this.",
+                                    style: { color: "#888", fontSize: "12px", marginBottom: "8px" },
+                                  },
+                                  {
+                                    type: "button",
+                                    label: "View / Edit Code (HTML & CSS)",
+                                    style: {
+                                      backgroundColor: "#252525",
+                                      border: "1px solid #333",
+                                      borderRadius: "8px",
+                                      padding: "10px 14px",
+                                      color: "#fff",
+                                      width: "100%",
+                                    },
+                                    onClick: ({ editor }: any) => {
+                                      editor.runCommand("studio:layoutRemove", { id: "advanced-panel-content" });
+                                      // No direct command string opens this — the SDK's
+                                      // stock code-view button is still rendered, just
+                                      // display:none'd (see the rightContainer.buttons
+                                      // filter below), so the proven way to trigger it
+                                      // is the same DOM click this app already used
+                                      // before that button was hidden.
+                                      const importButton = document.querySelector(
+                                        ".importcode-btn button"
+                                      ) as HTMLElement | null;
+                                      importButton?.click();
+                                    },
+                                  },
+                                  {
+                                    type: "text",
+                                    content:
+                                      "Animation controls are still on the main toolbar (the ✦ icon) — select an element first, then click it there.",
+                                    style: { color: "#666", fontSize: "11px", marginTop: "4px" },
                                   },
                                 ],
                               },
@@ -2323,16 +2731,32 @@ const WebsiteBuilderStudio: FC = () => {
               if (hasWebsiteData) {
                 return { project: websiteData.websiteData };
               }
+              // Wizard hand-off: a personalized draft (business name/
+              // description filled into a template's hero copy) staged in
+              // sessionStorage by CreateWebsiteWizard. Takes priority over
+              // the raw stock ?template= lookup below — same project shape
+              // ({pages:[{name,component}]}), just with real content.
+              try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get("draft") === "wizard") {
+                  const raw = sessionStorage.getItem("pending-website-draft");
+                  if (raw) {
+                    sessionStorage.removeItem("pending-website-draft");
+                    const draft = JSON.parse(raw);
+                    if (draft?.pages) {
+                      return { project: draft };
+                    }
+                  }
+                }
+              } catch {}
               // If no existing data, allow initializing from template via query param
               try {
                 const params = new URLSearchParams(window.location.search);
                 const templateId = params.get("template");
                 if (templateId) {
-                  const tpl = (DemoTemplates as any[]).find(
-                    (t) => t.id === templateId
-                  );
-                  if (tpl?.data) {
-                    return { project: tpl.data };
+                  const tplRes = await TemplateService.getTemplate(templateId);
+                  if (tplRes.success && tplRes.data) {
+                    return { project: { pages: tplRes.data.pages } };
                   }
                 }
               } catch {}
@@ -2438,10 +2862,217 @@ const WebsiteBuilderStudio: FC = () => {
             }),
           ],
           templates: {
-            onLoad: async () => [...DemoTemplates],
+            onLoad: async () => {
+              const res = await TemplateService.getTemplates();
+              if (!res.success || !res.data) return [];
+              return res.data.map((t) => ({
+                id: t.templateId,
+                name: t.name,
+                data: { pages: t.pages },
+              }));
+            },
           },
         }}
       />
+
+      {/* Saved-state indicator + version-history trigger — rendered as a
+          plain React overlay rather than through the SDK's own declarative
+          layout, for the same reliability reasons noted above. */}
+      {/* top-14 sits below the SDK's own ~50px toolbar row rather than
+          overlapping it — top-2 visually collided with the Desktop/device
+          selector, confirmed via a live screenshot before this fix. */}
+      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-2 pointer-events-none">
+        {saveStatus !== "idle" && (
+          <div
+            className={`pointer-events-auto flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium shadow-lg border transition-colors ${
+              saveStatus === "saving"
+                ? "bg-[#1a1a1a] border-white/20 text-gray-300"
+                : saveStatus === "saved"
+                ? "bg-[#12261a] border-green-700/50 text-green-400"
+                : "bg-[#2a1414] border-red-700/50 text-red-400"
+            }`}
+          >
+            {saveStatus === "saving" && (
+              <>
+                <span className="h-2 w-2 rounded-full bg-gray-400 animate-pulse" />
+                Saving…
+              </>
+            )}
+            {saveStatus === "saved" && (
+              <>
+                <span className="h-2 w-2 rounded-full bg-green-500" />
+                Saved{lastSavedAt ? ` ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <span className="h-2 w-2 rounded-full bg-red-500" />
+                Save failed
+              </>
+            )}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={openVersionHistory}
+          className="pointer-events-auto px-3 py-1 rounded-full text-xs font-medium shadow-lg border border-white/20 bg-[#1a1a1a] text-gray-300 hover:text-white hover:border-white/40 transition-colors"
+          title="Version history"
+        >
+          History
+        </button>
+      </div>
+
+      {/* Ask Ninja — always-visible floating control for plain-English
+          website edits, plus one-click Rewrite Section / Redesign Section /
+          Regenerate Image when something's selected in the canvas. Plain
+          React overlay for the same reliability reasons as the panel
+          above — see extractHtmlForAiEdit's comment for why this operates
+          on the current selection rather than a backend "section" concept. */}
+      <button
+        type="button"
+        onClick={() => setAskNinjaOpen((v) => !v)}
+        className="fixed bottom-6 right-6 z-[10000] flex items-center gap-2 px-4 py-3 rounded-full text-sm font-semibold shadow-2xl bg-gradient-to-r from-[#DC2626] to-[#EA580C] text-white hover:brightness-110 transition-all"
+        title="Ask Ninja to make a change"
+      >
+        <span className="text-base">✨</span>
+        Ask Ninja
+      </button>
+
+      {askNinjaOpen && (
+        <div className="fixed bottom-24 right-6 z-[10000] w-[320px] max-w-[90vw] rounded-xl bg-[#1a1a1a] border border-[#333] shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between p-3 border-b border-[#333]">
+            <h3 className="text-white font-semibold text-sm">✨ Ask Ninja</h3>
+            <button
+              onClick={() => setAskNinjaOpen(false)}
+              className="text-gray-400 hover:text-white text-sm"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-3 space-y-3">
+            <div className="text-[11px] text-gray-500">
+              {askNinjaSelection
+                ? `Editing selected ${askNinjaSelection.label} element`
+                : "Editing the whole page — select something in the canvas to target just one section"}
+            </div>
+            <textarea
+              value={askNinjaInstruction}
+              onChange={(e) => setAskNinjaInstruction(e.target.value)}
+              placeholder="Tell Ninja what to change…"
+              rows={3}
+              disabled={askNinjaBusy !== "idle"}
+              className="w-full resize-none rounded-lg bg-[#0f0f0f] border border-[#2a2a2a] text-white text-xs p-2.5 placeholder:text-gray-600 focus:outline-none focus:border-[#DC2626]/60 disabled:opacity-50"
+            />
+            <div className="flex flex-wrap gap-2">
+              {askNinjaSelection?.isImage && (
+                <button
+                  type="button"
+                  onClick={handleRegenerateImage}
+                  disabled={askNinjaBusy !== "idle"}
+                  className="flex-1 px-2.5 py-1.5 text-[11px] rounded-md bg-[#252525] text-gray-200 hover:bg-[#2f2f2f] border border-[#333] disabled:opacity-50"
+                >
+                  {askNinjaBusy === "image" ? "Generating…" : "🖼 Regenerate Image"}
+                </button>
+              )}
+              {askNinjaSelection && !askNinjaSelection.isImage && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      runAskNinja(
+                        "rewrite",
+                        askNinjaInstruction.trim() ||
+                          "Improve and polish the wording of this section's text — keep the same structure and roughly the same length."
+                      )
+                    }
+                    disabled={askNinjaBusy !== "idle"}
+                    className="flex-1 px-2.5 py-1.5 text-[11px] rounded-md bg-[#252525] text-gray-200 hover:bg-[#2f2f2f] border border-[#333] disabled:opacity-50"
+                  >
+                    {askNinjaBusy === "rewrite" ? "Rewriting…" : "✍ Rewrite Section"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      runAskNinja(
+                        "redesign",
+                        askNinjaInstruction.trim() ||
+                          "Give this section a more modern, polished visual style — refine colors, spacing, and typography while keeping the same content."
+                      )
+                    }
+                    disabled={askNinjaBusy !== "idle"}
+                    className="flex-1 px-2.5 py-1.5 text-[11px] rounded-md bg-[#252525] text-gray-200 hover:bg-[#2f2f2f] border border-[#333] disabled:opacity-50"
+                  >
+                    {askNinjaBusy === "redesign" ? "Redesigning…" : "🎨 Redesign Section"}
+                  </button>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => runAskNinja("ask")}
+              disabled={askNinjaBusy !== "idle" || !askNinjaInstruction.trim()}
+              className="w-full px-3 py-2 text-xs font-medium rounded-lg bg-[#DC2626] text-white hover:bg-[#DC2626]/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {askNinjaBusy === "ask" ? "Applying…" : "Send to Ninja"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showVersionHistory && (
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/70"
+            onClick={() => setShowVersionHistory(false)}
+          />
+          <div className="relative z-10 w-[90%] max-w-md max-h-[70vh] flex flex-col rounded-xl bg-[#1a1a1a] border border-[#333] shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#333]">
+              <h3 className="text-white font-semibold text-sm">Version History</h3>
+              <button
+                onClick={() => setShowVersionHistory(false)}
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {loadingVersions ? (
+                <div className="text-center py-8 text-gray-500 text-sm">Loading…</div>
+              ) : versions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  No earlier versions yet — checkpoints are saved automatically as you edit
+                  (at most one every 10 minutes) and always right before you publish.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {versions.map((v) => (
+                    <div
+                      key={v._id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]"
+                    >
+                      <div className="text-xs text-gray-300">
+                        {new Date(v.createdAt).toLocaleString([], {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                      <button
+                        onClick={() => handleRestoreVersion(v._id)}
+                        disabled={restoringVersionId !== null}
+                        className="px-3 py-1.5 text-xs rounded-md bg-[#DC2626]/10 text-[#DC2626] hover:bg-[#DC2626]/20 border border-[#DC2626]/30 disabled:opacity-50"
+                      >
+                        {restoringVersionId === v._id ? "Restoring…" : "Restore"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

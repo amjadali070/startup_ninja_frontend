@@ -5,8 +5,9 @@ import { useAuth } from "../../../hooks/useAuth";
 import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import ProjectsTable from "../../../components/ninja-sales/ProjectsTable";
-import { FiBriefcase, FiTrendingUp, FiDollarSign, FiAward } from "react-icons/fi";
+import { FiBriefcase, FiTrendingUp, FiDollarSign, FiAward, FiTrash2 } from "react-icons/fi";
 import AddProjectModal from "../../../components/ninja-sales/AddProjectModal";
+import TrashModal from "../../../components/ninja-sales/TrashModal";
 import { ninjaSalesService, Project } from "../../../services/ninjaSales";
 
 const formatCurrency = (value: number): string => {
@@ -19,6 +20,7 @@ const ProjectsPage: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [statsProjects, setStatsProjects] = useState<Project[]>([]);
 
@@ -48,7 +50,15 @@ const ProjectsPage: FC = () => {
     <DashboardLayout activePath="/ai-tools/sales/projects" title="Projects Management - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C]">
         <div className="p-4 lg:p-8 space-y-8 max-w-full mx-auto text-white min-h-screen pb-10">
-          <NinjaSalesHeader title="Project Management" subtitle="Track and manage all your active deals and projects." newButtonText="New Deal" onNewDeal={handleNewDeal} />
+          <NinjaSalesHeader
+            title="Project Management"
+            subtitle="Track and manage all your active deals and projects."
+            newButtonText="New Deal"
+            onNewDeal={handleNewDeal}
+            secondaryButtonText="Trash"
+            secondaryButtonIcon={<FiTrash2 className="h-4 w-4" />}
+            onSecondaryAction={() => setIsTrashOpen(true)}
+          />
           <SalesStatGrid stats={stats} />
 
           <div className="pb-10">
@@ -62,6 +72,7 @@ const ProjectsPage: FC = () => {
       </main>
 
       <AddProjectModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onCreated={() => setRefreshKey(k => k + 1)} />
+      <TrashModal isOpen={isTrashOpen} onClose={() => setIsTrashOpen(false)} onRestored={() => setRefreshKey(k => k + 1)} />
     </DashboardLayout>
   );
 };

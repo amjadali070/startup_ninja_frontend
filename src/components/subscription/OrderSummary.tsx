@@ -46,15 +46,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ planName, billingCycle, pla
         return { amount: parseFloat(chargeAmount.toFixed(2)), savings: parseFloat(savings.toFixed(2)) };
     }
 
-    // Fallback
+    // Fallback (used only if live plan data hasn't loaded)
     const prices: Record<string, { monthly: number; annual: number }> = {
-      founder: { monthly: 24.99, annual: 239.88 },
-      growth: { monthly: 29, annual: 290 },
-      enterprise: { monthly: 99, annual: 990 },
+      go: { monthly: 15, annual: 144 },
+      go_student: { monthly: 10, annual: 96 },
+      pro: { monthly: 39, annual: 372 },
+      business: { monthly: 99, annual: 948 },
     };
-    
-    const planKey = planName.toLowerCase().replace(' plan', '');
-    const price = prices[planKey] || prices.growth;
+
+    const planKey = planName.toLowerCase().replace(' plan', '').replace(' ', '_');
+    const price = prices[planKey] || prices.pro;
     const amount = billingCycle === 'annual' ? price.annual : price.monthly;
     const savings = billingCycle === 'annual' ? (price.monthly * 12 - price.annual) : 0;
     

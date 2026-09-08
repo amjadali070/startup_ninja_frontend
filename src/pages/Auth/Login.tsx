@@ -8,6 +8,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 // replaced Gmail icon with inline SVG below
 import SocialAuth from "../../components/SocialAuth.tsx";
 import EmailVerificationModal from "../../components/EmailVerificationModal.tsx";
+import AlertModal from "../../components/AlertModal.tsx";
 import toast from "react-hot-toast";
 
 const Login: React.FC = () => {
@@ -23,6 +24,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [showCancelVerifyConfirm, setShowCancelVerifyConfirm] = useState(false);
   const [verificationData, setVerificationData] = useState<{
     userId: string;
     email: string;
@@ -169,18 +171,17 @@ const Login: React.FC = () => {
   };
 
   const handleCloseVerificationModal = () => {
-    // Show alert when user cancels verification
-    if (
-      window.confirm(
-        "Are you sure you want to cancel email verification? You can verify your email later when you try to login again."
-      )
-    ) {
-      setShowEmailVerification(false);
-      setVerificationData(null);
-      // Reset to email step
-      setShowPasswordStep(false);
-      setFormData({ email: formData.email, password: "" });
-    }
+    // Ask for confirmation before discarding an in-progress verification
+    setShowCancelVerifyConfirm(true);
+  };
+
+  const confirmCancelVerification = () => {
+    setShowCancelVerifyConfirm(false);
+    setShowEmailVerification(false);
+    setVerificationData(null);
+    // Reset to email step
+    setShowPasswordStep(false);
+    setFormData({ email: formData.email, password: "" });
   };
 
   const handleSocialAuthSuccess = (response: AuthResponse) => {
@@ -409,6 +410,18 @@ const Login: React.FC = () => {
         email={verificationData?.email || ""}
         loading={verificationLoading}
         isLoginVerification={true}
+      />
+
+      <AlertModal
+        isOpen={showCancelVerifyConfirm}
+        type="warning"
+        action="custom"
+        title="Cancel email verification?"
+        message="You can verify your email later when you try to login again."
+        confirmText="Cancel Verification"
+        cancelText="Keep Verifying"
+        onClose={() => setShowCancelVerifyConfirm(false)}
+        onConfirm={confirmCancelVerification}
       />
     </div>
   );

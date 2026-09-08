@@ -1,8 +1,27 @@
+export interface ChatSource {
+  title: string;
+  url: string;
+  snippet?: string;
+}
+
+export interface ChatAttachment {
+  filename: string;
+  fileType: string;
+  s3Key?: string;
+  size?: number;
+  extractedText?: string;
+  pageCount?: number;
+}
+
 export interface ChatMessage {
+  _id?: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date | string;
   source?: 'dataset' | 'openai';
+  sources?: ChatSource[];
+  attachments?: ChatAttachment[];
+  edited?: boolean;
 }
 
 export interface Chat {
@@ -12,6 +31,7 @@ export interface Chat {
   lastMessageAt?: Date | string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  messages?: ChatMessage[];
 }
 
 export interface ChatHistory {
@@ -25,6 +45,9 @@ export interface ChatHistory {
 export interface GenerateChatMessageRequest {
   message: string;
   chatId?: string;
+  files?: File[];
+  enableSearch?: boolean;
+  onUploadProgress?: (percent: number) => void;
 }
 
 export interface GenerateChatMessageResponse {
@@ -33,6 +56,7 @@ export interface GenerateChatMessageResponse {
   data?: {
     chatId: string;
     chatTitle: string;
+    followUps?: string[];
     messages: ChatMessage[];
   };
   errors?: Array<{
@@ -40,6 +64,17 @@ export interface GenerateChatMessageResponse {
     param: string;
     location: string;
   }>;
+}
+
+export interface RegenerateMessageResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    chatId: string;
+    chatTitle: string;
+    followUps?: string[];
+    message: ChatMessage;
+  };
 }
 
 export interface GetUserChatsResponse {
@@ -90,4 +125,26 @@ export interface UpdateChatTitleResponse {
     param: string;
     location: string;
   }>;
+}
+
+export interface Memory {
+  _id: string;
+  userId: string;
+  content: string;
+  source: 'manual' | 'chat';
+  sourceChatId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface MemoryResponse {
+  success: boolean;
+  message?: string;
+  data?: Memory;
+}
+
+export interface MemoryListResponse {
+  success: boolean;
+  message?: string;
+  data?: Memory[];
 }

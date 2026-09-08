@@ -144,5 +144,36 @@ export const subscriptionService = {
         message: error.response?.data?.message || 'Failed to fetch transaction'
       };
     }
+  },
+
+  /**
+   * Schedule a downgrade to take effect at the end of the current billing
+   * period (mirrors cancelSubscription's cancel-at-period-end approach).
+   */
+  async scheduleDowngrade(plan: string): Promise<any> {
+    try {
+      const response = await apiClient.post('/user/payment/downgrade-subscription', { plan });
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to schedule downgrade'
+      };
+    }
+  },
+
+  /**
+   * Cancel a previously scheduled downgrade
+   */
+  async cancelScheduledDowngrade(): Promise<any> {
+    try {
+      const response = await apiClient.post('/user/payment/cancel-downgrade', {});
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to cancel scheduled downgrade'
+      };
+    }
   }
 };

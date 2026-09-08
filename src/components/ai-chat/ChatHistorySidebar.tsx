@@ -1,5 +1,7 @@
-import { useState, type FC } from "react";
-import { FiX, FiPlus, FiCheck } from "react-icons/fi";
+import { useEffect, useMemo, useState, type FC } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiX, FiPlus, FiCheck, FiSearch } from "react-icons/fi";
+import { PiBrainLight } from "react-icons/pi";
 import {} from "react-icons/fa";
 import { FaHistory, FaTrash, FaEdit } from "react-icons/fa";
 import { Chat } from "../../types/ai-content";
@@ -13,7 +15,28 @@ interface ChatHistorySidebarProps {
   onRenameChat?: (chatId: string, newTitle: string) => void;
   isOpen?: boolean;
   onToggle?: () => void;
+  onSearch?: (query: string) => Promise<Chat[]> | Chat[];
 }
+
+const buildSnippet = (chat: Chat, query: string): string | null => {
+  if (!chat.messages || chat.messages.length === 0) return null;
+  const q = query.trim().toLowerCase();
+  if (!q) return null;
+
+  for (const message of chat.messages) {
+    const content = message.content || "";
+    const idx = content.toLowerCase().indexOf(q);
+    if (idx !== -1) {
+      const start = Math.max(0, idx - 30);
+      const end = Math.min(content.length, idx + q.length + 60);
+      const snippet = content.slice(start, end).trim();
+      return `${start > 0 ? "…" : ""}${snippet}${
+        end < content.length ? "…" : ""
+      }`;
+    }
+  }
+  return null;
+};
 
 const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
   chats,
@@ -24,10 +47,46 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
   onRenameChat,
   isOpen = true,
   onToggle,
+  onSearch,
 }) => {
   const [deleteHoverId, setDeleteHoverId] = useState<string | null>(null);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Chat[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!onSearch) return;
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      setSearchResults(null);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const results = await onSearch(trimmed);
+        setSearchResults(results);
+      } catch (err) {
+        console.error("Chat search failed:", err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, onSearch]);
+
+  const displayedChats = useMemo(() => {
+    return searchResults !== null ? searchResults : chats;
+  }, [searchResults, chats]);
+
+  const isShowingSearchResults = searchResults !== null;
 
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "";
@@ -87,7 +146,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
               ? "translate-x-0 opacity-100 pointer-events-auto lg:mr-0"
               : "translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-0 lg:pointer-events-none lg:-mr-80"
           }
-          fixed lg:relative inset-y-0 right-0 top-0 lg:top-0 z-50 lg:z-20
+          fixed lg:relative inset-y-0 right-0 top-0 lg:top-0 z-[70] lg:z-20
           flex flex-col
         `}
         aria-hidden={!isOpen}
@@ -101,15 +160,25 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                 Chat History
               </h2>
             </div>
-            {onToggle && (
+            <div className="flex items-center gap-1">
               <button
-                onClick={onToggle}
+                onClick={() => navigate("/ai-tools/chat/memories")}
                 className="h-8 w-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-colors"
-                aria-label="Close chat history"
+                title="Manage saved memories"
+                aria-label="Manage saved memories"
               >
-                <FiX className="h-4 w-4" />
+                <PiBrainLight className="h-4 w-4" />
               </button>
-            )}
+              {onToggle && (
+                <button
+                  onClick={onToggle}
+                  className="h-8 w-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                  aria-label="Close chat history"
+                >
+                  <FiX className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* New Chat Button */}
@@ -123,18 +192,53 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
             </button>
           </div>
 
+          {/* Search Bar */}
+          {onSearch && (
+            <div className="sticky top-0 z-10 p-4 border-b border-white/10 bg-[#0A0A0A]">
+              <div className="relative">
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search chats..."
+                  className="w-full pl-8 pr-8 py-2 text-sm bg-[#1A1A1A] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-[#DE0500]/50"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                    aria-label="Clear search"
+                  >
+                    <FiX className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto chat-history-scrollbar pr-2">
-            {chats.length === 0 ? (
+            {isShowingSearchResults && isSearching ? (
               <div className="p-4 text-center">
-                <p className="text-sm text-white/40">No chat history yet</p>
+                <p className="text-sm text-white/40">Searching…</p>
+              </div>
+            ) : displayedChats.length === 0 ? (
+              <div className="p-4 text-center">
+                <p className="text-sm text-white/40">
+                  {isShowingSearchResults
+                    ? "No matching conversations"
+                    : "No chat history yet"}
+                </p>
                 <p className="text-xs text-white/30 mt-1">
-                  Start a new conversation to begin
+                  {isShowingSearchResults
+                    ? "Try a different search term"
+                    : "Start a new conversation to begin"}
                 </p>
               </div>
             ) : (
               <div className="p-2 space-y-1">
-                {chats.map((chat) => (
+                {displayedChats.map((chat) => (
                   <div
                     key={chat._id}
                     className={`
@@ -178,6 +282,15 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                               {formatDate(chat.lastMessageAt)}
                             </p>
                           )}
+                          {isShowingSearchResults &&
+                            (() => {
+                              const snippet = buildSnippet(chat, searchQuery);
+                              return snippet ? (
+                                <p className="text-xs text-white/50 mt-1 line-clamp-2 italic">
+                                  &ldquo;{snippet}&rdquo;
+                                </p>
+                              ) : null;
+                            })()}
                         </>
                       )}
                     </div>
@@ -261,7 +374,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
       {/* Overlay - Shows on mobile and when sidebar is open */}
       {isOpen && onToggle && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[65] lg:hidden"
           onClick={onToggle}
           aria-hidden="true"
         />

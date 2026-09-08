@@ -128,7 +128,7 @@ const PricingMain: React.FC = () => {
                // Calculate price based on cycle
                // Monthly cycle: use plan.price
                // Annual cycle: use plan.discountPrice (assumed to be monthly cost when annual)
-               const isEnterprise = plan.name.toLowerCase() === 'enterprise' || plan.name.toLowerCase() === 'enterprise plan';
+               const isEnterprise = plan.key === 'custom' || plan.name.toLowerCase() === 'custom';
                const displayPrice = billingCycle === "monthly" ? plan.price : (plan.discountPrice || plan.price);
                const isPopular = plan.isPopular;
 
@@ -193,7 +193,7 @@ const PricingMain: React.FC = () => {
 
                 {isEnterprise ? (
                     <Link
-                        to="/contact?plan=enterprise"
+                        to="/contact?plan=custom"
                         className="block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none hover:opacity-85 transition-opacity"
                         style={{ background: "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)" }}
                     >

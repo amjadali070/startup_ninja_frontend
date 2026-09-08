@@ -25,6 +25,15 @@ export interface SEOSettings {
     isNoIndex?: boolean;
 }
 
+export interface SocialLinks {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    youtube?: string;
+    tiktok?: string;
+}
+
 export interface WebsiteProject {
     _id: string;
     websiteTitle: string;
@@ -37,6 +46,9 @@ export interface WebsiteProject {
     customDomainStatus: 'pending' | 'verified' | 'failed';
     customDomainVerifiedAt: string | null;
     seoSettings?: SEOSettings;
+    logoUrl?: string | null;
+    brandColor?: string | null;
+    socialLinks?: SocialLinks;
     createdAt: string;
     updatedAt: string;
 }
@@ -64,6 +76,34 @@ export interface PublishWebsiteResponse {
             isUpdate: boolean;
         };
     }
+
+export interface WebsiteVersion {
+    _id: string;
+    websiteId: string;
+    userId: string;
+    label: string | null;
+    createdAt: string;
+}
+
+export interface VersionListResponse {
+    success: boolean;
+    message?: string;
+    data?: WebsiteVersion[];
+}
+
+export interface RestoreVersionResponse {
+    success: boolean;
+    message: string;
+    data?: { websiteId: string; websiteData: any };
+}
+
+export type AiEditMode = 'rewrite' | 'redesign' | 'ask';
+
+export interface AiEditSectionResponse {
+    success: boolean;
+    message: string;
+    data?: { html: string };
+}
 
 
 class WebBuilderService {
@@ -111,6 +151,77 @@ class WebBuilderService {
                 success: false,
                 message: errorMessage,
             };
+        }
+    }
+    /**
+     * Delete a website (cascades cleanup of its S3 assets and documents server-side)
+     */
+    async deleteWebsite(userId: string, websiteId: string): Promise<{ success: boolean; message: string }> {
+        try {
+            const response = await apiClient.delete(`${this.baseURL}/${websiteId}`, {
+                params: { userId },
+            });
+            return { success: response.success, message: response.message };
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || "Failed to delete website.";
+            return { success: false, message: errorMessage };
+        }
+    }
+    /**
+     * List version history for a website
+     */
+    async listVersions(userId: string, websiteId: string): Promise<VersionListResponse> {
+        try {
+            const response = await apiClient.get(`${this.baseURL}/versions/${websiteId}`, {
+                params: { userId },
+            });
+            return { success: response.success, message: response.message, data: response.data };
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || "Failed to load version history.";
+            return { success: false, message: errorMessage };
+        }
+    }
+    /**
+     * Restore a website to a previous version
+     */
+    async restoreVersion(userId: string, websiteId: string, versionId: string): Promise<RestoreVersionResponse> {
+        try {
+            const response = await apiClient.post(
+                `${this.baseURL}/versions/${websiteId}/${versionId}/restore`,
+                {},
+                { params: { userId } }
+            );
+            return { success: response.success, message: response.message, data: response.data };
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || "Failed to restore version.";
+            return { success: false, message: errorMessage };
+        }
+    }
+    /**
+     * "Ask Ninja" / AI Rewrite Section / AI Redesign Section — sends the
+     * HTML of whatever's selected in the editor (or the whole page body if
+     * nothing's selected) plus a plain-English instruction, gets back
+     * edited HTML using only inline styles (see backend openaiService.js).
+     */
+    async aiEditSection(
+        userId: string,
+        websiteId: string,
+        html: string,
+        instruction: string,
+        mode: AiEditMode = 'ask'
+    ): Promise<AiEditSectionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/ai/edit-section`, {
+                userId,
+                websiteId,
+                html,
+                instruction,
+                mode,
+            });
+            return { success: response.success, message: response.message, data: response.data };
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || "Failed to generate AI edit.";
+            return { success: false, message: errorMessage };
         }
     }
     /**
@@ -220,6 +331,29 @@ class WebBuilderService {
     }
 
     /**
+     * Attempt automatic DNS configuration via a supported registrar's API
+     * (GoDaddy or Namecheap) instead of manual DNS setup. Falls back
+     * gracefully — a "not configured" response is expected and normal
+     * until real registrar credentials exist; the manual instructions
+     * remain the primary path either way.
+     */
+    async autoConfigureDns(userId: string, websiteId: string, registrar: 'godaddy' | 'namecheap'): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/auto-configure-dns`, {
+                userId,
+                websiteId,
+                registrar
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Automatic DNS setup failed."
+            };
+        }
+    }
+
+    /**
      * Verify custom domain DNS
      */
     async verifyDomain(userId: string, websiteId: string): Promise<DomainActionResponse> {
@@ -252,6 +386,26 @@ class WebBuilderService {
             return {
                 success: false,
                 message: error.response?.data?.message || "Failed to update SEO settings."
+            };
+        }
+    }
+
+    /**
+     * Update site-wide social links (filled into the "Social Links" canvas
+     * block's placeholder hrefs at publish time)
+     */
+    async updateSocialLinks(userId: string, websiteId: string, socialLinks: SocialLinks): Promise<DomainActionResponse> {
+        try {
+            const response = await apiClient.post(`${this.baseURL}/update-social-links`, {
+                userId,
+                websiteId,
+                socialLinks
+            });
+            return response;
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.response?.data?.message || "Failed to update social links."
             };
         }
     }

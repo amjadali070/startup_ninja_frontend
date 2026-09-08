@@ -3,6 +3,7 @@ import { FaRocket, FaArrowRight } from 'react-icons/fa';
 import PlanDetails, { PlanLimits, PlanUsage } from './PlanDetails';
 import AlertModal from '../AlertModal';
 import { Plan } from '../../services/plan';
+import { useUserTimezone } from '../../hooks/useUserTimezone';
 
 // Define the subscription data interface matching what's passed from parent
 interface SubscriptionData {
@@ -48,6 +49,7 @@ interface SubscriptionData {
     team_members?: number;
     [key: string]: number | undefined;
   };
+  scheduledDowngrade?: { planKey: string; effectiveDate: string } | null;
 }
 
 export type PlanDetailsType = {
@@ -58,6 +60,7 @@ export type PlanDetailsType = {
   renewalDate: string;
   usage: PlanUsage;
   limits: PlanLimits;
+  scheduledDowngrade?: { planKey: string; effectiveDate: string } | null;
 };
 
 interface CurrentPlanCardProps {
@@ -66,6 +69,7 @@ interface CurrentPlanCardProps {
   onUpgradePlan: () => void;
   onViewBillingHistory: () => void;
   onCancelSubscription: () => Promise<void> | void;
+  onCancelScheduledDowngrade?: () => Promise<void> | void;
 }
 
 const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
@@ -74,18 +78,21 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
   onUpgradePlan,
   onViewBillingHistory,
   onCancelSubscription,
+  onCancelScheduledDowngrade,
 }) => {
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [isProcessingCancel, setIsProcessingCancel] = useState(false);
-  
+  const [isProcessingDowngradeCancel, setIsProcessingDowngradeCancel] = useState(false);
+  const { ianaTimezone } = useUserTimezone();
+
   const planDetails: PlanDetailsType | null = useMemo(() => {
     if (!subscription) return null;
 
     // Map backend data to UI model
     const planName = subscription.plan;
-    
+
     // Price logic - dynamic
-    let price = subscription.price !== undefined 
+    let price = subscription.price !== undefined
         ? `${subscription.currency === 'USD' || !subscription.currency ? '$' : subscription.currency}${subscription.price.toFixed(2)}`
         : '$0.00';
 
@@ -95,10 +102,12 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
             price = `$${matchedPlan.price.toFixed(2)}`;
         }
     } else if (subscription.price === undefined) {
-        // Fallback or keep 0
-        if (planName.toLowerCase() === 'founder') price = '$24.99';
-        else if (planName.toLowerCase() === 'growth') price = '$49.99';
-        else if (planName.toLowerCase() === 'enterprise') price = '$149.99';
+        // Fallback when live plan data hasn't loaded yet
+        const key = planName.toLowerCase();
+        if (key === 'go') price = '$15.00';
+        else if (key === 'go_student' || key === 'go student') price = '$10.00';
+        else if (key === 'pro') price = '$39.00';
+        else if (key === 'business') price = '$99.00';
     }
 
     return {
@@ -106,8 +115,11 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       price: price,
       status: subscription.status || 'active',
       isCanceling: subscription.cancelAtPeriodEnd,
-      renewalDate: subscription.nextBillingDate 
-        ? new Date(subscription.nextBillingDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      scheduledDowngrade: subscription.scheduledDowngrade,
+      // Real IANA timezone (from the user's saved preference), not the
+      // browser's implicit local timezone — feedback.md §10.
+      renewalDate: subscription.nextBillingDate
+        ? new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: ianaTimezone }).format(new Date(subscription.nextBillingDate))
         : 'N/A',
       usage: {
         ai_chat_messages: subscription.usage?.ai_chat_messages || 0,
@@ -142,7 +154,7 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         sales_projects: subscription.limits?.sales_projects || 0,
       }
     };
-  }, [subscription]);
+  }, [subscription, plans, ianaTimezone]);
 
   // Loading state if subscription data hasn't arrived
   if (!planDetails) {
@@ -178,6 +190,18 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
       }
   };
 
+  const handleCancelScheduledDowngrade = async () => {
+      if (!onCancelScheduledDowngrade) return;
+      setIsProcessingDowngradeCancel(true);
+      try {
+          await onCancelScheduledDowngrade();
+      } catch (error) {
+          console.error("Cancel scheduled downgrade failed", error);
+      } finally {
+          setIsProcessingDowngradeCancel(false);
+      }
+  };
+
   return (
     <>
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
@@ -186,13 +210,31 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         <div className="text-gray-400 text-xs xs:text-sm">Current Plan</div>
         <div className={`text-xs font-medium px-2 py-1 rounded border capitalize ${badgeClass}`}>
           {statusText}
-        </div> 
+        </div>
       </div>
 
       {/* Plan Details */}
       <div className="mb-4 xs:mb-5 sm:mb-6">
         <h3 className="text-white text-lg xs:text-xl font-bold font-plus-jakarta mb-1">{planDetails.name}</h3>
         <p className="text-gray-400 text-sm">{planDetails.price} / month</p>
+
+        {planDetails.scheduledDowngrade && (
+          <div className="mt-3 flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
+            <p className="text-amber-400 text-xs xs:text-sm flex-1">
+              Your plan will change to <span className="font-semibold">{planDetails.scheduledDowngrade.planKey}</span> on {planDetails.renewalDate}.
+            </p>
+            {onCancelScheduledDowngrade && (
+              <button
+                type="button"
+                onClick={handleCancelScheduledDowngrade}
+                disabled={isProcessingDowngradeCancel}
+                className="text-xs xs:text-sm text-amber-400 underline hover:text-amber-300 transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                {isProcessingDowngradeCancel ? "Cancelling…" : "Keep current plan"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Plan Summary */}

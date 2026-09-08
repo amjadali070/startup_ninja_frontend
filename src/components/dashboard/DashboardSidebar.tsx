@@ -14,6 +14,7 @@ import {
   FiUsers,
   FiZap,
   FiFileText,
+  FiLock,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -86,6 +87,12 @@ const navSections: SidebarSection[] = [
         label: "Plans & Price Management",
         to: "/admin-dashboard/plans",
         icon: <RiMoneyDollarBoxFill className="w-5 h-5" />,
+        admin: true,
+      },
+      {
+        label: "Student Verifications",
+        to: "/admin-dashboard/student-verifications",
+        icon: <FiFileText className="w-5 h-5" />,
         admin: true,
       },
       // {
@@ -183,6 +190,21 @@ const navSections: SidebarSection[] = [
             label: "Projects",
             to: "/ai-tools/sales/projects",
             icon: <RiOrganizationChart className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Proposals",
+            to: "/ai-tools/sales/proposals",
+            icon: <FiFileText className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Invoices",
+            to: "/ai-tools/sales/invoices",
+            icon: <RiMoneyDollarBoxFill className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Email Sending",
+            to: "/ai-tools/sales/email-settings",
+            icon: <FiLock className="w-3.5 h-3.5" />,
           },
         ],
       },
@@ -292,7 +314,20 @@ const filteredSections = navSections
       }
     });
 
-    return { ...section, items: filteredItems };
+    // Email Sending holds confidential SMTP credentials — only the account owner or a
+    // manager may see it, same rule the backend enforces (assertCanManage).
+    const canManageEmailSettings = !isSubUser || userData?.teamRole === "Manager";
+    const itemsWithFilteredSubItems = filteredItems.map((item) => {
+      if (item.label !== "Ninja Sales" || !item.subItems) return item;
+      return {
+        ...item,
+        subItems: canManageEmailSettings
+          ? item.subItems
+          : item.subItems.filter((sub) => sub.label !== "Email Sending"),
+      };
+    });
+
+    return { ...section, items: itemsWithFilteredSubItems };
   })
   .filter((section) => section.items.length > 0);
 

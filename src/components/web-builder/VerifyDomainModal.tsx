@@ -15,8 +15,29 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
     const [verifying, setVerifying] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDisconnectAlert, setShowDisconnectAlert] = useState(false);
+    const [autoConfiguring, setAutoConfiguring] = useState(false);
+    const [selectedRegistrar, setSelectedRegistrar] = useState<'godaddy' | 'namecheap'>('godaddy');
 
     if (!isOpen) return null;
+
+    const handleAutoConfigure = async () => {
+        setAutoConfiguring(true);
+        try {
+            const response = await WebBuilderService.autoConfigureDns(website.userId, website._id, selectedRegistrar);
+            if (response.success) {
+                toast.success(response.message);
+                // DNS was just set programmatically — worth an immediate check,
+                // though real-world propagation can still take a few minutes.
+                await handleVerify();
+            } else {
+                toast.error(response.message);
+            }
+        } catch (error) {
+            toast.error("Automatic DNS setup failed.");
+        } finally {
+            setAutoConfiguring(false);
+        }
+    };
 
     const handleVerify = async () => {
         setVerifying(true);
@@ -25,10 +46,11 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
             if (response.success) {
                 if (response.data.status === 'verified') {
                     toast.success("Domain verified successfully!");
-                    setTimeout(() => {
-                        onUpdate();
-                        onClose();
-                    }, 1500);
+                    // Used to auto-close 1.5s after this — too fast to actually
+                    // read the SSL-provisioning explanation below, which is the
+                    // whole point of showing it. Let the user dismiss it via
+                    // "Done" once they've actually read it, same as every other
+                    // modal in this app.
                 } else {
                     toast.error("Verification failed. Please ensure your DNS records are correct.");
                 }
@@ -126,6 +148,44 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                                 </p>
                             </div>
 
+                            {/* Automatic DNS setup — feedback.md: "Add GoDaddy and
+                                Namecheap integrations where API access permits." No
+                                registrar credentials are configured yet, so this
+                                correctly reports "not available" and the manual
+                                steps below stay the primary path; the button and
+                                flow are real and ready for whenever credentials
+                                exist. */}
+                            <div className="p-4 bg-[#0b0b0b] rounded-xl border border-[#333] space-y-3">
+                                <p className="text-xs text-gray-400">
+                                    Registered with GoDaddy or Namecheap? We can try setting this up for you automatically.
+                                </p>
+                                <div className="flex gap-2">
+                                    <select
+                                        value={selectedRegistrar}
+                                        onChange={(e) => setSelectedRegistrar(e.target.value as 'godaddy' | 'namecheap')}
+                                        disabled={autoConfiguring}
+                                        className="bg-[#131313] border border-[#333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                    >
+                                        <option value="godaddy">GoDaddy</option>
+                                        <option value="namecheap">Namecheap</option>
+                                    </select>
+                                    <button
+                                        onClick={handleAutoConfigure}
+                                        disabled={autoConfiguring}
+                                        className="flex-1 bg-[#252525] hover:bg-[#333] disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {autoConfiguring ? <FiRefreshCw className="animate-spin w-4 h-4" /> : null}
+                                        {autoConfiguring ? "Configuring…" : "Set Up Automatically"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <div className="h-[1px] flex-1 bg-[#333]"></div>
+                                <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Or set up manually</span>
+                                <div className="h-[1px] flex-1 bg-[#333]"></div>
+                            </div>
+
                             <div className="space-y-4">
                                 {/* CNAME Record */}
                                 <div className="bg-[#0b0b0b] rounded-xl p-4 relative border border-[#333] hover:border-blue-500/30 transition-colors">
@@ -190,9 +250,9 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                             <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-6 animate-pulse">
                                 <FiCheckCircle className="w-10 h-10" />
                             </div>
-                            <h4 className="text-white text-xl font-bold">Website is Live!</h4>
+                            <h4 className="text-white text-xl font-bold">DNS Verified!</h4>
                             <p className="text-gray-400 text-sm mt-2 max-w-xs leading-relaxed">
-                                Your domain has been successfully verified. It might take a few minutes to start resolving everywhere.
+                                Your domain now points to us correctly. A security certificate (HTTPS) is being issued for it automatically — this usually takes just a few minutes, occasionally longer. Your site will be reachable at your domain as soon as that finishes.
                             </p>
                             <button
                                 onClick={onClose}

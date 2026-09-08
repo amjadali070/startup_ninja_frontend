@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
-  FiSearch, FiEdit2, FiExternalLink, FiFilter, FiLoader,
+  FiSearch, FiEdit2, FiTrash2, FiExternalLink, FiFilter, FiLoader,
   FiCircle, FiMessageCircle, FiUserCheck, FiSend, FiTrendingUp,
   FiPauseCircle, FiUnlock, FiCheckCircle, FiLock,
-  FiFlag, FiAlertTriangle, FiArrowRight, FiClock, FiZap
+  FiFlag, FiAlertTriangle, FiArrowRight, FiClock, FiZap, FiBriefcase
 } from "react-icons/fi";
+import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
+import AlertModal from "../AlertModal";
+import { useAuth } from "../../hooks/useAuth";
 import { ninjaSalesService, Project } from "../../services/ninjaSales";
 
 const stageColor: Record<string, string> = {
@@ -39,6 +42,11 @@ interface ProjectsTableProps {
 }
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
+  const { user } = useAuth();
+  /** Same rule the backend enforces for delete: only the account owner or a manager */
+  const canDelete = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
@@ -100,6 +108,20 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
   const getLeadId = (leadId: Project["leadId"]): string | null => {
     if (!leadId || typeof leadId !== "object") return null;
     return leadId._id;
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await ninjaSalesService.deleteProject(deleteTarget._id);
+    setDeleting(false);
+    if (res.success) {
+      toast.success("Project moved to trash");
+      setDeleteTarget(null);
+      fetchProjects();
+    } else {
+      toast.error(res.message || "Could not delete project");
+    }
   };
 
   return (
@@ -186,7 +208,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
           </thead>
           <tbody>
             {projects.length === 0 ? (
-              <tr><td colSpan={7} className="px-6 py-16 text-center text-white/30 text-sm">No projects found. Create your first deal to get started.</td></tr>
+              <tr><td colSpan={7} className="px-6 py-16">
+                <div className="flex flex-col items-center justify-center text-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
+                    <FiBriefcase className="w-6 h-6 text-white/15" />
+                  </div>
+                  <p className="text-sm font-bold text-white/40">No projects yet</p>
+                  <p className="text-xs text-white/20 max-w-xs">Click "New Deal" above to create your first project.</p>
+                </div>
+              </td></tr>
             ) : projects.map((project) => {
               const leadName = getLeadName(project.leadId);
               const leadCompany = getLeadCompany(project.leadId);
@@ -245,6 +275,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
                       >
                         <FiEdit2 className="w-4 h-4" />
                       </Link>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(project)}
+                          className="p-2 text-white/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                          title="Delete project"
+                          aria-label="Delete project"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -284,6 +325,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
           </button>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={!!deleteTarget}
+        type="danger"
+        action="delete"
+        title="Delete this project?"
+        message={`"${deleteTarget?.name}" will be moved to trash, along with any linked follow-ups — recoverable from Trash. Proposals and invoices already generated for it are not affected.`}
+        confirmText="Delete Project"
+        loadingText="Deleting..."
+        isLoading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

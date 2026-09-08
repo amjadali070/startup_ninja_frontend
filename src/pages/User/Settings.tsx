@@ -27,6 +27,9 @@ import CurrentPlanCard from "../../components/settings/CurrentPlanCard.tsx";
 import PlansOverview from "../../components/settings/PlansOverview.tsx";
 import PlanSelectionModal from "../../components/settings/PlanSelectionModal.tsx";
 import UpgradePlanModal from "../../components/settings/UpgradePlanModal.tsx";
+import StudentVerificationModal from "../../components/settings/StudentVerificationModal.tsx";
+import AlertModal from "../../components/AlertModal.tsx";
+import { studentVerificationService } from "../../services/studentVerification.ts";
 
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { authService } from "../../services/auth.ts";
@@ -76,6 +79,9 @@ const Settings: FC = () => {
   // Modal states
   const [showPlanSelectionModal, setShowPlanSelectionModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [downgradeTargetPlan, setDowngradeTargetPlan] = useState<string | null>(null);
+  const [isProcessingDowngrade, setIsProcessingDowngrade] = useState(false);
+  const [showStudentVerificationModal, setShowStudentVerificationModal] = useState(false);
 
   const [selectedPlan, setSelectedPlan] = useState<string>('');
 
@@ -509,21 +515,77 @@ const Settings: FC = () => {
         }
   };
 
+  const handleCancelScheduledDowngrade = async () => {
+        const loadingId = toast.loading("Cancelling scheduled downgrade...");
+        try {
+            const response = await subscriptionService.cancelScheduledDowngrade();
+            if (response.success) {
+                toast.success("You'll stay on your current plan.", { id: loadingId });
+                refreshSubscription();
+            } else {
+                toast.error(response.message || "Failed to cancel scheduled downgrade", { id: loadingId });
+            }
+        } catch (error) {
+            toast.error("An error occurred", { id: loadingId });
+        }
+  };
+
   const handleUpgradePlan = () => {
     // Show plan selection modal first
     setShowPlanSelectionModal(true);
   };
 
-  const handlePlanSelected = (planName: string) => {
-    // Close plan selection modal and open upgrade modal with selected plan
-    setShowPlanSelectionModal(false);
+  // Go Student's discounted price requires an approved ID verification —
+  // route through that check before opening the payment modal.
+  const proceedToUpgrade = async (planName: string) => {
+    if (planName.toLowerCase().replace(/\s+/g, '_') === 'go_student') {
+      const res = await studentVerificationService.getMyStatus();
+      const status = res.success ? res.data?.status : 'none';
+      if (status !== 'approved') {
+        setSelectedPlan(planName);
+        setShowStudentVerificationModal(true);
+        return;
+      }
+    }
     setSelectedPlan(planName);
     setShowUpgradeModal(true);
   };
 
+  const handlePlanSelected = (planName: string) => {
+    // Close plan selection modal and open upgrade modal with selected plan
+    setShowPlanSelectionModal(false);
+    proceedToUpgrade(planName);
+  };
+
+  const handleDowngradeSelected = (planName: string) => {
+    // A downgrade doesn't need a new payment method (Stripe already has one
+    // on file) — just confirm, then schedule it for period end.
+    setShowPlanSelectionModal(false);
+    setDowngradeTargetPlan(planName);
+  };
+
+  const handleConfirmDowngrade = async () => {
+    if (!downgradeTargetPlan) return;
+    setIsProcessingDowngrade(true);
+    const loadingId = toast.loading("Scheduling downgrade...");
+    try {
+      const response = await subscriptionService.scheduleDowngrade(downgradeTargetPlan);
+      if (response.success) {
+        toast.success(response.message || "Downgrade scheduled.", { id: loadingId });
+        setDowngradeTargetPlan(null);
+        refreshSubscription();
+      } else {
+        toast.error(response.message || "Failed to schedule downgrade", { id: loadingId });
+      }
+    } catch (error) {
+      toast.error("An error occurred", { id: loadingId });
+    } finally {
+      setIsProcessingDowngrade(false);
+    }
+  };
+
   const handleSelectPlan = (planName: string) => {
-    setSelectedPlan(planName);
-    setShowUpgradeModal(true);
+    proceedToUpgrade(planName);
   };
 
   const createdAtDisplay = useMemo(() => {
@@ -568,7 +630,8 @@ const Settings: FC = () => {
       plans,
       onUpgradePlan: handleUpgradePlan,
       onViewBillingHistory: handleViewBillingHistory,
-      onCancelSubscription: handleCancelSubscription
+      onCancelSubscription: handleCancelSubscription,
+      onCancelScheduledDowngrade: handleCancelScheduledDowngrade
   };
 
   if (loading) {
@@ -630,6 +693,7 @@ const Settings: FC = () => {
                 <PlansOverview
                   currentPlan={subscription?.plan || "Free"}
                   onSelectPlan={handleSelectPlan}
+                  onSelectDowngrade={handleDowngradeSelected}
                 />
               </div>
 
@@ -655,6 +719,30 @@ const Settings: FC = () => {
         onClose={() => setShowPlanSelectionModal(false)}
         currentPlan={subscription?.plan || 'Free'}
         onSelectPlan={handlePlanSelected}
+        onSelectDowngrade={handleDowngradeSelected}
+      />
+
+      <AlertModal
+        isOpen={!!downgradeTargetPlan}
+        type="warning"
+        action="custom"
+        title="Downgrade plan?"
+        message={`Your plan will change to ${downgradeTargetPlan} at the end of your current billing period. You'll keep your current plan's access until then.`}
+        confirmText="Schedule Downgrade"
+        cancelText="Cancel"
+        onClose={() => setDowngradeTargetPlan(null)}
+        onConfirm={handleConfirmDowngrade}
+        isLoading={isProcessingDowngrade}
+        loadingText="Scheduling..."
+      />
+
+      <StudentVerificationModal
+        isOpen={showStudentVerificationModal}
+        onClose={() => setShowStudentVerificationModal(false)}
+        onVerified={() => {
+          setShowStudentVerificationModal(false);
+          setShowUpgradeModal(true);
+        }}
       />
 
       <UpgradePlanModal

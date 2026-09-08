@@ -1,5 +1,6 @@
 import { type FC } from "react";
-import { FiFileText, FiClock, FiDownload, FiSend, FiRepeat } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { FiFileText, FiClock, FiDownload, FiSend, FiRepeat, FiInbox } from "react-icons/fi";
 import type { Proposal } from "../../services/ninjaSales";
 
 interface RecentProposalsProps {
@@ -9,15 +10,29 @@ interface RecentProposalsProps {
   onConvertToInvoice: (id: string) => void;
 }
 
+const formatMoney = (value: number, currency?: string) => {
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD', maximumFractionDigits: 0 }).format(value || 0);
+  } catch {
+    return `${currency || 'USD'} ${(value || 0).toLocaleString()}`;
+  }
+};
+
 const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, onSend, onConvertToInvoice }) => {
+  const navigate = useNavigate();
+
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "PAID": return "text-emerald-500 bg-emerald-500/10";
       case "SENT": return "text-red-500 bg-red-500/10";
+      case "OVERDUE": return "text-orange-400 bg-orange-500/10";
+      case "CANCELLED": return "text-white/30 bg-white/5 line-through";
       case "DRAFT": return "text-white/40 bg-white/5";
       default: return "";
     }
   };
+
+  const openDoc = (p: Proposal) => navigate(`/ai-tools/sales/documents/${p.docType === "INVOICE" ? "invoice" : "proposal"}/${p._id}`);
 
   return (
     <div className="bg-[#121212] border border-white/[0.03] rounded-3xl overflow-hidden shadow-2xl h-full flex flex-col">
@@ -26,9 +41,15 @@ const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, o
           <FiClock className="w-4 h-4 text-red-500" />
           <h2 className="text-sm font-black text-white/90 uppercase tracking-widest">Recent Documents</h2>
         </div>
-        <button className="text-xs text-white/40 hover:text-white transition-colors underline uppercase tracking-widest font-black">View All Activity</button>
       </div>
 
+      {proposals.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center flex-1">
+          <FiInbox className="w-8 h-8 text-white/10 mb-3" />
+          <p className="text-sm font-bold text-white/25">No proposals yet</p>
+          <p className="text-xs text-white/15 mt-1">Click "New Proposal" above to generate your first one.</p>
+        </div>
+      ) : (
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left">
           <thead>
@@ -42,7 +63,7 @@ const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, o
           </thead>
           <tbody>
             {proposals.map((p) => (
-              <tr key={p._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-all">
+              <tr key={p._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-all cursor-pointer" onClick={() => openDoc(p)}>
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
                     <FiFileText className="text-white/20" />
@@ -62,10 +83,10 @@ const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, o
                 </td>
                 <td className="px-6 py-5">
                   <span className="text-sm font-black text-white tracking-tight">
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.total || 0)}
+                    {formatMoney(p.total, p.currency)}
                   </span>
                 </td>
-                <td className="px-6 py-5">
+                <td className="px-6 py-5" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => onDownloadPdf(p._id)}
@@ -77,7 +98,7 @@ const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, o
                     <button
                       onClick={() => onSend(p._id)}
                       className="text-white/20 hover:text-white transition-colors"
-                      title="Mark as sent"
+                      title="Email to client"
                     >
                       <FiSend />
                     </button>
@@ -97,6 +118,7 @@ const RecentProposals: FC<RecentProposalsProps> = ({ proposals, onDownloadPdf, o
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 };

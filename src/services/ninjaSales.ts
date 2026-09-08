@@ -20,6 +20,8 @@ export interface Lead {
   notes: string;
   decisionMaker: boolean;
   lastContactAt: string;
+  estimatedValue: number;
+  nextAction: string;
   createdAt: string;
   updatedAt: string;
   projects?: Project[];
@@ -39,6 +41,9 @@ export interface CreateLeadRequest {
   campaign?: string;
   notes?: string;
   decisionMaker?: boolean;
+  estimatedValue?: number;
+  nextAction?: string;
+  lastContactAt?: string;
 }
 
 export interface TeamAssigneeMember {
@@ -75,6 +80,38 @@ export interface PricingItem {
   rate: number;
 }
 
+export interface EmailSettings {
+  _id: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpUser: string;
+  smtpPasswordSet: boolean;
+  fromEmail: string;
+  fromName: string;
+  replyToEmail: string;
+  verified: boolean;
+  verifiedAt?: string;
+  lastTestError?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProposalTemplate {
+  _id: string;
+  userId: string;
+  name: string;
+  docType: 'PROPOSAL' | 'INVOICE';
+  items: PricingItem[];
+  taxRate: number;
+  discount: number;
+  paymentTerms: string;
+  notes: string;
+  clauses?: Array<{ title: string; body: string }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Proposal {
   _id: string;
   userId: string;
@@ -82,8 +119,10 @@ export interface Proposal {
   projectId?: string | { _id: string; name: string };
   docType: 'PROPOSAL' | 'INVOICE';
   clientName: string;
+  clientEmail?: string;
   projectTitle: string;
   reference: string;
+  currency?: string;
   items: PricingItem[];
   subtotal: number;
   taxRate: number;
@@ -96,8 +135,13 @@ export interface Proposal {
   companyLogoKey?: string;
   signatureUrl?: string;
   signatureKey?: string;
+  senderCompanyName?: string;
+  senderAddress?: string;
+  senderTaxId?: string;
+  senderEmail?: string;
   clauses?: Array<{ title: string; body: string }>;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  paidAt?: string;
   issuedDate: string;
   dueDate: string;
   createdAt: string;
@@ -111,8 +155,10 @@ export interface Invoice {
   projectId?: string | { _id: string; name: string };
   docType: 'INVOICE';
   clientName: string;
+  clientEmail?: string;
   projectTitle: string;
   reference: string;
+  currency?: string;
   items: PricingItem[];
   subtotal: number;
   taxRate: number;
@@ -125,7 +171,12 @@ export interface Invoice {
   companyLogoKey?: string;
   signatureUrl?: string;
   signatureKey?: string;
+  senderCompanyName?: string;
+  senderAddress?: string;
+  senderTaxId?: string;
+  senderEmail?: string;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  paidAt?: string;
   issuedDate: string;
   dueDate: string;
   createdAt: string;
@@ -335,6 +386,30 @@ export interface OutreachDraft {
   reasons: string[];
 }
 
+export interface LeadScore {
+  tier: "Hot" | "Warm" | "Cold";
+  points: number;
+  factors: string[];
+  reason: string;
+}
+
+export interface ContactTodayItem {
+  leadId: string;
+  name: string;
+  company: string;
+  tier: "Hot" | "Warm" | "Cold";
+  points: number;
+  reason: string;
+}
+
+export interface ReminderItem {
+  leadId: string;
+  name: string;
+  company: string;
+  tier: "Hot" | "Warm" | "Cold";
+  reason: string;
+}
+
 interface ApiListResponse<T> {
   success: boolean;
   data: T[];
@@ -346,6 +421,7 @@ interface ApiSingleResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+  code?: string;
 }
 
 // ─── Service ──────────────────────────────────────────────────────────────────
@@ -393,6 +469,30 @@ export const ninjaSalesService = {
     }
   },
 
+  async postLeadScore(leadId: string): Promise<ApiSingleResponse<LeadScore>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<LeadScore>>('/ninja-sales/ai/lead-score', { leadId });
+    } catch (error: any) {
+      return {
+        success: false,
+        data: {} as LeadScore,
+        message: error.response?.data?.message || 'Failed to compute lead score',
+      };
+    }
+  },
+
+  async postContactToday(): Promise<ApiSingleResponse<{ items: ContactTodayItem[] }>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<{ items: ContactTodayItem[] }>>('/ninja-sales/ai/contact-today', {});
+    } catch (error: any) {
+      return {
+        success: false,
+        data: { items: [] },
+        message: error.response?.data?.message || 'Failed to load who to contact today',
+      };
+    }
+  },
+
   async postFollowUpSuggestions(): Promise<
     ApiSingleResponse<{ suggestions: FollowUpSuggestionItem[] }>
   > {
@@ -421,6 +521,55 @@ export const ninjaSalesService = {
         success: false,
         data: {} as OutreachDraft,
         message: error.response?.data?.message || 'Failed to generate outreach draft',
+      };
+    }
+  },
+
+  async postOutreachSend(params: {
+    leadId?: string;
+    projectId?: string;
+    followUpId?: string;
+    recipientEmail?: string;
+    subject?: string;
+    body: string;
+  }): Promise<ApiSingleResponse<{ to: string; from: string }>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<{ to: string; from: string }>>('/ninja-sales/ai/outreach-send', params);
+    } catch (error: any) {
+      return {
+        success: false,
+        data: { to: '', from: '' },
+        message: error.response?.data?.message || 'Failed to send outreach email',
+        code: error.response?.data?.code,
+      };
+    }
+  },
+
+  // ── Reminders ──────────────────────────────────────────────────────────────
+
+  async getReminderPreview(): Promise<ApiSingleResponse<{ items: ReminderItem[] }>> {
+    try {
+      return await apiClient.get<ApiSingleResponse<{ items: ReminderItem[] }>>('/ninja-sales/reminders/preview');
+    } catch (error: any) {
+      return {
+        success: false,
+        data: { items: [] },
+        message: error.response?.data?.message || 'Failed to load reminders',
+      };
+    }
+  },
+
+  async runReminderNow(): Promise<ApiSingleResponse<{ notified: boolean; itemCount: number; items?: ReminderItem[] }>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<{ notified: boolean; itemCount: number; items?: ReminderItem[] }>>(
+        '/ninja-sales/reminders/run-now',
+        {}
+      );
+    } catch (error: any) {
+      return {
+        success: false,
+        data: { notified: false, itemCount: 0 },
+        message: error.response?.data?.message || 'Failed to run reminders',
       };
     }
   },
@@ -503,11 +652,27 @@ export const ninjaSalesService = {
     }
   },
 
-  async deleteLead(id: string): Promise<{ success: boolean; message: string }> {
+  async deleteLead(id: string): Promise<ApiSingleResponse<{ cascaded: { projects: number; tasks: number } }>> {
     try {
-      return await apiClient.delete<{ success: boolean; message: string }>(`/ninja-sales/leads/${id}`);
+      return await apiClient.delete<ApiSingleResponse<{ cascaded: { projects: number; tasks: number } }>>(`/ninja-sales/leads/${id}`);
     } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Failed to delete lead' };
+      return { success: false, data: { cascaded: { projects: 0, tasks: 0 } }, message: error.response?.data?.message || 'Failed to delete lead' };
+    }
+  },
+
+  async restoreLead(id: string): Promise<ApiSingleResponse<Lead>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Lead>>(`/ninja-sales/leads/${id}/restore`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Lead, message: error.response?.data?.message || 'Failed to restore lead' };
+    }
+  },
+
+  async getDeletedLeads(): Promise<ApiListResponse<Lead>> {
+    try {
+      return await apiClient.get<ApiListResponse<Lead>>('/ninja-sales/leads/deleted');
+    } catch (error: any) {
+      return { success: false, data: [], message: error.response?.data?.message || 'Failed to fetch deleted leads' };
     }
   },
 
@@ -602,11 +767,11 @@ export const ninjaSalesService = {
     }
   },
 
-  async sendProposal(id: string): Promise<ApiSingleResponse<Proposal>> {
+  async sendProposal(id: string, clientEmail?: string): Promise<ApiSingleResponse<Proposal>> {
     try {
-      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/proposals/${id}/send`, {});
+      return await apiClient.post<ApiSingleResponse<Proposal>>(`/ninja-sales/proposals/${id}/send`, clientEmail ? { clientEmail } : {});
     } catch (error: any) {
-      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to send proposal' };
+      return { success: false, data: {} as Proposal, message: error.response?.data?.message || 'Failed to send proposal', code: error.response?.data?.code };
     }
   },
 
@@ -711,11 +876,19 @@ export const ninjaSalesService = {
     }
   },
 
-  async sendInvoice(id: string): Promise<ApiSingleResponse<Invoice>> {
+  async sendInvoice(id: string, clientEmail?: string): Promise<ApiSingleResponse<Invoice>> {
     try {
-      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/send`, {});
+      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/send`, clientEmail ? { clientEmail } : {});
     } catch (error: any) {
-      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to send invoice' };
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to send invoice', code: error.response?.data?.code };
+    }
+  },
+
+  async markInvoicePaid(id: string): Promise<ApiSingleResponse<Invoice>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Invoice>>(`/ninja-sales/invoices/${id}/mark-paid`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Invoice, message: error.response?.data?.message || 'Failed to mark invoice as paid' };
     }
   },
 
@@ -993,11 +1166,96 @@ export const ninjaSalesService = {
     }
   },
 
-  async deleteProject(id: string): Promise<{ success: boolean; message: string }> {
+  async deleteProject(id: string): Promise<ApiSingleResponse<{ cascaded: { followUps: number } }>> {
     try {
-      return await apiClient.delete<{ success: boolean; message: string }>(`/ninja-sales/projects/${id}`);
+      return await apiClient.delete<ApiSingleResponse<{ cascaded: { followUps: number } }>>(`/ninja-sales/projects/${id}`);
     } catch (error: any) {
-      return { success: false, message: error.response?.data?.message || 'Failed to delete project' };
+      return { success: false, data: { cascaded: { followUps: 0 } }, message: error.response?.data?.message || 'Failed to delete project' };
+    }
+  },
+
+  async restoreProject(id: string): Promise<ApiSingleResponse<Project>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<Project>>(`/ninja-sales/projects/${id}/restore`, {});
+    } catch (error: any) {
+      return { success: false, data: {} as Project, message: error.response?.data?.message || 'Failed to restore project' };
+    }
+  },
+
+  async getDeletedProjects(): Promise<ApiListResponse<Project>> {
+    try {
+      return await apiClient.get<ApiListResponse<Project>>('/ninja-sales/projects/deleted');
+    } catch (error: any) {
+      return { success: false, data: [], message: error.response?.data?.message || 'Failed to fetch deleted projects' };
+    }
+  },
+
+  // ── Email Sending Settings (per-account SMTP for proposals/invoices) ───────
+
+  async getEmailSettings(): Promise<ApiSingleResponse<EmailSettings | null>> {
+    try {
+      return await apiClient.get<ApiSingleResponse<EmailSettings | null>>('/ninja-sales/email-settings');
+    } catch (error: any) {
+      return { success: false, data: null, message: error.response?.data?.message || 'Failed to fetch email settings' };
+    }
+  },
+
+  async saveEmailSettings(data: {
+    smtpHost: string;
+    smtpPort: number;
+    smtpSecure: boolean;
+    smtpUser: string;
+    smtpPassword?: string;
+    fromEmail: string;
+    fromName?: string;
+    replyToEmail?: string;
+  }): Promise<ApiSingleResponse<EmailSettings>> {
+    try {
+      return await apiClient.put<ApiSingleResponse<EmailSettings>>('/ninja-sales/email-settings', data);
+    } catch (error: any) {
+      return { success: false, data: {} as EmailSettings, message: error.response?.data?.message || 'Failed to save email settings' };
+    }
+  },
+
+  async deleteEmailSettings(): Promise<{ success: boolean; message: string }> {
+    try {
+      return await apiClient.delete<{ success: boolean; message: string }>('/ninja-sales/email-settings');
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Failed to remove email settings' };
+    }
+  },
+
+  async testEmailSettings(testRecipient?: string): Promise<ApiSingleResponse<EmailSettings>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<EmailSettings>>('/ninja-sales/email-settings/test', testRecipient ? { testRecipient } : {});
+    } catch (error: any) {
+      return { success: false, data: {} as EmailSettings, message: error.response?.data?.message || 'Failed to send test email' };
+    }
+  },
+
+  // ── Templates ──────────────────────────────────────────────────────────────
+
+  async getTemplates(): Promise<ApiListResponse<ProposalTemplate>> {
+    try {
+      return await apiClient.get<ApiListResponse<ProposalTemplate>>('/ninja-sales/templates');
+    } catch (error: any) {
+      return { success: false, data: [], message: error.response?.data?.message || 'Failed to fetch templates' };
+    }
+  },
+
+  async createTemplateFromDocument(params: { name: string; docType: 'PROPOSAL' | 'INVOICE'; documentId: string }): Promise<ApiSingleResponse<ProposalTemplate>> {
+    try {
+      return await apiClient.post<ApiSingleResponse<ProposalTemplate>>('/ninja-sales/templates', params);
+    } catch (error: any) {
+      return { success: false, data: {} as ProposalTemplate, message: error.response?.data?.message || 'Failed to save template' };
+    }
+  },
+
+  async deleteTemplate(id: string): Promise<{ success: boolean; message: string }> {
+    try {
+      return await apiClient.delete<{ success: boolean; message: string }>(`/ninja-sales/templates/${id}`);
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || 'Failed to delete template' };
     }
   },
 };

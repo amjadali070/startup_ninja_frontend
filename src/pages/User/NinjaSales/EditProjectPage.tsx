@@ -5,12 +5,14 @@ import { useAuth } from "../../../hooks/useAuth";
 import {
   FiArrowLeft, FiLoader, FiSave, FiFlag,
   FiCheckCircle, FiArrowRight, FiShield, FiCalendar,
-  FiClock, FiPercent, FiFolder, FiDollarSign, FiFileText
+  FiClock, FiPercent, FiFolder, FiDollarSign, FiFileText, FiTrash2
 } from "react-icons/fi";
+import toast from "react-hot-toast";
 import { ninjaSalesService } from "../../../services/ninjaSales";
 import { apiClient } from "../../../services/apiClient";
 import type { Project } from "../../../services/ninjaSales";
 import IconSelect from "../../../components/IconSelect";
+import AlertModal from "../../../components/AlertModal";
 
 const Field: FC<{ label: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ label, icon, children }) => (
   <div className="space-y-2.5">
@@ -27,9 +29,13 @@ const Field: FC<{ label: string; icon?: React.ReactNode; children: React.ReactNo
 const EditProjectPage: FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  /** Same rule the backend enforces for delete: only the account owner or a manager */
+  const canDelete = Boolean(user && (!user.addedBy || user.teamRole === "Manager"));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [leadName, setLeadName] = useState("");
   const [leadId, setLeadId] = useState("");
   const [form, setForm] = useState({
@@ -79,6 +85,20 @@ const EditProjectPage: FC = () => {
     if (res.success) navigate(`/ai-tools/sales/projects/${id}`);
   };
 
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    const res = await ninjaSalesService.deleteProject(id);
+    setDeleting(false);
+    if (res.success) {
+      toast.success("Project moved to trash");
+      navigate("/ai-tools/sales/projects");
+    } else {
+      toast.error(res.message || "Could not delete project");
+      setIsDeleteOpen(false);
+    }
+  };
+
   const handleLogout = async () => { try { await logout(); } catch {} finally { navigate("/login", { replace: true }); } };
 
   const inputBase = "w-full h-12 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-red-500/40 focus:ring-1 focus:ring-red-500/10 transition-all";
@@ -102,6 +122,11 @@ const EditProjectPage: FC = () => {
                 {leadName && <p className="text-sm text-white/40 flex items-center gap-2">Linked to <Link to={`/ai-tools/sales/leads/${leadId}`} className="text-red-500 font-bold hover:text-red-400 transition-colors">{leadName}</Link></p>}
               </div>
               <div className="flex items-center gap-3">
+                {canDelete && (
+                  <button onClick={() => setIsDeleteOpen(true)} className="h-12 px-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-red-500 hover:bg-red-500/10 transition-all flex items-center gap-2.5">
+                    <FiTrash2 className="w-4 h-4" /> Delete
+                  </button>
+                )}
                 <button onClick={() => navigate(`/ai-tools/sales/projects/${id}`)} className="h-12 px-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white hover:bg-white/[0.06] transition-all">Cancel</button>
                 <button onClick={handleSubmit} disabled={saving || !form.name.trim()}
                   className="h-12 px-8 bg-red-600 hover:bg-red-700 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-red-600/20 transition-all disabled:opacity-40 flex items-center gap-2.5">
@@ -209,6 +234,19 @@ const EditProjectPage: FC = () => {
           </div>
         )}
       </main>
+
+      <AlertModal
+        isOpen={isDeleteOpen}
+        type="danger"
+        action="delete"
+        title="Delete this project?"
+        message={`"${form.name}" will be moved to trash, along with any linked follow-ups — recoverable from Trash. Proposals and invoices already generated for it are not affected.`}
+        confirmText="Delete Project"
+        loadingText="Deleting..."
+        isLoading={deleting}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDelete}
+      />
     </DashboardLayout>
   );
 };

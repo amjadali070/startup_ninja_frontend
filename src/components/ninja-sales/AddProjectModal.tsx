@@ -11,6 +11,14 @@ import {
 } from "react-icons/fi";
 import { ninjaSalesService, LeadSearchResult } from "../../services/ninjaSales";
 import IconSelect from "../IconSelect";
+import { useDraftPersistence } from "../../hooks/useDraftPersistence";
+
+const DEFAULT_FORM_DATA = {
+  name: "", email: "", phone: "", company: "", jobTitle: "", notes: "", leadStatus: "new",
+  projectName: "", description: "", pipelineStage: "new", value: "", currency: "USD",
+  confidence: "50", priority: "medium", nextStep: "", competitor: "",
+  forecastedCloseDate: "", urgency: "", budgetConfirmed: false,
+};
 
 interface AddProjectModalProps {
   isOpen: boolean;
@@ -36,12 +44,23 @@ function matchSubtitleLabel(results: LeadSearchResult[]): string {
 }
 
 const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated }) => {
-  const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", company: "", jobTitle: "", notes: "", leadStatus: "new",
-    projectName: "", description: "", pipelineStage: "new", value: "", currency: "USD",
-    confidence: "50", priority: "medium", nextStep: "", competitor: "",
-    forecastedCloseDate: "", urgency: "", budgetConfirmed: false,
+  const [draftJson, setDraftJson, clearDraft] = useDraftPersistence(
+    "add-project-form",
+    JSON.stringify(DEFAULT_FORM_DATA)
+  );
+  const [formData, setFormData] = useState<typeof DEFAULT_FORM_DATA>(() => {
+    try {
+      return { ...DEFAULT_FORM_DATA, ...(JSON.parse(draftJson) as Partial<typeof DEFAULT_FORM_DATA>) };
+    } catch {
+      return DEFAULT_FORM_DATA;
+    }
   });
+
+  // Persist form data as an in-progress draft so it survives a session
+  // refresh/redirect instead of being silently lost.
+  useEffect(() => {
+    setDraftJson(JSON.stringify(formData));
+  }, [formData, setDraftJson]);
   const [saving, setSaving] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<LeadSearchResult[]>([]);
@@ -97,12 +116,8 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
   };
 
   const resetForm = () => {
-    setFormData({
-      name: "", email: "", phone: "", company: "", jobTitle: "", notes: "", leadStatus: "new",
-      projectName: "", description: "", pipelineStage: "new", value: "", currency: "USD",
-      confidence: "50", priority: "medium", nextStep: "", competitor: "",
-      forecastedCloseDate: "", urgency: "", budgetConfirmed: false,
-    });
+    setFormData(DEFAULT_FORM_DATA);
+    clearDraft();
     setSelectedLeadId(null); setIsExistingLead(false); setSearchResults([]); setPossibleMatchDismissed(false); setError(null);
   };
 
@@ -157,8 +172,8 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
       <div className="relative w-full max-w-2xl bg-[#0A0A0B] border border-[#1C1C1F] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
         <div className="p-6 pb-4 flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">New Lead & Project</h2>
-            <p className="text-gray-400 text-sm mt-1">Add a new lead or select an existing one, then create a project deal</p>
+            <h2 className="text-2xl font-bold text-white tracking-tight">New Deal</h2>
+            <p className="text-gray-400 text-sm mt-1">Search for an existing lead above, or fill in a new one — either way, this creates a deal</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white"><FiX className="w-6 h-6" /></button>
         </div>
@@ -439,7 +454,7 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
             <button onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-white/70 hover:text-white transition-all">Cancel</button>
             <button onClick={handleSubmit} disabled={saving || !formData.name.trim() || !formData.projectName.trim()}
               className="px-8 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-lg shadow-red-600/20 transition-all disabled:opacity-50 flex items-center gap-2">
-              {saving && <FiLoader className="w-4 h-4 animate-spin" />} Create Lead & Project
+              {saving && <FiLoader className="w-4 h-4 animate-spin" />} Create Deal
             </button>
           </div>
         </div>
