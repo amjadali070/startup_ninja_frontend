@@ -1,177 +1,102 @@
-# Startup Ninja Frontend
+# Startup Ninja — Frontend
 
-A modern React frontend for the Startup Ninja authentication system.
+React + TypeScript client for Startup Ninja, an AI-powered workspace for founders and small
+businesses. Talks to the [`startup_ninja_backend`](https://github.com/amjadali070/startup_ninja_backend)
+microservices through a single API Gateway.
 
-## 🚀 Quick Start
+## Features
+
+- **Auth**: email/password, Google & Microsoft OAuth, email verification, password reset
+- **AI Chat**: conversational assistant with persistent memory, follow-up suggestions, file
+  attachments, and web search citations
+- **AI Image Gen**: prompt-to-image generation with presets and iterative editing
+- **Web Builder**: drag-and-drop site builder, templates, publishing, custom domains
+- **Social Pro**: social media post creation, scheduling, and publishing
+- **Ninja Sales**: a full sales CRM — leads, pipeline, projects/deals, follow-ups and
+  tasks, AI lead scoring and outreach drafting, proposals & invoices with PDF generation,
+  per-account SMTP email sending (confidential, owner/manager-only), and automatic reminders
+  for overdue follow-ups and hot leads
+- **Ninja Legal**: AI contract generation and analysis
+- **Billing & Subscriptions**: plans, usage, billing history
+- **Team Management**: invite members, assign roles/permissions
+- **Admin**: platform-wide analytics and account management
+
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- The backend running (see [`startup_ninja_backend`](https://github.com/amjadali070/startup_ninja_backend)) — defaults to `http://localhost:5000`
 
-### Installation
+### Setup
 
-1. **Install dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-2. **Setup environment**:
-
-   ```bash
-   cp env.example .env
-   # Update .env with your API base URL
-   ```
-
-3. **Start development server**:
-
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**:
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## 🎨 Features
-
-- **Modern UI**: Built with React 18 and TypeScript
-- **Responsive Design**: Tailwind CSS with custom brand colors
-- **Authentication**: Login, Register, Google OAuth, and Forgot Password pages
-- **Type Safety**: Full TypeScript support
-- **Fast Development**: Vite for lightning-fast builds
-
-## 🎨 Brand Colors
-
-The application uses a custom color palette based on the Startup Ninja brand:
-
-- **Primary Red**: `#E50000` - Main brand color
-- **Secondary Red**: `#A04040` - Accent color
-- **Dark Background**: `#1A1A1A` - Primary background
-- **Black**: `#000000` - Deep background
-- **Grey**: `#333333` - UI elements
-- **Light Grey**: `#4A4A4A` - Secondary UI elements
-- **Placeholder**: `#888888` - Placeholder text
-- **White**: `#FFFFFF` - Text color
-
-## 📁 Project Structure
-
-```text
-src/
-├── components/          # Reusable UI components
-│   ├── Button.tsx       # Custom button component
-│   ├── Input.tsx        # Custom input component
-│   └── Navbar.tsx       # Navigation component
-├── pages/               # Authentication pages
-│   ├── Login.tsx        # Login page
-│   ├── Register.tsx     # Registration page
-│   └── ForgotPassword.tsx # Password reset page
-├── services/            # API service calls
-│   └── auth.ts          # Authentication API calls
-├── hooks/               # Custom React hooks
-│   └── useAuth.tsx      # Authentication provider + hook
-├── types/               # TypeScript type definitions
-│   └── auth.ts          # Authentication types
-├── App.tsx              # Main app component
-├── main.tsx             # React entry point
-└── index.css            # Global styles
+```bash
+git clone https://github.com/amjadali070/startup_ninja_frontend.git
+cd startup_ninja_frontend
+npm install
+cp env.example .env
+# Edit .env — API base URL, OAuth client IDs, etc.
+npm run dev
 ```
 
-## 🔧 Available Scripts
+Open [http://localhost:3000](http://localhost:3000).
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+## Available Scripts
 
-## 🌐 Environment Variables
+- `npm run dev` — start the Vite dev server
+- `npm run build` — type-check (`tsc`) and build for production
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
 
-Create a `.env` file in the root directory:
+## Environment Variables
+
+Copy `env.example` to `.env` and configure:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api
-VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+VITE_WEB_BUILDER_SERVICE_URL=http://localhost:3004
+VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id
+VITE_MICROSOFT_CLIENT_ID=your-microsoft-application-client-id
+VITE_GOOGLE_FONTS_API_KEY=your-google-fonts-api-key
+VITE_SYSTEM_BASE_DOMAIN=localhost
+VITE_SYSTEM_IP=127.0.0.1
 ```
 
-## 🔐 Google Sign-In
+Never commit a real `.env` — `.gitignore` excludes it; only `env.example` (a safe template)
+is tracked.
 
-- Configure OAuth credentials in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-- Allowed JavaScript origin: `http://localhost:3000`
-- Allowed redirect URI: `http://localhost:3001/auth/google/callback`
-- Copy the client ID into both the frontend (`VITE_GOOGLE_CLIENT_ID`) and backend (`GOOGLE_CLIENT_ID`) `.env` files
-- The `<GoogleSignUp />` component lives in `src/components/GoogleSignUp.tsx`
-- All Google sign-in flows finish by calling the backend endpoint `POST /auth/google`
+## Project Structure
 
-## 🔗 API Integration
+```text
+src/
+├── components/           # Reusable UI, feature components (ninja-sales/, web-builder/, ai-chat/, ...)
+├── hooks/                # Custom React hooks (auth, drafts, etc.)
+├── layouts/              # Page layout shells (DashboardLayout, ...)
+├── pages/
+│   ├── Auth/              # Login, register, OAuth, password reset
+│   ├── User/               # Dashboard, AI Chat/Image, Web Builder, Social Pro,
+│   │                        NinjaSales/, NinjaLegal/, TeamManagement/, Settings, Billing
+│   ├── Admin/              # Admin dashboard & tools
+│   ├── Legal/               # Terms, Privacy, Refund Policy, etc.
+│   └── landing-page/        # Public marketing site
+├── services/              # Typed API clients per domain (ninjaSales.ts, ai-chat/, web-builder/, ...)
+├── types/                 # Shared TypeScript types
+├── App.tsx
+└── main.tsx
+```
 
-The frontend integrates with the Startup Ninja backend API:
+## Tech Stack
 
-- **Base URL**: Configured via `VITE_API_BASE_URL`
-- **Authentication**: JWT token-based authentication
-- **Endpoints**: `POST /auth/register`, `POST /auth/login`, `POST /auth/google`, `POST /auth/forgot-password`
+React 18, TypeScript, Vite, Tailwind CSS, React Router, Axios, react-hot-toast.
 
-## 🎯 Pages
+## Security
 
-### Login Page (`/login`)
-
-- Email/password login
-- Google OAuth sign-in
-- Form validation and error handling
-
-### Register Page (`/register`)
-
-- Name, email, and password input
-- Google sign-up button
-- Password confirmation and validation
-- Success/error feedback
-
-### Dashboard Page (`/dashboard`)
-
-- Protected page that requires a valid JWT
-- Loads the authenticated user's profile via `GET /user/profile`
-- Demonstrates how `apiClient` attaches the stored JWT to outgoing requests
-
-### Forgot Password Page (`/forgot-password`)
-
-- Email input for password reset
-- Success message after email sent
-- Link back to login
-
-## 🛠️ Development
-
-### Adding New Components
-
-1. Create component in `src/components/`
-2. Export from component file
-3. Import and use in pages
-
-### Styling
-
-- Use Tailwind CSS classes
-- Custom colors available via theme configuration
-- Responsive design with mobile-first approach
-
-### TypeScript
-
-- All components are fully typed
-- API responses are typed in `src/types/`
-- Custom hooks include proper typing
-
-## 📱 Responsive Design
-
-The application is fully responsive and works on:
-
-- Desktop (1024px+)
-- Tablet (768px - 1023px)
-- Mobile (320px - 767px)
-
-## 🔒 Security
-
+- JWT stored client-side and attached to every request via the shared API client
 - Input validation on all forms
-- Secure token storage in localStorage
-- CORS-compliant API calls
-- XSS protection through React
+- Confidential surfaces (e.g. SMTP credentials in Ninja Sales → Email Sending) are gated
+  both by nav-item visibility and a matching server-side permission check
+- CORS-compliant requests through the API Gateway only — no service is called directly
 
-## 📄 License
+## License
 
-MIT License - see LICENSE file for details.
+MIT
