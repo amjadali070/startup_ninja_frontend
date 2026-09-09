@@ -8,6 +8,10 @@ import {
   FiCopy,
   FiImage,
   FiLoader,
+  FiEdit3,
+  FiShuffle,
+  FiColumns,
+  FiLayers,
 } from "react-icons/fi";
 import {
   imageGenService,
@@ -27,6 +31,76 @@ type PreparedImageItem = {
   alt: string;
   prompt: string;
   createdAt: string;
+  rootImageId: string;
+  parentImageId: string | null;
+  versionNumber: number;
+  versionType: "original" | "edit" | "variation";
+  editInstruction: string | null;
+  versionCount?: number;
+};
+
+// The real API response never actually populates localPath — fall back to deriving the
+// filename from imageUrl (always present), matching FileUpload.tsx's equivalent selector.
+// A relative path (not an absolute http://localhost:5000 URL) is used for <img src> because
+// the browser blocks an absolute cross-origin/cross-scheme resource load
+// (ERR_BLOCKED_BY_RESPONSE.NotSameOrigin); Vite's dev proxy and the production reverse proxy
+// both forward /api the same way every other API call in this app already does.
+function toPreparedImage(img: GeneratedImage): PreparedImageItem {
+  const filename = img.localPath
+    ? img.localPath.split(/[/\\]/).pop()
+    : img.imageUrl?.split("/").pop();
+  const src = filename ? `/api/imaginative/image/${filename}` : img.imageUrl;
+
+  return {
+    id: img._id,
+    src,
+    alt: img.prompt,
+    prompt: img.prompt,
+    createdAt: new Date(img.createdAt).toLocaleDateString(),
+    rootImageId: img.rootImageId || img._id,
+    parentImageId: img.parentImageId || null,
+    versionNumber: img.versionNumber || 1,
+    versionType: img.versionType || "original",
+    editInstruction: img.editInstruction || null,
+    versionCount: img.versionCount,
+  };
+}
+
+const VERSION_TYPE_LABEL: Record<PreparedImageItem["versionType"], string> = {
+  original: "Original",
+  edit: "Edit",
+  variation: "Variation",
+};
+
+// Switching versions can take a moment to actually load the new image bytes (proxied through
+// the gateway and imaginative-service from S3) — without an explicit loading state, the
+// PREVIOUS version's fully-rendered <img> just stays on screen during that gap, which looks
+// identical to "the wrong version is showing." Keying on `src` + a spinner while it loads
+// makes the transition unambiguous instead of silently leaving stale content visible.
+const VersionImage: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <div className="relative w-full h-full min-h-0">
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <FiLoader className="w-6 h-6 text-gray-500 animate-spin" />
+        </div>
+      )}
+      <img
+        key={src}
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className={`${className || ""} transition-opacity duration-150 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </div>
+  );
 };
 
 // Modal Component
@@ -36,12 +110,121 @@ const ImageDetailModal: React.FC<{
   onDelete: (id: string) => void;
   onDownload: (imageId: string, filename: string) => void;
   isDownloading: boolean;
-}> = ({ image, onClose, onDelete, onDownload, isDownloading }) => {
+  onLineageChanged: () => void;
+}> = ({ image, onClose, onDelete, onDownload, isDownloading, onLineageChanged }) => {
+  const [versions, setVersions] = useState<PreparedImageItem[]>(image ? [image] : []);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+  const [activeId, setActiveId] = useState<string>(image?.id || "");
+
+  const [editInstruction, setEditInstruction] = useState("");
+  const [showEditInput, setShowEditInput] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isCreatingVariation, setIsCreatingVariation] = useState(false);
+
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareId, setCompareId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!image) return;
+    setVersions([image]);
+    setActiveId(image.id);
+    setShowEditInput(false);
+    setEditInstruction("");
+    setCompareMode(false);
+    setCompareId(null);
+
+    let cancelled = false;
+    setLoadingVersions(true);
+    imageGenService
+      .getVersions(image.rootImageId)
+      .then((res: any) => {
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const fetched: PreparedImageItem[] = res.data.map(toPreparedImage);
+          // This fetch can resolve AFTER a real edit/variation call (20-100s) has already
+          // appended a new version locally — an unconditional overwrite here would silently
+          // drop that version from `versions`, leaving `activeId` pointing at something no
+          // longer in the list (falling back to the original image) and making follow-up
+          // edits/variations target the wrong source. Merge instead: prefer the server's
+          // copy of anything it knows about, but keep any local-only version it doesn't yet.
+          setVersions((prev) => {
+            const fetchedIds = new Set(fetched.map((v) => v.id));
+            const localOnly = prev.filter((v) => !fetchedIds.has(v.id));
+            return [...fetched, ...localOnly].sort((a, b) => a.versionNumber - b.versionNumber);
+          });
+        }
+      })
+      .catch(() => {
+        // Fall back to just showing the single image — version history is a nice-to-have
+      })
+      .finally(() => !cancelled && setLoadingVersions(false));
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [image?.id]);
+
   if (!image) return null;
 
+  const active = versions.find((v) => v.id === activeId) || image;
+  const compareImage = compareId ? versions.find((v) => v.id === compareId) || null : null;
+
   const copyPrompt = () => {
-    navigator.clipboard.writeText(image.prompt);
+    navigator.clipboard.writeText(active.prompt);
     toast.success("Prompt copied to clipboard");
+  };
+
+  const handleApplyEdit = async () => {
+    if (!editInstruction.trim() || isEditing) return;
+    setIsEditing(true);
+    try {
+      const res: any = await imageGenService.editImage(active.id, editInstruction.trim());
+      if (res.success && res.data) {
+        const newVersion = toPreparedImage(res.data);
+        setVersions((prev) => [...prev, newVersion]);
+        setActiveId(newVersion.id);
+        setEditInstruction("");
+        setShowEditInput(false);
+        toast.success("Edit applied");
+        onLineageChanged();
+      } else {
+        toast.error(res.error || res.message || "Failed to apply edit");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Failed to apply edit");
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleCreateVariation = async () => {
+    if (isCreatingVariation) return;
+    setIsCreatingVariation(true);
+    try {
+      const res: any = await imageGenService.createVariation(active.id);
+      if (res.success && res.data) {
+        const newVersion = toPreparedImage(res.data);
+        setVersions((prev) => [...prev, newVersion]);
+        setActiveId(newVersion.id);
+        toast.success("Variation created");
+        onLineageChanged();
+      } else {
+        toast.error(res.error || res.message || "Failed to create variation");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Failed to create variation");
+    } finally {
+      setIsCreatingVariation(false);
+    }
+  };
+
+  const handleVersionClick = (versionId: string) => {
+    if (compareMode) {
+      setCompareId(versionId === activeId ? null : versionId);
+    } else {
+      setActiveId(versionId);
+    }
   };
 
   return (
@@ -50,7 +233,7 @@ const ImageDetailModal: React.FC<{
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl h-[85vh] md:h-auto md:max-h-[90vh] bg-[#151515] border border-[#242424] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-5xl h-[90vh] md:h-auto md:max-h-[92vh] bg-[#151515] border border-[#242424] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -64,49 +247,170 @@ const ImageDetailModal: React.FC<{
         </button>
 
         {/* Image Section */}
-        <div className="w-full md:w-2/3 h-[40%] md:h-auto bg-black/50 flex items-center justify-center p-4 md:p-8 checkered-bg shrink-0">
-          <img
-            src={image.src}
-            alt={image.alt}
-            className="w-full h-full object-contain rounded-lg shadow-lg"
-          />
+        <div className="w-full md:w-2/3 h-[45%] md:h-auto bg-black/50 flex flex-col shrink-0">
+          <div className="flex-1 flex items-center justify-center p-4 md:p-6 checkered-bg overflow-hidden">
+            {compareMode && compareImage ? (
+              <div className="grid grid-cols-2 gap-2 w-full h-full">
+                {[active, compareImage].map((v) => (
+                  <div key={v.id} className="flex flex-col min-h-0">
+                    <VersionImage src={v.src} alt={v.alt} className="w-full h-full object-contain rounded-lg shadow-lg" />
+                    <div className="text-center text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
+                      V{v.versionNumber} · {VERSION_TYPE_LABEL[v.versionType]}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <VersionImage src={active.src} alt={active.alt} className="w-full h-full object-contain rounded-lg shadow-lg" />
+            )}
+          </div>
+
+          {/* Version history strip */}
+          {(versions.length > 1 || loadingVersions) && (
+            <div className="border-t border-[#242424] p-3 shrink-0">
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <FiLayers className="w-3.5 h-3.5 text-gray-500" />
+                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                  Version History {compareMode && "— pick a version to compare"}
+                </span>
+                {loadingVersions && <FiLoader className="w-3 h-3 text-gray-600 animate-spin" />}
+              </div>
+              <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                {versions.map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => handleVersionClick(v.id)}
+                    className={`relative shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                      v.id === activeId
+                        ? "border-[#DC2626]"
+                        : v.id === compareId
+                        ? "border-blue-500"
+                        : "border-transparent hover:border-gray-600"
+                    }`}
+                    title={`V${v.versionNumber} · ${VERSION_TYPE_LABEL[v.versionType]}${v.editInstruction ? `: ${v.editInstruction}` : ""}`}
+                  >
+                    <img src={v.src} alt={v.alt} className="w-full h-full object-cover" />
+                    <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[8px] font-bold text-center py-0.5">
+                      V{v.versionNumber}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Details Section */}
-        <div className="w-full md:w-1/3 h-[60%] md:h-auto p-5 md:p-6 flex flex-col bg-[#151515] border-t md:border-t-0 md:border-l border-[#242424] overflow-hidden">
-          <div className="mb-4 shrink-0">
-            <h3 className="text-lg md:text-xl font-bold text-white mb-1 font-plus-jakarta">
-              Image Details
-            </h3>
-            <p className="text-xs text-gray-500 font-plus-jakarta">
-              {image.createdAt}
-            </p>
+        <div className="w-full md:w-1/3 h-[55%] md:h-auto p-5 md:p-6 flex flex-col bg-[#151515] border-t md:border-t-0 md:border-l border-[#242424] overflow-hidden">
+          <div className="mb-3 shrink-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg md:text-xl font-bold text-white font-plus-jakarta">
+                Image Details
+              </h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#242424] text-gray-300 px-2 py-0.5 rounded-full">
+                {VERSION_TYPE_LABEL[active.versionType]} · V{active.versionNumber}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 font-plus-jakarta">{image.createdAt}</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto mb-4 pr-2 custom-scrollbar min-h-0">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="text-sm font-semibold text-gray-300 font-plus-jakarta">
-                Prompt
-              </h4>
-              <button
-                onClick={copyPrompt}
-                className="flex items-center gap-1.5 text-xs text-[#DC2626] hover:text-red-400 transition-colors font-medium px-2 py-1 rounded-md hover:bg-[#DC2626]/10"
-              >
-                <FiCopy size={12} /> Copy
-              </button>
+          <div className="flex-1 overflow-y-auto mb-4 pr-2 custom-scrollbar min-h-0 space-y-4">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-sm font-semibold text-gray-300 font-plus-jakarta">
+                  {active.editInstruction ? "Edit Instruction" : "Prompt"}
+                </h4>
+                <button
+                  onClick={copyPrompt}
+                  className="flex items-center gap-1.5 text-xs text-[#DC2626] hover:text-red-400 transition-colors font-medium px-2 py-1 rounded-md hover:bg-[#DC2626]/10"
+                >
+                  <FiCopy size={12} /> Copy
+                </button>
+              </div>
+              <div className="p-3 bg-[#0D0D0D] rounded-xl border border-[#242424] hover:border-[#333] transition-colors group">
+                <p className="text-sm text-gray-300 leading-relaxed font-plus-jakarta selection:bg-red-900/30 selection:text-red-200 break-words">
+                  {active.editInstruction || active.prompt}
+                </p>
+              </div>
             </div>
-            <div className="p-3 bg-[#0D0D0D] rounded-xl border border-[#242424] hover:border-[#333] transition-colors group">
-              <p className="text-sm text-gray-300 leading-relaxed font-plus-jakarta selection:bg-red-900/30 selection:text-red-200 break-words">
-                {image.prompt}
-              </p>
+
+            {/* Continue editing */}
+            <div>
+              {!showEditInput ? (
+                <button
+                  onClick={() => setShowEditInput(true)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#242424] hover:bg-[#2a2a2a] text-white rounded-xl transition-all font-medium text-sm border border-transparent hover:border-[#333]"
+                >
+                  <FiEdit3 size={16} /> Continue Editing
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <textarea
+                    value={editInstruction}
+                    onChange={(e) => setEditInstruction(e.target.value.slice(0, 500))}
+                    placeholder="Describe the change — e.g. 'change the background to a sunset' or 'make the logo bigger'"
+                    rows={3}
+                    disabled={isEditing}
+                    className="w-full bg-[#0D0D0D] border border-[#242424] rounded-xl p-3 text-sm text-white placeholder-gray-600 resize-none focus:outline-none focus:border-gray-500 disabled:opacity-50"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleApplyEdit}
+                      disabled={!editInstruction.trim() || isEditing}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-[#DC2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white rounded-lg text-xs font-semibold transition-colors"
+                    >
+                      {isEditing ? <FiLoader className="w-3.5 h-3.5 animate-spin" /> : <FiEdit3 size={14} />}
+                      {isEditing ? "Applying..." : "Apply Edit"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowEditInput(false);
+                        setEditInstruction("");
+                      }}
+                      disabled={isEditing}
+                      className="px-3 py-2 bg-[#242424] hover:bg-[#2a2a2a] text-gray-300 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={handleCreateVariation}
+                disabled={isCreatingVariation}
+                className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#242424] hover:bg-[#2a2a2a] disabled:opacity-50 text-white rounded-xl transition-all font-medium text-xs border border-transparent hover:border-[#333]"
+              >
+                {isCreatingVariation ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiShuffle size={15} />}
+                {isCreatingVariation ? "Creating..." : "Create Variation"}
+              </button>
+              <button
+                onClick={() => {
+                  setCompareMode((v) => !v);
+                  if (compareMode) setCompareId(null);
+                  else if (versions.length === 2) {
+                    setCompareId(versions.find((v) => v.id !== activeId)?.id || null);
+                  }
+                }}
+                disabled={versions.length < 2}
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl transition-all font-medium text-xs border ${
+                  compareMode
+                    ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
+                    : "bg-[#242424] border-transparent hover:border-[#333] text-white"
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                title={versions.length < 2 ? "Create an edit or variation first to compare versions" : undefined}
+              >
+                <FiColumns size={15} />
+                {compareMode ? "Comparing" : "Compare Versions"}
+              </button>
             </div>
           </div>
 
           <div className="flex gap-3 mt-auto pt-4 border-t border-[#242424] shrink-0">
             <button
-              onClick={() =>
-                onDownload(image.id, `generated-image-${image.id}.png`)
-              }
+              onClick={() => onDownload(active.id, `generated-image-${active.id}.png`)}
               disabled={isDownloading}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[#242424] hover:bg-[#2a2a2a] text-white rounded-xl transition-all font-medium text-sm border border-transparent hover:border-[#333] disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -124,7 +428,7 @@ const ImageDetailModal: React.FC<{
             <button
               onClick={() => onDelete(image.id)}
               className="flex items-center justify-center p-2.5 border border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white rounded-xl transition-all"
-              title="Delete Image"
+              title="Delete this artwork and all its versions"
             >
               <FiTrash2 size={18} />
             </button>
@@ -142,7 +446,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const [selectedImage, setSelectedImage] = useState<PreparedImageItem | null>(
     null
   );
-  
+
   const [pageSize, setPageSize] = useState(window.innerWidth >= 1024 ? 10 : 8);
 
   useEffect(() => {
@@ -160,16 +464,21 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     totalCount: number;
   }>({ currentPage: 1, totalPages: 1, totalCount: 0 });
 
-  const fetchImages = useCallback(async (pageNum: number) => {
+  // `silent` skips the `loading` flag — used when refreshing the gallery in the background
+  // (e.g. after an edit/variation, to update a version-count badge) while the detail modal is
+  // open. Toggling `loading` there would hit the `if (loading) return <Spinner/>` gate below
+  // and unmount the whole tree, including the open modal — which reset its version-lineage
+  // state on every remount and was the real cause of a "stuck on the pre-edit version" bug.
+  const fetchImages = useCallback(async (pageNum: number, opts: { silent?: boolean } = {}) => {
     try {
-      setLoading(true);
+      if (!opts.silent) setLoading(true);
       const data: any = await imageGenService.getHistory(pageNum, pageSize);
- 
+
       const responseData = data.data || [];
-      const paginationData = data.pagination || { 
-        currentPage: 1, 
-        totalPages: 1, 
-        totalCount: responseData.length 
+      const paginationData = data.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: responseData.length
       };
 
       setImages(responseData);
@@ -178,11 +487,11 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
         totalPages: paginationData.totalPages,
         totalCount: paginationData.totalCount
       });
-      
+
     } catch (error) {
       console.error("Failed to fetch images:", error);
     } finally {
-      setLoading(false);
+      if (!opts.silent) setLoading(false);
     }
   }, [pageSize]);
 
@@ -190,7 +499,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     fetchImages(page);
   }, [fetchImages, page, shouldRefresh]);
 
-  
+
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -231,22 +540,22 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     try {
       // Mark as downloading
       setDownloadingImages(prev => new Set(prev).add(imageId));
-      
+
       // Use backend proxy to bypass CORS
       const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
       const downloadUrl = `${apiBase}/imaginative/download/${imageId}`;
-      
+
       const token = localStorage.getItem('token');
       const response = await fetch(downloadUrl, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Download failed');
       }
-      
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
 
@@ -273,36 +582,13 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   };
 
   const preparedImages: PreparedImageItem[] = useMemo(() => {
-    return images.map((img) => {
-      // Construct URL using service URL to avoid backend absolute path issues
-      const filename = img.localPath ? img.localPath.split("/").pop() : "";
-
-      let serviceUrl = import.meta.env.VITE_IMAGINATIVE_SERVICE_URL;
-      if (!serviceUrl) {
-        // Fallback to API Gateway URL if service URL is not explicitly set
-        const apiBase =
-          import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-        serviceUrl = apiBase.replace(/\/api\/?$/, "");
-      }
-
-      const src = filename
-        ? `${serviceUrl}/api/imaginative/image/${filename}`
-        : img.imageUrl;
-
-      return {
-        id: img._id,
-        src,
-        alt: img.prompt,
-        prompt: img.prompt,
-        createdAt: new Date(img.createdAt).toLocaleDateString(),
-      };
-    });
+    return images.map(toPreparedImage);
   }, [images]);
 
   // Use pagination info from server
   const total = paginationInfo.totalCount;
   const totalPages = paginationInfo.totalPages;
-  
+
   // Directly use preparedImages as they are already the page items
   const pageItems = preparedImages;
 
@@ -322,6 +608,12 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
 
                 {/* Overlay only on hover for text legibility */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+
+                {!!image.versionCount && (
+                  <span className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-1 rounded-full border border-white/10">
+                    <FiLayers className="w-3 h-3" /> {image.versionCount + 1}
+                  </span>
+                )}
 
                 {/* Actions */}
                 <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -397,7 +689,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
             {total} {total === 1 ? 'masterpiece' : 'masterpieces'} created
             </p>
         </div>
-        
+
         {/* Simple Pagination Indicator */}
         {total > 0 && (
             <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -423,7 +715,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
               >
                 <FiChevronLeft className="w-5 h-5" />
               </button>
-              
+
               <div className="px-4 text-sm font-bold text-white">
                   {page} <span className="text-gray-600 font-normal mx-1">/</span> {totalPages}
               </div>
@@ -448,6 +740,7 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
           onDelete={handleDeleteClick}
           onDownload={handleDownload}
           isDownloading={downloadingImages.has(selectedImage.id)}
+          onLineageChanged={() => fetchImages(page, { silent: true })}
         />
       )}
 

@@ -108,9 +108,7 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">Model</h4>
-                    <p className="text-white text-sm">Imagenative Ninja</p>
-                    {/* <p className="text-white text-sm">{selectedImage.modelUsed}</p> */}
-
+                    <p className="text-white text-sm">{selectedImage.modelUsed || "Imaginative Ninja"}</p>
                   </div>
                   <div>
                     <h4 className="text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">Dimensions</h4>

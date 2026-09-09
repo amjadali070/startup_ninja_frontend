@@ -15,22 +15,26 @@ import {
   FiPenTool,
   FiEdit2,
   FiCpu,
+  FiGrid,
 } from "react-icons/fi";
-import { imageGenService } from "../../services/imageGenService";
+import { imageGenService, IMAGE_PRESETS } from "../../services/imageGenService";
 import { toast } from "react-hot-toast";
 
 interface CreateImagesProps {
   onImageGenerated?: () => void;
+  hasBrandAssets?: boolean;
 }
 
-const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
+const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated, hasBrandAssets }) => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [aspectRatio, setAspectRatio] = useState("1:1");
   const [style, setStyle] = useState("photorealistic");
+  const [preset, setPreset] = useState<string>("");
+  const [useBrandAssets, setUseBrandAssets] = useState(false);
   const [loadingText, setLoadingText] = useState("Initializing...");
   // State for tracking open dropdowns
-  const [openSelect, setOpenSelect] = useState<"aspect" | "style" | null>(null);
+  const [openSelect, setOpenSelect] = useState<"aspect" | "style" | "preset" | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,6 +78,8 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
         prompt,
         aspectRatio,
         style,
+        preset: preset || undefined,
+        useBrandAssets: useBrandAssets && hasBrandAssets ? true : undefined,
       });
       toast.success("Image generated successfully!");
       setPrompt("");
@@ -100,6 +106,20 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
     { value: "3:4", label: "Portrait (3:4)", icon: FiLayout },
     { value: "9:16", label: "Story (9:16)", icon: FiSmartphone },
   ];
+
+  const presetOptions = [
+    { value: "", label: "Custom", aspectRatio: null as string | null },
+    ...IMAGE_PRESETS.map((p) => ({ value: p.id, label: p.label, aspectRatio: p.aspectRatio })),
+  ];
+
+  const handleSelectPreset = (value: string) => {
+    setPreset(value);
+    const match = presetOptions.find((p) => p.value === value);
+    if (match?.aspectRatio) {
+      setAspectRatio(match.aspectRatio);
+    }
+    setOpenSelect(null);
+  };
 
   const styleOptions = [
     { value: "photorealistic", label: "Photorealistic", icon: FiCamera },
@@ -131,6 +151,57 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
         <div className="p-5 sm:p-6 space-y-6">
           {/* Controls Row - Grid on mobile for side-by-side */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 sm:gap-6">
+            {/* Preset Custom Select */}
+            <div className="space-y-1.5 custom-select-container relative z-30 col-span-2 sm:col-span-1">
+              <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <FiGrid className="w-3 h-3 text-gray-500" />
+                Preset
+              </label>
+              <div className="relative w-full sm:w-fit">
+                <button
+                  type="button"
+                  onClick={() => setOpenSelect(openSelect === "preset" ? null : "preset")}
+                  className={`w-full sm:w-auto sm:min-w-[220px] bg-[#0D0D0D] text-left text-gray-200 border rounded-xl px-4 py-3 text-sm flex items-center justify-between transition-colors hover:border-gray-600 ${
+                    openSelect === "preset" ? "border-gray-500" : "border-[#242424]"
+                  }`}
+                >
+                  <span className="truncate">
+                    {presetOptions.find((p) => p.value === preset)?.label || "Custom"}
+                  </span>
+                  <svg
+                    className={`w-2.5 h-2.5 text-gray-500 transition-transform shrink-0 ml-2 ${
+                      openSelect === "preset" ? "rotate-180" : ""
+                    }`}
+                    width="10"
+                    height="6"
+                    viewBox="0 0 10 6"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+
+                {openSelect === "preset" && (
+                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#1A1A1A] border border-[#333] rounded-xl shadow-xl overflow-hidden py-1 z-30 animate-in fade-in zoom-in-95 duration-100 max-h-[280px] overflow-y-auto custom-scrollbar min-w-[220px]">
+                    {presetOptions.map((opt) => (
+                      <button
+                        key={opt.value || "custom"}
+                        type="button"
+                        onClick={() => handleSelectPreset(opt.value)}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between group ${
+                          preset === opt.value ? "bg-[#242424] text-white" : "text-gray-400 hover:bg-[#242424] hover:text-gray-200"
+                        }`}
+                      >
+                        <span className="truncate">{opt.label}</span>
+                        {opt.aspectRatio && <span className="text-[10px] text-gray-600 shrink-0 ml-2">{opt.aspectRatio}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Aspect Ratio Custom Select */}
             <div className="space-y-1.5 custom-select-container relative z-20 col-span-1">
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -354,6 +425,19 @@ const CreateImages: React.FC<CreateImagesProps> = ({ onImageGenerated }) => {
               </div>
             </div>
           </div>
+
+          {/* Brand assets toggle */}
+          {hasBrandAssets && (
+            <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+              <input
+                type="checkbox"
+                checked={useBrandAssets}
+                onChange={(e) => setUseBrandAssets(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-600 bg-[#0D0D0D] text-[#DC2626] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+              />
+              <span className="text-sm text-gray-300">Apply my brand assets (logo, colors, style)</span>
+            </label>
+          )}
 
           {/* Action Button */}
           <div className="pt-2">
