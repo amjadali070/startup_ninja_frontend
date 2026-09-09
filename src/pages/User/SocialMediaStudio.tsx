@@ -5,7 +5,7 @@ import PlatformTags from '../../components/social-media/PlatformTags.tsx';
 import WritePostContent from '../../components/social-media/WritePostContent.tsx';
 import FileUpload from '../../components/social-media/FileUpload.tsx';
 import SchedulingOption from '../../components/social-media/SchedulingOption.tsx';
-import ScheduledPostsList from '../../components/social-media/ScheduledPostsList.tsx';
+import SocialProPanels from '../../components/social-media/SocialProPanels.tsx';
 import PostPreview from '../../components/social-media/PostPreview.tsx';
 import AccountsCard from '../../components/social-media/AccountsCard.tsx';
 import { useAuth } from '../../hooks/useAuth.tsx';
@@ -85,7 +85,7 @@ const SocialMediaStudio: FC = () => {
                   {/* Scheduling section with responsive layout */}
                   <div className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-8">
                     <SchedulingOption />
-                    <ScheduledPostsList />
+                    <SocialProPanels />
                   </div>
                 </div>
 

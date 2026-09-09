@@ -12,12 +12,22 @@ export default function PostDetails() {
   const { logout } = useAuth();
   const [post, setPost] = useState<ScheduledPostItem | null>(null);
   const [relatedNotification, setRelatedNotification] = useState<NotificationItem | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
+    setError(null);
     (async () => {
-      const res = await schedulerService.getById(id);
-      if (res.success && res.data) setPost(res.data);
+      try {
+        const res = await schedulerService.getById(id);
+        if (res.success && res.data) {
+          setPost(res.data);
+        } else {
+          setError((res as any).message || 'This post could not be found.');
+        }
+      } catch (e: any) {
+        setError(e?.response?.data?.message || e?.message || 'Failed to load this post.');
+      }
       // Fetch notifications and find the one linked to this post (by metadata.scheduledPostId)
       try {
         const nres = await notificationsService.list(1, 50);
@@ -61,7 +71,14 @@ export default function PostDetails() {
                 
               </div>
             )}
-            <PostDetailsView post={post as any} />
+            {error ? (
+              <div className="bg-[#151515] border border-white/10 rounded-xl p-8 text-center">
+                <div className="text-white font-semibold mb-1">Couldn't load this post</div>
+                <div className="text-white/50 text-sm">{error}</div>
+              </div>
+            ) : (
+              <PostDetailsView post={post as any} />
+            )}
           </div>
         </div>
       </main>

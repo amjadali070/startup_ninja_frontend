@@ -14,8 +14,8 @@ type ScheduledPost = {
 	caption: string;
 	image?: { originalname?: string; mimetype?: string } | null;
 	platforms: string[];
-	scheduledAt: string;
-	status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+	scheduledAt?: string;
+	status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled';
 	results?: Record<string, any>;
 	createdAt: string;
 	publishedAt?: string;
@@ -195,7 +195,7 @@ const ScheduledPostsList: React.FC = () => {
 				    if (row.status === 'scheduled') handleCancel(row._id);
 				  }}
 				  onDelete={(row) => {
-				    if (['published', 'failed', 'cancelled'].includes(row.status)) {
+				    if (['draft', 'published', 'failed', 'cancelled'].includes(row.status)) {
 				      handleDelete(row._id);
 				    }
 				  }}

@@ -35,3 +35,37 @@ export interface WriteWithAIResponse {
   }>;
 }
 
+export interface RepurposeVariants {
+  instagram: string;
+  facebook: string;
+  linkedin: string;
+  shortForm: string;
+  reelScript: string;
+  blog: string;
+}
+
+export interface RepurposeWithAIRequest {
+  input: string;
+}
+
+export interface RepurposeWithAIResponse {
+  success: boolean;
+  message?: string;
+  data?: { variants: RepurposeVariants };
+}
+
+export interface BrandVoice {
+  businessName?: string;
+  industry?: string;
+  description?: string;
+  tone?: string;
+  targetAudience?: string;
+  keywords?: string[];
+}
+
+export interface BrandVoiceResponse {
+  success: boolean;
+  message?: string;
+  data?: BrandVoice | null;
+}
+

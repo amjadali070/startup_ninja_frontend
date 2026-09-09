@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import {  FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt } from 'react-icons/fa';
+import {  FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt, FaPencilAlt } from 'react-icons/fa';
 import { FiX } from 'react-icons/fi';
 import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
 import { PLATFORM_BY_ID } from '../../constants/platforms';
@@ -12,7 +12,7 @@ export type ModalPost = {
   platforms: string[];
   scheduledAt?: string;
   publishedAt?: string;
-  status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+  status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled';
   results?: Record<string, any>;
   image?: { originalname?: string; mimetype?: string; buffer?: string; url?: string; key?: string } | null;
   accounts?: Array<{
@@ -34,6 +34,7 @@ type Props = {
 
 // --- Modern Status Mapping ---
 const STATUS_META = {
+  draft: { icon: FaPencilAlt, color: 'text-purple-400', name: 'Draft', ring: 'ring-purple-500/30', bg: 'bg-purple-500/10' },
   published: { icon: FaCheckCircle, color: 'text-emerald-400', name: 'Published', ring: 'ring-emerald-500/30', bg: 'bg-emerald-500/10' },
   scheduled: { icon: FaClock, color: 'text-cyan-400', name: 'Scheduled', ring: 'ring-cyan-500/30', bg: 'bg-cyan-500/10' },
   failed: { icon: FaTimesCircle, color: 'text-rose-400', name: 'Failed', ring: 'ring-rose-500/30', bg: 'bg-rose-500/10' },
@@ -158,11 +159,18 @@ const SchedulePostModal: React.FC<Props> = ({ post, onClose }) => {
                 <PostStatusBadge status={post.status} />
                 
             </div>
-            <div className="text-sm font-light text-gray-300 flex items-center gap-2">
-                    <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
-                  <span className="text-gray-400">{isScheduled ? 'Scheduled at:' : 'Published at:'}</span>
-                    <span className="font-semibold text-white">{formatDateDDMonYYYY(dateToUse)} at {formatTimeHHmm(dateToUse)}</span>
-                </div>
+            {dateToUse ? (
+              <div className="text-sm font-light text-gray-300 flex items-center gap-2">
+                      <FaRegCalendarAlt className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-gray-400">{isScheduled ? 'Scheduled at:' : 'Published at:'}</span>
+                      <span className="font-semibold text-white">{formatDateDDMonYYYY(dateToUse)} at {formatTimeHHmm(dateToUse)}</span>
+                  </div>
+            ) : (
+              <div className="text-sm font-light text-gray-400 flex items-center gap-2">
+                <FaRegCalendarAlt className="w-3.5 h-3.5 text-purple-400" />
+                <span>Not scheduled yet — still a draft</span>
+              </div>
+            )}
             </div>
             
             <div className='border-b border-gray-700/50 pb-4'>

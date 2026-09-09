@@ -4,6 +4,10 @@ import {
   EnhanceWithAIResponse,
   WriteWithAIRequest,
   WriteWithAIResponse,
+  RepurposeWithAIRequest,
+  RepurposeWithAIResponse,
+  BrandVoice,
+  BrandVoiceResponse,
 } from "../../types/social-media";
 
 export const socialMediaService = {
@@ -45,6 +49,55 @@ export const socialMediaService = {
         message:
           error.response?.data?.message || "Failed to generate content with AI",
         errors: error.response?.data?.errors,
+      };
+    }
+  },
+
+  /**
+   * One idea -> Instagram/Facebook/LinkedIn/X/Reel-script/blog variants
+   */
+  async repurposeWithAI(
+    request: RepurposeWithAIRequest
+  ): Promise<RepurposeWithAIResponse> {
+    try {
+      const response = await apiClient.post<RepurposeWithAIResponse>(
+        "/social-media/ai/repurpose",
+        request
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to repurpose content",
+      };
+    }
+  },
+
+  async getBrandVoice(): Promise<BrandVoiceResponse> {
+    try {
+      const response = await apiClient.get<BrandVoiceResponse>(
+        "/social-media/ai/brand-voice"
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to load brand voice",
+      };
+    }
+  },
+
+  async saveBrandVoice(voice: BrandVoice): Promise<BrandVoiceResponse> {
+    try {
+      const response = await apiClient.put<BrandVoiceResponse>(
+        "/social-media/ai/brand-voice",
+        voice
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to save brand voice",
       };
     }
   },

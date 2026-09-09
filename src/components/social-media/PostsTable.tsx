@@ -4,6 +4,7 @@ import {
   FiChevronRight,
   FiTrash2,
   FiX,
+  FiEdit3,
 } from 'react-icons/fi';
 import { MdCancel } from "react-icons/md";
 import { TbGhostOff } from 'react-icons/tb';
@@ -18,7 +19,7 @@ export type TablePost = {
   platforms: string[];
   scheduledAt?: string;
   publishedAt?: string;
-  status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+  status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled';
 };
 
 type Props = {
@@ -139,7 +140,18 @@ const PostsTable: React.FC<Props> = ({
                   </td>
 
                   <td className="px-2 sm:px-3 md:px-4 py-4">
-                    {row.status === 'published' ? (
+                    {row.status === 'draft' ? (
+                      <span
+                        className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#A855F7]"
+                        style={{
+                          background: '#A855F70D',
+                          border: '1.2px solid #A855F780',
+                        }}
+                      >
+                        <FiEdit3 className="w-3.5 h-3.5" />
+                        DRAFT
+                      </span>
+                    ) : row.status === 'published' ? (
                       <span
                         className="inline-flex items-center justify-center w-20 sm:w-24 md:w-28 gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-[#22C55E]"
                         style={{

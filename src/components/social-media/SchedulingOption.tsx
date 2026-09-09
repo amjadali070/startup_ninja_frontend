@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   FaCalendarAlt,
-  // FaFacebook,
-  // FaInstagram,
-  // FaTwitter,
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
   FaLinkedin,
   FaPlus,
   FaTrash,
@@ -14,8 +14,8 @@ import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
 import linkedinService from '../../services/social-media/oauth/linkedin';
 import twitterService from '../../services/social-media/oauth/twitter';
-// import instagramService from '../../services/social-media/oauth/instagram';
-// import facebookService from '../../services/social-media/oauth/facebook';
+import instagramService from '../../services/social-media/oauth/instagram';
+import facebookService from '../../services/social-media/oauth/facebook';
 import schedulerService from '../../services/social-media/scheduler';
 import { CAPTION_LIMITS, IMAGE_REQUIRED, IMAGE_SIZE_LIMIT_MB } from '../../constants/platforms';
 import { buildLocalDate } from '../../utils/date';
@@ -31,9 +31,9 @@ type Platform = {
 };
 
 const allPlatforms: Platform[] = [
-  // { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
-  // { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
-  // { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
+  { id: 'facebook', name: 'Facebook', IconComponent: FaFacebook, color: '#1877F2' },
+  { id: 'instagram', name: 'Instagram', IconComponent: FaInstagram, color: '#E4405F' },
+  { id: 'x', name: 'X (Twitter)', IconComponent: FaTwitter, color: '#1DA1F2' },
   { id: 'linkedin', name: 'LinkedIn', IconComponent: FaLinkedin, color: '#0A66C2' },
 ];
 
@@ -54,14 +54,12 @@ const SchedulingOption: React.FC = () => {
   const [isPlatformSelectorOpen, setIsPlatformSelectorOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   const [scheduledPlatforms, setScheduledPlatforms] = useState<ScheduledPlatform[]>([]);
-  // const [fbPages, setFbPages] = useState<any[]>([]);
-  const fbPages: any[] = [];
+  const [fbPages, setFbPages] = useState<any[]>([]);
 
   useEffect(() => {
-    // Commented out local Facebook page status check
-    /*
     if (user?.id) {
        facebookService.getConnectionStatus(user.id).then(res => {
           if (res.pages) {
@@ -69,7 +67,6 @@ const SchedulingOption: React.FC = () => {
           }
        }).catch(() => {});
     }
-    */
   }, [user]);
 
   // Sync effect removed for manual control
@@ -220,10 +217,10 @@ const SchedulingOption: React.FC = () => {
       linkedin: { maxCaption: CAPTION_LIMITS.linkedin, imageRequired: !!IMAGE_REQUIRED.linkedin, maxImageMB: IMAGE_SIZE_LIMIT_MB.linkedin },
     } as const;
 
-    const imageFileObj = postData.files.find(f => f.type === 'image')?.file || null;
-    const imageSizeMB = imageFileObj ? imageFileObj.size / (1024 * 1024) : 0;
+    const imageFiles = postData.files.filter(f => f.type === 'image').map(f => f.file);
+    const maxImageSizeMB = imageFiles.length > 0 ? Math.max(...imageFiles.map(f => f.size / (1024 * 1024))) : 0;
     const failures: Array<{ platform: string; reason: string }> = [];
-    
+
     const validItems = itemsToSchedule.filter((p) => {
       const c = constraints[p.platform];
       // Use logic based on p.platform
@@ -231,11 +228,11 @@ const SchedulingOption: React.FC = () => {
         failures.push({ platform: p.name || p.platform, reason: `Caption exceeds ${c.maxCaption} characters` });
         return false;
       }
-      if (c.imageRequired && !imageFileObj) {
+      if (c.imageRequired && imageFiles.length === 0) {
         failures.push({ platform: p.name || p.platform, reason: 'Image is required' });
         return false;
       }
-      if (imageFileObj && imageSizeMB > c.maxImageMB) {
+      if (imageFiles.length > 0 && maxImageSizeMB > c.maxImageMB) {
         failures.push({ platform: p.name || p.platform, reason: `Image exceeds ${c.maxImageMB} MB` });
         return false;
       }
@@ -250,19 +247,18 @@ const SchedulingOption: React.FC = () => {
     try {
       setIsScheduling(true);
 
-      const imageFile = imageFileObj;
       const uniquePlatforms = Array.from(new Set(validItems.map(p => p.platform)));
 
       const resp = await schedulerService.schedulePost({
         caption: postData.content,
         platforms: uniquePlatforms,
-        schedules: validItems.map(p => ({ 
-            platform: p.platform, 
-            date: p.date, 
+        schedules: validItems.map(p => ({
+            platform: p.platform,
+            date: p.date,
             time: p.time,
-            targetAccounts: p.targetPageId ? { [p.platform]: [p.targetPageId] } : undefined 
+            targetAccounts: p.targetPageId ? { [p.platform]: [p.targetPageId] } : undefined
         })),
-        imageFile,
+        imageFiles,
         targetAccounts: postData.targetAccounts,
         timezone: ianaTimezone,
       });
@@ -290,8 +286,31 @@ const SchedulingOption: React.FC = () => {
     }
   };
 
-  const handleSaveAsDraft = () => {
+  const handleSaveAsDraft = async () => {
+    if (!postData.content && postData.files.length === 0) {
+      toast.error('Add some content or an image before saving a draft');
+      return;
+    }
 
+    try {
+      setIsSavingDraft(true);
+      const imageFile = postData.files.find(f => f.type === 'image')?.file || null;
+      const resp = await schedulerService.saveDraft({
+        caption: postData.content,
+        platforms: postData.selectedPlatforms as Array<'facebook' | 'instagram' | 'x' | 'linkedin'>,
+        imageFile,
+      });
+      if (resp.success) {
+        toast.success('Draft saved — find it in your posts list.');
+        triggerRefreshPosts();
+      } else {
+        toast.error(resp.message || 'Failed to save draft');
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || e?.message || 'Failed to save draft');
+    } finally {
+      setIsSavingDraft(false);
+    }
   };
 
   const handlePublishNow = async () => {
@@ -306,8 +325,7 @@ const SchedulingOption: React.FC = () => {
     );
 
     if (selectedSupportedPlatforms.length === 0) {
-      toast.error('Please select at least one platform (LinkedIn, Instagram, or Facebook) to publish');
-      // toast.error('Please select at least one platform (LinkedIn, Twitter, Instagram, or Facebook) to publish');
+      toast.error('Please select at least one platform to publish');
       return;
     }
 
@@ -322,24 +340,36 @@ const SchedulingOption: React.FC = () => {
       // Create FormData for the API request
       const formData = new FormData();
       formData.append('caption', postData.content);
-      
+
       if (postData.targetAccounts?.['facebook']) {
         formData.append('facebook_pages', JSON.stringify(postData.targetAccounts['facebook']));
       }
 
-      // Add the first image file if available
-      if (postData.files.length > 0) {
-        const imageFile = postData.files.find(file => file.type === 'image');
-        if (imageFile) {
-          formData.append('image', imageFile.file);
+      // A video post (Reel) only goes to Instagram/Facebook — LinkedIn/X image-upload
+      // isn't built for video, so the shared FormData never gets a 'video' field sent their way.
+      const videoFile = postData.files.find(f => f.type === 'video');
+      const isVideoPost = !!videoFile;
+
+      if (isVideoPost) {
+        formData.append('video', videoFile.file);
+      } else {
+        // Attach every selected image (carousel — all four platforms accept multiple now)
+        const imageFilesToPublish = postData.files.filter(f => f.type === 'image');
+        for (const f of imageFilesToPublish) {
+          formData.append('images', f.file);
         }
       }
 
       const results = [];
       const errors = [];
 
-      // Post to LinkedIn if selected
-      if (postData.selectedPlatforms.includes('linkedin')) {
+      if (isVideoPost && (postData.selectedPlatforms.includes('linkedin') || postData.selectedPlatforms.includes('x'))) {
+        if (postData.selectedPlatforms.includes('linkedin')) errors.push('LinkedIn: Video posts are not supported yet — post to Instagram or Facebook instead.');
+        if (postData.selectedPlatforms.includes('x')) errors.push('X (Twitter): Video posts are not supported yet — post to Instagram or Facebook instead.');
+      }
+
+      // Post to LinkedIn if selected (image/text posts only)
+      if (!isVideoPost && postData.selectedPlatforms.includes('linkedin')) {
         try {
           const linkedinResult = await linkedinService.postToLinkedIn(formData);
           if (linkedinResult.success) {
@@ -356,8 +386,8 @@ const SchedulingOption: React.FC = () => {
         }
       }
 
-      // Post to Twitter if selected
-      if (postData.selectedPlatforms.includes('x')) {
+      // Post to Twitter if selected (image/text posts only)
+      if (!isVideoPost && postData.selectedPlatforms.includes('x')) {
         try {
           const twitterResult = await twitterService.postToTwitter(formData);
           if (twitterResult.success) {
@@ -371,12 +401,11 @@ const SchedulingOption: React.FC = () => {
         }
       }
 
-      // Post to Instagram if selected (pre-validate image required) (commented out for now)
-      /*
+      // Post to Instagram if selected (pre-validate media required — image or video)
       if (postData.selectedPlatforms.includes('instagram')) {
         const imageExists = postData.files.find(f => f.type === 'image');
-        if (!imageExists) {
-          errors.push('Instagram: Instagram requires an image for posts. Please upload an image.');
+        if (!imageExists && !videoFile) {
+          errors.push('Instagram: Instagram requires an image or video for posts. Please upload one.');
         } else {
         try {
           const instagramResult = await instagramService.postToInstagram(formData);
@@ -406,7 +435,6 @@ const SchedulingOption: React.FC = () => {
           errors.push(`Facebook: ${msg}`);
         }
       }
-      */
 
       // Show appropriate notification based on results
       // Show appropriate notification based on results
@@ -611,9 +639,10 @@ const SchedulingOption: React.FC = () => {
 
         <button
           onClick={handleSaveAsDraft}
-          className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
+          disabled={isSavingDraft}
+          className="inline-flex items-center justify-center bg-transparent border border-gray-600 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 min-h-[44px] w-full md:w-auto"
         >
-          <span>Save as draft</span>
+          <span>{isSavingDraft ? 'Saving...' : 'Save as draft'}</span>
         </button>
       </div>
 

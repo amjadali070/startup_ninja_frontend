@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   FaFacebook,
   FaTwitter,
   FaLinkedin,
   FaInstagram,
   FaChevronDown,
-  FaDesktop,
-  FaMobile,
 } from 'react-icons/fa';
 import { usePost } from './PostContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -20,12 +18,10 @@ import TwitterPreview from './previews/TwitterPreview';
 import LinkedInPreview from './previews/LinkedInPreview';
 
 type Platform = 'instagram' | 'facebook' | 'twitter' | 'linkedin' | 'x';
-type DeviceType = 'desktop' | 'mobile';
 
 const PostPreview: React.FC = (): React.ReactElement => {
   const { postData } = usePost();
   const { user } = useAuth();
-  const [selectedDevice, setSelectedDevice] = useState<DeviceType>('mobile');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [linkedinStatus, setLinkedinStatus] = useState<LinkedInConnectionStatus | null>(null);
   const [isLoadingLinkedIn, setIsLoadingLinkedIn] = useState(false);
@@ -39,10 +35,10 @@ const PostPreview: React.FC = (): React.ReactElement => {
   // rich text rendering moved to shared util
 
   const allPlatforms = [
-    { id: 'instagram' as Platform, name: 'Instagram Feed Preview', icon: FaInstagram },
-    { id: 'facebook' as Platform, name: 'Facebook Post Preview', icon: FaFacebook },
-    { id: 'x' as Platform, name: 'X Post Preview', icon: FaTwitter },
-    { id: 'linkedin' as Platform, name: 'LinkedIn Post Preview', icon: FaLinkedin },
+    { id: 'instagram' as Platform, name: 'Instagram', icon: FaInstagram },
+    { id: 'facebook' as Platform, name: 'Facebook', icon: FaFacebook },
+    { id: 'x' as Platform, name: 'X', icon: FaTwitter },
+    { id: 'linkedin' as Platform, name: 'LinkedIn', icon: FaLinkedin },
   ];
 
   // Filter platforms to show only selected ones
@@ -172,28 +168,28 @@ const PostPreview: React.FC = (): React.ReactElement => {
 
   const InstagramPreviewWrapper = () => {
     return (
-      <InstagramPreview selectedDevice={selectedDevice} instagramStatus={instagramStatus} isLoadingInstagram={isLoadingInstagram} postData={postData} />
+      <InstagramPreview instagramStatus={instagramStatus} isLoadingInstagram={isLoadingInstagram} postData={postData} />
     );
   };
 
   const FacebookPreviewWrapper = () => {
     // Get Facebook pages from connection status (posts are published to pages, not personal profiles)
     return (
-      <FacebookPreview selectedDevice={selectedDevice} facebookStatus={facebookStatus} postData={postData} />
+      <FacebookPreview facebookStatus={facebookStatus} postData={postData} />
     );
   };
 
   const TwitterPreviewWrapper = () => {
 
     return (
-      <TwitterPreview selectedDevice={selectedDevice} twitterStatus={twitterStatus} isLoadingTwitter={isLoadingTwitter} postData={postData} />
+      <TwitterPreview twitterStatus={twitterStatus} isLoadingTwitter={isLoadingTwitter} postData={postData} />
     );
   };
 
   const LinkedInPreviewWrapper = () => {
-    // Get LinkedIn user profile info if connected    
+    // Get LinkedIn user profile info if connected
     return (
-      <LinkedInPreview selectedDevice={selectedDevice} linkedinStatus={linkedinStatus} isLoadingLinkedIn={isLoadingLinkedIn} postData={postData} />
+      <LinkedInPreview linkedinStatus={linkedinStatus} isLoadingLinkedIn={isLoadingLinkedIn} postData={postData} />
   );
   };
 
@@ -218,15 +214,15 @@ const PostPreview: React.FC = (): React.ReactElement => {
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 sm:gap-3 bg-[#1E1E1E] border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-white text-xs sm:text-sm font-medium hover:bg-[#2A2A2A] transition-colors"
+            className="flex items-center gap-1.5 bg-[#1E1E1E] border border-gray-600 rounded-lg px-2.5 py-1.5 text-white text-xs font-medium hover:bg-[#2A2A2A] transition-colors"
           >
-            {currentPlatform && <currentPlatform.icon className="w-4 h-4" />}
+            {currentPlatform && <currentPlatform.icon className="w-3.5 h-3.5" />}
             <span>{currentPlatform?.name || 'Select Platform'}</span>
-            <FaChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            <FaChevronDown className={`w-2.5 h-2.5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {dropdownOpen && availablePlatforms.length > 0 && (
-            <div className="absolute top-full left-0 mt-2 w-56 sm:w-64 bg-[#1E1E1E] border border-gray-600 rounded-lg shadow-lg z-10">
+            <div className="absolute top-full left-0 mt-2 w-40 bg-[#1E1E1E] border border-gray-600 rounded-lg shadow-lg z-10">
               {availablePlatforms.map((platform) => (
                 <button
                   key={platform.id}
@@ -234,39 +230,16 @@ const PostPreview: React.FC = (): React.ReactElement => {
                     setSelectedPlatform(platform.id);
                     setDropdownOpen(false);
                   }}
-                  className={`flex items-center gap-2 sm:gap-3 w-full px-3 py-2.5 sm:px-4 sm:py-3 text-white text-xs sm:text-sm hover:bg-[#2A2A2A] transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                  className={`flex items-center gap-2 w-full px-3 py-2 text-white text-xs hover:bg-[#2A2A2A] transition-colors first:rounded-t-lg last:rounded-b-lg ${
                     selectedPlatform === platform.id ? 'bg-[#2A2A2A]' : ''
                   }`}
                 >
-                  <platform.icon className="w-4 h-4" />
+                  <platform.icon className="w-3.5 h-3.5" />
                   <span>{platform.name}</span>
                 </button>
               ))}
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setSelectedDevice('desktop')}
-            className={`p-2 rounded-lg border transition-colors ${
-              selectedDevice === 'desktop'
-                ? 'bg-gray-700 border-gray-500 text-white'
-                : 'bg-transparent border-gray-600 text-gray-400 hover:text-white hover:border-gray-500'
-            }`}
-          >
-            <FaDesktop className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setSelectedDevice('mobile')}
-            className={`p-2 rounded-lg border transition-colors ${
-              selectedDevice === 'mobile'
-                ? 'bg-gray-700 border-gray-500 text-white'
-                : 'bg-transparent border-gray-600 text-gray-400 hover:text-white hover:border-gray-500'
-            }`}
-          >
-            <FaMobile className="w-4 h-4" />
-          </button>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaClock, FaCheckCircle, FaTimesCircle, FaBan, FaRegCalendarAlt, FaPencilAlt } from 'react-icons/fa';
 import { formatDateDDMonYYYY, formatTimeHHmm } from '../../utils/date';
 import FacebookPreview from './previews/FacebookPreview';
 import InstagramPreview from './previews/InstagramPreview';
@@ -13,7 +13,7 @@ export type PostDetailsItem = {
   platforms: string[];
   scheduledAt?: string;
   publishedAt?: string;
-  status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+  status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled';
   results?: Record<string, any>;
   image?: { originalname?: string; mimetype?: string; buffer?: string } | null;
   accounts?: Array<{
@@ -25,6 +25,7 @@ export type PostDetailsItem = {
 };
 
 const STATUS_META = {
+  draft: { icon: FaPencilAlt, color: 'text-purple-400', name: 'Draft', ring: 'ring-purple-500/30', bg: 'bg-purple-500/10' },
   published: { icon: FaCheckCircle, color: 'text-emerald-400', name: 'Published', ring: 'ring-emerald-500/30', bg: 'bg-emerald-500/10' },
   scheduled: { icon: FaClock, color: 'text-cyan-400', name: 'Scheduled', ring: 'ring-cyan-500/30', bg: 'bg-cyan-500/10' },
   failed: { icon: FaTimesCircle, color: 'text-rose-400', name: 'Failed', ring: 'ring-rose-500/30', bg: 'bg-rose-500/10' },
@@ -112,7 +113,7 @@ const PostDetailsView: React.FC<Props> = ({ post }) => {
           </div>
           <div className="text-sm text-white/70 flex items-center gap-2">
             <FaRegCalendarAlt className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-white/50">{post.status === 'scheduled' ? 'Scheduled' : 'Published'}</span>
+            <span className="text-white/50">{post.status === 'scheduled' ? 'Scheduled' : post.status === 'draft' ? 'Draft' : 'Published'}</span>
             <span className="font-semibold text-white">{dateToUse ? `${formatDateDDMonYYYY(dateToUse)} at ${formatTimeHHmm(dateToUse)}` : '—'}</span>
           </div>
         </div>
@@ -125,16 +126,16 @@ const PostDetailsView: React.FC<Props> = ({ post }) => {
             <div key={p} className="bg-[#151515] border border-white/10 rounded-xl p-4">
               <div className="text-white/70 text-xs mb-3 uppercase tracking-wider">{p} preview</div>
               {p === 'facebook' && (
-                <FacebookPreview selectedDevice="desktop" facebookStatus={statusByPlatform.facebook} postData={postData} />
+                <FacebookPreview facebookStatus={statusByPlatform.facebook} postData={postData} />
               )}
               {(p === 'instagram') && (
-                <InstagramPreview selectedDevice="desktop" instagramStatus={statusByPlatform.instagram} isLoadingInstagram={false} postData={postData} />
+                <InstagramPreview instagramStatus={statusByPlatform.instagram} isLoadingInstagram={false} postData={postData} />
               )}
               {(p === 'linkedin') && (
-                <LinkedInPreview selectedDevice="desktop" linkedinStatus={statusByPlatform.linkedin} isLoadingLinkedIn={false} postData={postData} />
+                <LinkedInPreview linkedinStatus={statusByPlatform.linkedin} isLoadingLinkedIn={false} postData={postData} />
               )}
               {(p === 'twitter' || p === 'x') && (
-                <TwitterPreview selectedDevice="desktop" twitterStatus={statusByPlatform.twitter} isLoadingTwitter={false} postData={postData} />
+                <TwitterPreview twitterStatus={statusByPlatform.twitter} isLoadingTwitter={false} postData={postData} />
               )}
             </div>
           ))}
@@ -147,7 +148,7 @@ const PostDetailsView: React.FC<Props> = ({ post }) => {
             <h3 className="text-white font-semibold">Timing</h3>
             <div className="text-sm text-gray-300 flex items-center gap-2">
               <FaRegCalendarAlt className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="text-gray-400">{post.status === 'scheduled' ? 'Scheduled at:' : 'Published at:'}</span>
+              <span className="text-gray-400">{post.status === 'scheduled' ? 'Scheduled at:' : post.status === 'draft' ? 'Not scheduled yet:' : 'Published at:'}</span>
               <span className="font-semibold text-white">{dateToUse ? `${formatDateDDMonYYYY(dateToUse)} at ${formatTimeHHmm(dateToUse)}` : '—'}</span>
             </div>
           </div>
