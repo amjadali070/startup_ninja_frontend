@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { PiImageSquareBold } from "react-icons/pi";
+import { FiBarChart2 } from "react-icons/fi";
 import { HiOutlineCog6Tooth } from "react-icons/hi2";
 import { CgHome } from "react-icons/cg";
 import {
@@ -15,6 +16,9 @@ import {
   FiZap,
   FiFileText,
   FiLock,
+  FiSearch,
+  FiColumns,
+  FiShield,
 } from "react-icons/fi";
 import { RiMoneyDollarBoxFill, RiOrganizationChart } from "react-icons/ri";
 import { UserProfile } from "../../services/user";
@@ -95,6 +99,18 @@ const navSections: SidebarSection[] = [
         icon: <FiFileText className="w-5 h-5" />,
         admin: true,
       },
+      {
+        label: "Analytics",
+        to: "/admin-dashboard/analytics",
+        icon: <FiBarChart2 className="w-5 h-5" />,
+        admin: true,
+      },
+      {
+        label: "Support Tickets",
+        to: "/admin-dashboard/support",
+        icon: <FiMessageSquare className="w-5 h-5" />,
+        admin: true,
+      },
       // {
       //   label: "API Management",
       //   to: "/admin-dashboard/api-management",
@@ -150,6 +166,26 @@ const navSections: SidebarSection[] = [
             label: "Contract Generation",
             to: "/ai-tools/legal/generate",
             icon: <FiZap className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Analyze Contract",
+            to: "/ai-tools/legal/analyze",
+            icon: <FiSearch className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Compare Contracts",
+            to: "/ai-tools/legal/compare",
+            icon: <FiColumns className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "All Contracts",
+            to: "/ai-tools/legal/all-contracts",
+            icon: <FiFileText className="w-3.5 h-3.5" />,
+          },
+          {
+            label: "Compliance Scan",
+            to: "/ai-tools/legal/audit-logs",
+            icon: <FiShield className="w-3.5 h-3.5" />,
           },
         ],
       },
@@ -225,6 +261,12 @@ const navSections: SidebarSection[] = [
         icon: <HiOutlineCog6Tooth className="w-5 h-5" />,
         admin: false,
       },
+      {
+        label: "Support",
+        to: "/support",
+        icon: <FiMessageSquare className="w-5 h-5" />,
+        admin: false,
+      },
     ],
   },
 ];
@@ -282,14 +324,6 @@ const filteredSections = navSections
         }
 
         if (!isSubUser) return true;
-
-        // Team sales-only users can only access Ninja Sales item.
-        if (isTeamSalesOnlyUser) {
-          return (
-            section.sectionLabel === "Enterprise Tools" &&
-            item.label === "Ninja Sales"
-          );
-        }
 
         // If sub-user, check permissions for Enterprise Tools
         if (section.sectionLabel === "Enterprise Tools") {

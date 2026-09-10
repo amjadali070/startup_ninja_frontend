@@ -110,17 +110,23 @@ const CurrentPlanCard: FC<CurrentPlanCardProps> = ({
         else if (key === 'business') price = '$99.00';
     }
 
+    // Real IANA timezone (from the user's saved preference), not the
+    // browser's implicit local timezone — feedback.md §10.
+    let renewalDate = 'N/A';
+    if (subscription.nextBillingDate) {
+      const nextBillingDateObj = new Date(subscription.nextBillingDate);
+      if (!Number.isNaN(nextBillingDateObj.getTime())) {
+        renewalDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: ianaTimezone }).format(nextBillingDateObj);
+      }
+    }
+
     return {
       name: planName || 'Free Plan',
       price: price,
       status: subscription.status || 'active',
       isCanceling: subscription.cancelAtPeriodEnd,
       scheduledDowngrade: subscription.scheduledDowngrade,
-      // Real IANA timezone (from the user's saved preference), not the
-      // browser's implicit local timezone — feedback.md §10.
-      renewalDate: subscription.nextBillingDate
-        ? new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: ianaTimezone }).format(new Date(subscription.nextBillingDate))
-        : 'N/A',
+      renewalDate,
       usage: {
         ai_chat_messages: subscription.usage?.ai_chat_messages || 0,
         ai_post_writer: subscription.usage?.ai_post_writer || 0,

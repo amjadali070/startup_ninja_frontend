@@ -7,7 +7,7 @@ const NinjaSalesFeatureSection: React.FC = () => (
             <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">Ninja Sales</h2>
             <h3 className="text-xl md:text-3xl font-bold text-[#ED351C] mb-6">Your Collaborative Revenue Engine</h3>
             <p className="text-base md:text-lg text-white/80 mb-6 text-justify">
-                Supercharge your sales pipeline with team-driven workflows. Track leads, craft proposals, automate follow-ups, and close deals faster all from one powerful dashboard.
+                Run your sales pipeline with team-driven workflows. Track leads, craft proposals, automate follow-ups, and close deals faster, all from one dashboard.
             </p>
 
             <ul className="space-y-4">
@@ -17,7 +17,7 @@ const NinjaSalesFeatureSection: React.FC = () => (
                     </div>
                     <div>
                         <h4 className="font-semibold text-lg text-[#ED351C]">Team Sales Pipeline</h4>
-                        <p className="text-sm text-white/70">Collaborate with your team seamlessly.</p>
+                        <p className="text-sm text-white/70">Work through deals together as a team.</p>
                     </div>
                 </li>
                 <li className="flex items-center text-white/90">

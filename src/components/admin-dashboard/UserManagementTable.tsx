@@ -139,22 +139,14 @@ const UserManagementTable: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  };
-
-  // Placeholder fallback for the rare case the users-list API doesn't
-  // return a subscription field — TODO: confirm that API always populates
-  // it and remove this dummy generator (flagged during Phase 1 plan-tier
-  // rework; out of that phase's scope to fully audit here).
-  const getSubscription = (userId: string) => {
-    const types = ["Free", "Go", "Pro", "Business"];
-    // Use userId to deterministically pick a type so it doesn't change on re-render
-    const index = userId.charCodeAt(userId.length - 1) % types.length;
-    return types[index];
   };
 
   return (
@@ -308,8 +300,8 @@ const UserManagementTable: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-purple-600/20 text-purple-400">
-                      {user.subscription || getSubscription(user._id)}
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-purple-600/20 text-purple-400 capitalize">
+                      {user.subscription || "free"}
                     </span>
                   </td>
                   <td className="py-4 px-4">

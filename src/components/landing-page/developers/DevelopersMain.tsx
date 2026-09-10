@@ -3,49 +3,49 @@ import { Link } from "react-router-dom";
 import {
   FaCode,
   FaRocket,
-  FaServer,
+  FaMagic,
+  FaLayerGroup,
+  FaGlobe,
   FaLock,
-  FaSearch,
-  FaMobile,
 } from "react-icons/fa";
 
 const DevelopersMain: React.FC = () => {
   const features = [
     {
+      icon: <FaRocket className="w-10 h-10" />,
+      title: "3-Step AI Wizard",
+      description:
+        "Tell Ninja about your business, pick a vibe and template, then preview an AI-filled draft before you publish.",
+    },
+    {
       icon: <FaCode className="w-10 h-10" />,
-      title: "No-Code Drag-and-Drop",
+      title: "Drag-and-Drop Editor",
       description:
-        "Build professional websites without writing a single line of code. Our intuitive editor makes web development accessible to everyone.",
+        "Add and rearrange sections, edit text and images directly, and pull from a library of ready-made components.",
     },
     {
-      icon: <FaSearch className="w-10 h-10" />,
-      title: "SEO-Optimized",
+      icon: <FaMagic className="w-10 h-10" />,
+      title: "AI Section Editing",
       description:
-        "Every site is built with SEO best practices from the ground up. Mobile-responsive, fast-loading, and optimized for Google.",
+        "Select any element and click Ask Ninja to describe a change in plain language instead of editing it by hand.",
     },
     {
-      icon: <FaServer className="w-10 h-10" />,
-      title: "Free Hosting Included",
+      icon: <FaLayerGroup className="w-10 h-10" />,
+      title: "28 Ready-Made Templates",
       description:
-        "No need for separate hosting providers. Your site is hosted securely on our infrastructure with 99.9% uptime.",
+        "Start from a template matched to your industry and vibe, pre-filled with your business name and logo.",
+    },
+    {
+      icon: <FaGlobe className="w-10 h-10" />,
+      title: "Custom Domain",
+      description:
+        "Connect a domain you already own, with automatic setup for GoDaddy and Namecheap or manual DNS records.",
     },
     {
       icon: <FaLock className="w-10 h-10" />,
-      title: "SSL Certificate",
+      title: "Automatic SSL",
       description:
-        "Every website comes with a free SSL certificate for secure HTTPS connections right out of the box.",
-    },
-    {
-      icon: <FaMobile className="w-10 h-10" />,
-      title: "Mobile-Responsive",
-      description:
-        "All sites automatically adapt to any screen size. Your visitors get a perfect experience on desktop, tablet, and mobile.",
-    },
-    {
-      icon: <FaRocket className="w-10 h-10" />,
-      title: "Lightning Fast",
-      description:
-        "Optimized code and CDN delivery ensure your site loads at ninja-like speed, improving user experience and SEO.",
+        "A security certificate is issued automatically once your domain is verified, usually within minutes.",
     },
   ];
 
@@ -88,8 +88,8 @@ const DevelopersMain: React.FC = () => {
             className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
             style={{ color: "#CCCCCC" }}
           >
-            Professional websites in minutes, not months. No coding required, no
-            technical barriers—just your brilliant idea brought to life.
+            Professional websites in minutes, not months. No coding required and
+            no technical barriers, just your idea brought to life.
           </p>
           <Link
             to="/register"
@@ -117,20 +117,7 @@ const DevelopersMain: React.FC = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group rounded-lg p-8 border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="group rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <div
                   className="mb-4 group-hover:scale-110 transition-transform duration-300"
@@ -159,13 +146,7 @@ const DevelopersMain: React.FC = () => {
           <div className="grid md:grid-cols-4 gap-6">
             {buildSteps.map((item, index) => (
               <div key={index} className="relative">
-                <div
-                  className="rounded-lg p-6 text-center transition-all duration-300 border border-[#333]"
-                  style={{
-                    background:
-                      "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  }}
-                >
+                <div className="rounded-xl p-6 text-center bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                   <div
                     className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto"
                     style={{
@@ -198,14 +179,9 @@ const DevelopersMain: React.FC = () => {
       {/* Integration Section */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
-          <div
-            className="rounded-lg p-12 bg-[#151515] border"
-            style={{
-              border: "1px solid #8B0000",
-            }}
-          >
+          <div className="rounded-2xl p-12 bg-[#141010] border border-white/10 shadow-lg">
             <h2 className="text-4xl font-bold mb-6 text-center">
-              Seamless Integration
+              Built-In Integration
             </h2>
             <p
               className="text-xl text-center mb-8"
@@ -216,21 +192,21 @@ const DevelopersMain: React.FC = () => {
             </p>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-6 rounded-lg border border-[#333]">
+              <div className="text-center p-6 rounded-xl bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                 <p className="text-3xl mb-3">💬</p>
                 <h4 className="font-bold mb-2">Ninja Chat</h4>
                 <p className="text-sm" style={{ color: "#CCCCCC" }}>
                   Generate copy and paste directly into your site
                 </p>
               </div>
-              <div className="text-center p-6 rounded-lg border border-[#333]">
+              <div className="text-center p-6 rounded-xl bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                 <p className="text-3xl mb-3">🎨</p>
                 <h4 className="font-bold mb-2">Imaginative Ninja</h4>
                 <p className="text-sm" style={{ color: "#CCCCCC" }}>
                   Create images and upload to your Brand Library
                 </p>
               </div>
-              <div className="text-center p-6 rounded-lg border border-[#333]">
+              <div className="text-center p-6 rounded-xl bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                 <p className="text-3xl mb-3">📱</p>
                 <h4 className="font-bold mb-2">Social Media Pro</h4>
                 <p className="text-sm" style={{ color: "#CCCCCC" }}>
@@ -262,15 +238,7 @@ const DevelopersMain: React.FC = () => {
           </p>
           <Link
             to="/login"
-            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300"
-            style={{
-              background:
-                "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
-              backdropFilter: "blur(32px)",
-              border: "1px solid #FF8C8C",
-              boxShadow:
-                "0px 0px 16px 0px #FF8C8C26 inset, 0px 12px 36px 0px #E58C8C2B",
-            }}
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-[0_0_15px_rgba(214,36,36,0.6)] transition-all duration-300"
           >
             START FOR FREE
           </Link>

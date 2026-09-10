@@ -7,8 +7,27 @@ export interface Party {
   address?: string | null;
 }
 
+export const DOCUMENT_TYPES: { id: string; label: string }[] = [
+  { id: "general", label: "General Contract" },
+  { id: "nda", label: "NDA" },
+  { id: "service_agreement", label: "Service Agreement" },
+  { id: "freelancer_agreement", label: "Freelancer Agreement" },
+  { id: "employment_agreement", label: "Employment Agreement" },
+  { id: "contractor_agreement", label: "Contractor Agreement" },
+  { id: "partnership_agreement", label: "Partnership Agreement" },
+  { id: "consulting_agreement", label: "Consulting Agreement" },
+  { id: "terms_of_service", label: "Terms of Service" },
+  { id: "privacy_policy", label: "Privacy Policy" },
+  { id: "refund_policy", label: "Refund Policy" },
+];
+
+export function documentTypeLabel(documentType?: string | null): string {
+  return DOCUMENT_TYPES.find((d) => d.id === documentType)?.label || "General Contract";
+}
+
 export interface CreateContractRequest {
   contractTitle: string;
+  documentType?: string;
   purpose: string;
   priority: string;
   parties: Party[];
@@ -35,6 +54,7 @@ export interface ApiResponse<T> {
 export interface ContractListItem {
   contractId: string;
   contractTitle: string;
+  documentType?: string;
   contractStatus: "active" | "inactive";
   expiryDate: string;
   priority: "low" | "medium" | "high" | "urgent";
@@ -75,6 +95,7 @@ export interface ActiveContractListResponse {
 export interface ContractDetails {
   _id: string;
   contractTitle: string;
+  documentType?: string;
   purpose: string;
   priority: "low" | "medium" | "high" | "urgent";
   parties: Party[];
@@ -181,6 +202,118 @@ export interface UpdateSectionResponse {
   error?: string;
 }
 
+export interface RiskyClause {
+  clause: string;
+  risk: string;
+  explanation: string;
+  severity: "low" | "medium" | "high";
+}
+
+export interface ContractAnalysis {
+  summary: string;
+  obligations: string[];
+  paymentTerms: string[];
+  terminationClauses: string[];
+  riskyClauses: RiskyClause[];
+  plainEnglishExplanation: string;
+}
+
+export interface UploadedContractSummary {
+  _id: string;
+  originalFilename: string;
+  fileUrl: string;
+  analysisStatus: "pending" | "completed" | "failed";
+  createdAt: string;
+}
+
+export interface UploadedContractDetails extends UploadedContractSummary {
+  userId: string;
+  fileKey: string;
+  extractedText: string;
+  textTruncated: boolean;
+  analysis: ContractAnalysis | null;
+  analysisError: string | null;
+}
+
+export interface UploadedContractListResponse {
+  success: boolean;
+  message?: string;
+  data: UploadedContractSummary[];
+  pagination: { currentPage: number; pageSize: number; total: number; totalPages: number };
+}
+
+export interface UploadedContractResponse {
+  success: boolean;
+  message?: string;
+  data?: UploadedContractDetails;
+  error?: string;
+}
+
+export interface ContractComparisonResult {
+  overview: string;
+  keyDifferences: { aspect: string; documentA: string; documentB: string }[];
+  favorability: string;
+  recommendation: string;
+}
+
+export interface CompareContractsResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    documentA: { id: string; name: string };
+    documentB: { id: string; name: string };
+    comparison: ContractComparisonResult;
+  };
+  error?: string;
+}
+
+export interface ComplianceArea {
+  area: string;
+  category: "gdpr" | "security" | "hipaa";
+  status: "covered" | "partial" | "missing" | "not_applicable";
+  finding: string;
+  recommendation: string;
+}
+
+export interface ComplianceResults {
+  overallSummary: string;
+  readinessLevel: "strong" | "needs_work" | "significant_gaps";
+  areas: ComplianceArea[];
+}
+
+export interface ComplianceScanSummary {
+  _id: string;
+  documentName: string;
+  status: "pending" | "completed" | "failed";
+  createdAt: string;
+  results?: { readinessLevel?: ComplianceResults["readinessLevel"] } | null;
+}
+
+export interface ComplianceScanDetails {
+  _id: string;
+  documentName: string;
+  status: "pending" | "completed" | "failed";
+  createdAt: string;
+  userId: string;
+  uploadedContractId: string;
+  error: string | null;
+  results: ComplianceResults | null;
+}
+
+export interface ComplianceScanListResponse {
+  success: boolean;
+  message?: string;
+  data: ComplianceScanSummary[];
+  pagination: { currentPage: number; pageSize: number; total: number; totalPages: number };
+}
+
+export interface ComplianceScanResponse {
+  success: boolean;
+  message?: string;
+  data?: ComplianceScanDetails;
+  error?: string;
+}
+
 /**
  * Ninja Legal Service
  * Handles all ninja-legal related API calls
@@ -284,6 +417,26 @@ export const ninjaLegalService = {
         message:
           error.response?.data?.message || "Failed to update contract",
         error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Delete a contract (cascades to its generated versions and chat history)
+   * @param contractId - Contract ID
+   */
+  async deleteContract(
+    contractId: string
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      const response = await apiClient.delete<{ success: boolean; message?: string }>(
+        `/ai-legal/contracts/${contractId}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to delete contract",
       };
     }
   },
@@ -457,6 +610,196 @@ export const ninjaLegalService = {
         success: false,
         message:
           error.response?.data?.message || "No generated contract found",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Upload a contract document (PDF/DOCX/TXT) and run AI analysis on it
+   */
+  async uploadAndAnalyzeContract(file: File): Promise<UploadedContractResponse> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await apiClient.post<UploadedContractResponse>(
+        "/ai-legal/upload-contract",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to upload and analyze contract",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Retry analysis for an uploaded contract
+   */
+  async reanalyzeContract(id: string): Promise<UploadedContractResponse> {
+    try {
+      const response = await apiClient.post<UploadedContractResponse>(
+        `/ai-legal/uploaded-contract/${id}/reanalyze`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to reanalyze contract",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * List uploaded contracts
+   */
+  async listUploadedContracts(page: number = 1): Promise<UploadedContractListResponse> {
+    try {
+      const response = await apiClient.get<UploadedContractListResponse>(
+        `/ai-legal/uploaded-contracts?page=${page}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch uploaded contracts",
+        data: [],
+        pagination: { currentPage: page, pageSize: 0, total: 0, totalPages: 0 },
+      };
+    }
+  },
+
+  /**
+   * Get an uploaded contract's full details and analysis
+   */
+  async getUploadedContract(id: string): Promise<UploadedContractResponse> {
+    try {
+      const response = await apiClient.get<UploadedContractResponse>(
+        `/ai-legal/uploaded-contract/${id}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch uploaded contract",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Delete an uploaded contract
+   */
+  async deleteUploadedContract(id: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const response = await apiClient.delete<{ success: boolean; message?: string }>(
+        `/ai-legal/uploaded-contract/${id}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to delete uploaded contract",
+      };
+    }
+  },
+
+  /**
+   * Compare two uploaded contracts
+   */
+  async compareContracts(
+    contractIdA: string,
+    contractIdB: string
+  ): Promise<CompareContractsResponse> {
+    try {
+      const response = await apiClient.post<CompareContractsResponse>(
+        "/ai-legal/compare-contracts",
+        { contractIdA, contractIdB }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to compare contracts",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Run a compliance-language scan against a previously-uploaded document
+   */
+  async runComplianceScan(uploadedContractId: string): Promise<ComplianceScanResponse> {
+    try {
+      const response = await apiClient.post<ComplianceScanResponse>(
+        "/ai-legal/compliance-scan",
+        { uploadedContractId }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to run compliance scan",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Re-run a compliance scan
+   */
+  async rerunComplianceScan(scanId: string): Promise<ComplianceScanResponse> {
+    try {
+      const response = await apiClient.post<ComplianceScanResponse>(
+        `/ai-legal/compliance-scan/${scanId}/rerun`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to re-run compliance scan",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * List past compliance scans
+   */
+  async listComplianceScans(page: number = 1): Promise<ComplianceScanListResponse> {
+    try {
+      const response = await apiClient.get<ComplianceScanListResponse>(
+        `/ai-legal/compliance-scans?page=${page}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch compliance scans",
+        data: [],
+        pagination: { currentPage: page, pageSize: 0, total: 0, totalPages: 0 },
+      };
+    }
+  },
+
+  /**
+   * Get a compliance scan's full results
+   */
+  async getComplianceScan(scanId: string): Promise<ComplianceScanResponse> {
+    try {
+      const response = await apiClient.get<ComplianceScanResponse>(
+        `/ai-legal/compliance-scan/${scanId}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch compliance scan",
         error: error.message,
       };
     }

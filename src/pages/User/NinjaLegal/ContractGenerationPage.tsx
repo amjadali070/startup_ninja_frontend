@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { FiZap, FiArrowLeft, FiCheckCircle, FiEdit3 } from "react-icons/fi";
+import { FiZap, FiCheckCircle, FiEdit3 } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi2";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import PreGenerationModal from "../../../components/ninja-legal/PreGenerationModal";
 import GeneratedContractPreview from "../../../components/ninja-legal/GeneratedContractPreview.tsx";
 import DashboardLayout from "../../../layouts/DashboardLayout";
+import LegalPageBanner from "../../../components/ninja-legal/LegalPageBanner";
 
 interface GeneratedContract {
   generatedContractId: string;
@@ -24,6 +25,12 @@ interface GenerateContractLocationState {
   contractId?: string;
   contractTitle?: string;
 }
+
+const formatEffectiveDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
 
 export const ContractGenerationPage = () => {
   const navigate = useNavigate();
@@ -44,10 +51,6 @@ export const ContractGenerationPage = () => {
     setIsPreloaded(false);
   };
 
-  const handleBackToDashboard = () => {
-    navigate("/ai-tools/legal");
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -59,33 +62,22 @@ export const ContractGenerationPage = () => {
   };
 
   return (
-    <DashboardLayout onLogout={handleLogout}>
-      <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
-        <div className="p-4 lg:p-8 space-y-8 max-w-auto mx-auto text-white pb-20">
-          {/* Hero Header Section */}
-          <div className="space-y-6">
-            {/* Back Button & Title */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleBackToDashboard}
-                className="p-2.5 hover:bg-white/5 rounded-xl transition-all duration-200 active:scale-95"
-              >
-                <FiArrowLeft className="w-5 h-5 text-white/60 hover:text-white" />
-              </button>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-lg" />
-                    <FiZap className="w-8 h-8 text-red-500 relative" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl font-black text-white">Contract Generation</h1>
-                    <p className="text-white/50 text-sm mt-1">AI-powered contract generation with live preview</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <DashboardLayout
+      activePath="/ai-tools/legal/generate"
+      title="Contract Generation"
+      onLogout={handleLogout}
+      onSettings={() => navigate("/settings")}
+    >
+      <main className="flex-1 overflow-y-auto bg-[#0D0D0D]">
+        <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 2xl:px-10 py-3 sm:py-4">
+          <div className="w-full max-w-auto mx-auto space-y-6 text-white pb-8">
+          <LegalPageBanner
+            title="Contract Generation"
+            subtitle="AI-powered contract generation with live preview"
+          />
 
+          {/* Progress + Status */}
+          <div className="space-y-6">
             {/* Progress Stepper */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-8 flex-1">
@@ -165,7 +157,7 @@ export const ContractGenerationPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">Effective Date</p>
-                      <p className="text-lg font-black text-white mt-1">{new Date(generatedContract.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                      <p className="text-lg font-black text-white mt-1">{formatEffectiveDate(generatedContract.startDate)}</p>
                     </div>
                     <div className="w-8 h-8 rounded-lg bg-white/10 group-hover:bg-white/20 transition-all flex items-center justify-center">
                       <FiZap className="w-4 h-4 text-white/40" />
@@ -244,6 +236,7 @@ export const ContractGenerationPage = () => {
                 </div>
               )}
             </div>
+          </div>
           </div>
         </div>
       </main>

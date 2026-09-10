@@ -1,6 +1,6 @@
 import { type FC, useState, useEffect } from "react";
 import { FiFileText, FiChevronRight, FiInfo, FiLoader, FiChevronLeft, FiZap } from "react-icons/fi";
-import { ninjaLegalService, ContractDetails } from "../../services/ninja-legal";
+import { ninjaLegalService, ContractDetails, documentTypeLabel } from "../../services/ninja-legal";
 import { ContractListItem, PaginationInfo } from "../../services/ninja-legal";
 import toast from "react-hot-toast";
 
@@ -96,7 +96,9 @@ const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => 
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "-";
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -192,6 +194,13 @@ const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => 
                   
                   {/* Badges Row */}
                   <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Document Type Badge */}
+                    {contract.documentType && contract.documentType !== "general" && (
+                      <span className="text-[8px] font-bold px-2 py-0.5 rounded-md border bg-white/[0.06] text-gray-300 border-white/10">
+                        {documentTypeLabel(contract.documentType)}
+                      </span>
+                    )}
+
                     {/* Status Badge */}
                     <span
                       className={`text-[8px] font-bold px-2 py-0.5 rounded-md border transition-all ${

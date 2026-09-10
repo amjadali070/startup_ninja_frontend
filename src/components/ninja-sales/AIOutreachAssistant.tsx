@@ -21,8 +21,12 @@ import { ninjaSalesService } from "../../services/ninjaSales";
 import type { OutreachDraft, Project, FollowUp } from "../../services/ninjaSales";
 import type { SelectOption } from "../IconSelect";
 
-const fmtShort = (d: string) =>
-  d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+const fmtShort = (d: string) => {
+  if (!d) return "";
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
 
 /** Builds a mailto: URL for the OS default mail client (Outlook, Mail, etc.). */
 function buildMailtoHref(to: string, subject: string, body: string): string {

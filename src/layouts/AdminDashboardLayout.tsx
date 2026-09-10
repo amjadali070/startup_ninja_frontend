@@ -19,6 +19,7 @@ import AdminKpiStatCard from "../components/admin-dashboard/AdminKpiStatCard";
 import AdminServiceUsageCard from "../components/admin-dashboard/AdminServiceUsageCard";
 import AdminInsightLineChart from "../components/admin-dashboard/AdminInsightLineChart";
 import AdminInsightBarChart from "../components/admin-dashboard/AdminInsightBarChart";
+import RecentErrorsPanel from "../components/admin-dashboard/RecentErrorsPanel";
 
 const AdminDashboardLayout: React.FC = () => {
   const { stats, loading, error } = useAdminDashboard();
@@ -145,6 +146,8 @@ const AdminDashboardLayout: React.FC = () => {
                       className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
                         service.status === "healthy"
                           ? "bg-emerald-400/15 text-emerald-200 border border-emerald-300/30"
+                          : service.status === "down"
+                          ? "bg-red-400/15 text-red-300 border border-red-300/30"
                           : "bg-amber-400/15 text-amber-200 border border-amber-300/30"
                       }`}
                     >
@@ -156,6 +159,8 @@ const AdminDashboardLayout: React.FC = () => {
               ))}
             </div>
           </div>
+
+          <RecentErrorsPanel />
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
             {stats.services.map((service) => (

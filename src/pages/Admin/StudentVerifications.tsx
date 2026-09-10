@@ -19,6 +19,12 @@ const STATUS_TABS: { key: string; label: string }[] = [
   { key: 'all', label: 'All' },
 ];
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
+};
+
 const VerificationImage: React.FC<{ id: string }> = ({ id }) => {
   const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -197,7 +203,7 @@ const StudentVerifications: React.FC = () => {
                         {s.status}
                       </span>
                       <span className="text-white/30 text-xs hidden sm:inline">
-                        {new Date(s.submittedAt).toLocaleDateString()}
+                        {formatDate(s.submittedAt)}
                       </span>
                     </div>
                   </div>

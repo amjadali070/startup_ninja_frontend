@@ -8,6 +8,12 @@ import notificationsService, {
   type NotificationItem,
 } from "../../services/notifications";
 
+const formatDateTime = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
+};
+
 interface DashboardTopbarProps {
   userName: string;
   profilePicture?: string | null;
@@ -270,7 +276,7 @@ const DashboardTopbar: FC<DashboardTopbarProps> = ({
             type: (n.type as any) || "info",
             title: n.title,
             message: n.message,
-            timestamp: new Date(n.createdAt).toLocaleString(),
+            timestamp: formatDateTime(n.createdAt),
             read: n.read,
           }))}
           onMarkAsRead={handleMarkAsRead}

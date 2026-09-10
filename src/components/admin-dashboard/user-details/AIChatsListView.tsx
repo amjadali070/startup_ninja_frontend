@@ -7,6 +7,12 @@ interface AIChatsListViewProps {
   setSelectedChat: (chat: AIChat) => void;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const AIChatsListView: React.FC<AIChatsListViewProps> = ({
   aiChats,
   setSelectedChat,
@@ -28,7 +34,7 @@ const AIChatsListView: React.FC<AIChatsListViewProps> = ({
           <div className="flex justify-between items-start mb-3">
             <h4 className="text-white font-semibold text-lg">{chat.title}</h4>
             <span className="text-sm text-gray-500">
-              {new Date(chat.lastMessageAt).toLocaleDateString()}
+              {formatDate(chat.lastMessageAt)}
             </span>
           </div>
 
@@ -46,7 +52,7 @@ const AIChatsListView: React.FC<AIChatsListViewProps> = ({
             </span>
             <span>{chat.messageCount} messages</span>
             <span className="text-xs">
-              Created: {new Date(chat.createdAt).toLocaleDateString()}
+              Created: {formatDate(chat.createdAt)}
             </span>
             <button className="ml-auto text-blue-400 hover:text-blue-300 flex items-center gap-1">
               View Full Chat <FaArrowLeft className="rotate-180" />

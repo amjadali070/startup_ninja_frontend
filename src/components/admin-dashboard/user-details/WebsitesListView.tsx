@@ -8,6 +8,12 @@ interface WebsitesListViewProps {
   onSelectWebsite?: (websiteId: string) => void;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const WebsitesListView: React.FC<WebsitesListViewProps> = ({
   websites,
   WEB_BUILDER_SERVICE_URL,
@@ -69,10 +75,10 @@ const WebsitesListView: React.FC<WebsitesListViewProps> = ({
           )}
           <div className="mt-auto pt-4 border-t border-[#242424] flex flex-col sm:flex-row sm:justify-between gap-2 text-xs sm:text-sm text-gray-500">
             <span className="truncate">
-              Updated: {new Date(website.updatedAt).toLocaleDateString()}
+              Updated: {formatDate(website.updatedAt)}
             </span>
             <span className="truncate">
-              Created: {new Date(website.createdAt).toLocaleDateString()}
+              Created: {formatDate(website.createdAt)}
             </span>
           </div>
           {onSelectWebsite && (

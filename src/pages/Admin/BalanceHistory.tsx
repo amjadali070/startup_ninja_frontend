@@ -16,6 +16,14 @@ import BalanceHistoryTable from "../../components/admin-dashboard/BalanceHistory
 import EditCreditModal from "../../components/admin-dashboard/EditCreditModal";
 import AlertModal from "../../components/AlertModal";
 
+const formatCreditDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "-"
+    : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+};
+
 const BalanceHistory: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -308,11 +316,7 @@ const BalanceHistory: React.FC = () => {
               </span>{" "}
               added on{" "}
               <span className="font-semibold text-white">
-                {new Date(deletingCredit.addedAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
+                {formatCreditDate(deletingCredit.addedAt)}
               </span>
               ? This action will mark it as deleted and exclude it from
               calculations.
@@ -348,11 +352,7 @@ const BalanceHistory: React.FC = () => {
               </span>{" "}
               added on{" "}
               <span className="font-semibold text-white">
-                {new Date(togglingCredit.addedAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
+                {formatCreditDate(togglingCredit.addedAt)}
               </span>
               ?{" "}
               {togglingCredit.isActive

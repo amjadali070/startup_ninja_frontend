@@ -89,7 +89,10 @@ const BillingHistory: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -322,7 +325,7 @@ const BillingHistory: React.FC = () => {
                     <div>
                       <p className="text-gray-500 text-sm mb-1">Date</p>
                       <p className="text-white font-medium">
-                        {new Date(selectedTransaction.createdAt).toLocaleDateString()}
+                        {formatDate(selectedTransaction.createdAt)}
                       </p>
                     </div>
                     

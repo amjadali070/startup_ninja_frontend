@@ -342,7 +342,10 @@ const UserDetailsPage: React.FC = () => {
   }, [fetchUser]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -516,18 +519,26 @@ const UserDetailsPage: React.FC = () => {
   const handleUpdateUser = async () => {
     if (!user) return;
 
-    setUser({
-      ...user,
-      fullname: editForm.fullname,
-      email: editForm.email,
-      phoneNumber: editForm.phoneNumber,
-      country: editForm.country,
-      role: editForm.role as "admin" | "user",
-      status: editForm.status,
-    });
+    try {
+      const response = await adminService.updateUser(user._id, {
+        fullname: editForm.fullname,
+        email: editForm.email,
+        phoneNumber: editForm.phoneNumber,
+        country: editForm.country,
+        role: editForm.role as "admin" | "user",
+        status: editForm.status,
+      });
 
-    toast.success("User profile updated successfully");
-    setViewingEditUser(false);
+      if (response.success) {
+        toast.success("User profile updated successfully");
+        setViewingEditUser(false);
+        fetchUser();
+      } else {
+        toast.error(response.message || "Failed to update user profile.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred while updating the user profile.");
+    }
   };
 
   const toggleFeature = (feature: string) => {

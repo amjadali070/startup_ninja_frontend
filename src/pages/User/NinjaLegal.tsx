@@ -13,6 +13,7 @@ import ActiveContractsList from "../../components/ninja-legal/ActiveContractsLis
 import LegalAIAdvancedModule from "../../components/ninja-legal/LegalAIAdvancedModule";
 import AddContractModal from "../../components/ninja-legal/AddContractModal";
 import ViewContractModal from "../../components/ninja-legal/ViewContractModal";
+import LegalDisclaimerBanner from "../../components/ninja-legal/LegalDisclaimerBanner";
 import { ContractDetails, KpiData, DashboardData, ninjaLegalService } from "../../services/ninja-legal";
 
 
@@ -127,6 +128,10 @@ const NinjaLegal: FC = () => {
         <div className="p-3 sm:p-4 lg:p-6 text-white min-h-screen">
           <NinjaLegalHeader onNewContract={handleNewContract} />
 
+          <div className="mb-6">
+            <LegalDisclaimerBanner />
+          </div>
+
           <NinjaLegalStats dashboardData={dashboardData} isLoading={isDashboardLoading} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
@@ -163,7 +168,7 @@ const NinjaLegal: FC = () => {
         onContractCreated={handleContractCreated}
       />
 
-      <ViewContractModal 
+      <ViewContractModal
         isOpen={isViewModalOpen}
         onClose={() => {
           setIsViewModalOpen(false);
@@ -172,6 +177,7 @@ const NinjaLegal: FC = () => {
         contractData={selectedContractData}
         isLoading={false}
         onContractUpdated={handleContractUpdated}
+        onContractDeleted={handleContractUpdated}
         onOpenChat={handleOpenChatFromModal}
       />
     </DashboardLayout>

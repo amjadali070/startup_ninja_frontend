@@ -16,6 +16,12 @@ interface ChatHistoryPanelProps {
   ) => Promise<boolean> | boolean;
 }
 
+const formatTime = (iso?: string | Date): string => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
 const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
   chats,
   currentChatId,
@@ -158,14 +164,9 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                               className="w-full rounded-md border border-white/15 bg-[#16161A] px-2 py-1 text-xs sm:text-[13px] font-medium text-white placeholder:text-white/40 focus:border-[#DE0500] focus:outline-none"
                               placeholder="Rename chat"
                             />
-                            {chat.lastMessageAt && (
+                            {formatTime(chat.lastMessageAt) && (
                               <span className="text-[11px] text-white/40">
-                                {new Date(
-                                  chat.lastMessageAt
-                                ).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {formatTime(chat.lastMessageAt)}
                               </span>
                             )}
                           </div>
@@ -184,14 +185,9 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
                             >
                               {chat.title || "Untitled chat"}
                             </p>
-                            {chat.lastMessageAt && (
+                            {formatTime(chat.lastMessageAt) && (
                               <span className="text-[10px] sm:text-[11px] text-white/40">
-                                {new Date(
-                                  chat.lastMessageAt
-                                ).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {formatTime(chat.lastMessageAt)}
                               </span>
                             )}
                           </button>

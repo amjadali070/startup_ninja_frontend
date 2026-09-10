@@ -217,7 +217,10 @@ const SchedulingOption: React.FC = () => {
       linkedin: { maxCaption: CAPTION_LIMITS.linkedin, imageRequired: !!IMAGE_REQUIRED.linkedin, maxImageMB: IMAGE_SIZE_LIMIT_MB.linkedin },
     } as const;
 
-    const imageFiles = postData.files.filter(f => f.type === 'image').map(f => f.file);
+    // A video post is mutually exclusive with images — FileUpload.tsx already enforces this
+    // client-side, so at most one of these is ever populated.
+    const videoFile = postData.files.find(f => f.type === 'video')?.file || null;
+    const imageFiles = videoFile ? [] : postData.files.filter(f => f.type === 'image').map(f => f.file);
     const maxImageSizeMB = imageFiles.length > 0 ? Math.max(...imageFiles.map(f => f.size / (1024 * 1024))) : 0;
     const failures: Array<{ platform: string; reason: string }> = [];
 
@@ -228,8 +231,10 @@ const SchedulingOption: React.FC = () => {
         failures.push({ platform: p.name || p.platform, reason: `Caption exceeds ${c.maxCaption} characters` });
         return false;
       }
-      if (c.imageRequired && imageFiles.length === 0) {
-        failures.push({ platform: p.name || p.platform, reason: 'Image is required' });
+      // Instagram accepts a video (Reel) in place of an image — only enforce "image required"
+      // when there's no video attached either.
+      if (c.imageRequired && imageFiles.length === 0 && !videoFile) {
+        failures.push({ platform: p.name || p.platform, reason: 'Image or video is required' });
         return false;
       }
       if (imageFiles.length > 0 && maxImageSizeMB > c.maxImageMB) {
@@ -259,6 +264,7 @@ const SchedulingOption: React.FC = () => {
             targetAccounts: p.targetPageId ? { [p.platform]: [p.targetPageId] } : undefined
         })),
         imageFiles,
+        videoFile,
         targetAccounts: postData.targetAccounts,
         timezone: ianaTimezone,
       });
@@ -345,8 +351,9 @@ const SchedulingOption: React.FC = () => {
         formData.append('facebook_pages', JSON.stringify(postData.targetAccounts['facebook']));
       }
 
-      // A video post (Reel) only goes to Instagram/Facebook — LinkedIn/X image-upload
-      // isn't built for video, so the shared FormData never gets a 'video' field sent their way.
+      // A video post is mutually exclusive with images across all four platforms — each
+      // platform's real video API (Instagram Reels, Facebook Video, LinkedIn Videos API,
+      // X's chunked upload) is called instead of the image path below.
       const videoFile = postData.files.find(f => f.type === 'video');
       const isVideoPost = !!videoFile;
 
@@ -363,13 +370,8 @@ const SchedulingOption: React.FC = () => {
       const results = [];
       const errors = [];
 
-      if (isVideoPost && (postData.selectedPlatforms.includes('linkedin') || postData.selectedPlatforms.includes('x'))) {
-        if (postData.selectedPlatforms.includes('linkedin')) errors.push('LinkedIn: Video posts are not supported yet — post to Instagram or Facebook instead.');
-        if (postData.selectedPlatforms.includes('x')) errors.push('X (Twitter): Video posts are not supported yet — post to Instagram or Facebook instead.');
-      }
-
-      // Post to LinkedIn if selected (image/text posts only)
-      if (!isVideoPost && postData.selectedPlatforms.includes('linkedin')) {
+      // Post to LinkedIn if selected (image/text or video — LinkedIn's real Videos API)
+      if (postData.selectedPlatforms.includes('linkedin')) {
         try {
           const linkedinResult = await linkedinService.postToLinkedIn(formData);
           if (linkedinResult.success) {
@@ -386,8 +388,8 @@ const SchedulingOption: React.FC = () => {
         }
       }
 
-      // Post to Twitter if selected (image/text posts only)
-      if (!isVideoPost && postData.selectedPlatforms.includes('x')) {
+      // Post to Twitter if selected (image/text or video — X's real chunked video upload)
+      if (postData.selectedPlatforms.includes('x')) {
         try {
           const twitterResult = await twitterService.postToTwitter(formData);
           if (twitterResult.success) {

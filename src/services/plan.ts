@@ -5,6 +5,7 @@ export interface PlanLimit {
   social_posts: number;
   ai_post_writer: number;
   generated_images: number;
+  file_uploads: number;
   website_creation: number;
   website_hosting: number;
   single_page_website: boolean;

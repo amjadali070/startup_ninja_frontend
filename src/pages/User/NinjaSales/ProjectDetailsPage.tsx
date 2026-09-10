@@ -53,8 +53,24 @@ const priorityLabels: Record<string, string> = {
   low: "Low", medium: "Medium", high: "High", urgent: "Urgent",
 };
 
-const formatDate = (d: string) =>
-  d ? new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A";
+const formatDate = (d: string) => {
+  if (!d) return "N/A";
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return "N/A";
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+};
+
+const formatDateMD = (d?: string) => {
+  if (!d) return "N/A";
+  const date = new Date(d);
+  return Number.isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+const formatDateOrDash = (d?: string) => {
+  if (!d) return "—";
+  const date = new Date(d);
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
+};
 
 const pipelineStages = ["new", "contacted", "qualified", "proposal", "negotiation", "converted", "closed-won"];
 
@@ -404,7 +420,7 @@ const ProjectDetailsPage: FC = () => {
                             <p className={`text-sm font-bold ${fu.completed ? 'text-white/40 line-through' : 'text-white'}`}>{fu.title}</p>
                             <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-white/5 text-white/30">{fu.type}</span>
                           </div>
-                          <p className="text-[10px] text-white/30 mt-0.5">Due: {fu.dueDate ? new Date(fu.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "N/A"}</p>
+                          <p className="text-[10px] text-white/30 mt-0.5">Due: {formatDateMD(fu.dueDate)}</p>
                         </div>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${fu.urgency === "HIGH" ? "bg-red-500/10 text-red-500" : fu.urgency === "MEDIUM" ? "bg-orange-500/10 text-orange-500" : "bg-white/5 text-white/30"}`}>{fu.urgency}</span>
@@ -513,8 +529,8 @@ const ProjectDetailsPage: FC = () => {
                         </td>
                         <td className="px-8 py-6 text-sm font-medium text-white/40">{doc.clientName || "—"}</td>
                         <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.reference}</td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.issuedDate ? new Date(doc.issuedDate).toLocaleDateString() : "—"}</td>
-                        <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.dueDate ? new Date(doc.dueDate).toLocaleDateString() : "—"}</td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/30">{formatDateOrDash(doc.issuedDate)}</td>
+                        <td className="px-8 py-6 text-sm font-medium text-white/30">{formatDateOrDash(doc.dueDate)}</td>
                         <td className="px-8 py-6 text-sm font-black text-white text-right">${Number(doc.total || 0).toLocaleString()}</td>
                         <td className="px-8 py-6">
                           <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest uppercase ${doc.status === "SENT" ? "bg-white/5 text-white/40" : "bg-red-500/10 text-red-500"}`}>

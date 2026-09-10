@@ -11,6 +11,12 @@ interface SocialPostsListViewProps {
   >;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
   socialPosts,
   setSelectedPost,
@@ -180,7 +186,7 @@ const SocialPostsListView: React.FC<SocialPostsListViewProps> = ({
                 )}
 
               <div className="flex items-center justify-between text-xs text-gray-500 border-t border-[#242424] pt-3 mt-auto">
-                <span>{new Date(post.scheduledAt).toLocaleDateString()}</span>
+                <span>{formatDate(post.scheduledAt)}</span>
                 <button className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
                   View <FaArrowLeft className="rotate-180 text-xs" />
                 </button>

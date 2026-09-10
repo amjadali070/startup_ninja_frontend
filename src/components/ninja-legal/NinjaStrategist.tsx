@@ -197,18 +197,6 @@ const NinjaStrategist: FC<NinjaStrategistProps> = ({
     }
   };
 
-  // const handleGenerateContract = () => {
-  //   if (!contractData?._id || disabled) return;
-
-  //   console.log("Generate Contract clicked", {
-  //     contractId: contractData._id,
-  //     contractTitle: contractData.contractTitle,
-  //     chatMessages: messages,
-  //   });
-    
-  //   toast.success("Contract generation initiated!");
-  // };
-
   if (disabled || !contractData) {
     return (
       <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-6 flex items-center justify-center h-full">

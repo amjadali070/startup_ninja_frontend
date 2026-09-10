@@ -67,6 +67,22 @@ export interface UserPreferences {
   theme: string;
 }
 
+export interface BusinessProfile {
+  businessName: string;
+  industry: string;
+  description: string;
+  targetCustomer: string;
+  website: string;
+  socialAccounts: string[];
+  products: string;
+  brandTone: string;
+  goals: string;
+  completedOnboarding: boolean;
+  skippedOnboarding: boolean;
+}
+
+export type UpdateBusinessProfileRequest = Partial<BusinessProfile>;
+
 export const userService = {
   /**
    * Get the current user's profile
@@ -217,6 +233,65 @@ export const userService = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to re-subscribe',
+      };
+    }
+  },
+
+  /**
+   * Get the current user's business profile (data is null until onboarding
+   * has been started at least once).
+   */
+  async getBusinessProfile(): Promise<{ success: boolean; data?: BusinessProfile | null; message?: string }> {
+    try {
+      const response = await apiClient.get<{ success: boolean; data: BusinessProfile | null }>('/user/business-profile');
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch business profile'
+      };
+    }
+  },
+
+  /**
+   * Create/update the current user's business profile (upsert) — used by both
+   * the onboarding wizard and the Settings "Business Info" section.
+   */
+  async updateBusinessProfile(data: UpdateBusinessProfileRequest): Promise<{ success: boolean; data?: BusinessProfile; message?: string }> {
+    try {
+      const response = await apiClient.put<{ success: boolean; data: BusinessProfile }>('/user/business-profile', data);
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update business profile'
+      };
+    }
+  },
+
+  /**
+   * Export the account data we hold for this user and trigger a client-side
+   * download. Scoped to this service's own data (profile, preferences,
+   * business profile, subscription, transactions) — not every microservice's
+   * content.
+   */
+  async exportMyData(): Promise<{ success: boolean; message?: string }> {
+    try {
+      const data = await apiClient.get<Record<string, unknown>>('/user/export-data');
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `startup-ninja-data-export-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to export data'
       };
     }
   },

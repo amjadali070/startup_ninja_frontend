@@ -12,6 +12,12 @@ import AlertModal from "../AlertModal";
 import { useAuth } from "../../hooks/useAuth";
 import { ninjaSalesService, Project } from "../../services/ninjaSales";
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
+
 const stageColor: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-400",
   contacted: "bg-purple-500/10 text-purple-400",
@@ -263,7 +269,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
                     </span>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="text-white/50 text-sm">{new Date(project.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</div>
+                    <div className="text-white/50 text-sm">{formatDate(project.createdAt)}</div>
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2">

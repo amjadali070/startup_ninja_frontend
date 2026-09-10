@@ -15,6 +15,12 @@ interface SubscriptionTabProps {
   user: ExtendedUserDetails;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -23,6 +29,24 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [refundingId, setRefundingId] = useState<string | null>(null);
+  const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
+
+  const handleRefund = async (transactionId: string) => {
+    if (!window.confirm("Issue a real Stripe refund for this transaction? This cannot be undone.")) return;
+    setRefundingId(transactionId);
+    try {
+      const res = await adminService.issueRefund(transactionId);
+      if (res.success) {
+        toast.success(res.message || "Refund issued.");
+        setRefundedIds((prev) => new Set(prev).add(transactionId));
+      } else {
+        toast.error(res.message || "Failed to issue refund.");
+      }
+    } finally {
+      setRefundingId(null);
+    }
+  };
 
   useEffect(() => {
     planService.getAllPlans().then((res) => {
@@ -86,12 +110,12 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
             >
               {user.subscription.plan}
             </span>
-            {/* <button
+            <button
                 onClick={() => setIsEditing(!isEditing)}
                 className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold transition whitespace-nowrap"
             >
                 {isEditing ? 'Cancel Edit' : 'Update Plan'}
-            </button> */}
+            </button>
           </div>
         </div>
 
@@ -198,9 +222,7 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 Next Billing
               </p>
               <p className="text-white font-bold">
-                {new Date(
-                  user.subscription.nextBillingDate
-                ).toLocaleDateString()}
+                {formatDate(user.subscription.nextBillingDate)}
               </p>
             </div>
           </div>
@@ -257,6 +279,9 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 <th className="pb-3 text-gray-400 font-medium text-sm">
                   Invoice
                 </th>
+                <th className="pb-3 text-gray-400 font-medium text-sm">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -266,7 +291,7 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                   className="border-b border-[#242424] last:border-0"
                 >
                   <td className="py-4 text-white text-sm">
-                    {new Date(txn.date).toLocaleDateString()}
+                    {formatDate(txn.date)}
                   </td>
                   <td className="py-4 text-gray-300 text-sm">
                     {txn.description}
@@ -301,6 +326,21 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                       <span className="text-gray-600 text-sm cursor-not-allowed">
                         Download
                       </span>
+                    )}
+                  </td>
+                  <td className="py-4">
+                    {txn.status === "succeeded" && txn.description !== "refund" && !refundedIds.has(txn.id) ? (
+                      <button
+                        onClick={() => handleRefund(txn.id)}
+                        disabled={refundingId === txn.id}
+                        className="text-red-400 hover:text-red-300 text-sm font-medium disabled:opacity-50"
+                      >
+                        {refundingId === txn.id ? "Refunding…" : "Refund"}
+                      </button>
+                    ) : refundedIds.has(txn.id) ? (
+                      <span className="text-gray-500 text-sm">Refunded</span>
+                    ) : (
+                      <span className="text-gray-600 text-sm">—</span>
                     )}
                   </td>
                 </tr>

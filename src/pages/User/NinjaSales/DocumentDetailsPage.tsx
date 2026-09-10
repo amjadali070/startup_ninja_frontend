@@ -18,6 +18,12 @@ const statusStyle: Record<string, string> = {
   DRAFT: "text-white/40 bg-white/5",
 };
 
+const formatDocDate = (value?: string): string => {
+  if (!value) return "";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString();
+};
+
 const formatMoney = (value: number, currency: string) => {
   try {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(value || 0);
@@ -782,9 +788,9 @@ const DocumentDetailsPage: FC = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-black text-black/40 uppercase">Issued</p>
-                      <p className="text-sm font-bold">{issuedDate ? new Date(issuedDate).toLocaleDateString() : (doc.issuedDate ? new Date(doc.issuedDate).toLocaleDateString() : "—")}</p>
+                      <p className="text-sm font-bold">{formatDocDate(issuedDate) || formatDocDate(doc.issuedDate) || "—"}</p>
                       <p className="text-xs font-black text-black/40 uppercase mt-2">{docKind === "invoice" ? "Due" : "Expiry"}</p>
-                      <p className="text-sm font-bold">{dueDate ? new Date(dueDate).toLocaleDateString() : (doc.dueDate ? new Date(doc.dueDate).toLocaleDateString() : "—")}</p>
+                      <p className="text-sm font-bold">{formatDocDate(dueDate) || formatDocDate(doc.dueDate) || "—"}</p>
                     </div>
                   </div>
 

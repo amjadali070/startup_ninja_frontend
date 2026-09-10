@@ -13,6 +13,18 @@ interface ChatDetailViewProps {
   setSelectedChat: (chat: AIChat | null) => void;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
+const formatTime = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
 const ChatDetailView: React.FC<ChatDetailViewProps> = ({
   selectedChat,
   user,
@@ -39,7 +51,7 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
             <p className="text-gray-400">
               {user?.fullname || user?.username} • {selectedChat.messageCount}{" "}
               messages • Created{" "}
-              {new Date(selectedChat.createdAt).toLocaleDateString()}
+              {formatDate(selectedChat.createdAt)}
             </p>
           </div>
         </div>
@@ -84,10 +96,7 @@ const ChatDetailView: React.FC<ChatDetailViewProps> = ({
                       message.role === "user" ? "text-red-200" : "text-gray-500"
                     }`}
                   >
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatTime(message.timestamp)}
                   </span>
                 </div>
                 {message.role === "user" ? (

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const HeroSection: React.FC = () => (
-    <section className="relative w-full h-screen overflow-hidden bg-black flex flex-col items-center">
+    <section className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col items-center">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
             <img 
@@ -23,16 +23,16 @@ const HeroSection: React.FC = () => (
         </div>
 
         {/* Ninja Image - Middle Layer */}
-        <div className="absolute bottom-20 inset-x-0 z-20 hidden md:flex justify-center items-end pointer-events-none h-full mr-10">
+        {/* <div className="absolute bottom-20 inset-x-0 z-20 hidden md:flex justify-center items-end pointer-events-none h-full mr-10">
             <img 
                 src="/images/hero-ninja.png" 
                 alt="Ninja AI" 
                 className="h-[30vh] md:h-[45vh] object-contain object-bottom animate-slideUp"
             />
-        </div>
+        </div> */}
 
         {/* Buttons Layer - Top Layer (Interactive) */}
-        <div className="absolute bottom-4 md:bottom-8 z-30 flex flex-col md:flex-row gap-4 md:gap-6 w-full justify-center px-4 animate-fadeIn delay-100">
+        <div className="absolute bottom-10 md:bottom-8 z-30 flex flex-col md:flex-row gap-3 md:gap-6 w-full justify-center px-4 animate-fadeIn delay-100">
             <Link 
                 to="/login" 
                 className="px-8 py-4 bg-[#d62424] hover:bg-[#b91c1c] text-white rounded-md font-bold text-lg transition-all transform hover:scale-105 shadow-lg text-center"

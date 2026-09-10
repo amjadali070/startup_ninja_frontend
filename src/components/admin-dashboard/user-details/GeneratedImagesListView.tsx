@@ -6,6 +6,18 @@ interface GeneratedImagesListViewProps {
   images: GeneratedImage[];
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
+const formatDateTime = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
+};
+
 const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
   images,
 }) => {
@@ -45,7 +57,7 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
                   <FaRobot className="text-purple-400" />
                   {image.modelUsed.split("/").pop() || "AI"}
                 </span> */}
-                <span>{new Date(image.createdAt).toLocaleDateString()}</span>
+                <span>{formatDate(image.createdAt)}</span>
               </div>
             </div>
 
@@ -84,7 +96,7 @@ const GeneratedImagesListView: React.FC<GeneratedImagesListViewProps> = ({
                   <FaMagic className="text-purple-500" /> Image Details
                 </h3>
                 <span className="text-gray-400 text-sm">
-                  Created on {new Date(selectedImage.createdAt).toLocaleString()}
+                  Created on {formatDateTime(selectedImage.createdAt)}
                 </span>
               </div>
 

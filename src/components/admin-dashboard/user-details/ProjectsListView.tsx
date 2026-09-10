@@ -6,6 +6,12 @@ interface ProjectsListViewProps {
   projects: Project[];
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const ProjectsListView: React.FC<ProjectsListViewProps> = ({ projects }) => {
   if (!projects || projects.length === 0) {
     return (
@@ -42,7 +48,7 @@ const ProjectsListView: React.FC<ProjectsListViewProps> = ({ projects }) => {
           <div className="flex items-center gap-4 mt-4 pt-4 border-t border-[#242424]">
             <div className="flex items-center gap-2 text-gray-400">
               <FaCalendarAlt className="text-xs" />
-              <span className="text-[10px]">{new Date(project.createdAt).toLocaleDateString()}</span>
+              <span className="text-[10px]">{formatDate(project.createdAt)}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-400">
               <FaTag className="text-xs" />

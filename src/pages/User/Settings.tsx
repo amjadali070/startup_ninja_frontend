@@ -15,6 +15,10 @@ import LoadingSpinner from "../../components/LoadingSpinner.tsx";
 import ProfileIdentityForm, {
   ProfileFormState,
 } from "../../components/settings/ProfileIdentityForm.tsx";
+import BusinessInfoForm, {
+  BusinessInfoFormState,
+  emptyBusinessInfoForm,
+} from "../../components/settings/BusinessInfoForm.tsx";
 import ChangePassword, {
   ChangePasswordFormState,
 } from "../../components/settings/ChangePassword.tsx";
@@ -23,6 +27,7 @@ import LanguageRegionForm, {
 } from "../../components/settings/LanguageRegionForm.tsx";
 import PaymentMethodCard from "../../components/settings/PaymentMethodCard.tsx";
 import DeleteAccountForm from "../../components/settings/DeleteAccountForm.tsx";
+import ConnectionsAndDataCard from "../../components/settings/ConnectionsAndDataCard.tsx";
 import CurrentPlanCard from "../../components/settings/CurrentPlanCard.tsx";
 import PlansOverview from "../../components/settings/PlansOverview.tsx";
 import PlanSelectionModal from "../../components/settings/PlanSelectionModal.tsx";
@@ -75,6 +80,8 @@ const Settings: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [businessInfoForm, setBusinessInfoForm] = useState<BusinessInfoFormState>(emptyBusinessInfoForm());
+  const [isSavingBusinessInfo, setIsSavingBusinessInfo] = useState(false);
 
   // Modal states
   const [showPlanSelectionModal, setShowPlanSelectionModal] = useState(false);
@@ -88,21 +95,11 @@ const Settings: FC = () => {
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
     username: "",
     email: "",
-    company: "",
-    jobTitle: "",
-    location: "",
-    timezone: "UTC",
-    bio: "",
   });
 
   const [profileBaseline, setProfileBaseline] = useState<ProfileFormState>({
     username: "",
     email: "",
-    company: "",
-    jobTitle: "",
-    location: "",
-    timezone: "UTC",
-    bio: "",
   });
 
   const [changePasswordForm, setChangePasswordForm] =
@@ -115,7 +112,11 @@ const Settings: FC = () => {
   const [languageRegionForm, setLanguageRegionForm] =
     useState<LanguageRegionFormState>({
       language: "English",
-      timezone: "PST (Pacific Standard Time)",
+      // Real IANA id, matching the backend's own default (UserPreferences.timezone) — this
+      // used to be a legacy display string ("PST (Pacific Standard Time)"), which would get
+      // saved verbatim if the user hit "Save" before the real /user/preferences fetch
+      // resolved, reintroducing a non-IANA value into the DB.
+      timezone: "UTC",
       dateFormat: "MM/DD/YY",
     });
 
@@ -184,25 +185,25 @@ const Settings: FC = () => {
 
     const fetchData = async () => {
       try {
-        const [profileRes, preferencesRes, subscriptionRes, plansRes] = await Promise.all(
+        const [profileRes, preferencesRes, subscriptionRes, plansRes, businessProfileRes] = await Promise.all(
           [
             userService.getProfile(),
             userService.getPreferences(),
             subscriptionService.getSubscription(),
             planService.getAllPlans(),
+            userService.getBusinessProfile(),
           ]
         );
+
+        if (businessProfileRes.success) {
+          setBusinessInfoForm(emptyBusinessInfoForm(businessProfileRes.data));
+        }
 
         if (profileRes.success && profileRes.user) {
           setProfile(profileRes.user);
           const hydratedForm: ProfileFormState = {
             username: profileRes.user.username ?? "",
             email: profileRes.user.email ?? "",
-            company: "",
-            jobTitle: "",
-            location: "",
-            timezone: "UTC",
-            bio: "",
           };
           setProfileForm(hydratedForm);
           setProfileBaseline(hydratedForm);
@@ -364,6 +365,46 @@ const Settings: FC = () => {
     setProfileImageDraft("");
     setSelectedImageFile(null);
     toast.success("Profile image removed. Save your profile to confirm.");
+  };
+
+  const handleBusinessInfoChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setBusinessInfoForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBusinessInfoSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSavingBusinessInfo(true);
+    try {
+      const response = await userService.updateBusinessProfile({
+        businessName: businessInfoForm.businessName.trim(),
+        industry: businessInfoForm.industry.trim(),
+        website: businessInfoForm.website.trim(),
+        description: businessInfoForm.description.trim(),
+        targetCustomer: businessInfoForm.targetCustomer.trim(),
+        products: businessInfoForm.products.trim(),
+        brandTone: businessInfoForm.brandTone.trim(),
+        goals: businessInfoForm.goals.trim(),
+        socialAccounts: businessInfoForm.socialAccounts
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        completedOnboarding: true,
+      });
+      if (response.success && response.data) {
+        setBusinessInfoForm(emptyBusinessInfoForm(response.data));
+        toast.success("Business info updated.");
+      } else {
+        toast.error(response.message || "Failed to update business info.");
+      }
+    } catch (err) {
+      console.error("Business info update failed:", err);
+      toast.error("Something went wrong while saving your business info.");
+    } finally {
+      setIsSavingBusinessInfo(false);
+    }
   };
 
   const handleChangePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -654,7 +695,7 @@ const Settings: FC = () => {
               </div>
             ) : null}
 
-            <div className="grid gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 xs:gap-5 sm:gap-6 md:gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-6">
               <div className="space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-6">
                 <ProfileIdentityForm
                   displayName={
@@ -674,6 +715,13 @@ const Settings: FC = () => {
                       ? handleProfileImageRemove
                       : undefined
                   }
+                />
+
+                <BusinessInfoForm
+                  form={businessInfoForm}
+                  isSaving={isSavingBusinessInfo}
+                  onChange={handleBusinessInfoChange}
+                  onSubmit={handleBusinessInfoSubmit}
                 />
 
                   <ChangePassword
@@ -706,6 +754,7 @@ const Settings: FC = () => {
                   onChange={handleLanguageRegionChange}
                   onSubmit={handleLanguageRegionSubmit}
                 />
+                <ConnectionsAndDataCard />
               </aside>
             </div>
 

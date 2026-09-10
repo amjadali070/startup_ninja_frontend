@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiSearch, FiUser, FiCheckCircle, FiEdit, FiTrash2, FiDownload, FiUsers, FiShield, FiXCircle, FiFilter } from "react-icons/fi";
+import { FiSearch, FiUser, FiCheckCircle, FiEdit, FiTrash2, FiDownload, FiUsers, FiShield, FiXCircle, FiFilter, FiMail, FiClock, FiUserPlus } from "react-icons/fi";
 import { TeamMember, teamService } from "../../services/team";
 import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
@@ -9,9 +9,12 @@ import AlertModal from "../AlertModal";
 interface TeamTableProps {
   members: TeamMember[];
   onRefresh: () => void;
+  onAddMember?: () => void;
 }
 
-const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
+const PAGE_SIZE = 10;
+
+const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh, onAddMember }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -19,17 +22,43 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const filteredTeam = members.filter((member: TeamMember) => {
     const matchesSearch = member.fullname?.toLowerCase().includes(search.toLowerCase()) || member.email?.toLowerCase().includes(search.toLowerCase());
     const matchesRole = roleFilter === "all" || member.teamRole?.toLowerCase() === roleFilter.toLowerCase();
-    
+
     let matchesStatus = true;
     if (statusFilter === "active") matchesStatus = member.status === 1;
     if (statusFilter === "inactive") matchesStatus = member.status === 0;
 
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, roleFilter, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTeam.length / PAGE_SIZE));
+  const pagedTeam = filteredTeam.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleResendInvitation = async (member: TeamMember) => {
+    setResendingId(member._id);
+    const res = await teamService.resendInvitation(member._id);
+    setResendingId(null);
+    if (res.success) {
+      // A present message on a successful resend means the email itself failed to send even
+      // though the token was regenerated — surface that as a warning, not a plain success.
+      if (res.message) {
+        toast.error(res.message);
+      } else {
+        toast.success(`Invitation resent to ${member.email}`);
+      }
+    } else {
+      toast.error(res.message || "Failed to resend invitation");
+    }
+  };
 
   const handleExportCSV = () => {
     if (filteredTeam.length === 0) {
@@ -145,7 +174,30 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredTeam.length === 0 ? (
+            {members.length === 0 ? (
+              <tr>
+                <td colSpan={6}>
+                  <div className="flex flex-col items-center justify-center py-16 px-4">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
+                      <FiUserPlus className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-lg font-medium text-white mb-2">No team members yet</h3>
+                    <p className="text-white/40 text-sm max-w-md text-center mb-5">
+                      Invite your first teammate to start collaborating — they'll get an email to set up their own access.
+                    </p>
+                    {onAddMember && (
+                      <button
+                        onClick={onAddMember}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white rounded-xl py-2.5 px-5 text-sm font-semibold transition-all"
+                      >
+                        <FiUserPlus className="w-4 h-4" />
+                        Add your first member
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ) : filteredTeam.length === 0 ? (
               <tr>
                 <td colSpan={6}>
                   <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -160,7 +212,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
                 </td>
               </tr>
             ) : (
-              filteredTeam.map((member) => (
+              pagedTeam.map((member) => (
                 <tr key={member._id} className="group hover:bg-white/[0.01] transition-colors">
                   <td className="px-6 py-4 border-b border-white/5">
                     <div className="flex items-center gap-4">
@@ -191,12 +243,29 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 border-b border-white/5">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyle(member.status)}`}>
-                      {member.status === 1 ? <FiCheckCircle className="text-xs" /> : <FiXCircle className="text-xs" />}
-                      {member.status === 1 ? "Active" : "Inactive"}
-                    </span>
+                    {member.invitePending ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border bg-amber-500/10 text-amber-500 border-amber-500/20">
+                        <FiClock className="text-xs" />
+                        Pending invite
+                      </span>
+                    ) : (
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyle(member.status)}`}>
+                        {member.status === 1 ? <FiCheckCircle className="text-xs" /> : <FiXCircle className="text-xs" />}
+                        {member.status === 1 ? "Active" : "Inactive"}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 border-b border-white/5 text-right">
+                    {member.invitePending && (
+                      <button
+                        onClick={() => handleResendInvitation(member)}
+                        disabled={resendingId === member._id}
+                        className="p-2 text-white/30 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
+                        title="Resend Invitation"
+                      >
+                        <FiMail className="w-5 h-5" />
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/manage-team/${member._id}/edit`)}
                       className="p-2 text-white/30 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
@@ -222,12 +291,28 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh }) => {
         </table>
       </div>
 
-      {/* Pagination Placeholder */}
+      {/* Pagination */}
       <div className="p-6 flex items-center justify-between text-sm text-white/40">
-        <div>Showing {filteredTeam.length} members</div>
+        <div>
+          {filteredTeam.length === 0
+            ? "Showing 0 members"
+            : `Showing ${(page - 1) * PAGE_SIZE + 1}-${Math.min(page * PAGE_SIZE, filteredTeam.length)} of ${filteredTeam.length} members`}
+        </div>
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50" disabled>Previous</button>
-          <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50" disabled>Next</button>
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       </div>
 

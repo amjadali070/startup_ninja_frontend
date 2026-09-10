@@ -3,6 +3,7 @@ import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { ContractDetails, ninjaLegalService } from "../../services/ninja-legal";
+import AlertModal from "../AlertModal";
 
 interface Party {
   name: string;
@@ -24,6 +25,7 @@ interface ViewContractModalProps {
   contractData?: ContractDetails;
   isLoading?: boolean;
   onContractUpdated?: () => void;
+  onContractDeleted?: () => void;
   onOpenChat?: (contractData: ContractDetails) => void;
 }
 
@@ -33,12 +35,15 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
   contractData,
   isLoading = false,
   onContractUpdated,
+  onContractDeleted,
   onOpenChat,
 }) => {
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [contractTitle, setContractTitle] = useState(contractData?.contractTitle || "");
   const [purpose, setPurpose] = useState(contractData?.purpose || "");
   const [priority, setPriority] = useState(contractData?.priority || "high");
@@ -59,7 +64,9 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
   if (!isOpen) return null;
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "-";
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -182,6 +189,26 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
       }));
       setParties(partiesData);
       setIsEditMode(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!contractData?._id) return;
+    setIsDeleting(true);
+    try {
+      const response = await ninjaLegalService.deleteContract(contractData._id);
+      if (response.success) {
+        toast.success("Contract deleted");
+        setIsDeleteConfirmOpen(false);
+        onContractDeleted?.();
+        onClose();
+      } else {
+        toast.error(response.message || "Failed to delete contract");
+      }
+    } catch (error) {
+      toast.error("Failed to delete contract");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -745,6 +772,16 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
                 Generate Contract
               </button>
             )}
+            {!isEditMode && contractData && (
+              <button
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                className="px-4 py-2.5 text-sm font-semibold text-red-400 hover:text-white hover:bg-red-600 border border-red-500/30 hover:border-red-600 rounded-lg transition-all flex items-center gap-2"
+                title="Delete Contract"
+              >
+                <FiTrash2 className="w-4 h-4" />
+                Delete
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-3">
             {isEditMode ? (
@@ -782,6 +819,20 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
           </div>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Contract"
+        message="This will permanently delete this contract along with any AI-generated versions and chat history. This cannot be undone."
+        type="danger"
+        action="delete"
+        confirmText="Delete Forever"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </div>
   );
 };

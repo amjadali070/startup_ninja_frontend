@@ -16,6 +16,18 @@ interface SingleWebsiteAnalyticsViewProps {
   WEB_BUILDER_SERVICE_URL: string;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
+const formatDateTime = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
+};
+
 const SingleWebsiteAnalyticsView: React.FC<
   SingleWebsiteAnalyticsViewProps
 > = ({ websiteId, onBack, WEB_BUILDER_SERVICE_URL }) => {
@@ -85,6 +97,8 @@ const SingleWebsiteAnalyticsView: React.FC<
   }
 
   const { websiteInfo, storage, assets, pages } = analytics;
+  const publishedAtDate = websiteInfo.publishedAt ? new Date(websiteInfo.publishedAt) : null;
+  const isPublishedAtValid = !!publishedAtDate && !Number.isNaN(publishedAtDate.getTime());
 
   return (
     <div className="space-y-6">
@@ -136,12 +150,12 @@ const SingleWebsiteAnalyticsView: React.FC<
             )}
           </div>
           <div className="text-left lg:text-right text-xs sm:text-sm text-gray-500 space-y-1">
-            <p>Created: {new Date(websiteInfo.createdAt).toLocaleDateString()}</p>
-            <p>Updated: {new Date(websiteInfo.updatedAt).toLocaleDateString()}</p>
-            {websiteInfo.publishedAt && (
+            <p>Created: {formatDate(websiteInfo.createdAt)}</p>
+            <p>Updated: {formatDate(websiteInfo.updatedAt)}</p>
+            {isPublishedAtValid && (
               <>
                 <p className="text-green-400 font-medium mt-1">
-                  Published: {new Date(websiteInfo.publishedAt).toLocaleDateString()}
+                  Published: {formatDate(websiteInfo.publishedAt)}
                 </p>
                 {websiteInfo.daysPublished !== null && websiteInfo.daysPublished !== undefined && (
                   <p className="text-blue-400 text-xs">
@@ -294,7 +308,7 @@ const SingleWebsiteAnalyticsView: React.FC<
                         </span>
                       </td>
                       <td className="py-3 text-gray-400 text-xs sm:text-sm pl-2 whitespace-nowrap">
-                        {new Date(asset.uploadedAt).toLocaleDateString()}
+                        {formatDate(asset.uploadedAt)}
                       </td>
                     </tr>
                   ))}
@@ -307,7 +321,7 @@ const SingleWebsiteAnalyticsView: React.FC<
 
       {/* Last Updated */}
       <div className="text-center text-gray-500 text-xs sm:text-sm">
-        Last updated: {new Date(analytics.lastUpdated).toLocaleString()}
+        Last updated: {formatDateTime(analytics.lastUpdated)}
       </div>
     </div>
   );

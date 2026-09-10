@@ -28,7 +28,7 @@ const LegalAIAdvancedModule: FC<LegalAIAdvancedModuleProps> = ({ onNewContract }
         </p>
 
         <div className="flex flex-wrap gap-4">
-          <button 
+          <button
             className="px-6 py-3 bg-[#dc2626] hover:bg-[#DC2626] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#dc262620] active:scale-95"
             onClick={onNewContract}
           >
@@ -36,6 +36,12 @@ const LegalAIAdvancedModule: FC<LegalAIAdvancedModuleProps> = ({ onNewContract }
           </button>
           <Link to="/ai-tools/legal/generate" className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">
             Contract Generation
+          </Link>
+          <Link to="/ai-tools/legal/analyze" className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">
+            Analyze a Contract
+          </Link>
+          <Link to="/ai-tools/legal/compare" className="px-6 py-3 bg-[#1a1a1a] hover:bg-[#252525] text-white border border-white/10 rounded-xl font-bold text-sm transition-all active:scale-95">
+            Compare Contracts
           </Link>
         </div>
       </div>

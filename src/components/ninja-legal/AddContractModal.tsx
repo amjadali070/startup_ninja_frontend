@@ -13,7 +13,7 @@ import {
   FiLoader,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { ninjaLegalService, ContractDetails } from "../../services/ninja-legal";
+import { ninjaLegalService, ContractDetails, DOCUMENT_TYPES } from "../../services/ninja-legal";
 
 interface Party {
   name: string;
@@ -33,16 +33,26 @@ interface FormErrors {
   purpose?: string;
   parties?: string;
   termsConditions?: string;
+  expiryDate?: string;
+}
+
+// One year out — a sensible default contract term, and pre-filling it means the form is
+// submittable without the user needing to touch a field that has no natural default.
+function defaultExpiryDate(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split("T")[0];
 }
 
 const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContractCreated }) => {
   const [contractTitle, setContractTitle] = useState("");
+  const [documentType, setDocumentType] = useState("general");
   const [purpose, setPurpose] = useState("");
-  const [priority, setPriority] = useState("");
+  const [priority, setPriority] = useState("medium");
   const [contractWorth, setContractWorth] = useState("");
   const [termsConditions, setTermsConditions] = useState("");
-  const [contractStatus, setContractStatus] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+  const [contractStatus, setContractStatus] = useState("active");
+  const [expiryDate, setExpiryDate] = useState(defaultExpiryDate());
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   
@@ -84,6 +94,10 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
       newErrors.contractTitle = "Contract Title is required";
     }
 
+    if (!expiryDate.trim()) {
+      newErrors.expiryDate = "Expiry date is required";
+    }
+
     // if (!purpose.trim()) {
     //   newErrors.purpose = "Purpose of Contract is required";
     // }
@@ -110,6 +124,7 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
 
     const formData = {
       contractTitle,
+      documentType,
       purpose,
       priority,
       parties: parties.map(party => ({
@@ -140,12 +155,13 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
 
         setTimeout(() => {
           setContractTitle("");
+          setDocumentType("general");
           setPurpose("");
-          setPriority("");
+          setPriority("medium");
           setContractWorth("");
           setTermsConditions("");
           setContractStatus("active");
-          setExpiryDate("");
+          setExpiryDate(defaultExpiryDate());
           setParties([
             {
               name: "",
@@ -173,12 +189,13 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
   const handleClose = () => {
     // Reset form on close to sample data
     setContractTitle("");
+    setDocumentType("general");
     setPurpose("");
-    setPriority("");
+    setPriority("medium");
     setContractWorth("");
     setTermsConditions("");
     setContractStatus("active");
-    setExpiryDate("");
+    setExpiryDate(defaultExpiryDate());
     setParties([
             {
               name: "",
@@ -250,6 +267,23 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
                 )}
               </div>
 
+              {/* Document Type */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-white ml-0.5">
+                  Document Type
+                </label>
+                <select
+                  value={documentType}
+                  onChange={(e) => setDocumentType(e.target.value)}
+                  className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:border-[#E11D48]/50 focus:ring-[#E11D48]/20 transition-all"
+                >
+                  {DOCUMENT_TYPES.map((dt) => (
+                    <option key={dt.id} value={dt.id}>{dt.label}</option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-gray-500">Shapes the sections AI generates — e.g. an NDA focuses on confidentiality, a Privacy Policy on data handling.</p>
+              </div>
+
               {/* Purpose of Contract */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-white ml-0.5">
@@ -301,18 +335,30 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
 
                 {/* Expiry Date */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-white ml-0.5">Expiry Date</label>
+                  <label className="text-xs font-semibold text-white ml-0.5">
+                    Expiry Date <span className="text-[#E11D48] ml-0.5">*</span>
+                  </label>
                   <div className="relative">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
                       <FiCalendar className="w-4 h-4" />
                     </div>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 transition-all [color-scheme:dark]"
+                      onChange={(e) => {
+                        setExpiryDate(e.target.value);
+                        if (errors.expiryDate) setErrors({ ...errors, expiryDate: undefined });
+                      }}
+                      className={`w-full bg-[#161618] border rounded-lg pl-11 pr-4 py-3 text-sm text-white focus:outline-none transition-all [color-scheme:dark] ${
+                        errors.expiryDate
+                          ? "border-red-500/50 focus:border-red-500/50"
+                          : "border-[#27272A] focus:border-[#E11D48]/50"
+                      }`}
                     />
                   </div>
+                  {errors.expiryDate && (
+                    <p className="text-xs text-red-500 mt-1">{errors.expiryDate}</p>
+                  )}
                 </div>
               </div>
             </div>

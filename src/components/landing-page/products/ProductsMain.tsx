@@ -11,10 +11,10 @@ const ProductsMain: React.FC = () => {
       description:
         "Your AI Co-Founder that conducts deep research, creates content, and helps you build winning strategies. From market analysis to blog posts, it handles everything.",
       features: [
-        "Deep General Research",
-        "Business Strategy & Analysis",
-        "Content Creation",
-        "Planning & Operations",
+        "AI Conversations & Drafting",
+        "Web Search with Citations",
+        "File Attachments & Analysis",
+        "Chat Memory & History Search",
       ],
       color: "from-red-600 to-orange-600",
     },
@@ -25,10 +25,10 @@ const ProductsMain: React.FC = () => {
       description:
         "Turn text into stunning visuals in seconds. Generate logos, brand assets, and marketing materials without expensive designers or stock photos.",
       features: [
-        "Complete Brand Identity",
-        "Marketing & Ad Creative",
-        "Unlimited Revisions",
-        "Content Library",
+        "Presets & Aspect Ratios",
+        "Brand Assets: Logo, Colors & Fonts",
+        "Iterative Editing & Variations",
+        "Version History",
       ],
       color: "from-orange-600 to-red-600",
     },
@@ -39,10 +39,10 @@ const ProductsMain: React.FC = () => {
       description:
         "Launch your professional website in minutes with our drag-and-drop builder. No coding required, SEO-optimized from day one.",
       features: [
+        "3-Step AI Website Wizard",
         "Drag-and-Drop Editor",
-        "SEO-Optimized",
-        "Free Hosting & SSL",
-        "Integrated Blog",
+        "28 Ready-Made Templates",
+        "Custom Domain & Auto SSL",
       ],
       color: "from-red-600 to-pink-600",
     },
@@ -53,10 +53,10 @@ const ProductsMain: React.FC = () => {
       description:
         "Automate your social media presence. Plan, create, and schedule content for all platforms from one unified dashboard.",
       features: [
-        "Unified Content Calendar",
-        "AI-Powered Content",
-        "Automated Scheduling",
-        "Multi-Platform Support",
+        "Connect LinkedIn, X, Facebook & Instagram",
+        "AI Post Writing & Repurposing",
+        "Carousels, Video & Scheduling",
+        "Facebook & Instagram Analytics",
       ],
       color: "from-pink-600 to-red-600",
     },
@@ -65,12 +65,12 @@ const ProductsMain: React.FC = () => {
       name: "Ninja Sales",
       tagline: "Your Collaborative Revenue Engine",
       description:
-        "Supercharge your sales pipeline with team-driven workflows. Track leads, craft proposals, automate follow-ups, and close deals faster all from one powerful dashboard.",
+        "Run your sales pipeline with team-driven workflows. Track leads, craft proposals, automate follow-ups, and close deals faster, all from one dashboard.",
       features: [
-        "Team Sales Pipeline",
-        "Lead Tracking & Scoring",
-        "Proposal Builder & Sending",
-        "Automated Follow-ups",
+        "Leads Table & Status Tracking",
+        "Projects Pipeline (Kanban)",
+        "Proposals & Invoices",
+        "AI-Suggested Follow-ups",
       ],
       color: "from-red-600 to-orange-600",
     },
@@ -79,12 +79,12 @@ const ProductsMain: React.FC = () => {
       name: "Ninja Legal Co-Founder",
       tagline: "The Strategist for Your Legal Foundation",
       description:
-        "Navigate the complex legal landscape of building a startup with confidence. From structuring your founding team to generating compliant contracts, your AI legal strategist has you covered.",
+        "Draft, review, and manage the contracts your startup needs, with an AI assistant that helps you move faster without waiting on outside counsel for every first draft.",
       features: [
-        "Founder Structuring",
-        "Equity Modelling",
         "Contract Generation",
-        "Compliance Roadmap",
+        "Upload & Analyze",
+        "Contract Comparison",
+        "Compliance Scan",
       ],
       color: "from-orange-600 to-red-600",
     },
@@ -93,7 +93,7 @@ const ProductsMain: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -107,7 +107,7 @@ const ProductsMain: React.FC = () => {
             style={{ color: "#CCCCCC" }}
           >
             Six powerful tools, one integrated platform. Everything you need to
-            build, design, sell, and legally protect your startup—faster than ever.
+            build, design, sell, and legally protect your startup, faster than working with six separate tools.
           </p>
           <Link
             to="/pricing"
@@ -128,20 +128,7 @@ const ProductsMain: React.FC = () => {
             {products.map((product, index) => (
               <div
                 key={index}
-                className="group relative rounded-lg p-8 transition-all duration-300 border"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="group relative rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 {/* Icon */}
                 <div
@@ -200,10 +187,9 @@ const ProductsMain: React.FC = () => {
             className="text-xl mb-12 max-w-3xl mx-auto"
             style={{ color: "#CCCCCC" }}
           >
-            Stop juggling a dozen subscriptions. Our tools work together
-            seamlessly—generate content in Ninja Chat, create visuals in
-            Imaginative Ninja, build your site, and schedule it all on social
-            media.
+            Stop juggling a dozen subscriptions. Generate content in Ninja Chat,
+            create visuals in Imaginative Ninja, build your site, and schedule
+            it all on social media, all from one connected platform.
           </p>
 
           {/* Integration Flow */}
@@ -217,7 +203,7 @@ const ProductsMain: React.FC = () => {
               "Protect & Comply",
             ].map((step, index) => (
               <div key={index} className="relative h-full">
-                <div className="rounded-lg p-6 transition-all duration-300 bg-[#151515] border border-[#333] h-full flex flex-col items-center text-center">
+                <div className="rounded-xl p-6 transition-transform duration-300 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 h-full flex flex-col items-center text-center">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4 shrink-0 mx-auto"
                     style={{
@@ -274,20 +260,11 @@ const ProductsMain: React.FC = () => {
             Ready to Build Your Dream?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of founders who've replaced their fragmented stack
-            with one powerful platform.
+            Replace your fragmented stack with one powerful platform.
           </p>
           <Link
             to="/register"
-            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300"
-            style={{
-              background:
-                "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
-              backdropFilter: "blur(32px)",
-              border: "1px solid #FF8C8C",
-              boxShadow:
-                "0px 0px 16px 0px #FF8C8C26 inset, 0px 12px 36px 0px #E58C8C2B",
-            }}
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-red-600/40 hover:shadow-[0_0_15px_rgba(214,36,36,0.6)] transition-all duration-300"
           >
             START BUILDING TODAY
           </Link>

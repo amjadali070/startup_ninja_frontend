@@ -8,6 +8,14 @@ import { useAuth } from "../../hooks/useAuth.tsx";
 import { memoryService } from "../../services/ai-chat/memory.ts";
 import { Memory } from "../../types/ai-content";
 
+// Renders " · <date>" for a valid createdAt, or "" when missing/unparseable.
+const formatMemoryDateSuffix = (iso?: string): string => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return ` · ${d.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}`;
+};
+
 const ChatMemories: FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -238,12 +246,7 @@ const ChatMemories: FC = () => {
                         <p className="text-sm text-white/85 break-words">{memory.content}</p>
                         <p className="text-xs text-white/30 mt-1">
                           {memory.source === "chat" ? "Saved from chat" : "Manually added"}
-                          {memory.createdAt &&
-                            ` · ${new Date(memory.createdAt).toLocaleDateString([], {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}`}
+                          {formatMemoryDateSuffix(memory.createdAt)}
                         </p>
                       </div>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">

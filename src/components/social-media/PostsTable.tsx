@@ -12,6 +12,7 @@ import { RiCalendarScheduleLine } from "react-icons/ri";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import LoadingSpinner from '../LoadingSpinner';
 import PlatformBadge from './PlatformBadge';
+import { useUserTimezone } from '../../hooks/useUserTimezone';
 
 export type TablePost = {
   _id: string;
@@ -36,21 +37,33 @@ type Props = {
   loading?: boolean;
 };
 
-const formatDate = (dateString: string | undefined) => {
+// Both formatters render in the viewer's saved IANA timezone (not the browser's local zone) so
+// a scheduled time shown here always matches what SchedulingOption showed when it was set.
+const formatDate = (dateString: string | undefined, ianaTimezone: string) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB').replace(/\//g, '-');
+  if (Number.isNaN(date.getTime())) return '-';
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: ianaTimezone,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+    .format(date)
+    .replace(/\//g, '-');
 };
 
-const formatTime = (dateString: string | undefined) => {
+const formatTime = (dateString: string | undefined, ianaTimezone: string) => {
   if (!dateString) return '-';
   const date = new Date(dateString);
-  return date
-    .toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    })
+  if (Number.isNaN(date.getTime())) return '-';
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: ianaTimezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  })
+    .format(date)
     .toLowerCase();
 };
 
@@ -66,6 +79,7 @@ const PostsTable: React.FC<Props> = ({
   onPageChange,
   loading,
 }) => {
+  const { ianaTimezone } = useUserTimezone();
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const pageRows = rows.slice((page - 1) * pageSize, page * pageSize);
 
@@ -120,10 +134,10 @@ const PostsTable: React.FC<Props> = ({
                   onClick={() => onRowClick(row)}
                 >
                   <td className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 whitespace-nowrap">
-                    {formatDate(row.publishedAt || row.scheduledAt)}
+                    {formatDate(row.publishedAt || row.scheduledAt, ianaTimezone)}
                   </td>
                   <td className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 whitespace-nowrap">
-                    {formatTime(row.publishedAt || row.scheduledAt)}
+                    {formatTime(row.publishedAt || row.scheduledAt, ianaTimezone)}
                   </td>
                   <td
                     className="px-2 sm:px-3 md:px-4 py-4 text-gray-300 max-w-[150px] sm:max-w-[220px] md:max-w-[360px] truncate"

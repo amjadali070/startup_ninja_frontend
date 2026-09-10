@@ -6,6 +6,12 @@ interface LeadsListViewProps {
   leads: Lead[];
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const LeadsListView: React.FC<LeadsListViewProps> = ({ leads }) => {
   if (!leads || leads.length === 0) {
     return (
@@ -69,7 +75,7 @@ const LeadsListView: React.FC<LeadsListViewProps> = ({ leads }) => {
           </div>
           
           <p className="text-[10px] text-gray-500 mt-3 italic">
-            Created: {new Date(lead.createdAt).toLocaleDateString()}
+            Created: {formatDate(lead.createdAt)}
           </p>
         </div>
         );

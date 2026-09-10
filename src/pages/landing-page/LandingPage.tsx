@@ -8,7 +8,6 @@ import PricingMain from "../../components/landing-page/pricing/PricingMain";
 import BookDemoMain from "../../components/landing-page/book-demo/BookDemoMain";
 import ContactMain from "../../components/landing-page/contact/ContactMain";
 import DocumentationMain from "../../components/landing-page/documentation/DocumentationMain";
-import TermsMain from "../../components/landing-page/terms/TermsMain";
 import LatestNewsMain from "../../components/landing-page/latest-news/LatestNewsMain";
 import BusinessMain from "../../components/landing-page/business/BusinessMain";
 
@@ -21,7 +20,6 @@ const pageComponents: Record<string, React.ComponentType> = {
   "book-demo": BookDemoMain,
   contact: ContactMain,
   documentation: DocumentationMain,
-  terms: TermsMain,
   "latest-news": LatestNewsMain,
   business: BusinessMain,
 };

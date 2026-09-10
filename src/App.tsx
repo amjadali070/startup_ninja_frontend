@@ -7,8 +7,13 @@ import Register from "./pages/Auth/Register.tsx";
 import ForgotPassword from "./pages/Auth/ForgotPassword.tsx";
 import ResetPassword from "./pages/Auth/ResetPassword.tsx";
 import VerifyEmail from "./pages/Auth/VerifyEmail.tsx";
+import AcceptInvite from "./pages/Auth/AcceptInvite.tsx";
 import TermsOfService from "./pages/Legal/TermsOfService.tsx";
 import PrivacyPolicy from "./pages/Legal/PrivacyPolicy.tsx";
+import RefundPolicy from "./pages/Legal/RefundPolicy.tsx";
+import About from "./pages/Legal/About.tsx";
+import FAQ from "./pages/Legal/FAQ.tsx";
+import NewsArticleDetail from "./components/landing-page/latest-news/NewsArticleDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Dashboard from "./pages/User/Dashboard.tsx";
 import AdminLogin from "./pages/Auth/AdminLogin.tsx";
@@ -26,6 +31,8 @@ import {
   PublicRoute,
 } from "./components/RouteGuards";
 import { AuthProvider } from "./hooks/useAuth.tsx";
+import { BusinessProfileProvider } from "./hooks/useBusinessProfile.tsx";
+import Onboarding from "./pages/User/Onboarding.tsx";
 import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/landing-page/HomePage.tsx";
 import LandingPage from "./pages/landing-page/LandingPage.tsx";
@@ -41,6 +48,9 @@ import SessionExpiredModal from "./components/SessionExpiredModal.tsx";
 import UserDetailsPage from "./pages/Admin/UserDetails.tsx";
 import PlanManagement from "./pages/Admin/PlanManagement.tsx";
 import StudentVerifications from "./pages/Admin/StudentVerifications.tsx";
+import Analytics from "./pages/Admin/Analytics.tsx";
+import SupportTickets from "./pages/Admin/SupportTickets.tsx";
+import Support from "./pages/User/Support.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import NinjaLegal from "./pages/User/NinjaLegal.tsx";
 import NinjaFinance from "./pages/User/NinjaFinance.tsx";
@@ -48,6 +58,8 @@ import NinjaOps from "./pages/User/NinjaOps.tsx";
 import AllContracts from "./pages/User/NinjaLegal/AllContracts.tsx";
 import AuditLogs from "./pages/User/NinjaLegal/AuditLogs.tsx";
 import ContractGenerationPage from "./pages/User/NinjaLegal/ContractGenerationPage.tsx";
+import ContractAnalysisPage from "./pages/User/NinjaLegal/ContractAnalysisPage.tsx";
+import ContractComparisonPage from "./pages/User/NinjaLegal/ContractComparisonPage.tsx";
 import NinjaSales from "./pages/User/NinjaSales/NinjaSales.tsx";
 import LeadsPage from "./pages/User/NinjaSales/LeadsPage.tsx";
 import ManageTeam from "./pages/User/TeamManagement/ManageTeam.tsx";
@@ -71,12 +83,14 @@ import Unsubscribe from "./pages/Unsubscribe.tsx";
 function App() {
   return (
     <AuthProvider>
+    <BusinessProfileProvider>
       <div className="min-h-screen bg-[#0D0D0D]">
         <ScrollToTop />
         <Routes>
           {/* Public Routes with Layout (Restricted to non-authenticated users) */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/latest-news/:slug" element={<NewsArticleDetail />} />
             <Route path="/:page" element={<LandingPage />} />
           </Route>
 
@@ -90,6 +104,9 @@ function App() {
           >
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/faq" element={<FAQ />} />
           </Route>
 
           {/* Auth Routes (No Layout) */}
@@ -145,8 +162,18 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* Unsubscribe — public, no auth, accessible directly from email links */}
           <Route path="/unsubscribe" element={<Unsubscribe />} />
+          {/* Team invitation accept flow — public, no auth, accessible directly from invite emails */}
+          <Route path="/accept-invite" element={<AcceptInvite />} />
 
           {/* Protected User Routes */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
@@ -396,6 +423,22 @@ function App() {
             }
           />
           <Route
+            path="/ai-tools/legal/analyze"
+            element={
+              <ProtectedRoute>
+                <ContractAnalysisPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-tools/legal/compare"
+            element={
+              <ProtectedRoute>
+                <ContractComparisonPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ai-tools/ops"
             element={
               <ProtectedRoute>
@@ -509,6 +552,30 @@ function App() {
               </AdminRoute>
             }
           />
+          <Route
+            path="/admin-dashboard/analytics"
+            element={
+              <AdminRoute>
+                <Analytics />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/support"
+            element={
+              <AdminRoute>
+                <SupportTickets />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <Support />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fallback 404 Route */}
           <Route path="*" element={<NotFound />} />
@@ -544,6 +611,7 @@ function App() {
         <SessionExpiredModal />
         {/* <LiveChatWidget /> */}
       </div>
+    </BusinessProfileProvider>
     </AuthProvider>
   );
 }

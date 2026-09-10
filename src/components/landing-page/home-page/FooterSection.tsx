@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 const FooterSection = () => {
   return (
-    <footer className="text-gray-500 pb-10 pt-20 text-center px-4 md:px-20">
+    <footer className="text-gray-500 pb-10 pt-10 md:pt-20 text-center px-4 md:px-20">
       <div
-        className="footer-logo mb-10 mt-10 flex justify-center w-full overflow-hidden"
+        className="footer-logo mb-6 md:mb-10 mt-4 md:mt-10 flex justify-center w-full overflow-hidden"
         onMouseMove={(e) => {
           const container = e.currentTarget.querySelector(
             ".footer-logo-container"
@@ -103,14 +103,26 @@ const FooterSection = () => {
         <Link to="/contact" className="hover:text-white">
           Contact Us
         </Link>
-        {/* <Link to="/documentation" className="hover:text-white">
+        <Link to="/documentation" className="hover:text-white">
           Documentation
-        </Link> */}
+        </Link>
         <Link to="/pricing" className="hover:text-white">
           Pricing
         </Link>
+        <Link to="/faq" className="hover:text-white">
+          FAQ
+        </Link>
+        <Link to="/about" className="hover:text-white">
+          About
+        </Link>
         <Link to="/terms" className="hover:text-white">
           Terms & Condition
+        </Link>
+        <Link to="/privacy" className="hover:text-white">
+          Privacy Policy
+        </Link>
+        <Link to="/refund-policy" className="hover:text-white">
+          Refund Policy
         </Link>
       </div>
       <p className="mt-2 text-md p-2">

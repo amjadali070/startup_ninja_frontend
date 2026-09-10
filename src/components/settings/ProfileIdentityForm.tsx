@@ -4,11 +4,6 @@ import { FaEdit } from 'react-icons/fa';
 export type ProfileFormState = {
   username: string;
   email: string;
-  company: string;
-  jobTitle: string;
-  location: string;
-  timezone: string;
-  bio: string;
 };
 
 interface ProfileIdentityFormProps {

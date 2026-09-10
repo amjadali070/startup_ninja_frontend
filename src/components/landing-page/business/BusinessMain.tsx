@@ -5,11 +5,11 @@ import { FaUsers, FaChartLine, FaRocket, FaCheck } from "react-icons/fa";
 const BusinessMain: React.FC = () => {
   const agencyFeatures = [
     "Team Management (up to 10 users)",
-    "White-label options",
+    "White-label options (Coming Soon)",
     "Advanced analytics dashboard",
     "Priority phone support",
     "Dedicated account manager",
-    "Custom integrations",
+    "Custom integrations (Coming Soon)",
     "SLA guarantee",
     "Bulk content generation",
   ];
@@ -31,13 +31,13 @@ const BusinessMain: React.FC = () => {
       icon: <FaRocket className="w-10 h-10" />,
       title: "Growing Startups",
       description:
-        "Empower your team with collaborative tools. Build faster as you scale your business.",
+        "Give your team collaborative tools that scale with you as your business grows.",
     },
   ];
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -78,20 +78,7 @@ const BusinessMain: React.FC = () => {
             {useCases.map((useCase, index) => (
               <div
                 key={index}
-                className="text-center rounded-lg p-8 border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="text-center rounded-xl p-8 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <div
                   className="inline-block p-4 rounded-full mb-4"
@@ -126,61 +113,12 @@ const BusinessMain: React.FC = () => {
             {agencyFeatures.map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center rounded-lg p-6 transition-all duration-300 border border-[#333]"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                }}
+                className="flex items-center rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg transition-transform duration-300 hover:scale-105"
               >
                 <FaCheck className="w-6 h-6 mr-4 flex-shrink-0 text-green-500" />
                 <span className="text-lg">{feature}</span>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Case Study Placeholder */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-lg p-12 bg-[#151515]">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-6">Success Stories</h2>
-              <p className="text-xl" style={{ color: "#CCCCCC" }}>
-                See how agencies are using Startup Ninja to scale their
-                operations
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div
-                  className="text-5xl font-bold mb-2"
-                  style={{ color: "#D23621" }}
-                >
-                  10x
-                </div>
-                <p style={{ color: "#CCCCCC" }}>Faster content creation</p>
-              </div>
-              <div className="text-center">
-                <div
-                  className="text-5xl font-bold mb-2"
-                  style={{ color: "#D23621" }}
-                >
-                  5+
-                </div>
-                <p style={{ color: "#CCCCCC" }}>More clients per team member</p>
-              </div>
-              <div className="text-center">
-                <div
-                  className="text-5xl font-bold mb-2"
-                  style={{ color: "#D23621" }}
-                >
-                  $50k+
-                </div>
-                <p style={{ color: "#CCCCCC" }}>Annual savings on tools</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaMinus } from "react-icons/fa";
 import { planService, Plan } from "../../../services/plan";
+import { getFeatureRowsForPlan } from "../../../utils/planFeatureRows";
 
 const PricingMain: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
@@ -47,7 +48,7 @@ const PricingMain: React.FC = () => {
     {
       question: "Is there a free trial?",
       answer:
-        "Yes! Our Starter plan is completely free with limited access to all tools. Upgrade anytime to unlock full features.",
+        "Yes! Our Starter plan is completely free with limited access to all tools. Upgrade anytime for full access to every feature.",
     },
     {
       question: "What payment methods do you accept?",
@@ -59,23 +60,23 @@ const PricingMain: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+          <h1 className="text-4xl md:text-7xl font-bold mb-4 md:mb-6">
             Plans Built for{" "}
             <span style={{ color: "#D23621" }}>Every Stage</span>
           </h1>
           <p
-            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
+            className="text-lg md:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto"
             style={{ color: "#CCCCCC" }}
           >
             Start free, scale as you grow. No hidden fees, cancel anytime.
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center rounded-lg p-1 mb-12 bg-[#151515]">
+          <div className="inline-flex items-center rounded-lg p-1 mb-4 md:mb-12 bg-[#151515]">
             <button
               onClick={() => setBillingCycle("monthly")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
@@ -116,14 +117,14 @@ const PricingMain: React.FC = () => {
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-20 px-4">
+      <section className="py-4 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           {loading ? (
              <div className="flex justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
              </div>
           ) : (
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6 max-w-7xl mx-auto">
             {paidPlans.map((plan, index) => {
                // Calculate price based on cycle
                // Monthly cycle: use plan.price
@@ -135,21 +136,23 @@ const PricingMain: React.FC = () => {
                return (
               <div
                 key={plan._id || index}
-                className={`relative rounded-lg p-8 border transition-all duration-300 flex flex-col ${
-                  isPopular ? "scale-105" : ""
+                className={`relative rounded-2xl p-6 border bg-[#1a0f0f] hover:-translate-y-1 transition-transform duration-300 flex flex-col ${
+                  isPopular ? "border-2 xl:scale-105 xl:-translate-y-2 shadow-2xl" : "border-red-900/30 shadow-lg"
                 }`}
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: isPopular
-                    ? "1px solid #D23621"
-                    : "1px solid #8B0000",
-                }}
+                style={
+                  isPopular
+                    ? {
+                        background:
+                          "linear-gradient(28deg, #f5222d17 7.34%, rgb(222 5 0 / 30%) 81.6%), linear-gradient(17.32deg, rgba(0, 0, 0, 0.8) 55.8%, rgb(222 5 0 / 33%) 141.07%)",
+                        borderColor: "rgba(222, 5, 0, 0.6)",
+                      }
+                    : {}
+                }
               >
                 {isPopular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <span
-                      className="px-4 py-1 rounded-full text-sm font-bold"
+                      className="px-3 py-1 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
                       style={{
                         background:
                           "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
@@ -160,15 +163,15 @@ const PricingMain: React.FC = () => {
                   </div>
                 )}
 
-                <h3 className="text-3xl font-bold mb-2">{plan.name}</h3>
-                <p className="mb-6 h-12 flex-none" style={{ color: "#CCCCCC" }}>
-                  {plan.description || "Unlock powerful features."}
+                <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
+                <p className="text-sm mb-4 h-10 flex-none" style={{ color: "#CCCCCC" }}>
+                  {plan.description || "Explore what's included."}
                 </p>
 
                 {isEnterprise ? (
-                  <div className="mb-8 flex-none">
-                    <span className="text-5xl font-bold">Custom</span>
-                    <span className="ml-2" style={{ color: "#CCCCCC" }}>
+                  <div className="mb-5 flex-none">
+                    <span className="text-3xl font-bold">Custom</span>
+                    <span className="ml-2 text-sm" style={{ color: "#CCCCCC" }}>
                         Pricing
                     </span>
                     {billingCycle === "annual" && (
@@ -176,15 +179,15 @@ const PricingMain: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="mb-8 flex-none">
-                    <span className="text-5xl font-bold">
+                  <div className="mb-5 flex-none">
+                    <span className="text-3xl font-bold">
                       ${displayPrice}
                     </span>
-                    <span className="ml-2" style={{ color: "#CCCCCC" }}>
+                    <span className="ml-1 text-sm" style={{ color: "#CCCCCC" }}>
                       /month
                     </span>
                     {billingCycle === "annual" && (
-                      <p className="text-sm text-green-500 mt-2">
+                      <p className="text-xs text-green-500 mt-2">
                         Billed ${(displayPrice * 12).toFixed(2)}/year
                       </p>
                     )}
@@ -194,64 +197,39 @@ const PricingMain: React.FC = () => {
                 {isEnterprise ? (
                     <Link
                         to="/contact?plan=custom"
-                        className="block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none hover:opacity-85 transition-opacity"
-                        style={{ background: "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)" }}
+                        className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-md font-semibold mb-5 flex-none shadow-md hover:shadow-red-600/40 transition text-sm"
                     >
                         Contact for pricing
                     </Link>
                 ) : (
                     <Link
                       to={displayPrice === 0 ? "/register" : `/buy-subscription?plan=${plan.name}&billing=${billingCycle}`}
-                      className={`block w-full py-4 rounded-lg font-bold text-center mb-8 flex-none transition-all duration-300 ${
-                        isPopular
-                          ? "hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
-                          : "hover:opacity-80"
-                      }`}
-                      style={
-                        isPopular
-                          ? {
-                              background:
-                                "linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)",
-                            }
-                          : {
-                              background:
-                                "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
-                            }
-                      }
+                      className="block w-full text-center bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-md font-semibold mb-5 flex-none shadow-md hover:shadow-red-600/40 transition-all duration-300 text-sm"
                     >
                       {displayPrice === 0 ? "START FOR FREE" : "GET STARTED"}
                     </Link>
                 )}
 
-                <ul className="space-y-4">
-                  {isEnterprise ? (
-                      plan.features.map((feature, idx) => {
-                          const featureName = feature.replace(/^[0-9,]+\s*/, '');
-                          return (
-                            <li key={idx} className="flex items-start">
-                                <FaCheck
-                                  className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
-                                  style={{ color: "#D23621" }}
-                                />
-                              <span style={{ color: "#CCCCCC" }} className="capitalize">
-                                Custom {featureName}
-                              </span>
-                            </li>
-                          );
-                      })
-                  ) : (
-                      plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start">
-                            <FaCheck
-                              className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
-                              style={{ color: "#D23621" }}
-                            />
-                          <span style={{ color: "#CCCCCC" }}>
-                            {feature}
-                          </span>
-                        </li>
-                      ))
-                  )}
+                <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "#888" }}>
+                  What's included
+                </p>
+                <ul className="space-y-2.5">
+                  {getFeatureRowsForPlan(plan, isEnterprise).map((row, idx) => (
+                    <li key={idx} className="flex items-start">
+                      {row.included ? (
+                        <FaCheck
+                          className="w-3.5 h-3.5 mr-2 flex-shrink-0 mt-0.5"
+                          style={{ color: "#D23621" }}
+                        />
+                      ) : (
+                        <FaMinus className="w-3 h-3 mr-2 flex-shrink-0 mt-1" style={{ color: "#555" }} />
+                      )}
+                      <span className="text-sm leading-snug" style={{ color: row.included ? "#CCCCCC" : "#555" }}>
+                        <span className="font-medium">{row.product}</span>
+                        {row.included && <span style={{ color: "#999" }}>: {row.detail}</span>}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             );
@@ -259,7 +237,7 @@ const PricingMain: React.FC = () => {
           </div>
           )}
           
-          <div className="mt-16 bg-[#151515] border border-[#333] rounded-lg p-6 max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="mt-16 bg-[#141010] border border-white/10 shadow-lg rounded-2xl p-6 max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
              <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2">Not ready to commit?</h3>
                 <p className="text-[#CCCCCC]">Get started with our <span className="text-white font-semibold">{freePlan ? freePlan.name : "Free"} Plan</span>.</p>
@@ -287,14 +265,7 @@ const PricingMain: React.FC = () => {
             Replace $165+/month in subscriptions with one affordable price
           </p>
 
-          <div
-            className="rounded-lg p-8 border"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-              border: "1px solid #333",
-            }}
-          >
+          <div className="rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg">
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3
@@ -305,11 +276,11 @@ const PricingMain: React.FC = () => {
                 </h3>
                 <ul className="space-y-3 text-left">
                   <li className="flex justify-between">
-                    <span>ChatGPT Plus</span>
+                    <span>AI Chat Tool</span>
                     <span>$20/mo</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>Midjourney</span>
+                    <span>AI Image Tool</span>
                     <span>$30/mo</span>
                   </li>
                   <li className="flex justify-between">
@@ -344,7 +315,7 @@ const PricingMain: React.FC = () => {
                 </h3>
                 <ul className="space-y-3 text-left">
                   <li className="flex justify-between">
-                    <span>AI Chat (Unlimited*)</span>
+                    <span>AI Chat</span>
                     <span className="text-green-500">✓</span>
                   </li>
                   <li className="flex justify-between">
@@ -372,7 +343,7 @@ const PricingMain: React.FC = () => {
                     style={{ borderColor: "#666" }}
                   >
                     <span>Total</span>
-                    <span>$29/mo</span>
+                    <span>$39/mo</span>
                   </li>
                 </ul>
               </div>
@@ -387,7 +358,7 @@ const PricingMain: React.FC = () => {
               }}
             >
               <p className="text-2xl font-bold text-green-400">
-                Save $1,632+ per year
+                Save $1,512+ per year
               </p>
             </div>
           </div>
@@ -405,12 +376,7 @@ const PricingMain: React.FC = () => {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="rounded-lg p-6 border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
+                className="rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <h3 className="text-xl font-bold mb-3">{faq.question}</h3>
                 <p style={{ color: "#CCCCCC" }}>{faq.answer}</p>
@@ -437,15 +403,7 @@ const PricingMain: React.FC = () => {
           </p>
           <Link
             to="/login"
-            className="inline-block px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-all duration-300"
-            style={{
-              background:
-                "linear-gradient(91.58deg, rgba(217, 235, 255, 0.1175) 0.3%, rgba(217, 235, 255, 0.047) 50.35%, rgba(130, 141, 153, 0.1128) 98.52%)",
-              backdropFilter: "blur(32px)",
-              border: "1px solid #FF8C8C",
-              boxShadow:
-                "0px 0px 16px 0px #FF8C8C26 inset, 0px 12px 36px 0px #E58C8C2B",
-            }}
+            className="inline-block px-8 py-4 rounded-lg font-bold text-lg bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-[0_0_15px_rgba(214,36,36,0.6)] transition-all duration-300"
           >
             START FOR FREE
           </Link>

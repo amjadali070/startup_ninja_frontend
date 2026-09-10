@@ -6,6 +6,12 @@ interface ContractsListViewProps {
   contracts: Contract[];
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
 const ContractsListView: React.FC<ContractsListViewProps> = ({ contracts }) => {
   if (!contracts || contracts.length === 0) {
     return (
@@ -80,7 +86,7 @@ const ContractsListView: React.FC<ContractsListViewProps> = ({ contracts }) => {
           </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-[#242424]">
-            <span className="text-[10px] text-gray-500">Created: {new Date(contract.createdAt).toLocaleDateString()}</span>
+            <span className="text-[10px] text-gray-500">Created: {formatDate(contract.createdAt)}</span>
             {/* <button className="text-[10px] text-emerald-500 hover:underline font-medium">
               View Details
             </button> */}

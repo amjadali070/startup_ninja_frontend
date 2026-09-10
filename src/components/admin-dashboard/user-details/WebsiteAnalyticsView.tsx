@@ -13,6 +13,18 @@ interface WebsiteAnalyticsViewProps {
   userId: string;
 }
 
+const formatDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+};
+
+const formatDateTime = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
+};
+
 const WebsiteAnalyticsView: React.FC<WebsiteAnalyticsViewProps> = ({
   userId,
 }) => {
@@ -292,7 +304,7 @@ const WebsiteAnalyticsView: React.FC<WebsiteAnalyticsViewProps> = ({
                       )}
                     </td>
                     <td className="py-3 text-gray-400 text-sm">
-                      {new Date(website.updatedAt).toLocaleDateString()}
+                      {formatDate(website.updatedAt)}
                     </td>
                   </tr>
                 ))}
@@ -304,7 +316,7 @@ const WebsiteAnalyticsView: React.FC<WebsiteAnalyticsViewProps> = ({
 
       {/* Last Updated */}
       <div className="text-center text-gray-500 text-sm">
-        Last updated: {new Date(analytics.lastUpdated).toLocaleString()}
+        Last updated: {formatDateTime(analytics.lastUpdated)}
       </div>
     </div>
   );

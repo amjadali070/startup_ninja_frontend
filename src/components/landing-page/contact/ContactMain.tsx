@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaEnvelope, FaUser, FaComment, FaRocket } from "react-icons/fa";
+import { FaEnvelope, FaUser, FaComment } from "react-icons/fa";
 import { apiClient } from "../../../services/apiClient";
 
 const ContactMain: React.FC = () => {
@@ -65,7 +65,7 @@ const ContactMain: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -83,13 +83,7 @@ const ContactMain: React.FC = () => {
 
       <section className="py-8 px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-          <div
-            className="rounded-lg p-8"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-            }}
-          >
+          <div className="rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg">
             <h2 className="text-3xl font-bold mb-6">Send Us a Message</h2>
 
             {success && (
@@ -201,46 +195,7 @@ const ContactMain: React.FC = () => {
             <h2 className="text-3xl font-bold mb-6">Other Ways to Reach Us</h2>
 
             <div className="space-y-6">
-              <div
-                className="rounded-lg p-6 border"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-              >
-                <div className="flex items-center mb-4">
-                  <FaRocket
-                    className="text-2xl mr-3"
-                    style={{ color: "#D23621" }}
-                  />
-                  <h3 className="text-xl font-bold">Ninja Assist</h3>
-                </div>
-                <p className="mb-4" style={{ color: "#CCCCCC" }}>
-                  Get instant answers from our AI support guide, available 24/7.
-                </p>
-                <button
-                  className="transition-colors"
-                  style={{ color: "#D23621" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#B91C1C")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#D23621")
-                  }
-                >
-                  Open Chat →
-                </button>
-              </div>
-
-              <div
-                className="rounded-lg p-6 border"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-              >
+              <div className="rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                 <h3 className="text-xl font-bold mb-4">Email Support</h3>
                 <p className="mb-2" style={{ color: "#CCCCCC" }}>
                   support@startupninja.ai
@@ -250,14 +205,7 @@ const ContactMain: React.FC = () => {
                 </p>
               </div>
 
-              <div
-                className="rounded-lg p-6 border"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-              >
+              <div className="rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300">
                 <h3 className="text-xl font-bold mb-4">Documentation</h3>
                 <p className="mb-4" style={{ color: "#CCCCCC" }}>
                   Find answers in our comprehensive guides and tutorials.

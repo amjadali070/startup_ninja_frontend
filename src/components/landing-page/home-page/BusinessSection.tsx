@@ -3,19 +3,34 @@
 export default function BusinessSection() {
   const cards = [
     {
-      title: "Reimagining creativity with AI–powered image generation",
-      feature: "AI Image Generator",
+      title: "Turn a text prompt into on-brand visuals in seconds",
+      feature: "Imaginative Ninja",
       image: "/images/business-1.jpg",
     },
     {
-      title: "Empowering teams with intelligent conversation",
-      feature: "AI Chat Assistant",
+      title: "A strategic partner for research, drafting, and quick answers",
+      feature: "Ninja Chat",
       image: "/images/business-2.jpg",
     },
     {
-      title: "Building smarter websites — powered by AI",
-      feature: "AI Web Builder",
+      title: "Smarter websites, designed and published by AI",
+      feature: "Web Builder",
       image: "/images/business-3.jpg",
+    },
+    {
+      title: "Write, schedule, and post across every platform from one place",
+      feature: "Social Pro",
+      image: "/images/socialchat-banner.png",
+    },
+    {
+      title: "Track leads, send proposals, and follow up automatically",
+      feature: "Ninja Sales",
+      image: "/images/ninja-sales-banner.png",
+    },
+    {
+      title: "Draft, review, and compare contracts with an AI assistant",
+      feature: "Ninja Legal",
+      image: "/images/ninja-legal-banner.png",
     },
   ];
 

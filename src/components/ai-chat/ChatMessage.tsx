@@ -31,6 +31,11 @@ const ChatMessage: FC<ChatMessageProps> = ({
   const [userImageError, setUserImageError] = useState(false);
   const [ninjaImageError, setNinjaImageError] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const timestampDate = message.timestamp ? new Date(message.timestamp) : null;
+  const timestampLabel =
+    timestampDate && !Number.isNaN(timestampDate.getTime())
+      ? timestampDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : null;
 
   const handleCopyResponse = async () => {
     try {
@@ -292,12 +297,9 @@ const ChatMessage: FC<ChatMessageProps> = ({
         )}
 
         <div className="mt-1 flex items-center gap-2 px-1">
-          {message.timestamp && (
+          {timestampLabel && (
             <span className="text-xs text-white/40">
-              {new Date(message.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {timestampLabel}
             </span>
           )}
           {isUser && message.edited && (

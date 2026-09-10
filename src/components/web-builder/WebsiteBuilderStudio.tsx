@@ -76,6 +76,14 @@ import {
   documentUploaderDropzonePlugin,
 } from "./custom-components";
 
+const formatVersionDate = (iso?: string): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "-"
+    : d.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+};
+
 const WebsiteBuilderStudio: FC = () => {
   const normalizeDesktopMediaQueries = (html: string) => {
     if (!html) return html;
@@ -3051,12 +3059,7 @@ const WebsiteBuilderStudio: FC = () => {
                       className="flex items-center justify-between p-3 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]"
                     >
                       <div className="text-xs text-gray-300">
-                        {new Date(v.createdAt).toLocaleString([], {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatVersionDate(v.createdAt)}
                       </div>
                       <button
                         onClick={() => handleRestoreVersion(v._id)}

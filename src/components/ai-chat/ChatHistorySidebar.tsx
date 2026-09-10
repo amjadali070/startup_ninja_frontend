@@ -91,6 +91,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "";
     const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return "";
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);

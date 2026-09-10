@@ -181,6 +181,12 @@ export const PreGenerationModal = ({
 //     }
 //   };
 
+  const parsedStartDate = startDate ? new Date(startDate) : null;
+  const startDateLabel =
+    parsedStartDate && !Number.isNaN(parsedStartDate.getTime())
+      ? parsedStartDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+      : null;
+
   return (
     <div className="space-y-6">
       {/* Header Section with Visual Divider */}
@@ -272,11 +278,11 @@ export const PreGenerationModal = ({
           />
         </div>
 
-        {startDate && (
+        {startDateLabel && (
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
             <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Contract Effective</p>
             <p className="text-sm font-black text-white mt-2">
-              {new Date(startDate).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              {startDateLabel}
             </p>
           </div>
         )}

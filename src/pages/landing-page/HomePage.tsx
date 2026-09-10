@@ -76,7 +76,7 @@ const HomePage: React.FC = () => {
         <SocialMediaFeature />
         <NinjaSalesFeatureSection />
         <NinjaLegalFeatureSection />
-        <section className="relative w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 mt-10 overflow-hidden">
+        <section className="relative w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 mt-4 md:mt-10 overflow-hidden">
           <div className="z-10 rounded-3xl p-4 md:p-8 max-w-xl w-full text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Built for Creating</h2>
             <h3 className="text-2xl md:text-3xl font-bold text-[#ED351C] mb-6">Marketing Success</h3>
@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
-        <section className="relative w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 mt-10 overflow-hidden bg-[#0f0503]">
+        <section className="relative w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 mt-4 md:mt-10 overflow-hidden bg-[#0f0503]">
           <img src="/images/banner-info.gif" alt="Banner Mockup" className="object-cover w-full max-w-6xl" />
         </section>
       </section>

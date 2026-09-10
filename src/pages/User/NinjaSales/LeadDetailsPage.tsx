@@ -27,6 +27,16 @@ import {
   LeadScore,
 } from "../../../services/ninjaSales";
 
+const formatLeadDate = (
+  iso: string | undefined | null,
+  fallback: string,
+  formatter: (d: Date) => string
+): string => {
+  if (!iso) return fallback;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? fallback : formatter(d);
+};
+
 const LeadDetailsPage: FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -545,7 +555,7 @@ const LeadDetailsPage: FC = () => {
                           <div className="space-y-1 min-w-0">
                             <p className={`text-sm font-bold tracking-tight transition-all ${task.completed ? 'text-white/40 line-through' : 'text-white'}`}>{task.title}</p>
                             <p className="text-[10px] font-medium text-white/20 tracking-widest">
-                              {task.dueDate ? new Date(task.dueDate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : "No due date"}
+                              {formatLeadDate(task.dueDate, "No due date", d => d.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }))}
                               {task.priority && <span className={`ml-2 px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${task.priority === 'high' ? 'bg-red-500/10 text-red-500' : task.priority === 'low' ? 'bg-white/5 text-white/30' : 'bg-orange-500/10 text-orange-500'}`}>{task.priority}</span>}
                             </p>
                           </div>
@@ -733,7 +743,7 @@ const LeadDetailsPage: FC = () => {
                         <div className="flex items-center gap-2 mt-0.5">
                           <Link to={`/ai-tools/sales/projects/${fu.projectId}`} className="text-[10px] font-bold text-red-500 hover:text-red-400 transition-colors truncate">{fu.projectName}</Link>
                           <span className="text-[10px] text-white/20">·</span>
-                          <span className="text-[10px] text-white/30">{fu.dueDate ? new Date(fu.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "No date"}</span>
+                          <span className="text-[10px] text-white/30">{formatLeadDate(fu.dueDate, "No date", d => d.toLocaleDateString("en-US", { month: "short", day: "numeric" }))}</span>
                         </div>
                       </div>
                     </div>
@@ -860,7 +870,7 @@ const LeadDetailsPage: FC = () => {
                                </div>
                             </td>
                             <td className="px-8 py-6 text-sm font-medium text-white/30 uppercase tracking-tight">{doc.reference || "—"}</td>
-                            <td className="px-8 py-6 text-sm font-medium text-white/30">{doc.issuedDate ? new Date(doc.issuedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</td>
+                            <td className="px-8 py-6 text-sm font-medium text-white/30">{formatLeadDate(doc.issuedDate, "—", d => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}</td>
                             <td className="px-8 py-6 text-sm font-black text-white tracking-tight">${Number(doc.total || 0).toLocaleString()}</td>
                             <td className="px-8 py-6">
                                <span className={`px-2.5 py-1 rounded text-[9px] font-black tracking-widest ${doc.status === 'PAID' ? 'bg-emerald-500/10 text-emerald-500' : doc.status === 'SENT' ? 'bg-white/5 text-white/40' : 'bg-red-500/10 text-red-500'}`}>
@@ -936,7 +946,7 @@ const LeadDetailsPage: FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Due Date</p>
-                  <p className="text-sm font-bold text-white/70">{selectedTask.dueDate ? new Date(selectedTask.dueDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : "No due date"}</p>
+                  <p className="text-sm font-bold text-white/70">{formatLeadDate(selectedTask.dueDate, "No due date", d => d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }))}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Priority</p>
@@ -950,7 +960,7 @@ const LeadDetailsPage: FC = () => {
                 </div>
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Created</p>
-                  <p className="text-sm font-bold text-white/50">{new Date(selectedTask.createdAt).toLocaleDateString()}</p>
+                  <p className="text-sm font-bold text-white/50">{formatLeadDate(selectedTask.createdAt, "-", d => d.toLocaleDateString())}</p>
                 </div>
               </div>
             </div>

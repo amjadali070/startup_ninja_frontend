@@ -65,9 +65,8 @@ export interface AIModel {
 
 export interface RealtimeUsageData {
   requestsPerSecond: string;
-  avgLatency: string;
-  errorRate: string;
-  timeoutPercentage: string;
+  // avgLatency/errorRate/timeoutPercentage were previously hardcoded placeholder strings —
+  // no real latency/error tracking exists yet, so they're omitted rather than faked.
   chartData: number[];
   timeframe: string;
 }
@@ -90,7 +89,8 @@ export interface UserListItem {
   isEmailVerified: boolean;
   createdAt: string;
   updatedAt: string;
-  subscription?: "Free" | "Basic" | "Pro" | "Enterprise";
+  subscription?: string; // real plan key from Subscription.plan (e.g. "free", "go", "pro", "business")
+  subscriptionStatus?: string | null;
   profilePicture?: string;
 }
 
@@ -142,41 +142,96 @@ export interface UsersResponse {
   pagination: PaginationInfo;
 }
 
+export interface ServiceHealthEntry {
+  id: string;
+  name: string;
+  status: "healthy" | "degraded" | "down";
+  detail: string;
+  latencyMs?: number;
+}
+
 export interface SystemHealth {
   status: string;
-  services: {
-    database: string;
-    authService: string;
-    socialMediaService: string;
-    websiteBuilderService: string;
-    aiContentService: string;
-    chatbotService: string;
+  services: ServiceHealthEntry[];
+  uptime: number;
+}
+
+export interface ProductAnalytics {
+  days: number;
+  signups: Array<{ date: string; signups: number }>;
+  dauMau: Array<{ date: string; dau: number; mau: number }>;
+  retention: Array<{
+    cohortWeekStart: string;
+    cohortSize: number;
+    day7Retention: number | null;
+    day30Retention: number | null;
+  }>;
+  churn: {
+    days: number;
+    activeAtStart: number;
+    cancelledInWindow: number;
+    churnRatePercent: number | null;
   };
-  metrics: {
-    requestsPerSecond: string;
-    avgLatency: string;
-    errorRate: string;
-    uptime: number;
+  conversion: {
+    days: number;
+    cohortSize: number;
+    converted: number;
+    conversionRatePercent: number | null;
+  };
+  revenue: {
+    mrr: number;
+    arr: number;
+    arpu: number;
+    payingSubscriptions: number;
+  };
+  refunds: {
+    days: number;
+    count: number;
+    totalRefunded: number;
+    refunds: Array<{
+      _id: string;
+      amount: number;
+      currency: string;
+      status: string;
+      transactionType: string;
+      createdAt: string;
+      userId?: { _id: string; fullname: string; email: string } | null;
+    }>;
+  };
+  featureUsage: Array<{
+    service: string;
+    label: string;
+    calls: number;
+    distinctUsers: number;
+    adoptionPercent: number | null;
+  }>;
+  activation: {
+    days: number;
+    activationWindowDays: number;
+    cohortSize: number;
+    activated: number;
+    activationRatePercent: number | null;
+  };
+  paidUsers: {
+    paidUsers: number;
+    totalUsers: number;
+    paidPercent: number | null;
   };
 }
 
-export interface AnalyticsData {
-  type: "daily" | "weekly" | "monthly";
-  date: string;
-  metrics: {
-    totalUsers: number;
-    activeUsers: number;
-    newUsers: number;
-    totalPosts: number;
-    totalWebsites: number;
-    totalAIChats: number;
-    aiRequestsCount: number;
-    aiTokensUsed: number;
-    aiCostEstimate: number;
-    apiRequests: number;
-    errorCount: number;
-    avgResponseTime: number;
-  };
+export interface RecentErrors {
+  hours: number;
+  total: number;
+  byService: Array<{ service: string; count: number }>;
+  recent: Array<{
+    _id: string;
+    service: string;
+    method: string;
+    route: string;
+    statusCode: number | null;
+    message: string;
+    createdAt: string;
+  }>;
 }
 
 // API Response Types

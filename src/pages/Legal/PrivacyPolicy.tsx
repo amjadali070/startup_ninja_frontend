@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
 
                 <h3 className="text-white text-xl font-bold mt-8 mb-4">1. Information We Collect</h3>
                 <p>
-                    We collect information you provide directly to us, such as when you create or modify your account, request on-demand services, contact customer support, or otherwise communicate with us. This information may include: name, email, phone number, postal address, profile picture, payment method, and other information you choose to provide.
+                    We collect information you provide directly to us, such as when you create or modify your account, request on-demand services, contact customer support, or otherwise communicate with us. This information may include: name, email, phone number, postal address, profile picture, payment method, and other information you choose to provide. If you sign in with Google or Microsoft, we receive your name, email address, and profile picture from that provider. We never see or store your Google/Microsoft password. If you subscribe to a paid plan, payment card details are collected and processed directly by our payment processor, Stripe. We do not store your full card number ourselves.
                 </p>
 
                 <h3 className="text-white text-xl font-bold mt-8 mb-4">2. How We Use Your Information</h3>
@@ -40,7 +40,17 @@ const PrivacyPolicy = () => {
                    We may employ third party companies and individuals to facilitate our Service ("Service Providers"), to provide the Service on our behalf, to perform Service-related services or to assist us in analyzing how our Service is used.
                 </p>
 
-                <h3 className="text-white text-xl font-bold mt-8 mb-4">6. Changes to This Privacy Policy</h3>
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">6. AI Processing of Your Content</h3>
+                <p>
+                    Startup Ninja's AI features, including Ninja Chat, Image Generation, Website Builder's AI editing, Social Pro's post generation, and Ninja Legal's document drafting/analysis, work by sending the prompts, documents, and images you submit to third-party AI providers (currently OpenAI and Google) so they can generate a response. We do not permit these providers to use your content to train their models. This processing is necessary for the AI features to function; if you'd prefer your content not be sent to a third-party AI provider, don't use those specific features. The rest of the product (Ninja Sales CRM, account/billing management, etc.) doesn't involve this.
+                </p>
+
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">7. Your Data, Export, and Deletion</h3>
+                <p>
+                    You can download a copy of the account data we hold about you (profile, business info, subscription, and billing history) at any time from Settings. Deleting your account removes your content (generated images, documents, contracts, posts, websites, chats, and CRM data) from every part of the product, and anonymizes what remains for accounting/audit purposes (we're required to retain transaction records, not tied back to your identifying details, for tax and financial recordkeeping).
+                </p>
+
+                <h3 className="text-white text-xl font-bold mt-8 mb-4">8. Changes to This Privacy Policy</h3>
                 <p>
                     We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
                 </p>

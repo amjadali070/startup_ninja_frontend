@@ -47,6 +47,7 @@ const assistantSuggestions = [
 // Helper function to get relative time
 const getRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "-";
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 

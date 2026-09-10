@@ -1,6 +1,7 @@
 export const formatDateDDMonYYYY = (iso?: string) => {
   if (!iso) return '-';
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '-';
   const day = String(d.getDate()).padStart(2, '0');
   const mon = d.toLocaleString('en-US', { month: 'short' });
   const year = d.getFullYear();
@@ -10,6 +11,7 @@ export const formatDateDDMonYYYY = (iso?: string) => {
 export const formatTimeHHmm = (iso?: string) => {
   if (!iso) return '-';
   const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '-';
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
@@ -98,6 +100,7 @@ export const formatInTimezone = (
   if (!iso) return '-';
   try {
     const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '-';
     const datePart = new Intl.DateTimeFormat('en-GB', {
       timeZone: ianaTimezone,
       day: '2-digit',

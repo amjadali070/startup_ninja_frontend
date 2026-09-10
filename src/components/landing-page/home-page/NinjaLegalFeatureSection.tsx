@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaUserTie, FaChartPie, FaFileContract, FaShieldAlt } from 'react-icons/fa';
+import { FaComments, FaFileContract, FaBalanceScale, FaShieldAlt } from 'react-icons/fa';
 
 const NinjaLegalFeatureSection: React.FC = () => (
     <section className="w-full flex flex-col md:flex-row gap-8 items-center justify-center py-10 px-4 md:px-6 feature-bg">
@@ -7,35 +7,35 @@ const NinjaLegalFeatureSection: React.FC = () => (
             <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">Ninja Legal Co-Founder</h2>
             <h3 className="text-xl md:text-3xl font-bold text-[#ED351C] mb-6">The Strategist</h3>
             <p className="text-base md:text-lg text-white/80 mb-6 text-justify">
-                Navigate the complex legal landscape of building a startup with confidence. From structuring your founding team to generating compliant contracts, your AI legal strategist has you covered.
+                Draft, review, and manage the contracts your startup needs, with an AI assistant that helps you move faster without waiting on outside counsel for every first draft.
             </p>
 
             <ul className="space-y-4">
-                <li className="flex items-center text-white/90">
-                    <div className="w-10 h-10 rounded-full bg-[#ED351C]/20 flex items-center justify-center mr-4">
-                        <FaUserTie className="text-[#ED351C]" />
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-lg text-[#ED351C]">Founder Structuring</h4>
-                        <p className="text-sm text-white/70">Determine the right corporate structure.</p>
-                    </div>
-                </li>
-                <li className="flex items-center text-white/90">
-                    <div className="w-10 h-10 rounded-full bg-[#ED351C]/20 flex items-center justify-center mr-4">
-                        <FaChartPie className="text-[#ED351C]" />
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-lg text-[#ED351C]">Equity Modelling</h4>
-                        <p className="text-sm text-white/70">Plan equity distribution smartly.</p>
-                    </div>
-                </li>
                 <li className="flex items-center text-white/90">
                     <div className="w-10 h-10 rounded-full bg-[#ED351C]/20 flex items-center justify-center mr-4">
                         <FaFileContract className="text-[#ED351C]" />
                     </div>
                     <div>
                         <h4 className="font-semibold text-lg text-[#ED351C]">Contract Generation</h4>
-                        <p className="text-sm text-white/70">Generate legally sound contracts instantly.</p>
+                        <p className="text-sm text-white/70">Generate contracts through a guided, chat-driven drafting flow.</p>
+                    </div>
+                </li>
+                <li className="flex items-center text-white/90">
+                    <div className="w-10 h-10 rounded-full bg-[#ED351C]/20 flex items-center justify-center mr-4">
+                        <FaComments className="text-[#ED351C]" />
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-lg text-[#ED351C]">Upload &amp; Analyze</h4>
+                        <p className="text-sm text-white/70">Upload an existing contract and get an AI-powered analysis.</p>
+                    </div>
+                </li>
+                <li className="flex items-center text-white/90">
+                    <div className="w-10 h-10 rounded-full bg-[#ED351C]/20 flex items-center justify-center mr-4">
+                        <FaBalanceScale className="text-[#ED351C]" />
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-lg text-[#ED351C]">Contract Comparison</h4>
+                        <p className="text-sm text-white/70">Compare two contracts side by side to spot differences.</p>
                     </div>
                 </li>
                 <li className="flex items-center text-white/90">
@@ -43,8 +43,8 @@ const NinjaLegalFeatureSection: React.FC = () => (
                         <FaShieldAlt className="text-[#ED351C]" />
                     </div>
                     <div>
-                        <h4 className="font-semibold text-lg text-[#ED351C]">Compliance Roadmap</h4>
-                        <p className="text-sm text-white/70">Stay on top of regulatory compliance.</p>
+                        <h4 className="font-semibold text-lg text-[#ED351C]">Compliance Scan</h4>
+                        <p className="text-sm text-white/70">Scan uploaded documents for compliance-language issues.</p>
                     </div>
                 </li>
             </ul>

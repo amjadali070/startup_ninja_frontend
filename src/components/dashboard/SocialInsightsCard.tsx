@@ -31,6 +31,7 @@ const getPlatformIcon = (platform: string) => {
 
 const getRelativeTime = (dateStr: string): string => {
   const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return "-";
   const now = new Date();
   const diff = Math.floor((now.getTime() - d.getTime()) / 1000);
   if (diff < 60) return "Just now";

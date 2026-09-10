@@ -60,7 +60,7 @@ const BookDemoMain: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -80,13 +80,7 @@ const BookDemoMain: React.FC = () => {
 
       <section className="py-8 px-4">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-          <div
-            className="rounded-lg p-8"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-            }}
-          >
+          <div className="rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg">
             <h2 className="text-3xl font-bold mb-6">Book Your Demo</h2>
 
             {success && (
@@ -222,14 +216,7 @@ const BookDemoMain: React.FC = () => {
               ))}
             </div>
 
-            <div
-              className="rounded-lg p-6 mb-6 border"
-              style={{
-                background:
-                  "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                border: "1px solid #8B0000",
-              }}
-            >
+            <div className="rounded-xl p-6 mb-6 bg-[#141010] border border-white/10 shadow-lg">
               <div className="flex items-center mb-4">
                 <FaClock
                   className="text-2xl mr-3"
@@ -243,14 +230,7 @@ const BookDemoMain: React.FC = () => {
               </p>
             </div>
 
-            <div
-              className="rounded-lg p-6 border"
-              style={{
-                background:
-                  "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                border: "1px solid #8B0000",
-              }}
-            >
+            <div className="rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg">
               <h3 className="text-xl font-bold mb-4">Perfect For:</h3>
               <ul className="space-y-3" style={{ color: "#CCCCCC" }}>
                 <li>• Founders evaluating tools</li>
@@ -269,7 +249,7 @@ const BookDemoMain: React.FC = () => {
             Prefer to Start on Your Own?
           </h2>
           <p className="text-xl mb-8" style={{ color: "#CCCCCC" }}>
-            No demo needed—start building for free today.
+            No demo needed. Start building for free today.
           </p>
           <a
             href="/login"

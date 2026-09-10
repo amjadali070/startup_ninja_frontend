@@ -94,7 +94,9 @@ const FollowUpTable: FC<FollowUpTableProps> = ({ filter, refreshKey, projectId }
   };
 
   const formatDueDate = (dateStr: string) => {
+    if (!dateStr) return "—";
     const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return "—";
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

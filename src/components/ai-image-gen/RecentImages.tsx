@@ -50,13 +50,14 @@ function toPreparedImage(img: GeneratedImage): PreparedImageItem {
     ? img.localPath.split(/[/\\]/).pop()
     : img.imageUrl?.split("/").pop();
   const src = filename ? `/api/imaginative/image/${filename}` : img.imageUrl;
+  const createdAtDate = new Date(img.createdAt);
 
   return {
     id: img._id,
     src,
     alt: img.prompt,
     prompt: img.prompt,
-    createdAt: new Date(img.createdAt).toLocaleDateString(),
+    createdAt: Number.isNaN(createdAtDate.getTime()) ? "-" : createdAtDate.toLocaleDateString(),
     rootImageId: img.rootImageId || img._id,
     parentImageId: img.parentImageId || null,
     versionNumber: img.versionNumber || 1,
@@ -123,6 +124,9 @@ const ImageDetailModal: React.FC<{
 
   const [compareMode, setCompareMode] = useState(false);
   const [compareId, setCompareId] = useState<string | null>(null);
+
+  const [versionToDelete, setVersionToDelete] = useState<PreparedImageItem | null>(null);
+  const [isDeletingVersion, setIsDeletingVersion] = useState(false);
 
   useEffect(() => {
     if (!image) return;
@@ -227,7 +231,39 @@ const ImageDetailModal: React.FC<{
     }
   };
 
+  // Deletes a single NON-root version from this lineage. The root stays deletable only via the
+  // existing whole-lineage "delete" action below (onDelete), never from this per-thumbnail
+  // control, so a small hover icon here can never accidentally wipe out the entire history.
+  const handleConfirmDeleteVersion = async () => {
+    if (!versionToDelete) return;
+    const deletedId = versionToDelete.id;
+    setIsDeletingVersion(true);
+    try {
+      await imageGenService.deleteImage(deletedId);
+      const remaining = versions.filter((v) => v.id !== deletedId);
+      setVersions(remaining);
+      if (activeId === deletedId) {
+        // Fall back to the root, or the most recent remaining version, instead of leaving
+        // the viewer pointed at a version that no longer exists.
+        const root = remaining.find((v) => !v.parentImageId);
+        const fallback = root || remaining[remaining.length - 1] || null;
+        setActiveId(fallback ? fallback.id : "");
+      }
+      if (compareId === deletedId) {
+        setCompareId(null);
+      }
+      toast.success("Version deleted");
+      onLineageChanged();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Failed to delete version");
+    } finally {
+      setIsDeletingVersion(false);
+      setVersionToDelete(null);
+    }
+  };
+
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
@@ -276,25 +312,44 @@ const ImageDetailModal: React.FC<{
                 {loadingVersions && <FiLoader className="w-3 h-3 text-gray-600 animate-spin" />}
               </div>
               <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
-                {versions.map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => handleVersionClick(v.id)}
-                    className={`relative shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                      v.id === activeId
-                        ? "border-[#DC2626]"
-                        : v.id === compareId
-                        ? "border-blue-500"
-                        : "border-transparent hover:border-gray-600"
-                    }`}
-                    title={`V${v.versionNumber} · ${VERSION_TYPE_LABEL[v.versionType]}${v.editInstruction ? `: ${v.editInstruction}` : ""}`}
-                  >
-                    <img src={v.src} alt={v.alt} className="w-full h-full object-cover" />
-                    <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[8px] font-bold text-center py-0.5">
-                      V{v.versionNumber}
-                    </span>
-                  </button>
-                ))}
+                {versions.map((v) => {
+                  // The root of the lineage (no parentImageId) is only ever deletable via the
+                  // whole-lineage action on the main card/modal — never from this strip.
+                  const isRootVersion = !v.parentImageId;
+                  return (
+                    <div key={v.id} className="relative shrink-0 group/version">
+                      <button
+                        onClick={() => handleVersionClick(v.id)}
+                        className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                          v.id === activeId
+                            ? "border-[#DC2626]"
+                            : v.id === compareId
+                            ? "border-blue-500"
+                            : "border-transparent hover:border-gray-600"
+                        }`}
+                        title={`V${v.versionNumber} · ${VERSION_TYPE_LABEL[v.versionType]}${v.editInstruction ? `: ${v.editInstruction}` : ""}`}
+                      >
+                        <img src={v.src} alt={v.alt} className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[8px] font-bold text-center py-0.5">
+                          V{v.versionNumber}
+                        </span>
+                      </button>
+                      {!isRootVersion && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setVersionToDelete(v);
+                          }}
+                          className="absolute top-0.5 right-0.5 p-1 bg-black/70 hover:bg-[#DC2626] text-white rounded-md opacity-0 group-hover/version:opacity-100 focus:opacity-100 transition-opacity"
+                          title={`Delete V${v.versionNumber}`}
+                          aria-label={`Delete version ${v.versionNumber}`}
+                        >
+                          <FiTrash2 size={10} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -436,6 +491,28 @@ const ImageDetailModal: React.FC<{
         </div>
       </div>
     </div>
+
+    {/* Rendered as a sibling of (not nested inside) the overlay above — that overlay closes the
+        whole detail modal on backdrop click, and this confirmation needs its own backdrop click
+        to only dismiss itself without also bubbling up and closing everything. */}
+    <AlertModal
+      isOpen={!!versionToDelete}
+      onClose={() => setVersionToDelete(null)}
+      onConfirm={handleConfirmDeleteVersion}
+      title="Delete Version"
+      message={
+        versionToDelete
+          ? `Are you sure you want to delete V${versionToDelete.versionNumber} (${VERSION_TYPE_LABEL[versionToDelete.versionType]})? This action cannot be undone and only this version will be removed — the rest of the version history stays intact.`
+          : ""
+      }
+      type="danger"
+      action="delete"
+      confirmText="Delete Version"
+      cancelText="Keep it"
+      isLoading={isDeletingVersion}
+      loadingText="Deleting..."
+    />
+    </>
   );
 };
 

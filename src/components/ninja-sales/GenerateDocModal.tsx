@@ -5,6 +5,12 @@ import { ninjaSalesService } from "../../services/ninjaSales";
 
 type DocType = "PROPOSAL" | "INVOICE";
 
+const formatDeadline = (iso?: string, fallback = "No deadline", locale?: string): string => {
+  if (!iso) return fallback;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? fallback : d.toLocaleDateString(locale);
+};
+
 interface GenerateDocModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -136,7 +142,8 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
     if (project.competitor) lines.push(`Competitor: ${project.competitor}`);
     if (project.urgency) lines.push(`Urgency: ${project.urgency}`);
     if (typeof project.budgetConfirmed === "boolean") lines.push(`Budget confirmed: ${project.budgetConfirmed ? "Yes" : "No"}`);
-    if (project.forecastedCloseDate) lines.push(`Deadline: ${new Date(project.forecastedCloseDate).toLocaleDateString("en-US")}`);
+    const forecastedCloseLabel = formatDeadline(project.forecastedCloseDate, "", "en-US");
+    if (forecastedCloseLabel) lines.push(`Deadline: ${forecastedCloseLabel}`);
     return lines.filter(Boolean).join("\n");
   }, [project]);
 
@@ -229,7 +236,7 @@ const GenerateDocModal: FC<GenerateDocModalProps> = ({
               </div>
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <FiClock className="text-white/20" />
-                <span>{project.forecastedCloseDate ? new Date(project.forecastedCloseDate).toLocaleDateString() : "No deadline"}</span>
+                <span>{formatDeadline(project.forecastedCloseDate)}</span>
               </div>
             </div>
           </div>

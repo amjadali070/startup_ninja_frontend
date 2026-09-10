@@ -9,6 +9,8 @@ export interface SchedulePostRequest {
   schedules?: Array<{ platform: 'facebook' | 'instagram' | 'x' | 'linkedin'; date: string; time: string }>;
   /** Up to 4 images (LinkedIn/X carousel). A single-element array behaves exactly like the old single-image field. */
   imageFiles?: File[];
+  /** A single video (Reel/video post) — mutually exclusive with imageFiles, matching the immediate-publish rule. */
+  videoFile?: File | null;
   targetAccounts?: Record<string, string[]>;
   /** IANA timezone of the user (e.g. "America/New_York"). When provided the
    *  frontend converts each schedule's date+time to a UTC ISO string before
@@ -71,7 +73,12 @@ class SchedulerService {
       formData.append('scheduledTime', req.scheduledTime);
       if (req.timezone) formData.append('timezone', req.timezone);
     }
-    for (const f of req.imageFiles || []) formData.append('images', f);
+    // Images (carousel) or a single video — never both, matching the immediate-publish rule.
+    if (req.videoFile) {
+      formData.append('video', req.videoFile);
+    } else {
+      for (const f of req.imageFiles || []) formData.append('images', f);
+    }
     if (req.targetAccounts) {
       formData.append('targetAccounts', JSON.stringify(req.targetAccounts));
     }

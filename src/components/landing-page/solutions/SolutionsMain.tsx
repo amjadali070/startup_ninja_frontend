@@ -8,7 +8,7 @@ const SolutionsMain: React.FC = () => {
       icon: <FaDollarSign className="w-8 h-8" />,
       title: "Expensive",
       description:
-        "Paying for ChatGPT, Midjourney, Webflow, and Buffer adds up to $100-300/month",
+        "Paying for a separate AI chat tool, image tool, website builder, and social scheduler adds up to $100-300/month",
     },
     {
       icon: <FaClock className="w-8 h-8" />,
@@ -34,7 +34,7 @@ const SolutionsMain: React.FC = () => {
     {
       title: "Strategic Co-Founder",
       description:
-        "Not just a chatbot—a partner that understands your entire business.",
+        "A partner that understands your entire business, not just a chatbot that answers questions.",
       benefit: "Make better decisions faster",
     },
     {
@@ -52,7 +52,7 @@ const SolutionsMain: React.FC = () => {
     {
       title: "Collaborative Sales Engine",
       description:
-        "Supercharge your pipeline with team-driven workflows, lead tracking, and proposals.",
+        "Run your pipeline with team-driven workflows, lead tracking, and proposals, all in one place.",
       benefit: "Close deals 2x faster",
     },
     {
@@ -87,7 +87,7 @@ const SolutionsMain: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -127,12 +127,7 @@ const SolutionsMain: React.FC = () => {
             {problems.map((problem, index) => (
               <div
                 key={index}
-                className="rounded-lg p-8 text-center border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
+                className="rounded-xl p-8 text-center bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <div
                   className="inline-block p-4 rounded-full mb-4"
@@ -154,13 +149,7 @@ const SolutionsMain: React.FC = () => {
             ))}
           </div>
 
-          <div
-            className="text-center rounded-lg p-8"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-            }}
-          >
+          <div className="text-center rounded-2xl p-8 bg-[#141010] border border-white/10 shadow-lg">
             <p className="text-xl" style={{ color: "#CCCCCC" }}>
               The result?{" "}
               <span className="font-bold" style={{ color: "#D23621" }}>
@@ -193,21 +182,7 @@ const SolutionsMain: React.FC = () => {
             {solutions.map((solution, index) => (
               <div
                 key={index}
-                className="group rounded-lg p-8 transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  // background:
-                  // border: "1px solid #8B0000",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="group rounded-xl p-8 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <h3
                   className="text-2xl font-bold mb-4 transition-colors"
@@ -249,19 +224,7 @@ const SolutionsMain: React.FC = () => {
             {useCases.map((useCase, index) => (
               <div
                 key={index}
-                className="rounded-lg p-8 text-center transition-all duration-300 border border-[#333]"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="rounded-xl p-8 text-center bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <div className="text-6xl mb-4">{useCase.icon}</div>
                 <h3 className="text-2xl font-bold mb-4">{useCase.title}</h3>
@@ -275,13 +238,7 @@ const SolutionsMain: React.FC = () => {
       {/* ROI Section */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
-          <div
-            className="rounded-lg p-12 border border-[#333]"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-            }}
-          >
+          <div className="rounded-2xl p-12 bg-[#141010] border border-white/10 shadow-lg">
             <h2 className="text-4xl font-bold mb-8 text-center">
               The Math is Simple
             </h2>
@@ -302,10 +259,10 @@ const SolutionsMain: React.FC = () => {
                   className="text-left text-sm mt-4 space-y-2"
                   style={{ color: "#CCCCCC" }}
                 >
-                  <li>• ChatGPT Plus: $20/mo</li>
-                  <li>• Midjourney: $30/mo</li>
-                  <li>• Webflow: $23/mo</li>
-                  <li>• Buffer: $12/mo</li>
+                  <li>• AI Chat Tool: $20/mo</li>
+                  <li>• AI Image Tool: $30/mo</li>
+                  <li>• Website Builder: $23/mo</li>
+                  <li>• Social Scheduler: $12/mo</li>
                   <li>• + More tools...</li>
                 </ul>
               </div>
@@ -357,7 +314,7 @@ const SolutionsMain: React.FC = () => {
             Ready to Consolidate Your Stack?
           </h2>
           <p className="text-xl mb-8" style={{ color: "#CCCCCC" }}>
-            Join thousands of founders who've replaced complexity with clarity.
+            Replace complexity with clarity: one workspace instead of a stack of tools.
           </p>
           <Link
             to="/login"

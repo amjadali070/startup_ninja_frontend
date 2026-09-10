@@ -31,12 +31,16 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
 
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  // "invite" sends an email letting the member set their own password; "set" lets the
+  // owner/manager type one directly (the old behavior, kept for cases where email isn't
+  // practical — e.g. a teammate sitting right there).
+  const [creationMode, setCreationMode] = useState<"invite" | "set">("invite");
 
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name === "password") {
+    if (name === "password" && creationMode === "set") {
       if (!value) {
         setPasswordError("Password is required.");
       } else if (value.length < 6) {
@@ -60,16 +64,22 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const password = formData.password || "";
-    if (!password) {
-      setPasswordError("Password is required.");
-      return;
+    if (creationMode === "set") {
+      const password = formData.password || "";
+      if (!password) {
+        setPasswordError("Password is required.");
+        return;
+      }
+      if (password.length < 6) {
+        setPasswordError("Password must be at least 6 characters long.");
+        return;
+      }
+      onConfirm(formData);
+    } else {
+      // Omit password entirely — the backend treats that as "send an invitation email".
+      const { password, ...rest } = formData;
+      onConfirm(rest);
     }
-    if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters long.");
-      return;
-    }
-    onConfirm(formData);
     onClose();
   };
 
@@ -139,32 +149,61 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                   </div>
                 </div>
 
-                {/* Password */}
+                {/* Access setup */}
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium text-white/60 ml-1">Temporary Password</label>
-                  <div className="relative group">
-                    <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
-                    <input
-                      required
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className={`w-full bg-white/5 border rounded-2xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:ring-2 transition-all ${
-                        passwordError
-                          ? "border-red-500 focus:ring-red-500/20 focus:border-red-500/50"
-                          : "border-white/10 focus:ring-red-500/20 focus:border-red-500/50"
-                      }`}
-                    />
+                  <label className="text-sm font-medium text-white/60 ml-1">Access</label>
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                      onClick={() => { setCreationMode("invite"); setPasswordError(""); }}
+                      className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                        creationMode === "invite"
+                          ? "bg-red-600/10 border-red-600/50"
+                          : "bg-white/5 border-white/5 hover:bg-white/[0.08]"
+                      }`}
                     >
-                      {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                      <div className={`text-sm font-medium ${creationMode === "invite" ? "text-white" : "text-white/60"}`}>Send email invite</div>
+                      <div className="text-white/40 text-xs mt-0.5">They set their own password</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCreationMode("set")}
+                      className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                        creationMode === "set"
+                          ? "bg-red-600/10 border-red-600/50"
+                          : "bg-white/5 border-white/5 hover:bg-white/[0.08]"
+                      }`}
+                    >
+                      <div className={`text-sm font-medium ${creationMode === "set" ? "text-white" : "text-white/60"}`}>Set password now</div>
+                      <div className="text-white/40 text-xs mt-0.5">You choose it for them</div>
                     </button>
                   </div>
+
+                  {creationMode === "set" && (
+                    <div className="relative group mt-3">
+                      <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-red-500 transition-colors" />
+                      <input
+                        required
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={`w-full bg-white/5 border rounded-2xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:ring-2 transition-all ${
+                          passwordError
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500/50"
+                            : "border-white/10 focus:ring-red-500/20 focus:border-red-500/50"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                      >
+                        {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  )}
                   {passwordError && (
                     <p className="text-[11px] text-red-400 ml-1 mt-1">{passwordError}</p>
                   )}
@@ -271,7 +310,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose, onConf
                 type="submit"
                 className="px-10 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white font-semibold transition-all shadow-lg shadow-red-900/20 active:scale-95"
               >
-                Create Member
+                {creationMode === "invite" ? "Send Invitation" : "Create Member"}
               </button>
             </div>
           </form>

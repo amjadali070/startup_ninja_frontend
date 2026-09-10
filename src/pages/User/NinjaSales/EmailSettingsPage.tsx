@@ -124,6 +124,12 @@ const EmailSettingsPage: FC = () => {
     }
   };
 
+  const verifiedAtDate = settings?.verifiedAt ? new Date(settings.verifiedAt) : null;
+  const verifiedAtLabel =
+    verifiedAtDate && !Number.isNaN(verifiedAtDate.getTime())
+      ? verifiedAtDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+      : null;
+
   return (
     <DashboardLayout activePath="/ai-tools/sales/email-settings" title="Email Sending - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
@@ -271,10 +277,10 @@ const EmailSettingsPage: FC = () => {
                         <span className="text-xs text-white/40">Verification</span>
                         <span className={`text-xs font-bold ${settings.verified ? "text-emerald-400" : "text-orange-400"}`}>{settings.verified ? "Verified" : "Not Verified"}</span>
                       </div>
-                      {settings.verifiedAt && (
+                      {verifiedAtLabel && (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-white/40">Last Verified</span>
-                          <span className="text-xs font-bold text-white/60">{new Date(settings.verifiedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                          <span className="text-xs font-bold text-white/60">{verifiedAtLabel}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">

@@ -7,6 +7,7 @@ import TeamTable from "../../../components/team-management/TeamTable";
 import AddMemberModal from "../../../components/team-management/AddMemberModal";
 import toast from "react-hot-toast";
 import { teamService, TeamMember } from "../../../services/team";
+import { subscriptionService } from "../../../services/subscription";
 
 const ManageTeam: FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,16 @@ const ManageTeam: FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [teamLimit, setTeamLimit] = useState<{ used: number; allowed: number } | null>(null);
+
+  const fetchTeamLimit = async () => {
+    const res = await subscriptionService.getSubscription();
+    const used = res?.data?.usage?.team_members;
+    const allowed = res?.data?.limits?.team_members;
+    if (typeof used === "number" && typeof allowed === "number") {
+      setTeamLimit({ used, allowed });
+    }
+  };
 
   const fetchMembers = async () => {
     try {
@@ -33,6 +44,7 @@ const ManageTeam: FC = () => {
 
   useEffect(() => {
     fetchMembers();
+    fetchTeamLimit();
   }, []);
 
   const handleLogout = async () => {
@@ -52,8 +64,19 @@ const ManageTeam: FC = () => {
   const handleAddMember = async (data: any) => {
     const res = await teamService.addMember(data);
     if (res.success) {
-      toast.success("Team member added successfully!");
+      if (res.message) {
+        // Member was created but the invitation email failed to send — non-fatal, but the
+        // admin needs to know so they can use "Resend invitation."
+        toast.error(res.message);
+      } else {
+        toast.success(
+          res.data?.invitePending
+            ? "Invitation sent! They'll set their own password."
+            : "Team member added successfully!"
+        );
+      }
       fetchMembers();
+      fetchTeamLimit();
     } else {
       toast.error(res.message || "Failed to add team member");
     }
@@ -77,6 +100,11 @@ const ManageTeam: FC = () => {
               <p className="text-white/40 max-w-2xl text-lg leading-relaxed">
                 Invite members, manage roles and monitor your team's access levels from a central control panel.
               </p>
+              {teamLimit && (
+                <p className="text-white/30 text-sm mt-2">
+                  {teamLimit.used} / {teamLimit.allowed === -1 || teamLimit.allowed >= 999999 ? "Unlimited" : teamLimit.allowed} team members used
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -97,7 +125,7 @@ const ManageTeam: FC = () => {
                 <FiLoader className="w-8 h-8 animate-spin text-red-500" />
               </div>
             ) : (
-              <TeamTable members={members} onRefresh={fetchMembers} />
+              <TeamTable members={members} onRefresh={fetchMembers} onAddMember={() => setIsAddModalOpen(true)} />
             )}
           </div>
 

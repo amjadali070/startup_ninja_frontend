@@ -5,8 +5,7 @@ import {
   FaVideo,
   FaQuestionCircle,
   FaFileAlt,
-  FaUsers,
-  FaRocket,
+  FaEnvelope,
 } from "react-icons/fa";
 
 const ResourcesMain: React.FC = () => {
@@ -21,22 +20,22 @@ const ResourcesMain: React.FC = () => {
     {
       icon: <FaVideo className="w-10 h-10" />,
       title: "Video Tutorials",
-      description: "Step-by-step video walkthroughs",
-      link: "#",
+      description: "Step-by-step video walkthroughs (Coming Soon)",
+      link: "/documentation",
       color: "from-orange-600 to-red-600",
     },
     {
       icon: <FaFileAlt className="w-10 h-10" />,
       title: "Templates",
-      description: "Ready-to-use templates and examples",
-      link: "#",
+      description: "Ready-to-use website templates",
+      link: "/documentation",
       color: "from-red-600 to-pink-600",
     },
     {
       icon: <FaQuestionCircle className="w-10 h-10" />,
       title: "FAQs",
       description: "Answers to common questions",
-      link: "#",
+      link: "/faq",
       color: "from-pink-600 to-red-600",
     },
   ];
@@ -83,7 +82,7 @@ const ResourcesMain: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-32 pb-8 md:pb-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-black"></div>
 
         <div className="relative max-w-7xl mx-auto text-center">
@@ -94,7 +93,7 @@ const ResourcesMain: React.FC = () => {
             className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
             style={{ color: "#CCCCCC" }}
           >
-            Everything you need to become a Startup Ninja—guides, tutorials,
+            Everything you need to become a Startup Ninja: guides, tutorials,
             templates, and support.
           </p>
         </div>
@@ -108,20 +107,7 @@ const ResourcesMain: React.FC = () => {
               <Link
                 key={index}
                 to={category.link}
-                className="group text-center rounded-lg p-8 border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                  border: "1px solid #8B0000",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="group text-center rounded-xl p-8 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300"
               >
                 <div
                   className={`inline-block p-4 rounded-lg bg-gradient-to-r ${category.color} mb-4 group-hover:scale-110 transition-transform duration-300`}
@@ -149,19 +135,7 @@ const ResourcesMain: React.FC = () => {
             {popularResources.map((resource, index) => (
               <div
                 key={index}
-                className="group rounded-lg p-6 border border-[#333] transition-all duration-300 cursor-pointer"
-                style={{
-                  background:
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(143.82deg, rgba(129, 0, 0, 0.5) -18.07%, rgba(58, 0, 0, 0.5) 4.29%, rgba(29, 0, 0, 0.25) 56.47%, rgba(13, 12, 13, 0.5) 101.2%)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)";
-                }}
+                className="group rounded-xl p-6 bg-[#141010] border border-white/10 shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
               >
                 <div
                   className="text-sm font-semibold mb-2"
@@ -185,14 +159,7 @@ const ResourcesMain: React.FC = () => {
       {/* Support Section */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
-          <div
-            className="rounded-lg p-12 border"
-            style={{
-              background:
-                "linear-gradient(135.17deg, rgba(55, 65, 81, 0.5) -94.55%, rgba(18, 16, 16, 0.5) 95.54%)",
-              border: "1px solid #333",
-            }}
-          >
+          <div className="rounded-2xl p-12 bg-[#141010] border border-white/10 shadow-lg">
             <h2 className="text-4xl font-bold mb-6 text-center">Need Help?</h2>
             <p
               className="text-xl text-center mb-12"
@@ -210,13 +177,14 @@ const ResourcesMain: React.FC = () => {
                       "radial-gradient(50% 50% at 50% 50%, rgba(222, 5, 0, 0.7) 0%, rgba(120, 3, 0, 0) 100%)",
                   }}
                 >
-                  <FaRocket className="w-8 h-8" style={{ color: "#D23621" }} />
+                  <FaBook className="w-8 h-8" style={{ color: "#D23621" }} />
                 </div>
-                <h4 className="font-bold mb-2">Ninja Assist</h4>
+                <h4 className="font-bold mb-2">Documentation</h4>
                 <p className="text-sm mb-4" style={{ color: "#CCCCCC" }}>
-                  Chat with our AI support guide 24/7
+                  Browse guides for every feature
                 </p>
-                <button
+                <Link
+                  to="/documentation"
                   className="transition-colors"
                   style={{ color: "#D23621" }}
                   onMouseEnter={(e) =>
@@ -226,36 +194,8 @@ const ResourcesMain: React.FC = () => {
                     (e.currentTarget.style.color = "#D23621")
                   }
                 >
-                  Open Chat →
-                </button>
-              </div>
-
-              <div className="text-center">
-                <div
-                  className="inline-block p-4 rounded-full mb-4"
-                  style={{
-                    background:
-                      "radial-gradient(50% 50% at 50% 50%, rgba(222, 5, 0, 0.7) 0%, rgba(120, 3, 0, 0) 100%)",
-                  }}
-                >
-                  <FaUsers className="w-8 h-8" style={{ color: "#D23621" }} />
-                </div>
-                <h4 className="font-bold mb-2">Community</h4>
-                <p className="text-sm mb-4" style={{ color: "#CCCCCC" }}>
-                  Join our founder community
-                </p>
-                <button
-                  className="transition-colors"
-                  style={{ color: "#D23621" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#B91C1C")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "#D23621")
-                  }
-                >
-                  Join Now →
-                </button>
+                  Browse Docs →
+                </Link>
               </div>
 
               <div className="text-center">
@@ -267,6 +207,38 @@ const ResourcesMain: React.FC = () => {
                   }}
                 >
                   <FaQuestionCircle
+                    className="w-8 h-8"
+                    style={{ color: "#D23621" }}
+                  />
+                </div>
+                <h4 className="font-bold mb-2">FAQ</h4>
+                <p className="text-sm mb-4" style={{ color: "#CCCCCC" }}>
+                  Quick answers to common questions
+                </p>
+                <Link
+                  to="/faq"
+                  className="transition-colors"
+                  style={{ color: "#D23621" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "#B91C1C")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "#D23621")
+                  }
+                >
+                  View FAQ →
+                </Link>
+              </div>
+
+              <div className="text-center">
+                <div
+                  className="inline-block p-4 rounded-full mb-4"
+                  style={{
+                    background:
+                      "radial-gradient(50% 50% at 50% 50%, rgba(222, 5, 0, 0.7) 0%, rgba(120, 3, 0, 0) 100%)",
+                  }}
+                >
+                  <FaEnvelope
                     className="w-8 h-8"
                     style={{ color: "#D23621" }}
                   />

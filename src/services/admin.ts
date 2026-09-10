@@ -9,7 +9,8 @@ import type {
   UserWithStats,
   UserDetails,
   SystemHealth,
-  AnalyticsData,
+  ProductAnalytics,
+  RecentErrors,
   AIChat,
   GeneratedImage,
   SocialPost,
@@ -250,27 +251,75 @@ export const adminService = {
   },
 
   /**
-   * Get Analytics Data
+   * Product Analytics — signups, DAU/MAU, retention, churn, trial-to-paid conversion,
+   * MRR/ARR/ARPU, and refunds, computed from real data.
    */
-  async getAnalytics(params?: {
-    period?: "daily" | "weekly" | "monthly";
-    type?: string;
-  }): Promise<AdminApiResponse<AnalyticsData[]>> {
+  async getProductAnalytics(days: number = 30): Promise<AdminApiResponse<ProductAnalytics>> {
     try {
-      const queryParams = new URLSearchParams();
-      if (params?.period) queryParams.append("period", params.period);
-      if (params?.type) queryParams.append("type", params.type);
-
-      const response = await apiClient.get<AdminApiResponse<AnalyticsData[]>>(
-        `/admin/dashboard/analytics?${queryParams.toString()}`
+      const response = await apiClient.get<AdminApiResponse<ProductAnalytics>>(
+        `/admin/analytics/product?days=${days}`
       );
       return response;
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || "Failed to fetch analytics",
+        message: error.response?.data?.message || "Failed to fetch product analytics",
         error: error.message,
       };
+    }
+  },
+
+  /**
+   * Recent request-level errors captured by the API gateway across every backend service.
+   */
+  async getRecentErrors(hours: number = 24): Promise<AdminApiResponse<RecentErrors>> {
+    try {
+      const response = await apiClient.get<AdminApiResponse<RecentErrors>>(
+        `/admin/errors/recent?hours=${hours}`
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to fetch recent errors",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Support tickets — admin-facing (every ticket, across every user).
+   */
+  async listAllSupportTickets(status?: string): Promise<AdminApiResponse<import("./support").SupportTicket[]>> {
+    try {
+      const qs = status && status !== "all" ? `?status=${status}` : "";
+      return await apiClient.get<AdminApiResponse<import("./support").SupportTicket[]>>(`/admin/support/tickets${qs}`);
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || "Failed to fetch tickets", error: error.message };
+    }
+  },
+
+  async getSupportTicketAdmin(id: string): Promise<AdminApiResponse<import("./support").SupportTicket>> {
+    try {
+      return await apiClient.get<AdminApiResponse<import("./support").SupportTicket>>(`/admin/support/tickets/${id}`);
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || "Failed to fetch ticket", error: error.message };
+    }
+  },
+
+  async replyToSupportTicketAsAdmin(id: string, message: string): Promise<AdminApiResponse<import("./support").SupportTicket>> {
+    try {
+      return await apiClient.post<AdminApiResponse<import("./support").SupportTicket>>(`/admin/support/tickets/${id}/reply`, { message });
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || "Failed to add reply", error: error.message };
+    }
+  },
+
+  async updateSupportTicketStatus(id: string, status: string): Promise<AdminApiResponse<import("./support").SupportTicket>> {
+    try {
+      return await apiClient.put<AdminApiResponse<import("./support").SupportTicket>>(`/admin/support/tickets/${id}/status`, { status });
+    } catch (error: any) {
+      return { success: false, message: error.response?.data?.message || "Failed to update ticket status", error: error.message };
     }
   },
 
@@ -823,6 +872,25 @@ export const adminService = {
       return {
         success: false,
         message: error.response?.data?.message || "Failed to assign subscription",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
+   * Issue a real Stripe refund for a completed transaction.
+   */
+  async issueRefund(transactionId: string, reason?: string): Promise<AdminApiResponse<any>> {
+    try {
+      const response = await apiClient.post<AdminApiResponse<any>>(
+        `/user/admin/transactions/${transactionId}/refund`,
+        { reason }
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to issue refund",
         error: error.message,
       };
     }

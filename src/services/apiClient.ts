@@ -43,8 +43,14 @@ class ApiClient {
   private clientIpPromise: Promise<string | null> | null = null;
 
   constructor() {
-    this.baseURL =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+    // A relative path (not an absolute http://localhost:5000/api) so the browser's requests
+    // stay same-origin against the frontend dev server, which proxies /api to the gateway
+    // itself (see vite.config.ts). An absolute cross-origin URL here previously made every
+    // request cross-*scheme* too (this dev server is https, the gateway plain http) — Chrome's
+    // Schemeful-SameSite policy treats that as cross-site and silently refuses to store the
+    // SameSite=Lax CSRF cookie, breaking every state-changing request with no visible cause
+    // beyond a 403 that looked like a CSRF bug rather than a networking one.
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
     this.axiosInstance = axios.create({
       baseURL: this.baseURL,

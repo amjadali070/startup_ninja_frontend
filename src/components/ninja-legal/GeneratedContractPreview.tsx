@@ -5,6 +5,7 @@ import LoadingSpinner from "../LoadingSpinner";
 import { FiDownload, FiEdit2, FiX, FiRefreshCw } from "react-icons/fi";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import LegalDisclaimerBanner from "./LegalDisclaimerBanner";
 
 interface GeneratedContractPreviewProps {
   generatedContract: {
@@ -226,12 +227,19 @@ export const GeneratedContractPreview = ({
     }
   };
 
+  const startDateObj = new Date(generatedContract.startDate);
+  const isStartDateValid = !Number.isNaN(startDateObj.getTime());
+  const formatStartDate = (options?: Intl.DateTimeFormatOptions) =>
+    isStartDateValid ? startDateObj.toLocaleDateString("en-US", options) : "-";
+
   return (
     <div className="flex flex-col h-full space-y-4">
+      <LegalDisclaimerBanner />
+
       {/* Action Bar with Enhanced Design */}
       <div className="flex gap-2 justify-between items-center px-2">
         <div className="text-[10px] font-black text-white/40 uppercase tracking-widest">
-          {sections.length} Sections • {new Date(generatedContract.startDate).toLocaleDateString()}
+          {sections.length} Sections • {formatStartDate()}
         </div>
         <div className="flex gap-2">
           <button
@@ -283,11 +291,7 @@ export const GeneratedContractPreview = ({
               <div className="text-right bg-gradient-to-br from-red-50 to-red-100/50 rounded-2xl px-6 py-4 border border-red-200 shadow-sm">
                 <p className="text-[8px] font-black text-red-700 uppercase tracking-[0.2em]">Effective Date</p>
                 <p className="text-base font-black text-gray-900 mt-1">
-                  {new Date(generatedContract.startDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "2-digit",
-                    year: "numeric",
-                  })}
+                  {formatStartDate({ month: "short", day: "2-digit", year: "numeric" })}
                 </p>
               </div>
             </div>
@@ -365,16 +369,14 @@ export const GeneratedContractPreview = ({
                   <div className="h-8 border-b border-gray-400" />
                   <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gray-500">Date</p>
                   <p className="text-[11px] text-gray-700 mt-1">
-                    {new Date(generatedContract.startDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatStartDate({ year: "numeric", month: "long", day: "numeric" })}
                   </p>
                 </div>
               </div>
 
-              
+              <div className="pt-6 mt-2 border-t border-gray-200">
+                <LegalDisclaimerBanner variant="inline" />
+              </div>
             </div>
           </div>
         </div>

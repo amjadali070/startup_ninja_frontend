@@ -23,6 +23,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   setSelectedPost,
   PLATFORM_META,
 }) => {
+  const postDate = new Date(selectedPost.publishedAt || selectedPost.scheduledAt);
+  const isPostDateValid = !Number.isNaN(postDate.getTime());
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       <div
@@ -123,16 +126,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     : "Published at:"}
                 </span>
                 <span className="font-semibold text-white">
-                  {new Date(
-                    selectedPost.publishedAt || selectedPost.scheduledAt
-                  ).toLocaleDateString()}{" "}
-                  at{" "}
-                  {new Date(
-                    selectedPost.publishedAt || selectedPost.scheduledAt
-                  ).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {isPostDateValid ? (
+                    <>
+                      {postDate.toLocaleDateString()} at{" "}
+                      {postDate.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </>
+                  ) : (
+                    "-"
+                  )}
                 </span>
               </div>
             </div>

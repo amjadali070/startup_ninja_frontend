@@ -14,6 +14,7 @@ export interface TeamMember {
     finance: boolean;
     legal: boolean;
   };
+  invitePending?: boolean;
   createdBy?: {
     _id: string;
     fullname: string;
@@ -99,6 +100,44 @@ export const teamService = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to reset password'
+      };
+    }
+  },
+
+  async resendInvitation(id: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>(`/admin/team/members/${id}/resend-invitation`);
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to resend invitation'
+      };
+    }
+  },
+
+  /** Validate an invite token — public, no auth (the invitee has no account yet). */
+  async getInviteInfo(token: string): Promise<{ success: boolean; message?: string; data?: { email: string; fullname: string } }> {
+    try {
+      const response = await apiClient.get<{ success: boolean; message?: string; data?: { email: string; fullname: string } }>(`/admin/team/invite/${encodeURIComponent(token)}`);
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'This invitation link is invalid or has expired.'
+      };
+    }
+  },
+
+  /** Accept an invite and set a password — public, no auth. */
+  async acceptInvite(token: string, password: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiClient.post<{ success: boolean; message: string }>(`/admin/team/invite/${encodeURIComponent(token)}/accept`, { password });
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to accept invitation'
       };
     }
   }
