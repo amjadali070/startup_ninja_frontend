@@ -9,6 +9,7 @@ import {
   FiAlertTriangle, FiZap as FiZapIcon,
   FiFileText
 } from "react-icons/fi";
+import toast from "react-hot-toast";
 import { ninjaSalesService, LeadSearchResult } from "../../services/ninjaSales";
 import IconSelect from "../IconSelect";
 import { useDraftPersistence } from "../../hooks/useDraftPersistence";
@@ -147,10 +148,11 @@ const AddProjectModal: FC<AddProjectModalProps> = ({ isOpen, onClose, onCreated 
       budgetConfirmed: formData.budgetConfirmed,
     });
     setSaving(false);
-    if (res.success) { 
-      onCreated?.(); 
-      onClose(); 
-      resetForm(); 
+    if (res.success) {
+      toast.success("Deal created");
+      onCreated?.();
+      onClose();
+      resetForm();
     } else {
       setError({ 
         message: res.message || "Failed to create project",

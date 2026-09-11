@@ -11,7 +11,7 @@ import AIChatQuickActionCard from "../../components/ai-chat/AIChatQuickActionCar
 import AIChatFooterNotice from "../../components/ai-chat/AIChatFooterNotice.tsx";
 import ChatMessagesList from "../../components/ai-chat/ChatMessagesList.tsx";
 import ChatHistorySidebar from "../../components/ai-chat/ChatHistorySidebar.tsx";
-import DeleteChatModal from "../../components/ai-chat/DeleteChatModal.tsx";
+import AlertModal from "../../components/AlertModal.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { useDraftPersistence } from "../../hooks/useDraftPersistence.ts";
 import { authService } from "../../services/auth.ts";
@@ -932,7 +932,7 @@ const AIChat: FC = () => {
           />
 
           {editingMessage && (
-            <div className="flex-shrink-0 mb-2 flex items-center justify-between gap-2 px-4 py-2 rounded-lg bg-[#DE0500]/5 border border-[#DE0500]/20 text-xs text-white/70">
+            <div className="flex-shrink-0 mb-2 flex items-center justify-between gap-2 px-4 py-2 rounded-lg bg-[#DC2626]/5 border border-[#DC2626]/20 text-xs text-white/70">
               <span>Editing message — sending will regenerate the response from this point.</span>
               <button
                 onClick={handleCancelEditMessage}
@@ -998,9 +998,8 @@ const AIChat: FC = () => {
           onSearch={handleSearchChats}
         />
 
-        <DeleteChatModal
+        <AlertModal
           isOpen={deleteModalOpen}
-          chatTitle={chatToDelete?.title || ""}
           onClose={() => {
             if (!isDeleting) {
               setDeleteModalOpen(false);
@@ -1008,7 +1007,17 @@ const AIChat: FC = () => {
             }
           }}
           onConfirm={handleConfirmDelete}
-          isDeleting={isDeleting}
+          title="Delete Chat"
+          type="danger"
+          action="delete"
+          confirmText="Delete Chat"
+          loadingText="Deleting..."
+          isLoading={isDeleting}
+          message={
+            <>
+              Are you sure you want to delete <b>"{chatToDelete?.title || ""}"</b>? This action cannot be undone.
+            </>
+          }
         />
       </main>
     </DashboardLayout>

@@ -11,11 +11,30 @@ const formatTime = (iso?: string): string => {
 
 const RecentErrorsPanel: FC = () => {
   const [data, setData] = useState<RecentErrors | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = () => {
+    setLoading(true);
+    setError(null);
+    adminService
+      .getRecentErrors(24)
+      .then((res) => {
+        if (res.success && res.data) {
+          setData(res.data);
+        } else {
+          setError(res.message || "Failed to load recent errors.");
+        }
+      })
+      .catch((err) => {
+        setError(err.message || "Failed to load recent errors.");
+      })
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    adminService.getRecentErrors(24).then((res) => {
-      if (res.success && res.data) setData(res.data);
-    });
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -39,7 +58,19 @@ const RecentErrorsPanel: FC = () => {
         )}
       </div>
 
-      {!data ? (
+      {loading ? (
+        <p className="text-xs text-gray-500">Loading…</p>
+      ) : error ? (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2.5">
+          <p className="text-xs text-red-300">{error}</p>
+          <button
+            onClick={load}
+            className="text-xs font-medium text-white/70 hover:text-white underline flex-shrink-0"
+          >
+            Retry
+          </button>
+        </div>
+      ) : !data ? (
         <p className="text-xs text-gray-500">Loading…</p>
       ) : data.total === 0 ? (
         <p className="text-xs text-gray-500">No errors in the last {data.hours} hours — all clear.</p>

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { ninjaLegalService, ContractListItem } from "../../services/ninja-legal";
 import LoadingSpinner from "../LoadingSpinner";
-import { FiChevronDown, FiUpload, FiFileText, FiCalendar } from "react-icons/fi";
+import IconSelect from "../IconSelect";
+import { FiUpload, FiFileText, FiCalendar } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
 
 interface PreGenerationModalProps {
@@ -136,6 +137,7 @@ export const PreGenerationModal = ({
 
       if (response.success && response.data) {
         onGenerationComplete(response.data, false);
+        toast.success("Contract generated");
       } else {
         toast.error(response.message || "Failed to generate contract sections");
       }
@@ -223,21 +225,19 @@ export const PreGenerationModal = ({
         ) : (
           <div className="space-y-3">
             <div className="relative group">
-              <select
+              <IconSelect
                 value={selectedContractId}
-                onChange={(e) => setSelectedContractId(e.target.value)}
-                className="w-full h-14 bg-white/[0.03] border border-white/5 hover:border-red-500/30 rounded-2xl px-6 pr-12 text-sm font-black text-white appearance-none transition-all outline-none cursor-pointer"
-              >
-                <option value="" className="bg-[#121212]">-- Select a Contract --</option>
-                {contracts.map((contract) => (
-                  <option key={contract.contractId} value={contract.contractId} className="bg-[#121212]">
-                    {contract.contractTitle} ({contract.contractStatus})
-                  </option>
-                ))}
-              </select>
-              <FiChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none transition-transform group-hover:text-white/30" />
+                onChange={setSelectedContractId}
+                placeholder="-- Select a Contract --"
+                className="w-full h-14 bg-white/[0.03] border border-white/5 hover:border-red-500/30 rounded-2xl px-6 text-sm font-black text-white transition-all outline-none cursor-pointer"
+                options={contracts.map((contract) => ({
+                  value: contract.contractId,
+                  label: `${contract.contractTitle} (${contract.contractStatus})`,
+                  icon: <FiFileText className="w-4 h-4" />,
+                }))}
+              />
             </div>
-            
+
             {selectedContractId && (
               <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Selected Contract</p>

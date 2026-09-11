@@ -28,10 +28,19 @@ export const BusinessProfileProvider = ({ children }: { children: ReactNode }): 
     setLoading(true);
     try {
       const res = await userService.getBusinessProfile();
-      setProfile(res.success ? res.data ?? null : null);
+      if (res.success) {
+        setProfile(res.data ?? null);
+        setFetched(true);
+      }
+      // On failure (a transient error, or a request that raced a token
+      // refresh and lost), deliberately leave `fetched` false rather than
+      // treating "we don't know" as "user hasn't onboarded" — that
+      // previously bounced already-onboarded users to /onboarding whenever
+      // this one request failed for any reason, unrelated to their real
+      // onboarding status. `needsOnboarding` only turns true once a fetch
+      // has genuinely succeeded and confirmed it.
     } finally {
       setLoading(false);
-      setFetched(true);
     }
   }, [isOwnerAccount]);
 

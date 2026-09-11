@@ -3,6 +3,7 @@ import { FiFile, FiPlus, FiTrash2, FiHome, FiEdit2, FiX, FiCheck } from 'react-i
 import { toast } from 'react-hot-toast';
 import WebBuilderService from '../../services/web-builder/WebBuilderService';
 import AlertModal from '../AlertModal';
+import LoadingSpinner from '../LoadingSpinner';
 
 interface Page {
     slug: string;
@@ -166,9 +167,13 @@ const PagesManagerModal: React.FC<PagesManagerModalProps> = ({
     return (
         <>
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70">
-                <div className="bg-[#1a1a1a] border border-[#333] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
+                {/* max-h-[90vh] + flex-col, body scrolling independently below —
+                    a fixed max-h-[600px] on the body could still exceed a short
+                    mobile viewport's total height once the header is added on
+                    top of it. */}
+                <div className="bg-[#1a1a1a] border border-[#333] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
                     {/* Header */}
-                    <div className="p-6 border-b border-[#333] flex justify-between items-center bg-[#222]">
+                    <div className="p-6 border-b border-[#333] flex justify-between items-center bg-[#222] shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
                                 <FiFile className="w-5 h-5" />
@@ -183,7 +188,7 @@ const PagesManagerModal: React.FC<PagesManagerModalProps> = ({
                         </button>
                     </div>
 
-                    <div className="p-6 max-h-[600px] overflow-y-auto">
+                    <div className="p-6 overflow-y-auto">
                         {/* Add New Page Section */}
                         {!showAddPage ? (
                             <button
@@ -262,9 +267,8 @@ const PagesManagerModal: React.FC<PagesManagerModalProps> = ({
                                 All Pages ({pages.length})
                             </h4>
                             {loading && pages.length === 0 ? (
-                                <div className="text-center py-12 text-gray-500">
-                                    <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-                                    Loading pages...
+                                <div className="py-12">
+                                    <LoadingSpinner size="small" variant="dark" />
                                 </div>
                             ) : pages.length === 0 ? (
                                 <div className="text-center py-12 text-gray-500">

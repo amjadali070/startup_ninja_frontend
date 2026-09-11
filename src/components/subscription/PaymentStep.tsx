@@ -62,6 +62,14 @@ const PaymentStepContent: React.FC<PaymentStepProps> = ({ planName, billingCycle
         if (subRes.success) {
             toast.success(`Successfully subscribed to ${planName}!`);
             navigate('/dashboard');
+        } else if (subRes.requiresStudentVerification) {
+            // Shouldn't normally be reachable — BuySubscription gates this
+            // plan behind an approved-verification check before this step
+            // even renders — but kept as a real safety net in case
+            // verification expired in the gap between that check and this
+            // submit, rather than leaving the user with a bare failure.
+            toast.error(subRes.message || 'Student verification is required for this plan.');
+            navigate('/settings');
         } else {
             throw new Error(subRes.message);
         }

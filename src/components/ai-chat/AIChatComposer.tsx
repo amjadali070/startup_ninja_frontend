@@ -186,12 +186,12 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
       onDragLeave={handleDragLeave}
       className={`relative w-full rounded-2xl border p-2 shadow-[0_24px_120px_rgba(5,5,10,0.65)] backdrop-blur-lg sm:p-4 md:p-5 transition-colors ${
         isDragging
-          ? "border-[#DE0500] bg-[#1A1A1A]"
+          ? "border-[#DC2626] bg-[#1A1A1A]"
           : "border-[#242424] bg-[#151515]"
       } ${className ?? ""}`}
     >
       {isDragging && (
-        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-[#0A0A0A]/80 border-2 border-dashed border-[#DE0500]">
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-[#0A0A0A]/80 border-2 border-dashed border-[#DC2626]">
           <p className="text-sm font-medium text-white/80">
             Drop files to attach
           </p>
@@ -249,7 +249,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
             </div>
             <div className="h-1 w-full rounded-full bg-white/10 overflow-hidden">
               <div
-                className="h-full bg-[#DE0500] transition-all duration-200"
+                className="h-full bg-[#DC2626] transition-all duration-200"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -290,7 +290,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
                 disabled={disabled}
                 className={`inline-flex items-center gap-2 rounded-[14px] border px-3 py-2 sm:py-1.5 text-xs font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                   enableSearch
-                    ? "border-[#DE0500] text-[#DE0500] bg-[#DE0500]/10"
+                    ? "border-[#DC2626] text-[#DC2626] bg-[#DC2626]/10"
                     : "border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
                 title="Toggle web search"
@@ -307,7 +307,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
                 type="button"
                 onClick={onNewChat}
                 disabled={disabled}
-                className="inline-flex items-center gap-2 rounded-[14px] border border-[#FF0600] px-3 py-2 sm:py-1.5 text-xs font-semibold text-[#FF0600] shadow-[0_12px_30px_rgba(222,5,0,0.25)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FF0600]/10"
+                className="inline-flex items-center gap-2 rounded-[14px] border border-[#DC2626] px-3 py-2 sm:py-1.5 text-xs font-semibold text-[#DC2626] shadow-[0_12px_30px_rgba(220,38,38,0.25)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#DC2626]/10"
                 aria-label="New chat"
               >
                 <FaPlus className="h-3.5 w-3.5" />
@@ -361,7 +361,7 @@ const AIChatComposer: FC<AIChatComposerProps> = ({
                 onClick={handleSubmit}
                 disabled={disabled || !prompt.trim()}
                 aria-label="Send message"
-                className="ml-1 flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#DE0500] text-white shadow-[0_20px_40px_rgba(222,5,0,0.45)] transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                className="ml-1 flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#DC2626] text-white shadow-[0_20px_40px_rgba(220,38,38,0.45)] transition-transform duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {disabled ? (
                   <GiNinjaStar className="h-4 w-4 animate-spin" />

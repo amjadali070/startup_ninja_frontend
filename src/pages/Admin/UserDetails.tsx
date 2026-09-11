@@ -33,6 +33,7 @@ import ManageResourcesView from "../../components/admin-dashboard/user-details/M
 import EditUserView from "../../components/admin-dashboard/user-details/EditUserView";
 import ContentHistoryView from "../../components/admin-dashboard/user-details/ContentHistoryView";
 import PostDetailModal from "../../components/admin-dashboard/user-details/PostDetailModal";
+import AlertModal from "../../components/AlertModal";
 
 const UserDetailsPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -57,6 +58,8 @@ const UserDetailsPage: React.FC = () => {
   );
   const [selectedChat, setSelectedChat] = useState<AIChat | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialPost | null>(null);
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [isSuspending, setIsSuspending] = useState(false);
 
   // Content data state
   const [contentData, setContentData] = useState<{
@@ -541,6 +544,35 @@ const UserDetailsPage: React.FC = () => {
     }
   };
 
+  const handleSuspendConfirm = async () => {
+    if (!user) return;
+
+    const newStatus = user.status === 1 ? 0 : 1;
+
+    try {
+      setIsSuspending(true);
+      const response = await adminService.updateUser(user._id, {
+        status: newStatus,
+      });
+
+      if (response.success) {
+        toast.success(
+          newStatus === 1
+            ? "User reactivated successfully"
+            : "User suspended successfully"
+        );
+        setShowSuspendModal(false);
+        fetchUser();
+      } else {
+        toast.error(response.message || "Failed to update user status");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update user status");
+    } finally {
+      setIsSuspending(false);
+    }
+  };
+
   const toggleFeature = (feature: string) => {
     setResourceForm((prev:any) => {
       const current = (prev.activeFeatureList && typeof prev.activeFeatureList === 'object') ? prev.activeFeatureList : {};
@@ -627,6 +659,7 @@ const UserDetailsPage: React.FC = () => {
                 user={user}
                 onManageResources={() => setViewingResources(true)}
                 onEditUser={() => setViewingEditUser(true)}
+                onSuspend={() => setShowSuspendModal(true)}
               />
             </div>
 
@@ -666,6 +699,43 @@ const UserDetailsPage: React.FC = () => {
           selectedPost={selectedPost}
           setSelectedPost={setSelectedPost}
           PLATFORM_META={PLATFORM_META}
+        />
+      )}
+
+      {/* Suspend / Reactivate User Confirmation */}
+      {user && (
+        <AlertModal
+          isOpen={showSuspendModal}
+          type={user.status === 1 ? "warning" : "success"}
+          action="toggle"
+          title={user.status === 1 ? "Suspend User" : "Reactivate User"}
+          message={
+            user.status === 1 ? (
+              <>
+                Are you sure you want to suspend{" "}
+                <span className="font-semibold text-white">
+                  {user.fullname || user.username}
+                </span>{" "}
+                (<span className="text-white/70">{user.email}</span>)? They
+                will be unable to log in or access the platform until
+                reactivated.
+              </>
+            ) : (
+              <>
+                Reactivate{" "}
+                <span className="font-semibold text-white">
+                  {user.fullname || user.username}
+                </span>{" "}
+                (<span className="text-white/70">{user.email}</span>)? They
+                will regain full access to the platform.
+              </>
+            )
+          }
+          confirmText={user.status === 1 ? "Suspend User" : "Reactivate User"}
+          onClose={() => setShowSuspendModal(false)}
+          onConfirm={handleSuspendConfirm}
+          isLoading={isSuspending}
+          loadingText={user.status === 1 ? "Suspending..." : "Reactivating..."}
         />
       )}
     </DashboardLayout>

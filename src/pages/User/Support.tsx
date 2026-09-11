@@ -62,7 +62,7 @@ const Support: FC = () => {
   return (
     <DashboardLayout activePath="/support" title="Support" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto">
-        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-4xl mx-auto">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-white text-2xl font-bold">Support</h1>

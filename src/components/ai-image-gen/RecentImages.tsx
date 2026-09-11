@@ -519,6 +519,7 @@ const ImageDetailModal: React.FC<{
 const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<PreparedImageItem | null>(
     null
@@ -548,7 +549,10 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
   // state on every remount and was the real cause of a "stuck on the pre-edit version" bug.
   const fetchImages = useCallback(async (pageNum: number, opts: { silent?: boolean } = {}) => {
     try {
-      if (!opts.silent) setLoading(true);
+      if (!opts.silent) {
+        setLoading(true);
+        setLoadError(false);
+      }
       const data: any = await imageGenService.getHistory(pageNum, pageSize);
 
       const responseData = data.data || [];
@@ -567,6 +571,14 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
 
     } catch (error) {
       console.error("Failed to fetch images:", error);
+      // Without this, a failed request left `images` at its previous value (`[]` on first
+      // load) and fell straight into the "No images yet" empty state below — indistinguishable
+      // from a user who genuinely has no history, when the real problem was a network/server
+      // error. `loadError` renders a dedicated retry state instead of masking the failure.
+      if (!opts.silent) {
+        setLoadError(true);
+        toast.error("Failed to load your image history");
+      }
     } finally {
       if (!opts.silent) setLoading(false);
     }
@@ -737,6 +749,27 @@ const RecentImages: React.FC<RecentImagesProps> = ({ shouldRefresh }) => {
     return (
       <div className="flex items-center justify-center py-20">
         <LoadingSpinner size="medium" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center border border-[#242424] rounded-2xl bg-[#121212] border-dashed">
+        <div className="p-4 bg-red-500/10 rounded-full mb-4">
+          <FiImage className="w-8 h-8 text-red-400" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">Couldn't load your images</h3>
+        <p className="text-gray-500 text-sm max-w-xs mx-auto mb-4">
+          Something went wrong while loading your image history. Please try again.
+        </p>
+        <button
+          type="button"
+          onClick={() => fetchImages(page)}
+          className="px-4 py-2 rounded-lg bg-[#242424] hover:bg-[#2a2a2a] text-white text-sm font-medium transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }

@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { adminService } from "../../../services/admin";
 import type { SingleWebsiteAnalytics } from "../../../types/admin";
+import LoadingSpinner from "../../LoadingSpinner";
 
 interface SingleWebsiteAnalyticsViewProps {
   websiteId: string;
@@ -27,6 +28,14 @@ const formatDateTime = (iso?: string): string => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString();
 };
+
+const resolvePublishedUrl = (
+  publishedLink: string,
+  serviceUrl: string
+): string =>
+  publishedLink.startsWith("http")
+    ? publishedLink
+    : `${serviceUrl}${publishedLink}`;
 
 const SingleWebsiteAnalyticsView: React.FC<
   SingleWebsiteAnalyticsViewProps
@@ -69,7 +78,7 @@ const SingleWebsiteAnalyticsView: React.FC<
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <LoadingSpinner size="small" />
       </div>
     );
   }
@@ -133,17 +142,19 @@ const SingleWebsiteAnalyticsView: React.FC<
             )}
             {websiteInfo.publishedLink && (
               <a
-                href={`${WEB_BUILDER_SERVICE_URL}${websiteInfo.publishedLink}`}
+                href={resolvePublishedUrl(websiteInfo.publishedLink, WEB_BUILDER_SERVICE_URL)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:underline flex items-center gap-2 text-xs sm:text-sm break-all"
               >
                 <span className="truncate max-w-full sm:max-w-md">
-                  {`${WEB_BUILDER_SERVICE_URL}${websiteInfo.publishedLink}`.substring(
+                  {resolvePublishedUrl(websiteInfo.publishedLink, WEB_BUILDER_SERVICE_URL).substring(
                     0,
                     60
                   )}
-                  ...
+                  {resolvePublishedUrl(websiteInfo.publishedLink, WEB_BUILDER_SERVICE_URL).length > 60
+                    ? "..."
+                    : ""}
                 </span>
                 <FaExternalLinkAlt className="text-xs flex-shrink-0" />
               </a>

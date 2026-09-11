@@ -46,7 +46,7 @@ const InstagramPreview: React.FC<InstagramPreviewProps> = ({ instagramStatus, is
             </div>
             <div className="text-gray-400 text-xs">
               {isLoadingInstagram ? 'Checking...' :
-                instagramStatus?.connected ? `${displayAccountType} Account` : 'Karachi, Pakistan'}
+                instagramStatus?.connected ? `${displayAccountType} Account` : 'Not connected'}
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import { type FC, useEffect, useMemo, useState } from "react";
-import { FiX, FiFileText, FiDollarSign, FiClock, FiCheckCircle, FiSearch, FiFolder, FiLoader } from "react-icons/fi";
+import { FiX, FiFileText, FiDollarSign, FiClock, FiCheckCircle, FiSearch, FiFolder } from "react-icons/fi";
 import type { Project } from "../../services/ninjaSales";
 import { ninjaSalesService } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 type DocType = "PROPOSAL" | "INVOICE";
 
@@ -75,7 +76,7 @@ const ProjectPicker: FC<{ onPick: (p: Project) => void }> = ({ onPick }) => {
       <div className="max-h-80 overflow-y-auto space-y-2 custom-scrollbar">
         {loading ? (
           <div className="flex items-center justify-center py-10 text-white/40">
-            <FiLoader className="w-5 h-5 animate-spin" />
+            <LoadingSpinner size="small" />
           </div>
         ) : filtered.length === 0 ? (
           <p className="text-center text-white/30 text-sm py-10">

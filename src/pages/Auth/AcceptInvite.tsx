@@ -6,6 +6,7 @@ import { teamService } from '../../services/team';
 import { FiLock, FiArrowLeft } from 'react-icons/fi';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface AcceptInviteForm {
   password: string;
@@ -82,7 +83,7 @@ const AcceptInvite = () => {
 
         {checking ? (
           <div className="flex justify-center py-8">
-            <CgSpinner className="h-8 w-8 animate-spin text-red-500" />
+            <LoadingSpinner />
           </div>
         ) : invalidReason ? (
           <div className="text-center space-y-4">

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
-  FiSearch, FiEdit2, FiTrash2, FiExternalLink, FiFilter, FiLoader,
+  FiSearch, FiEdit2, FiTrash2, FiExternalLink, FiFilter,
   FiCircle, FiMessageCircle, FiUserCheck, FiSend, FiTrendingUp,
   FiPauseCircle, FiUnlock, FiCheckCircle, FiLock,
   FiFlag, FiAlertTriangle, FiArrowRight, FiClock, FiZap, FiBriefcase
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 import AlertModal from "../AlertModal";
 import { useAuth } from "../../hooks/useAuth";
 import { ninjaSalesService, Project } from "../../services/ninjaSales";
@@ -195,8 +196,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
-          <span className="ml-3 text-white/40 text-sm">Loading projects...</span>
+          <LoadingSpinner size="small" />
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center gap-3 py-16">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
+            <FiBriefcase className="w-6 h-6 text-white/15" />
+          </div>
+          <p className="text-sm font-bold text-white/40">No projects yet</p>
+          <p className="text-xs text-white/20 max-w-xs">Click "New Deal" above to create your first project.</p>
         </div>
       ) : (
       <div className="overflow-x-auto">
@@ -213,17 +221,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ refreshKey }) => {
             </tr>
           </thead>
           <tbody>
-            {projects.length === 0 ? (
-              <tr><td colSpan={7} className="px-6 py-16">
-                <div className="flex flex-col items-center justify-center text-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
-                    <FiBriefcase className="w-6 h-6 text-white/15" />
-                  </div>
-                  <p className="text-sm font-bold text-white/40">No projects yet</p>
-                  <p className="text-xs text-white/20 max-w-xs">Click "New Deal" above to create your first project.</p>
-                </div>
-              </td></tr>
-            ) : projects.map((project) => {
+            {projects.map((project) => {
               const leadName = getLeadName(project.leadId);
               const leadCompany = getLeadCompany(project.leadId);
               const leadIdStr = getLeadId(project.leadId);

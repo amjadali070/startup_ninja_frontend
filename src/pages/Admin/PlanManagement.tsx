@@ -6,6 +6,7 @@ import { authService } from '../../services/auth.ts';
 import { planService, Plan, PlanLimit } from '../../services/plan.ts';
 import { toast } from 'react-hot-toast';
 import { FiEdit2, FiCheck, FiCpu, FiGlobe, FiShare2, FiUsers, FiFileText, FiTrendingUp } from 'react-icons/fi';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const PlanCard: React.FC<{ plan: Plan; onUpdate: (id: string, updates: Partial<Plan>) => Promise<void> }> = ({ plan, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -344,10 +345,7 @@ const PlanManagement: React.FC = () => {
 
             {loading ? (
                 <div className="flex justify-center py-32">
-                   <div className="relative">
-                       <div className="w-16 h-16 border-4 border-gray-800 rounded-full"></div>
-                       <div className="w-16 h-16 border-4 border-t-red-600 rounded-full animate-spin absolute top-0 left-0"></div>
-                   </div>
+                   <LoadingSpinner size="large" />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pb-20">

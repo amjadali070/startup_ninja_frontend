@@ -6,6 +6,39 @@ import type { UserListItem, PaginationInfo } from "../../types/admin";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
 import AlertModal from "../AlertModal";
+import IconSelect, { SelectOption } from "../IconSelect";
+
+const filterSelectClass =
+  "bg-[#0D0D0D] text-white px-4 h-[42px] rounded-lg border border-[#242424]";
+
+const ROLE_OPTIONS: SelectOption[] = [
+  { value: "", label: "All Roles" },
+  { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
+];
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "", label: "All Status" },
+  { value: "1", label: "Active" },
+  { value: "0", label: "Inactive" },
+];
+
+const SUBSCRIPTION_OPTIONS: SelectOption[] = [
+  { value: "", label: "All Plans" },
+  { value: "Free", label: "Free" },
+  { value: "Go", label: "Go" },
+  { value: "Go Student", label: "Go Student" },
+  { value: "Pro", label: "Pro" },
+  { value: "Business", label: "Business" },
+  { value: "Custom", label: "Custom" },
+];
+
+const ROWS_PER_PAGE_OPTIONS: SelectOption[] = [
+  { value: "10", label: "10" },
+  { value: "20", label: "20" },
+  { value: "50", label: "50" },
+  { value: "100", label: "100" },
+];
 
 const UserAvatar: React.FC<{ user: UserListItem }> = ({ user }) => {
   const [imgError, setImgError] = useState(false);
@@ -170,41 +203,28 @@ const UserManagementTable: React.FC = () => {
           </div>
 
           {/* Role Filter */}
-          <select
+          <IconSelect
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-[#0D0D0D] text-white px-4 py-2 rounded-lg border border-[#242424] focus:outline-none focus:border-red-600"
-          >
-            <option value="">All Roles</option>
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
+            onChange={(v) => setRoleFilter(v)}
+            options={ROLE_OPTIONS}
+            className={filterSelectClass}
+          />
 
           {/* Status Filter */}
-          <select
+          <IconSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-[#0D0D0D] text-white px-4 py-2 rounded-lg border border-[#242424] focus:outline-none focus:border-red-600"
-          >
-            <option value="">All Status</option>
-            <option value="1">Active</option>
-            <option value="0">Inactive</option>
-          </select>
+            onChange={(v) => setStatusFilter(v)}
+            options={STATUS_OPTIONS}
+            className={filterSelectClass}
+          />
 
           {/* Subscription Filter */}
-          <select
+          <IconSelect
             value={subscriptionFilter}
-            onChange={(e) => setSubscriptionFilter(e.target.value)}
-            className="bg-[#0D0D0D] text-white px-4 py-2 rounded-lg border border-[#242424] focus:outline-none focus:border-red-600"
-          >
-            <option value="">All Plans</option>
-            <option value="Free">Free</option>
-            <option value="Go">Go</option>
-            <option value="Go Student">Go Student</option>
-            <option value="Pro">Pro</option>
-            <option value="Business">Business</option>
-            <option value="Custom">Custom</option>
-          </select>
+            onChange={(v) => setSubscriptionFilter(v)}
+            options={SUBSCRIPTION_OPTIONS}
+            className={filterSelectClass}
+          />
         </div>
       </div>
 
@@ -357,22 +377,18 @@ const UserManagementTable: React.FC = () => {
 
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <span>Rows per page:</span>
-              <select
-                value={pagination.limit}
-                onChange={(e) =>
+              <IconSelect
+                value={String(pagination.limit)}
+                onChange={(v) =>
                   setPagination((prev) => ({
                     ...prev,
-                    limit: Number(e.target.value),
+                    limit: Number(v),
                     page: 1,
                   }))
                 }
-                className="bg-[#0D0D0D] text-white px-2 py-1 rounded border border-[#242424] focus:outline-none focus:border-red-600"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+                options={ROWS_PER_PAGE_OPTIONS}
+                className="bg-[#0D0D0D] text-white px-2 h-8 w-20 rounded border border-[#242424] text-sm"
+              />
             </div>
           </div>
 

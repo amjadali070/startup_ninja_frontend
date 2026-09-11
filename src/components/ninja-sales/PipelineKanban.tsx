@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FiMoreHorizontal, FiClock, FiPhone, FiInbox } from "react-icons/fi";
 import { MdDragIndicator } from "react-icons/md";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import IconSelect from "../IconSelect";
 
 interface PipelineCard {
   id: string;
@@ -106,18 +107,18 @@ const PipelineKanban: React.FC<PipelineKanbanProps> = ({ columns, onDragEnd, onS
                             </span>
                             <div className="flex items-center gap-2">
                               {onStageChange && (
-                                <select
-                                  value={column.id}
+                                <div
                                   onClick={(e) => e.stopPropagation()}
                                   onMouseDown={(e) => e.stopPropagation()}
-                                  onChange={(e) => onStageChange(card.id, column.id, e.target.value)}
-                                  className="bg-white/[0.04] border border-white/10 rounded-md text-[9px] font-bold text-white/60 uppercase tracking-wide px-1.5 py-1 focus:outline-none focus:border-red-500/50 hover:bg-white/[0.08] transition-colors cursor-pointer max-w-[92px]"
                                   title="Change stage"
                                 >
-                                  {columns.map((c) => (
-                                    <option key={c.id} value={c.id} className="bg-[#121212] text-white">{c.title}</option>
-                                  ))}
-                                </select>
+                                  <IconSelect
+                                    value={column.id}
+                                    onChange={(v) => onStageChange(card.id, column.id, v)}
+                                    options={columns.map((c) => ({ value: c.id, label: c.title }))}
+                                    className="bg-white/[0.04] border border-white/10 rounded-md text-[9px] font-bold text-white/60 uppercase tracking-wide px-1.5 py-1 focus:outline-none focus:border-red-500/50 hover:bg-white/[0.08] transition-colors cursor-pointer max-w-[92px]"
+                                  />
+                                </div>
                               )}
                               <MdDragIndicator className="hidden group-hover:block w-5 h-5 text-white/20 transition-all cursor-grab active:cursor-grabbing shrink-0" />
                               <div className="flex gap-1 group-hover:hidden transition-opacity shrink-0">

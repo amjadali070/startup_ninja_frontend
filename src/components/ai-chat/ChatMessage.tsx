@@ -74,7 +74,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
                 onError={() => setUserImageError(true)}
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-xs text-white/60 font-semibold bg-[#DE0500]/20">
+              <div className="h-full w-full flex items-center justify-center text-xs text-white/60 font-semibold bg-[#DC2626]/20">
                 U
               </div>
             )}
@@ -89,7 +89,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
                 onError={() => setNinjaImageError(true)}
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-xs text-[#DE0500] font-bold">
+              <div className="h-full w-full flex items-center justify-center text-xs text-[#DC2626] font-bold">
                 N
               </div>
             )}
@@ -121,7 +121,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
         <div
           className={`relative rounded-lg px-3 sm:px-4 py-2 sm:py-3 break-words overflow-wrap-anywhere ${
             isUser
-              ? "bg-[#DE0500] text-white rounded-tr-sm"
+              ? "bg-[#DC2626] text-white rounded-tr-sm"
               : "bg-[#1A1A1A] border border-white/10 text-white/90 rounded-tl-sm pr-10"
           }`}
         >
@@ -207,7 +207,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
                       </pre>
                     ) : (
                       <code
-                        className="bg-[#0A0A0A] border border-white/10 rounded px-1.5 py-0.5 text-xs text-[#DE0500] font-mono break-words"
+                        className="bg-[#0A0A0A] border border-white/10 rounded px-1.5 py-0.5 text-xs text-[#DC2626] font-mono break-words"
                         {...props}
                       >
                         {children}
@@ -222,7 +222,7 @@ const ChatMessage: FC<ChatMessageProps> = ({
                   ),
                   a: ({ node, ...props }) => (
                     <a
-                      className="text-[#DE0500] hover:text-[#FF3B3B] underline break-words"
+                      className="text-[#DC2626] hover:text-[#FF3B3B] underline break-words"
                       target="_blank"
                       rel="noopener noreferrer"
                       {...props}

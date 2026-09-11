@@ -27,20 +27,35 @@ const Analytics: FC = () => {
   const { logout } = useAuth();
   const [data, setData] = useState<ProductAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(30);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    adminService.getProductAnalytics(days).then((res) => {
-      if (cancelled) return;
-      if (res.success && res.data) setData(res.data);
-      setLoading(false);
-    });
+    setError(null);
+    adminService
+      .getProductAnalytics(days)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && res.data) {
+          setData(res.data);
+        } else {
+          setError(res.message || "Failed to load analytics.");
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err.message || "Failed to load analytics.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [days]);
+  }, [days, refreshKey]);
 
   const handleLogout = async () => {
     try {
@@ -81,7 +96,21 @@ const Analytics: FC = () => {
             </div>
           </div>
 
-          {loading || !data ? (
+          {loading ? (
+            <div className="flex justify-center py-24">
+              <LoadingSpinner />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
+              <p className="text-red-400 text-sm">{error}</p>
+              <button
+                onClick={() => setRefreshKey((k) => k + 1)}
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : !data ? (
             <div className="flex justify-center py-24">
               <LoadingSpinner />
             </div>

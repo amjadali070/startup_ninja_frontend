@@ -22,8 +22,8 @@ import {
   FiFile,
   FiShare2,
 } from "react-icons/fi";
-import DeleteWebsiteModal from "../../components/web-builder/DeleteWebsiteModal";
 import PublishWebsiteModal from "../../components/web-builder/PublishWebsiteModal";
+import AlertModal from "../../components/AlertModal";
 import { PREVIEW_DEVICE_SIZES } from "../../components/web-builder/config/previewDevices";
 import SEOSettingsModal from "../../components/web-builder/SEOSettingsModal";
 import SocialLinksModal from "../../components/web-builder/SocialLinksModal";
@@ -132,6 +132,7 @@ const WebBuilder: FC = () => {
       );
     } else {
       console.error(response.message);
+      toast.error(response.message || "Failed to load your websites. Please try again.");
     }
     setLoading(false);
   };
@@ -464,9 +465,18 @@ const WebBuilder: FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {websites.map((site) => {
                   const isPublished = !!site.publishedLink;
-                  const createdTime = moment
-                    .tz(site.createdAt, "Asia/Karachi")
-                    .fromNow();
+                  // Guard against missing/malformed createdAt — without this,
+                  // moment renders the literal text "Invalid date" for a bad
+                  // value, and silently mislabels a genuinely missing value
+                  // as "a few seconds ago" (moment defaults an undefined
+                  // input to "now").
+                  const createdMoment = site.createdAt
+                    ? moment.tz(site.createdAt, "Asia/Karachi")
+                    : null;
+                  const createdTime =
+                    createdMoment && createdMoment.isValid()
+                      ? createdMoment.fromNow()
+                      : "—";
                   const hasWebsiteData =
                     site.websiteData &&
                     Object.keys(site.websiteData).length > 0;
@@ -742,14 +752,31 @@ const WebBuilder: FC = () => {
             onUpdate={fetchWebsites}
           />
 
-          <DeleteWebsiteModal
+          <AlertModal
             isOpen={!!websiteToDelete}
-            websiteTitle={websiteToDelete?.websiteTitle || websiteToDelete?.title || "this website"}
+            type="danger"
+            action="delete"
+            title="Delete Website"
+            message={
+              <p className="text-white/80 text-sm leading-relaxed">
+                Are you sure you want to delete{" "}
+                <b>
+                  {websiteToDelete?.websiteTitle ||
+                    websiteToDelete?.title ||
+                    "this website"}
+                </b>
+                ? This permanently removes the website, its published pages,
+                and any uploaded documents. This action cannot be undone.
+              </p>
+            }
+            confirmText="Delete Website"
+            cancelText="Cancel"
             onClose={() => {
               if (!isDeleting) setWebsiteToDelete(null);
             }}
             onConfirm={handleConfirmDeleteWebsite}
-            isDeleting={isDeleting}
+            isLoading={isDeleting}
+            loadingText="Deleting..."
           />
 
           <PublishWebsiteModal

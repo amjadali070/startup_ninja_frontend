@@ -18,6 +18,7 @@ import NewOutreachModal from "../../../components/ninja-sales/NewOutreachModal";
 import IconSelect from "../../../components/IconSelect";
 import GenerateDocModal from "../../../components/ninja-sales/GenerateDocModal";
 import AlertModal from "../../../components/AlertModal";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 const priorityColor: Record<string, string> = {
   urgent: "bg-red-600 text-white", high: "bg-orange-500/20 text-orange-400",
@@ -212,7 +213,7 @@ const ProjectDetailsPage: FC = () => {
     <DashboardLayout activePath="/ai-tools/sales/projects" title="Project Details - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         {loading ? (
-          <div className="flex items-center justify-center h-64"><FiLoader className="w-8 h-8 text-red-500 animate-spin" /></div>
+          <div className="flex items-center justify-center h-64"><LoadingSpinner /></div>
         ) : !project ? (
           <div className="flex flex-col items-center justify-center h-64 text-white/40">
             <p className="text-lg font-bold mb-4">Project not found</p>

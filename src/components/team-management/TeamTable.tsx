@@ -161,6 +161,36 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh, onAddMember }
       </div>
 
       {/* Table Body */}
+      {members.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
+            <FiUserPlus className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">No team members yet</h3>
+          <p className="text-white/40 text-sm max-w-md text-center mb-5">
+            Invite your first teammate to start collaborating — they'll get an email to set up their own access.
+          </p>
+          {onAddMember && (
+            <button
+              onClick={onAddMember}
+              className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white rounded-xl py-2.5 px-5 text-sm font-semibold transition-all"
+            >
+              <FiUserPlus className="w-4 h-4" />
+              Add your first member
+            </button>
+          )}
+        </div>
+      ) : filteredTeam.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
+            <FiUsers className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">No users found</h3>
+          <p className="text-white/40 text-sm max-w-md text-center">
+            We couldn't find any team members matching your current filters. Try adjusting your search query or clear the filters.
+          </p>
+        </div>
+      ) : (
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -174,45 +204,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh, onAddMember }
             </tr>
           </thead>
           <tbody>
-            {members.length === 0 ? (
-              <tr>
-                <td colSpan={6}>
-                  <div className="flex flex-col items-center justify-center py-16 px-4">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
-                      <FiUserPlus className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-lg font-medium text-white mb-2">No team members yet</h3>
-                    <p className="text-white/40 text-sm max-w-md text-center mb-5">
-                      Invite your first teammate to start collaborating — they'll get an email to set up their own access.
-                    </p>
-                    {onAddMember && (
-                      <button
-                        onClick={onAddMember}
-                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white rounded-xl py-2.5 px-5 text-sm font-semibold transition-all"
-                      >
-                        <FiUserPlus className="w-4 h-4" />
-                        Add your first member
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ) : filteredTeam.length === 0 ? (
-              <tr>
-                <td colSpan={6}>
-                  <div className="flex flex-col items-center justify-center py-16 px-4">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 text-white/20">
-                      <FiUsers className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-lg font-medium text-white mb-2">No users found</h3>
-                    <p className="text-white/40 text-sm max-w-md text-center">
-                      We couldn't find any team members matching your current filters. Try adjusting your search query or clear the filters.
-                    </p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              pagedTeam.map((member) => (
+            {pagedTeam.map((member) => (
                 <tr key={member._id} className="group hover:bg-white/[0.01] transition-colors">
                   <td className="px-6 py-4 border-b border-white/5">
                     <div className="flex items-center gap-4">
@@ -285,11 +277,11 @@ const TeamTable: React.FC<TeamTableProps> = ({ members, onRefresh, onAddMember }
                     </button>
                   </td>
                 </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Pagination */}
       <div className="p-6 flex items-center justify-between text-sm text-white/40">

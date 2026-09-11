@@ -2,6 +2,7 @@ import { type FC, useState, useEffect, useCallback } from "react";
 import { FiX, FiLoader, FiRotateCcw, FiUser, FiFolder, FiTrash2 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ninjaSalesService, Lead, Project } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface TrashModalProps {
   isOpen: boolean;
@@ -84,7 +85,7 @@ const TrashModal: FC<TrashModalProps> = ({ isOpen, onClose, onRestored }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
+              <LoadingSpinner size="small" />
             </div>
           ) : isEmpty ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">

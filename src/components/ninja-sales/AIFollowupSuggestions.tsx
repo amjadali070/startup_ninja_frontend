@@ -1,8 +1,9 @@
 import { type FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiZap, FiLoader } from "react-icons/fi";
+import { FiZap } from "react-icons/fi";
 import { ninjaSalesService } from "../../services/ninjaSales";
 import type { FollowUpSuggestionItem } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 function initialsFromName(name: string): string {
   const t = name?.trim();
@@ -46,9 +47,8 @@ const AIFollowupSuggestions: FC = () => {
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center gap-2 py-12 text-white/40">
-          <FiLoader className="w-5 h-5 animate-spin" />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Loading</span>
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner size="small" />
         </div>
       )}
 

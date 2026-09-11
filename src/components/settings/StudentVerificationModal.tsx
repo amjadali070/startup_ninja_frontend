@@ -9,12 +9,17 @@ interface StudentVerificationModalProps {
   onVerified: () => void; // called once status is approved and user should proceed to purchase
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, onClose, onVerified }) => {
   const [status, setStatus] = useState<StudentVerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [universityName, setUniversityName] = useState('');
+  const [universityEmail, setUniversityEmail] = useState('');
+  const [studentIdNumber, setStudentIdNumber] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -23,6 +28,11 @@ const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, o
     studentVerificationService.getMyStatus().then((res) => {
       if (res.success) {
         setStatus(res.data);
+        // Pre-fill from a prior submission (e.g. resubmitting after a
+        // rejection) so the student doesn't have to retype everything.
+        setUniversityName(res.data.universityName || '');
+        setUniversityEmail(res.data.universityEmail || '');
+        setStudentIdNumber(res.data.studentIdNumber || '');
         if (res.data.status === 'approved') {
           onVerified();
         }
@@ -58,12 +68,30 @@ const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, o
     setSelectedFile(file);
   };
 
+  const canSubmit =
+    !!selectedFile &&
+    universityName.trim().length > 0 &&
+    studentIdNumber.trim().length > 0 &&
+    EMAIL_RE.test(universityEmail.trim());
+
   const handleSubmit = async () => {
     if (!selectedFile) return;
+    if (!universityName.trim() || !studentIdNumber.trim()) {
+      toast.error('University name and student ID number are required.');
+      return;
+    }
+    if (!EMAIL_RE.test(universityEmail.trim())) {
+      toast.error('Enter a valid university email address.');
+      return;
+    }
     setSubmitting(true);
     const loadingId = toast.loading('Uploading your ID...');
     try {
-      const res = await studentVerificationService.submitVerification(selectedFile);
+      const res = await studentVerificationService.submitVerification(selectedFile, {
+        universityName: universityName.trim(),
+        universityEmail: universityEmail.trim(),
+        studentIdNumber: studentIdNumber.trim(),
+      });
       if (res.success) {
         toast.success(res.message || 'Submitted for review.', { id: loadingId });
         setStatus({ status: 'pending' });
@@ -122,8 +150,9 @@ const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, o
           </div>
         )}
         <p className="text-white/60 text-sm mb-5">
-          Upload a photo of your current student ID (school-issued ID card, or another document showing you're
-          currently enrolled). An admin will review it — this usually takes 1-2 business days.
+          Tell us your school and student ID, then upload a photo of your current student ID card (or another
+          document showing you're currently enrolled). An admin will review it — this usually takes 1-2 business
+          days.
         </p>
         {renderUploadForm()}
       </div>
@@ -132,6 +161,44 @@ const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, o
 
   const renderUploadForm = () => (
     <>
+      <div className="space-y-3 mb-4">
+        <div>
+          <label className="block text-xs font-medium text-white/60 mb-1.5">
+            University / School Name
+          </label>
+          <input
+            type="text"
+            value={universityName}
+            onChange={(e) => setUniversityName(e.target.value)}
+            placeholder="e.g. University of Toronto"
+            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-white/60 mb-1.5">
+            University Email
+          </label>
+          <input
+            type="email"
+            value={universityEmail}
+            onChange={(e) => setUniversityEmail(e.target.value)}
+            placeholder="you@university.edu"
+            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-white/60 mb-1.5">
+            Student ID Number
+          </label>
+          <input
+            type="text"
+            value={studentIdNumber}
+            onChange={(e) => setStudentIdNumber(e.target.value)}
+            placeholder="e.g. 100948213"
+            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-500/50"
+          />
+        </div>
+      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -164,7 +231,7 @@ const StudentVerificationModal: FC<StudentVerificationModalProps> = ({ isOpen, o
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={!selectedFile || submitting}
+        disabled={!canSubmit || submitting}
         className="w-full py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center justify-center gap-2"
       >
         {submitting ? 'Submitting…' : 'Submit for Review'}

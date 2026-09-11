@@ -47,6 +47,14 @@ const ManageTeam: FC = () => {
     fetchTeamLimit();
   }, []);
 
+  // TeamTable calls this after edits/deletes (its own delete-confirm flow, resend-invite, etc.)
+  // — it must also refresh the team_members usage counter, not just the member list, or the
+  // "X / 5 team members used" line goes stale (e.g. still reads "1 / 5" right after deleting
+  // the only member, until the next full page load re-fetches it).
+  const refreshTeamData = async () => {
+    await Promise.all([fetchMembers(), fetchTeamLimit()]);
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -125,7 +133,7 @@ const ManageTeam: FC = () => {
                 <FiLoader className="w-8 h-8 animate-spin text-red-500" />
               </div>
             ) : (
-              <TeamTable members={members} onRefresh={fetchMembers} onAddMember={() => setIsAddModalOpen(true)} />
+              <TeamTable members={members} onRefresh={refreshTeamData} onAddMember={() => setIsAddModalOpen(true)} />
             )}
           </div>
 

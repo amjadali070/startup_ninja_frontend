@@ -6,6 +6,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { FiMail, FiLock, FiCheckCircle, FiXCircle, FiTrash2, FiLoader, FiSend, FiShield, FiEyeOff, FiClock } from "react-icons/fi";
 import { ninjaSalesService, EmailSettings } from "../../../services/ninjaSales";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 const DEFAULT_FORM = {
   smtpHost: "",
@@ -147,8 +148,8 @@ const EmailSettingsPage: FC = () => {
               <p className="text-xs text-white/20 max-w-sm mx-auto">Email sending credentials are confidential account configuration. Ask your account owner or a manager to set this up.</p>
             </div>
           ) : loading ? (
-            <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-16 text-center text-white/40">
-              <FiLoader className="w-6 h-6 animate-spin mx-auto" />
+            <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-16 flex items-center justify-center">
+              <LoadingSpinner size="small" />
             </div>
           ) : forbidden ? (
             <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-16 text-center space-y-3">

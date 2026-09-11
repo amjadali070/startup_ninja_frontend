@@ -72,7 +72,17 @@ const ContentCalendar: React.FC = () => {
     for (const p of posts) {
       const date = p.scheduledAt || p.publishedAt;
       if (!date) continue;
-      const key = toDateKey(new Date(date));
+      const parsed = new Date(date);
+      // A malformed (but non-empty) date string used to silently vanish the
+      // post from the calendar — toDateKey would build a "NaN-NaN-NaN" key
+      // that never matches a real day cell, with no indication anything was
+      // wrong. Skip it explicitly and log, so a bad value is at least
+      // debuggable instead of just missing.
+      if (Number.isNaN(parsed.getTime())) {
+        console.warn('ContentCalendar: skipping post with unparseable date', p._id, date);
+        continue;
+      }
+      const key = toDateKey(parsed);
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(p);
     }

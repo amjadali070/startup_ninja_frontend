@@ -5,6 +5,8 @@ import { GiNinjaStar } from "react-icons/gi";
 import WebBuilderService from "../../services/web-builder/WebBuilderService";
 import TemplateService from "../../services/web-builder/TemplateService";
 import GalleryService from "../../services/web-builder/GalleryService";
+import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 import { useAuth } from "../../hooks/useAuth";
 import { useDraftPersistence } from "../../hooks/useDraftPersistence";
 import {
@@ -294,30 +296,28 @@ const CreateWebsiteWizard: FC<CreateWebsiteWizardProps> = ({ isOpen, onClose, on
             <div className="grid grid-cols-2 gap-3 mb-2">
               <div>
                 <label className="block text-sm mb-2">Industry <span className="text-gray-500">(optional)</span></label>
-                <select
+                <IconSelect
                   value={info.industry}
-                  onChange={(e) => updateInfo({ industry: e.target.value })}
+                  onChange={(v) => updateInfo({ industry: v })}
+                  placeholder="Select an industry"
+                  options={INDUSTRIES.map((i) => ({ value: i, label: i }))}
                   className="w-full rounded-md bg-[#131313] border h-11 border-gray-700 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                >
-                  <option value="">Select an industry</option>
-                  {INDUSTRIES.map((i) => (
-                    <option key={i} value={i}>{i}</option>
-                  ))}
-                </select>
+                />
               </div>
               <div>
                 <label className="block text-sm mb-2">Goal <span className="text-gray-500">(optional)</span></label>
-                <select
+                <IconSelect
                   value={info.goal}
-                  onChange={(e) => updateInfo({ goal: e.target.value })}
+                  onChange={(v) => updateInfo({ goal: v })}
+                  placeholder="Select a goal"
+                  options={[
+                    { value: "get-customers", label: "Get customers" },
+                    { value: "showcase-work", label: "Showcase my work" },
+                    { value: "sell-products", label: "Sell products" },
+                    { value: "build-credibility", label: "Build credibility" },
+                  ]}
                   className="w-full rounded-md bg-[#131313] border h-11 border-gray-700 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                >
-                  <option value="">Select a goal</option>
-                  <option value="get-customers">Get customers</option>
-                  <option value="showcase-work">Showcase my work</option>
-                  <option value="sell-products">Sell products</option>
-                  <option value="build-credibility">Build credibility</option>
-                </select>
+                />
               </div>
             </div>
 
@@ -414,9 +414,8 @@ const CreateWebsiteWizard: FC<CreateWebsiteWizardProps> = ({ isOpen, onClose, on
 
         {/* Step 3 — Review and publish */}
         {step === 3 && !filledDraft && templatesLoading && (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400 text-sm">
-            <GiNinjaStar className="w-6 h-6 animate-spin mb-3" />
-            Loading templates…
+          <div className="py-16">
+            <LoadingSpinner size="small" variant="dark" />
           </div>
         )}
 

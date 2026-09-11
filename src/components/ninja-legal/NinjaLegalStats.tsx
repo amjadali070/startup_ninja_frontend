@@ -49,7 +49,11 @@ const NinjaLegalStats: FC<NinjaLegalStatsProps> = ({ dashboardData, isLoading = 
       subtextColor: "text-[#dc2626]",
     },
     {
-      label: "COMPLIANCE HEALTH",
+      // Measures whether contract records have their core fields filled in (title, type,
+      // status, a valid expiry) — it is record completeness, not a GDPR/security/HIPAA
+      // compliance result. That real check lives on the Compliance Scan page; naming this
+      // "Compliance Health" made the two look like the same metric when they aren't.
+      label: "CONTRACT COMPLETENESS",
       value: `${data.complianceHealth.complianceScore}%`,
       hasBadge: false,
       hasAccent: true,

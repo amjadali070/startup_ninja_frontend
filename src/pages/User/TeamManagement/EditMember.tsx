@@ -5,6 +5,29 @@ import { useAuth } from "../../../hooks/useAuth";
 import { FiArrowLeft, FiUser, FiBriefcase, FiShield, FiCheck, FiLoader } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { teamService } from "../../../services/team";
+import IconSelect, { SelectOption } from "../../../components/IconSelect";
+
+const ROLE_OPTIONS: SelectOption[] = [
+  { value: "Manager", label: "Manager" },
+  { value: "Member", label: "Member" },
+];
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "Active", label: "Active" },
+  { value: "Inactive", label: "Inactive" },
+];
+
+const DEPARTMENT_OPTIONS: SelectOption[] = [
+  { value: "Sales", label: "Sales" },
+  { value: "Ops", label: "Ops" },
+  { value: "Finance", label: "Finance" },
+  { value: "Legal", label: "Legal" },
+  { value: "Tech", label: "Tech" },
+  { value: "HR", label: "HR" },
+];
+
+const memberSelectClass =
+  "w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-white text-sm";
 
 const EditMember: React.FC = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -190,43 +213,30 @@ const EditMember: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-white/40 ml-1">Role</label>
-                      <select
-                        name="role"
+                      <IconSelect
                         value={formData.role}
-                        onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-white focus:outline-none focus:border-red-500/40 appearance-none transition-all cursor-pointer text-sm"
-                      >
-                        <option className="bg-[#0B0B0F]" value="Manager">Manager</option>
-                        <option className="bg-[#0B0B0F]" value="Member">Member</option>
-                      </select>
+                        onChange={(v) => setFormData((prev) => ({ ...prev, role: v }))}
+                        options={ROLE_OPTIONS}
+                        className={memberSelectClass}
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-white/40 ml-1">Status</label>
-                      <select
-                        name="status"
+                      <IconSelect
                         value={formData.status}
-                        onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-white focus:outline-none focus:border-red-500/40 appearance-none transition-all cursor-pointer text-sm"
-                      >
-                        <option className="bg-[#0B0B0F]" value="Active">Active</option>
-                        <option className="bg-[#0B0B0F]" value="Inactive">Inactive</option>
-                      </select>
+                        onChange={(v) => setFormData((prev) => ({ ...prev, status: v }))}
+                        options={STATUS_OPTIONS}
+                        className={memberSelectClass}
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-white/40 ml-1">Department</label>
-                      <select
-                        name="department"
+                      <IconSelect
                         value={formData.department}
-                        onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-white focus:outline-none focus:border-red-500/40 appearance-none transition-all cursor-pointer text-sm"
-                      >
-                        <option className="bg-[#0B0B0F]" value="Sales">Sales</option>
-                        <option className="bg-[#0B0B0F]" value="Ops">Ops</option>
-                        <option className="bg-[#0B0B0F]" value="Finance">Finance</option>
-                        <option className="bg-[#0B0B0F]" value="Legal">Legal</option>
-                        <option className="bg-[#0B0B0F]" value="Tech">Tech</option>
-                        <option className="bg-[#0B0B0F]" value="HR">HR</option>
-                      </select>
+                        onChange={(v) => setFormData((prev) => ({ ...prev, department: v }))}
+                        options={DEPARTMENT_OPTIONS}
+                        className={memberSelectClass}
+                      />
                     </div>
                   </div>
                 </div>

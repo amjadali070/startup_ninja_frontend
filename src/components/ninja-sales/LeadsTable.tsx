@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 import LeadAssigneePicker from "./LeadAssigneePicker";
 import AlertModal from "../AlertModal";
 import { ninjaSalesService, Lead, TeamAssigneeMember } from "../../services/ninjaSales";
@@ -78,7 +79,7 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
         prevLeads.map((l) => (l._id === lead._id ? { ...l, ...res.data } : l))
       );
     } else {
-      window.alert(res.message || "Could not update assignee");
+      toast.error(res.message || "Could not update assignee");
     }
   };
 
@@ -185,8 +186,15 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
       {/* Table Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
-          <span className="ml-3 text-white/40 text-sm">Loading leads...</span>
+          <LoadingSpinner size="small" />
+        </div>
+      ) : leads.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center gap-3 py-16">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
+            <FiUsers className="w-6 h-6 text-white/15" />
+          </div>
+          <p className="text-sm font-bold text-white/40">No leads yet</p>
+          <p className="text-xs text-white/20 max-w-xs">Click "New Lead" above to add your first contact.</p>
         </div>
       ) : (
       <div className="overflow-x-auto">
@@ -203,17 +211,7 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ refreshKey }) => {
             </tr>
           </thead>
           <tbody>
-            {leads.length === 0 ? (
-              <tr><td colSpan={7} className="px-6 py-16">
-                <div className="flex flex-col items-center justify-center text-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
-                    <FiUsers className="w-6 h-6 text-white/15" />
-                  </div>
-                  <p className="text-sm font-bold text-white/40">No leads yet</p>
-                  <p className="text-xs text-white/20 max-w-xs">Click "New Lead" above to add your first contact.</p>
-                </div>
-              </td></tr>
-            ) : leads.map((lead) => (
+            {leads.map((lead) => (
               <tr
                 key={lead._id}
                 className="group hover:bg-white/[0.02] transition-all duration-300 border-b border-white/[0.03]"

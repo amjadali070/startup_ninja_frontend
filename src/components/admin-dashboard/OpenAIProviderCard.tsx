@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { IconType } from "react-icons";
 import { FiPlus, FiCalendar, FiActivity, FiTrendingUp, FiDollarSign } from "react-icons/fi";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface OpenAIProviderCardProps {
   id: string;
@@ -69,10 +70,7 @@ const OpenAIProviderCard: React.FC<OpenAIProviderCardProps> = ({
       {/* Loading Overlay */}
       {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[1px] transition-all duration-300">
-           <div className="flex flex-col items-center gap-2">
-             <div className="h-8 w-8 animate-spin rounded-full border-2 border-green-500 border-t-transparent" />
-             <span className="text-xs font-medium text-green-400 animate-pulse">Updating...</span>
-           </div>
+          <LoadingSpinner size="small" />
         </div>
       )}
 

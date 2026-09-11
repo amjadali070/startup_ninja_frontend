@@ -1,10 +1,8 @@
 import { useEffect, useState, type FC } from "react";
-import { useNavigate } from "react-router-dom";
 import { IoWarningOutline } from "react-icons/io5";
 
 const SessionExpiredModal: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleSessionExpired = () => {
@@ -20,7 +18,12 @@ const SessionExpiredModal: FC = () => {
 
   const handleLogin = () => {
     setIsOpen(false);
-    navigate("/login");
+    // A React Router navigate() here leaves AuthContext's `user` state untouched (apiClient's
+    // clearAuthToken() only wipes localStorage/sessionStorage, it doesn't know about the React
+    // context), so PublicRoute still sees isAuthenticated: true and bounces this straight back
+    // to /dashboard instead of showing /login. A hard navigation forces a full reload, which
+    // re-mounts AuthProvider and re-reads the now-actually-cleared storage from scratch.
+    window.location.href = "/login";
   };
 
   if (!isOpen) return null;

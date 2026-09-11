@@ -17,6 +17,7 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import AlertModal from "../AlertModal";
 import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 import { ninjaSalesService } from "../../services/ninjaSales";
 import type { OutreachDraft, Project, FollowUp } from "../../services/ninjaSales";
 import type { SelectOption } from "../IconSelect";
@@ -382,9 +383,8 @@ const AIOutreachAssistant: FC = () => {
 
       <div className="flex-1 flex flex-col min-h-0">
         {loading && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-white/40">
-            <FiLoader className="w-8 h-8 animate-spin" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Drafting</span>
+          <div className="flex items-center justify-center py-20">
+            <LoadingSpinner />
           </div>
         )}
 

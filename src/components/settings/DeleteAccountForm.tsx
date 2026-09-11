@@ -1,4 +1,5 @@
 import { useState, type FC } from 'react';
+import AlertModal from '../AlertModal';
 
 interface DeleteAccountFormProps {
   onDeleteAccount: () => void;
@@ -12,15 +13,11 @@ const DeleteAccountForm: FC<DeleteAccountFormProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleDeleteClick = () => {
-    if (!showConfirmation) {
-      setShowConfirmation(true);
-      return;
-    }
-    onDeleteAccount();
+    setShowConfirmation(true);
   };
 
-  const handleCancel = () => {
-    setShowConfirmation(false);
+  const handleClose = () => {
+    if (!isDeleting) setShowConfirmation(false);
   };
 
   return (
@@ -35,40 +32,27 @@ const DeleteAccountForm: FC<DeleteAccountFormProps> = ({
 
       {/* Action Button */}
       <div>
-        {!showConfirmation ? (
-          <button
-            type="button"
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-            className="px-4 xs:px-5 py-4 xs:py-4 bg-red-900/20 border border-[#DE0500] text-[#DE0500] text-xs xs:text-sm font-medium rounded-lg hover:bg-red-900/30 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Delete Account
-          </button>
-        ) : (
-          <div className="space-y-2 xs:space-y-3">
-            <p className="text-red-400 text-xs xs:text-sm font-medium">
-              Are you sure you want to permanently delete your account? This action cannot be undone.
-            </p>
-            <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
-              <button
-                type="button"
-                onClick={handleDeleteClick}
-                disabled={isDeleting}
-                className="px-4 xs:px-5 py-2 xs:py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs xs:text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isDeleting ? 'Deleting...' : 'Yes, Delete Account'}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="px-4 xs:px-5 py-2 xs:py-2.5 border border-white/10 text-white text-xs xs:text-sm font-medium rounded-lg hover:bg-white/5 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={handleDeleteClick}
+          disabled={isDeleting}
+          className="px-4 xs:px-5 py-4 xs:py-4 bg-red-900/20 border border-[#DE0500] text-[#DE0500] text-xs xs:text-sm font-medium rounded-lg hover:bg-red-900/30 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Delete Account
+        </button>
       </div>
+
+      <AlertModal
+        isOpen={showConfirmation}
+        onClose={handleClose}
+        onConfirm={onDeleteAccount}
+        type="danger"
+        action="delete"
+        title="Delete Account"
+        message="Are you sure you want to permanently delete your account? This action cannot be undone."
+        confirmText="Yes, Delete Account"
+        isLoading={isDeleting}
+      />
     </section>
   );
 };

@@ -46,7 +46,8 @@ export const subscriptionService = {
     } catch (error: any) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to purchase subscription'
+        message: error.response?.data?.message || 'Failed to purchase subscription',
+        requiresStudentVerification: error.response?.data?.requiresStudentVerification,
       };
     }
   },

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useAuth } from "../../../hooks/useAuth";
-import { FiArrowLeft, FiMail, FiShield, FiBriefcase, FiCalendar, FiCheckCircle, FiUser, FiActivity, FiX, FiLoader } from "react-icons/fi";
+import { FiArrowLeft, FiMail, FiShield, FiBriefcase, FiCalendar, FiCheckCircle, FiUser, FiX, FiLoader } from "react-icons/fi";
 import { teamService } from "../../../services/team";
 import toast from "react-hot-toast";
 import AlertModal from "../../../components/AlertModal";
+import { formatDateDDMonYYYY } from "../../../utils/date";
 
 const MemberDetails: React.FC = () => {
   const { memberId } = useParams<{ memberId: string }>();
@@ -46,14 +47,12 @@ const MemberDetails: React.FC = () => {
               role: found.teamRole || "Member",
               status: found.status === 1 ? "Active" : "Inactive",
               department: found.department || "Operations",
-              joinedDate: "Recently", // You can format found.createdAt if available
+              joinedDate: formatDateDDMonYYYY(found.createdAt),
               avatar: found.fullname ? found.fullname.split(' ').map((n: string) => n[0]).join('').substring(0, 2) : "U",
               permissions: [
                 { name: "Ninja Sales", active: found.permissions?.sales || false },
                 { name: "Ninja Legal", active: found.permissions?.legal || false }
               ],
-              lastActive: "Active recently",
-              activeProjects: 0,
               addedByName: found.createdBy?.fullname || "Root Owner"
             });
           } else {
@@ -160,8 +159,8 @@ const MemberDetails: React.FC = () => {
                         <span className="text-sm sm:text-base">{member.email}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FiActivity className="text-red-500/70" />
-                        <span className="text-sm">Last active: {member.lastActive}</span>
+                        <FiCalendar className="text-red-500/70" />
+                        <span className="text-sm">Joined {member.joinedDate}</span>
                       </div>
                     </div>
                   </div>

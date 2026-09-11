@@ -14,6 +14,14 @@ const formatDate = (iso?: string): string => {
   return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
 };
 
+const resolvePublishedUrl = (
+  publishedLink: string,
+  serviceUrl: string
+): string =>
+  publishedLink.startsWith("http")
+    ? publishedLink
+    : `${serviceUrl}${publishedLink}`;
+
 const WebsitesListView: React.FC<WebsitesListViewProps> = ({
   websites,
   WEB_BUILDER_SERVICE_URL,
@@ -56,17 +64,17 @@ const WebsitesListView: React.FC<WebsitesListViewProps> = ({
           )}
           {website.publishedLink && (
             <a
-              href={`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`}
+              href={resolvePublishedUrl(website.publishedLink, WEB_BUILDER_SERVICE_URL)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 text-xs sm:text-sm hover:underline flex items-center gap-1 mb-4 min-w-0 group"
             >
               <span className="truncate break-all">
-                {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`.substring(
+                {resolvePublishedUrl(website.publishedLink, WEB_BUILDER_SERVICE_URL).substring(
                   0,
                   50
                 )}
-                {`${WEB_BUILDER_SERVICE_URL}${website.publishedLink}`.length > 50
+                {resolvePublishedUrl(website.publishedLink, WEB_BUILDER_SERVICE_URL).length > 50
                   ? "..."
                   : ""}
               </span>

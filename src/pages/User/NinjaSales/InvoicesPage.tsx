@@ -7,8 +7,9 @@ import NinjaSalesHeader from "../../../components/ninja-sales/NinjaSalesHeader";
 import SalesStatGrid, { StatItem } from "../../../components/ninja-sales/SalesStatGrid";
 import RecentInvoices from "../../../components/ninja-sales/RecentInvoices";
 import GenerateDocModal from "../../../components/ninja-sales/GenerateDocModal";
-import { FiTrendingUp, FiTarget, FiClock, FiPlus, FiDollarSign } from "react-icons/fi";
+import { FiTrendingUp, FiTarget, FiClock, FiPlus, FiDollarSign, FiFilter, FiFileText, FiSend, FiCheckCircle, FiAlertTriangle, FiXCircle } from "react-icons/fi";
 import { ninjaSalesService, Invoice } from "../../../services/ninjaSales";
+import IconSelect from "../../../components/IconSelect";
 
 const InvoicesPage: FC = () => {
   const navigate = useNavigate();
@@ -134,18 +135,19 @@ const InvoicesPage: FC = () => {
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <select
+              <IconSelect
                 value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                onChange={(v) => { setStatusFilter(v); setPage(1); }}
                 className="bg-[#121212] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500/40"
-              >
-                <option value="">All Statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="SENT">Sent</option>
-                <option value="PAID">Paid</option>
-                <option value="OVERDUE">Overdue</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
+                options={[
+                  { value: "", label: "All Statuses", icon: <FiFilter className="w-4 h-4" /> },
+                  { value: "DRAFT", label: "Draft", icon: <FiFileText className="w-4 h-4" /> },
+                  { value: "SENT", label: "Sent", icon: <FiSend className="w-4 h-4" /> },
+                  { value: "PAID", label: "Paid", icon: <FiCheckCircle className="w-4 h-4" /> },
+                  { value: "OVERDUE", label: "Overdue", icon: <FiAlertTriangle className="w-4 h-4" /> },
+                  { value: "CANCELLED", label: "Cancelled", icon: <FiXCircle className="w-4 h-4" /> },
+                ]}
+              />
             </div>
 
             {loading ? (

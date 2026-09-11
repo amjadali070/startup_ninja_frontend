@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiDownload, FiCheck, FiClock, FiDollarSign, FiCreditCard, FiCalendar } from 'react-icons/fi';
 import DashboardLayout from '../../layouts/DashboardLayout';
+import LoadingSpinner from '../../components/LoadingSpinner';
 import { subscriptionService } from '../../services/subscription';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -88,6 +89,13 @@ const BillingHistory: React.FC = () => {
     return labels[type] || type;
   };
 
+  // Older transaction records stored the raw plan key ("business") rather than its display
+  // name ("Business") in planDetails.planName — fixed at the source (paymentController.js),
+  // but existing rows still have the lowercase value, and this is rendered directly ("business
+  // Plan"). Title-case defensively so historical records don't show the raw key either.
+  const formatPlanName = (name: string) =>
+    name ? name.replace(/\b\w/g, (c) => c.toUpperCase()) : name;
+
   const formatDate = (dateString: string) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -141,8 +149,8 @@ const BillingHistory: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-gradient-to-br from-[#151515] to-[#0a0a0a] border border-white/10 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <FiClock className="text-blue-500" size={20} />
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <FiClock className="text-red-500" size={20} />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Transactions</p>
@@ -153,8 +161,8 @@ const BillingHistory: React.FC = () => {
 
             <div className="bg-gradient-to-br from-[#151515] to-[#0a0a0a] border border-white/10 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <FiDollarSign className="text-green-500" size={20} />
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <FiDollarSign className="text-red-500" size={20} />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Spent</p>
@@ -165,8 +173,8 @@ const BillingHistory: React.FC = () => {
 
             <div className="bg-gradient-to-br from-[#151515] to-[#0a0a0a] border border-white/10 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <FiClock className="text-yellow-500" size={20} />
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <FiClock className="text-red-500" size={20} />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Pending</p>
@@ -177,8 +185,8 @@ const BillingHistory: React.FC = () => {
 
             <div className="bg-gradient-to-br from-[#151515] to-[#0a0a0a] border border-white/10 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <FiCalendar className="text-purple-500" size={20} />
+                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <FiCalendar className="text-red-500" size={20} />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Last Payment</p>
@@ -197,9 +205,8 @@ const BillingHistory: React.FC = () => {
             </div>
 
             {loading ? (
-              <div className="text-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
-                <p className="text-gray-400 mt-4">Loading transactions...</p>
+              <div className="py-16">
+                <LoadingSpinner />
               </div>
             ) : transactions.length === 0 ? (
               <div className="text-center py-16">
@@ -225,7 +232,7 @@ const BillingHistory: React.FC = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-white font-semibold text-lg">
-                              {transaction.planDetails.planName} Plan
+                              {formatPlanName(transaction.planDetails.planName)} Plan
                             </h3>
                             <span className="px-2 py-1 bg-blue-500/10 text-blue-500 text-xs rounded border border-blue-500/20">
                               {getTransactionTypeLabel(transaction.transactionType)}
@@ -309,7 +316,7 @@ const BillingHistory: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-gray-500 text-sm mb-1">Plan</p>
-                      <p className="text-white font-medium">{selectedTransaction.planDetails.planName}</p>
+                      <p className="text-white font-medium">{formatPlanName(selectedTransaction.planDetails.planName)}</p>
                     </div>
                     
                     <div>

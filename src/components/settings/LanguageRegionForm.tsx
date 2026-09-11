@@ -1,6 +1,6 @@
 import { type FC, type ChangeEvent, type FormEvent } from "react";
-import { FiChevronDown } from "react-icons/fi";
 import { TIMEZONE_GROUPS } from "../../constants/timezones";
+import IconSelect, { type SelectOption } from "../IconSelect";
 
 export type LanguageRegionFormState = {
   language: string;
@@ -15,12 +15,28 @@ interface LanguageRegionFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
+// Flatten the grouped timezone list for IconSelect (which renders a single flat menu,
+// unlike the native <select>'s <optgroup>) — prefix each label with its region so the
+// grouping context isn't lost.
+const TIMEZONE_SELECT_OPTIONS: SelectOption[] = TIMEZONE_GROUPS.flatMap((group) =>
+  group.options.map((tz) => ({
+    value: tz.value,
+    label: `${group.label} — ${tz.label} (${tz.offset})`,
+  }))
+);
+
 const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
   form,
   isSaving,
   onChange,
   onSubmit,
 }) => {
+  const handleTimezoneChange = (value: string) => {
+    onChange({
+      target: { name: "timezone", value },
+    } as unknown as ChangeEvent<HTMLSelectElement>);
+  };
+
   return (
     <section className="rounded-xl border border-white/10 bg-[#151515] p-4 xs:p-5 sm:p-6">
       {/* Header Section */}
@@ -37,31 +53,13 @@ const LanguageRegionForm: FC<LanguageRegionFormProps> = ({
       <form onSubmit={onSubmit} className="mt-4">
         {/* Timezone Field */}
         <div className="mb-3 xs:mb-4">
-          <div className="relative">
-            <select
-              id="timezone"
-              name="timezone"
-              value={form.timezone}
-              onChange={onChange}
-              className="w-full appearance-none rounded-lg border border-white/10 bg-[#1A1A1A] px-3 py-2.5 xs:py-3 pr-10 text-white focus:border-white/20 focus:outline-none cursor-pointer text-sm xs:text-base"
-            >
-              <option value="" disabled>
-                — Select your timezone —
-              </option>
-              {TIMEZONE_GROUPS.map((group) => (
-                <optgroup key={group.label} label={group.label}>
-                  {group.options.map((tz) => (
-                    <option key={tz.value} value={tz.value}>
-                      {tz.label} ({tz.offset})
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-              <FiChevronDown className="h-3 w-3 xs:h-4 xs:w-4" />
-            </div>
-          </div>
+          <IconSelect
+            value={form.timezone}
+            onChange={handleTimezoneChange}
+            options={TIMEZONE_SELECT_OPTIONS}
+            placeholder="— Select your timezone —"
+            className="w-full rounded-lg border border-white/10 bg-[#1A1A1A] px-3 py-2.5 xs:py-3 text-white text-sm xs:text-base h-[46px] xs:h-[50px]"
+          />
 
           {/* Show current selection as IANA id for transparency */}
           {form.timezone && (

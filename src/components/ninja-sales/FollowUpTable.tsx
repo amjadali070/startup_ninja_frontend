@@ -2,6 +2,7 @@ import { type FC, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FiLoader, FiCheck, FiRotateCcw } from "react-icons/fi";
 import { ninjaSalesService, FollowUp } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface FollowUpTableProps {
   filter: string;
@@ -119,8 +120,7 @@ const FollowUpTable: FC<FollowUpTableProps> = ({ filter, refreshKey, projectId }
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
-          <span className="ml-3 text-white/40 text-sm">Loading follow-ups...</span>
+          <LoadingSpinner size="small" />
         </div>
       ) : followUps.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-white/30 text-sm">

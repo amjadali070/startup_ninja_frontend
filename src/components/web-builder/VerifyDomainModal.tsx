@@ -3,6 +3,7 @@ import { FiCheckCircle, FiRefreshCw, FiCopy, FiInfo, FiTrash2, FiShield } from '
 import { toast } from 'react-hot-toast';
 import WebBuilderService from '../../services/web-builder/WebBuilderService';
 import AlertModal from '../AlertModal';
+import IconSelect from '../IconSelect';
 
 interface VerifyDomainModalProps {
     isOpen: boolean;
@@ -94,9 +95,14 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
 
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70">
-            <div className="bg-[#1a1a1a] border border-[#333] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            {/* max-h-[90vh] + flex-col here, with the body below scrolling
+                independently, so this long form (status card, DNS info,
+                auto-DNS section, CNAME/A records, verify button, footer
+                text) doesn't get clipped off-screen on short mobile
+                viewports the way an unbounded height would. */}
+            <div className="bg-[#1a1a1a] border border-[#333] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
                 {/* Header */}
-                <div className="p-6 border-b border-[#333] flex justify-between items-center bg-[#222]">
+                <div className="p-6 border-b border-[#333] flex justify-between items-center bg-[#222] shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
                             <FiShield className="w-5 h-5" />
@@ -111,7 +117,7 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                     </button>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-6 overflow-y-auto">
                     {/* Domain Status Card */}
                     <div className="flex items-center justify-between p-4 rounded-xl bg-[#0b0b0b] border border-[#333]">
                         <div>
@@ -160,15 +166,15 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                                     Registered with GoDaddy or Namecheap? We can try setting this up for you automatically.
                                 </p>
                                 <div className="flex gap-2">
-                                    <select
+                                    <IconSelect
                                         value={selectedRegistrar}
-                                        onChange={(e) => setSelectedRegistrar(e.target.value as 'godaddy' | 'namecheap')}
-                                        disabled={autoConfiguring}
-                                        className="bg-[#131313] border border-[#333] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
-                                    >
-                                        <option value="godaddy">GoDaddy</option>
-                                        <option value="namecheap">Namecheap</option>
-                                    </select>
+                                        onChange={(v) => setSelectedRegistrar(v as 'godaddy' | 'namecheap')}
+                                        options={[
+                                            { value: 'godaddy', label: 'GoDaddy' },
+                                            { value: 'namecheap', label: 'Namecheap' },
+                                        ]}
+                                        className={`bg-[#131313] border border-[#333] rounded-lg px-3 h-10 text-sm text-white focus:outline-none focus:border-blue-500/50 ${autoConfiguring ? 'opacity-50 pointer-events-none' : ''}`}
+                                    />
                                     <button
                                         onClick={handleAutoConfigure}
                                         disabled={autoConfiguring}
@@ -195,9 +201,9 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                                             <p className="text-[10px] text-gray-500 uppercase font-bold">Host / Name</p>
                                             <p className="text-sm text-white font-mono font-bold">www</p>
                                         </div>
-                                        <div className="space-y-1 text-center flex-1">
+                                        <div className="space-y-1 text-center flex-1 min-w-0 px-2">
                                             <p className="text-[10px] text-gray-500 uppercase font-bold">Points To (Value)</p>
-                                            <p className="text-sm text-white font-mono">{systemDomain}</p>
+                                            <p className="text-sm text-white font-mono truncate" title={systemDomain}>{systemDomain}</p>
                                         </div>
                                         <button 
                                             onClick={() => copyToClipboard(systemDomain)} 
@@ -222,9 +228,9 @@ const VerifyDomainModal: React.FC<VerifyDomainModalProps> = ({ isOpen, onClose, 
                                             <p className="text-[10px] text-gray-500 uppercase font-bold">Host / Name</p>
                                             <p className="text-sm text-white font-mono font-bold">@</p>
                                         </div>
-                                        <div className="space-y-1 text-center flex-1">
+                                        <div className="space-y-1 text-center flex-1 min-w-0 px-2">
                                             <p className="text-[10px] text-gray-500 uppercase font-bold">Points To (IP)</p>
-                                            <p className="text-sm text-white font-mono">{systemIp}</p>
+                                            <p className="text-sm text-white font-mono truncate" title={systemIp}>{systemIp}</p>
                                         </div>
                                         <button 
                                             onClick={() => copyToClipboard(systemIp)} 

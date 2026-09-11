@@ -6,6 +6,15 @@ export interface StudentVerificationStatus {
   reviewedAt?: string;
   rejectionReason?: string;
   expiresAt?: string;
+  universityName?: string;
+  universityEmail?: string;
+  studentIdNumber?: string;
+}
+
+export interface StudentVerificationDetails {
+  universityName: string;
+  universityEmail: string;
+  studentIdNumber: string;
 }
 
 export interface StudentVerificationSubmission {
@@ -15,6 +24,9 @@ export interface StudentVerificationSubmission {
   submittedAt: string;
   reviewedAt?: string;
   rejectionReason?: string;
+  universityName: string;
+  universityEmail: string;
+  studentIdNumber: string;
 }
 
 export const studentVerificationService = {
@@ -30,10 +42,13 @@ export const studentVerificationService = {
     }
   },
 
-  async submitVerification(idImage: File): Promise<any> {
+  async submitVerification(idImage: File, details: StudentVerificationDetails): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('idImage', idImage);
+      formData.append('universityName', details.universityName);
+      formData.append('universityEmail', details.universityEmail);
+      formData.append('studentIdNumber', details.studentIdNumber);
       const response = await apiClient.post('/user/student-verification', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

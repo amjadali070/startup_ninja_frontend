@@ -1,9 +1,11 @@
 import { type FC, useState } from "react";
-import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiChevronDown, FiFlag, FiCalendar, FiZap } from "react-icons/fi";
+import { FiX, FiLoader, FiUser, FiMail, FiMapPin, FiDollarSign, FiEdit2, FiTrash2, FiPlus, FiFlag, FiCalendar, FiZap, FiBriefcase } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { ContractDetails, ninjaLegalService } from "../../services/ninja-legal";
 import AlertModal from "../AlertModal";
+import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface Party {
   name: string;
@@ -251,7 +253,7 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <FiLoader className="w-8 h-8 animate-spin text-[#E11D48]" />
+              <LoadingSpinner />
             </div>
           ) : isEditMode ? (
             // EDIT MODE FORM
@@ -317,24 +319,17 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
                     {/* Priority */}
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-white ml-0.5">Priority</label>
-                      <div className="relative">
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                          <FiFlag className="w-4 h-4" />
-                        </div>
-                        <select 
-                          value={priority}
-                          onChange={(e) => setPriority(e.target.value as "low" | "medium" | "high" | "urgent")}
-                          className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                        >
-                          <option value="low">Low Priority</option>
-                          <option value="medium">Medium Priority</option>
-                          <option value="high">High Priority</option>
-                          <option value="urgent">Urgent</option>
-                        </select>
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                          <FiChevronDown className="w-4 h-4" />
-                        </div>
-                      </div>
+                      <IconSelect
+                        value={priority}
+                        onChange={(v) => setPriority(v as "low" | "medium" | "high" | "urgent")}
+                        className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                        options={[
+                          { value: "low", label: "Low Priority", icon: <FiFlag className="w-4 h-4" /> },
+                          { value: "medium", label: "Medium Priority", icon: <FiFlag className="w-4 h-4" /> },
+                          { value: "high", label: "High Priority", icon: <FiFlag className="w-4 h-4" /> },
+                          { value: "urgent", label: "Urgent", icon: <FiFlag className="w-4 h-4" /> },
+                        ]}
+                      />
                     </div>
 
                     {/* Expiry Date */}
@@ -443,19 +438,15 @@ const ViewContractModal: FC<ViewContractModalProps> = ({
                         <label className="text-xs font-semibold text-white ml-0.5">
                           Party Type <span className="text-[#E11D48] ml-0.5">*</span>
                         </label>
-                        <div className="relative">
-                          <select 
-                            value={party.type}
-                            onChange={(e) => updateParty(index, "type", e.target.value as "individual" | "company")}
-                            className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                          >
-                            <option value="individual">Individual</option>
-                            <option value="company">Company</option>
-                          </select>
-                          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                            <FiChevronDown className="w-4 h-4" />
-                          </div>
-                        </div>
+                        <IconSelect
+                          value={party.type}
+                          onChange={(v) => updateParty(index, "type", v as "individual" | "company")}
+                          className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                          options={[
+                            { value: "individual", label: "Individual", icon: <FiUser className="w-4 h-4" /> },
+                            { value: "company", label: "Company", icon: <FiBriefcase className="w-4 h-4" /> },
+                          ]}
+                        />
                       </div>
 
                       {/* Email & Address */}

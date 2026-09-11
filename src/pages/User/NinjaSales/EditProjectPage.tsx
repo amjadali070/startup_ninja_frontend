@@ -13,6 +13,7 @@ import { apiClient } from "../../../services/apiClient";
 import type { Project } from "../../../services/ninjaSales";
 import IconSelect from "../../../components/IconSelect";
 import AlertModal from "../../../components/AlertModal";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 const Field: FC<{ label: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ label, icon, children }) => (
   <div className="space-y-2.5">
@@ -82,7 +83,12 @@ const EditProjectPage: FC = () => {
       urgency: form.urgency || undefined,
     });
     setSaving(false);
-    if (res.success) navigate(`/ai-tools/sales/projects/${id}`);
+    if (res.success) {
+      toast.success("Deal updated");
+      navigate(`/ai-tools/sales/projects/${id}`);
+    } else {
+      toast.error(res.message || "Could not save deal changes");
+    }
   };
 
   const handleDelete = async () => {
@@ -109,7 +115,7 @@ const EditProjectPage: FC = () => {
     <DashboardLayout activePath="/ai-tools/sales/projects" title="Edit Project - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         {loading ? (
-          <div className="flex items-center justify-center h-64"><FiLoader className="w-8 h-8 text-red-500 animate-spin" /></div>
+          <div className="flex items-center justify-center h-64"><LoadingSpinner /></div>
         ) : (
           <div className="p-4 md:p-6 lg:p-8 text-white pb-20 space-y-8">
 

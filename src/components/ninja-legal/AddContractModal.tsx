@@ -1,9 +1,8 @@
 import { type FC, useState } from "react";
-import { 
-  FiX, 
-  FiPlus, 
+import {
+  FiX,
+  FiPlus,
   FiTrash2,
-  FiChevronDown, 
   FiUser,
   FiMail,
   FiMapPin,
@@ -11,9 +10,12 @@ import {
   FiFlag,
   FiCalendar,
   FiLoader,
+  FiFileText,
+  FiBriefcase,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ninjaLegalService, ContractDetails, DOCUMENT_TYPES } from "../../services/ninja-legal";
+import IconSelect from "../IconSelect";
 
 interface Party {
   name: string;
@@ -272,15 +274,12 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
                 <label className="text-xs font-semibold text-white ml-0.5">
                   Document Type
                 </label>
-                <select
+                <IconSelect
                   value={documentType}
-                  onChange={(e) => setDocumentType(e.target.value)}
-                  className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:border-[#E11D48]/50 focus:ring-[#E11D48]/20 transition-all"
-                >
-                  {DOCUMENT_TYPES.map((dt) => (
-                    <option key={dt.id} value={dt.id}>{dt.label}</option>
-                  ))}
-                </select>
+                  onChange={setDocumentType}
+                  className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:ring-1 focus:border-[#E11D48]/50 focus:ring-[#E11D48]/20 transition-all"
+                  options={DOCUMENT_TYPES.map((dt) => ({ value: dt.id, label: dt.label, icon: <FiFileText className="w-4 h-4" /> }))}
+                />
                 <p className="text-[11px] text-gray-500">Shapes the sections AI generates — e.g. an NDA focuses on confidentiality, a Privacy Policy on data handling.</p>
               </div>
 
@@ -313,24 +312,17 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
                 {/* Priority */}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-white ml-0.5">Priority</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-                      <FiFlag className="w-4 h-4" />
-                    </div>
-                    <select 
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value)}
-                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-11 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                    >
-                      <option value="low">Low Priority</option>
-                      <option value="medium">Medium Priority</option>
-                      <option value="high">High Priority</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                      <FiChevronDown className="w-4 h-4" />
-                    </div>
-                  </div>
+                  <IconSelect
+                    value={priority}
+                    onChange={setPriority}
+                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                    options={[
+                      { value: "low", label: "Low Priority", icon: <FiFlag className="w-4 h-4" /> },
+                      { value: "medium", label: "Medium Priority", icon: <FiFlag className="w-4 h-4" /> },
+                      { value: "high", label: "High Priority", icon: <FiFlag className="w-4 h-4" /> },
+                      { value: "urgent", label: "Urgent", icon: <FiFlag className="w-4 h-4" /> },
+                    ]}
+                  />
                 </div>
 
                 {/* Expiry Date */}
@@ -414,19 +406,15 @@ const AddContractModal: FC<AddContractModalProps> = ({ isOpen, onClose, onContra
                     <label className="text-xs font-semibold text-white ml-0.5">
                       Party Type <span className="text-[#E11D48] ml-0.5">*</span>
                     </label>
-                    <div className="relative">
-                      <select 
-                        value={party.type}
-                        onChange={(e) => updateParty(index, "type", e.target.value as "individual" | "company")}
-                        className="w-full bg-[#161618] border border-[#27272A] rounded-lg pl-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                      >
-                        <option value="individual">Individual</option>
-                        <option value="company">Company</option>
-                      </select>
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                        <FiChevronDown className="w-4 h-4" />
-                      </div>
-                    </div>
+                    <IconSelect
+                      value={party.type}
+                      onChange={(v) => updateParty(index, "type", v as "individual" | "company")}
+                      className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:border-[#E11D48]/50 transition-all"
+                      options={[
+                        { value: "individual", label: "Individual", icon: <FiUser className="w-4 h-4" /> },
+                        { value: "company", label: "Company", icon: <FiBriefcase className="w-4 h-4" /> },
+                      ]}
+                    />
                   </div>
 
                   {/* Email & Address */}

@@ -7,6 +7,7 @@ import twitterService, { TwitterConnectionStatus} from '../../services/social-me
 import instagramService, { InstagramConnectionStatus } from '../../services/social-media/oauth/instagram';
 import facebookService, { FacebookConnectionStatus } from '../../services/social-media/oauth/facebook';
 import { PLATFORM_BY_ID } from '../../constants/platforms';
+import AlertModal from '../AlertModal';
 
 const AccountsCard: React.FC = () => {
   const { user } = useAuth();
@@ -323,7 +324,25 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  // Connect and disconnect share one button per platform (each
+  // handle*Connection below branches on the platform's current connected
+  // status), so this is the one place both actions funnel through —
+  // disconnecting is destructive (it can also silently fail any of that
+  // platform's still-scheduled posts, per the backend audit), connecting
+  // isn't, so only the disconnect path is gated behind a confirmation.
+  const [pendingDisconnect, setPendingDisconnect] = useState<string | null>(null);
+  const [disconnectBusy, setDisconnectBusy] = useState(false);
+
   const handleToggleConnection = async (accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    if (account?.isConnected) {
+      setPendingDisconnect(accountId);
+      return;
+    }
+    await proceedToggleConnection(accountId);
+  };
+
+  const proceedToggleConnection = async (accountId: string) => {
     if (accountId === 'linkedin') {
       await handleLinkedInConnection();
     } else if (accountId === 'twitter') {
@@ -335,6 +354,17 @@ const AccountsCard: React.FC = () => {
     } else {
       // For other platforms, show coming soon message
       toast.error(`${accounts.find(a => a.id === accountId)?.name} integration is coming soon!`);
+    }
+  };
+
+  const confirmDisconnect = async () => {
+    if (!pendingDisconnect) return;
+    setDisconnectBusy(true);
+    try {
+      await proceedToggleConnection(pendingDisconnect);
+    } finally {
+      setDisconnectBusy(false);
+      setPendingDisconnect(null);
     }
   };
 
@@ -777,6 +807,20 @@ const AccountsCard: React.FC = () => {
     }
   };
 
+  const [pendingRemovePage, setPendingRemovePage] = useState<{ id: string; name: string } | null>(null);
+  const [removePageBusy, setRemovePageBusy] = useState(false);
+
+  const confirmRemovePage = async () => {
+    if (!pendingRemovePage) return;
+    setRemovePageBusy(true);
+    try {
+      await handleRemovePage(pendingRemovePage.id);
+    } finally {
+      setRemovePageBusy(false);
+      setPendingRemovePage(null);
+    }
+  };
+
   const handleRemovePage = async (pageId: string) => {
     try {
         const result = await facebookService.removePage(pageId);
@@ -911,7 +955,7 @@ const AccountsCard: React.FC = () => {
                           </div>
                           <div className="ml-auto flex items-center gap-1">
                               <button
-                                onClick={() => handleRemovePage(page.id)}
+                                onClick={() => setPendingRemovePage({ id: page.id, name: page.name })}
                                 className="p-1.5 rounded-md text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                                 title="Remove Page"
                               >
@@ -925,6 +969,34 @@ const AccountsCard: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <AlertModal
+        isOpen={pendingDisconnect !== null}
+        type="danger"
+        action="delete"
+        title={`Disconnect ${accounts.find(a => a.id === pendingDisconnect)?.name || 'Account'}`}
+        message="Disconnecting removes access to this account. Any of its still-scheduled posts will fail to publish until you reconnect. This cannot be undone from here."
+        confirmText="Disconnect"
+        cancelText="Cancel"
+        onClose={() => setPendingDisconnect(null)}
+        onConfirm={confirmDisconnect}
+        isLoading={disconnectBusy}
+        loadingText="Disconnecting..."
+      />
+
+      <AlertModal
+        isOpen={pendingRemovePage !== null}
+        type="danger"
+        action="delete"
+        title="Remove Page"
+        message={`Remove "${pendingRemovePage?.name || 'this page'}" from your connected Facebook pages? You can reconnect it later by syncing pages again.`}
+        confirmText="Remove Page"
+        cancelText="Cancel"
+        onClose={() => setPendingRemovePage(null)}
+        onConfirm={confirmRemovePage}
+        isLoading={removePageBusy}
+        loadingText="Removing..."
+      />
     </div>
     </>
   );

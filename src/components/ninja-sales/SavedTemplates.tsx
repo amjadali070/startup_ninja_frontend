@@ -2,6 +2,7 @@ import { type FC, useEffect, useState } from "react";
 import { FiZap, FiFileText, FiTrash2, FiLoader } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { ninjaSalesService, ProposalTemplate } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 const relativeTime = (dateStr: string) => {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -49,7 +50,7 @@ const SavedTemplates: FC = () => {
 
       {loading ? (
         <div className="flex items-center justify-center py-10 text-white/40">
-          <FiLoader className="w-5 h-5 animate-spin" />
+          <LoadingSpinner size="small" />
         </div>
       ) : templates.length === 0 ? (
         <div className="bg-white/[0.02] border border-dashed border-white/10 rounded-3xl p-6 text-center">

@@ -1,7 +1,6 @@
 import { type FC, useState, useEffect } from "react";
 import {
   FiX,
-  FiChevronDown,
   FiClock,
   FiLoader,
   FiPhone,
@@ -138,23 +137,16 @@ const NewOutreachModal: FC<NewOutreachModalProps> = ({
                 <label className="text-xs font-semibold text-white ml-0.5">
                   Project <span className="text-[#E11D48] ml-0.5">*</span>
                 </label>
-                <div className="relative">
-                  <select
-                    className="w-full bg-[#161618] border border-[#27272A] rounded-lg px-4 pr-10 py-3 text-sm text-white focus:outline-none focus:border-[#E11D48]/50 appearance-none transition-all cursor-pointer"
-                    value={projectId}
-                    onChange={(e) => setProjectId(e.target.value)}
-                  >
-                    <option value="" disabled>Select a project</option>
-                    {projects.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name} {getLeadLabel(p) ? `— ${getLeadLabel(p)}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                    <FiChevronDown className="w-4 h-4" />
-                  </div>
-                </div>
+                <IconSelect
+                  value={projectId}
+                  onChange={setProjectId}
+                  placeholder="Select a project"
+                  options={projects.map((p) => ({
+                    value: p._id,
+                    label: `${p.name}${getLeadLabel(p) ? ` — ${getLeadLabel(p)}` : ""}`,
+                  }))}
+                  className="bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

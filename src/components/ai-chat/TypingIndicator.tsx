@@ -29,7 +29,7 @@ const TypingIndicator: FC = () => {
               onError={() => setNinjaImageError(true)}
             />
           ) : (
-            <div className="h-full w-full flex items-center justify-center text-xs text-[#DE0500] font-bold">
+            <div className="h-full w-full flex items-center justify-center text-xs text-[#DC2626] font-bold">
               N
             </div>
           )}

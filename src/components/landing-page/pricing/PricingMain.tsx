@@ -167,6 +167,15 @@ const PricingMain: React.FC = () => {
                 <p className="text-sm mb-4 h-10 flex-none" style={{ color: "#CCCCCC" }}>
                   {plan.description || "Explore what's included."}
                 </p>
+                <div
+                  className={`mb-4 flex-none text-xs px-2.5 py-1.5 rounded-md h-8 flex items-center justify-center text-center ${
+                    plan.key === "go_student"
+                      ? "bg-amber-500/10 border border-amber-500/30 text-amber-400"
+                      : "invisible"
+                  }`}
+                >
+                  Requires student ID verification
+                </div>
 
                 {isEnterprise ? (
                   <div className="mb-5 flex-none">

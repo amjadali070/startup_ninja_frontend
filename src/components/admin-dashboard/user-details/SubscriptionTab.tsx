@@ -10,6 +10,21 @@ import {
   FaMoneyBillWave,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
+import AlertModal from "../../AlertModal";
+import IconSelect, { SelectOption } from "../../IconSelect";
+
+const subscriptionSelectClass =
+  "w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 h-[42px] text-sm";
+
+const BILLING_CYCLE_OPTIONS: SelectOption[] = [
+  { value: "monthly", label: "Monthly" },
+  { value: "annual", label: "Annual" },
+];
+
+const PAYMENT_STATUS_OPTIONS: SelectOption[] = [
+  { value: "paid", label: "Paid (Activate immediately)" },
+  { value: "unpaid", label: "Unpaid (Email Payment Link)" },
+];
 
 interface SubscriptionTabProps {
   user: ExtendedUserDetails;
@@ -31,18 +46,23 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
   const [loading, setLoading] = useState(false);
   const [refundingId, setRefundingId] = useState<string | null>(null);
   const [refundedIds, setRefundedIds] = useState<Set<string>>(new Set());
+  const [refundTarget, setRefundTarget] = useState<{ id: string; amount: number; description: string } | null>(null);
 
-  const handleRefund = async (transactionId: string) => {
-    if (!window.confirm("Issue a real Stripe refund for this transaction? This cannot be undone.")) return;
+  const handleRefundConfirm = async () => {
+    if (!refundTarget) return;
+    const transactionId = refundTarget.id;
     setRefundingId(transactionId);
     try {
       const res = await adminService.issueRefund(transactionId);
       if (res.success) {
         toast.success(res.message || "Refund issued.");
         setRefundedIds((prev) => new Set(prev).add(transactionId));
+        setRefundTarget(null);
       } else {
         toast.error(res.message || "Failed to issue refund.");
       }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to issue refund.");
     } finally {
       setRefundingId(null);
     }
@@ -125,37 +145,30 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                     <div>
                         <label className="block text-gray-400 mb-1.5">Select Plan</label>
-                        <select
+                        <IconSelect
                             value={planName}
-                            onChange={(e) => setPlanName(e.target.value)}
-                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
-                        >
-                            {plans.map((p) => (
-                              <option key={p.key} value={p.name}>{p.name}</option>
-                            ))}
-                        </select>
+                            onChange={(v) => setPlanName(v)}
+                            options={plans.map((p) => ({ value: p.name, label: p.name }))}
+                            className={subscriptionSelectClass}
+                        />
                     </div>
                     <div>
                         <label className="block text-gray-400 mb-1.5">Billing Cycle</label>
-                        <select 
-                            value={billingCycle} 
-                            onChange={(e) => setBillingCycle(e.target.value)}
-                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
-                        >
-                            <option value="monthly">Monthly</option>
-                            <option value="annual">Annual</option>
-                        </select>
+                        <IconSelect
+                            value={billingCycle}
+                            onChange={(v) => setBillingCycle(v)}
+                            options={BILLING_CYCLE_OPTIONS}
+                            className={subscriptionSelectClass}
+                        />
                     </div>
                     <div>
                         <label className="block text-gray-400 mb-1.5">Payment Status</label>
-                        <select 
-                            value={paymentStatus} 
-                            onChange={(e) => setPaymentStatus(e.target.value)}
-                            className="w-full bg-[#1A1A1A] text-white border border-[#333] rounded-md px-3 py-2 outline-none focus:border-red-500"
-                        >
-                            <option value="paid">Paid (Activate immediately)</option>
-                            <option value="unpaid">Unpaid (Email Payment Link)</option>
-                        </select>
+                        <IconSelect
+                            value={paymentStatus}
+                            onChange={(v) => setPaymentStatus(v)}
+                            options={PAYMENT_STATUS_OPTIONS}
+                            className={subscriptionSelectClass}
+                        />
                     </div>
                     {paymentStatus === "paid" && (
                     <div>
@@ -331,7 +344,7 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
                   <td className="py-4">
                     {txn.status === "succeeded" && txn.description !== "refund" && !refundedIds.has(txn.id) ? (
                       <button
-                        onClick={() => handleRefund(txn.id)}
+                        onClick={() => setRefundTarget({ id: txn.id, amount: txn.amount, description: txn.description })}
                         disabled={refundingId === txn.id}
                         className="text-red-400 hover:text-red-300 text-sm font-medium disabled:opacity-50"
                       >
@@ -349,6 +362,30 @@ const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ user }) => {
           </table>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={!!refundTarget}
+        type="danger"
+        action="custom"
+        title="Issue Refund"
+        message={
+          refundTarget ? (
+            <>
+              Issue a real Stripe refund of{" "}
+              <span className="font-semibold text-white">${refundTarget.amount}</span> for{" "}
+              <span className="font-semibold text-white">{refundTarget.description}</span>?
+              This charges a real refund against Stripe and cannot be undone.
+            </>
+          ) : (
+            ""
+          )
+        }
+        confirmText="Issue Refund"
+        onClose={() => setRefundTarget(null)}
+        onConfirm={handleRefundConfirm}
+        isLoading={!!refundingId}
+        loadingText="Refunding..."
+      />
     </div>
   );
 };

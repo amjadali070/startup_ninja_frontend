@@ -4,6 +4,8 @@ import { toast } from "react-hot-toast";
 import { FiArrowLeft, FiTrash2, FiEdit2, FiCheck, FiX, FiPlus } from "react-icons/fi";
 import { PiBrainLight } from "react-icons/pi";
 import DashboardLayout from "../../layouts/DashboardLayout";
+import AlertModal from "../../components/AlertModal.tsx";
+import LoadingSpinner from "../../components/LoadingSpinner.tsx";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { memoryService } from "../../services/ai-chat/memory.ts";
 import { Memory } from "../../types/ai-content";
@@ -26,6 +28,8 @@ const ChatMemories: FC = () => {
   const [newContent, setNewContent] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [memoryToDelete, setMemoryToDelete] = useState<Memory | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadMemories = useCallback(async () => {
     setIsLoading(true);
@@ -106,18 +110,24 @@ const ChatMemories: FC = () => {
     }
   };
 
-  const handleDelete = async (memoryId: string) => {
+  const handleConfirmDelete = async () => {
+    if (!memoryToDelete) return;
+    const memoryId = memoryToDelete._id;
+    setIsDeleting(true);
     try {
       const response = await memoryService.deleteMemory(memoryId);
       if (response.success) {
         setMemories((prev) => prev.filter((m) => m._id !== memoryId));
         toast.success("Memory deleted");
+        setMemoryToDelete(null);
       } else {
         toast.error(response.message || "Failed to delete memory");
       }
     } catch (err) {
       console.error("Failed to delete memory:", err);
       toast.error("Failed to delete memory");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -139,8 +149,8 @@ const ChatMemories: FC = () => {
               <FiArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-[#DE0500]/10 border border-[#DE0500]/20 flex items-center justify-center">
-                <PiBrainLight className="h-5 w-5 text-[#DE0500]" />
+              <div className="h-10 w-10 rounded-xl bg-[#DC2626]/10 border border-[#DC2626]/20 flex items-center justify-center">
+                <PiBrainLight className="h-5 w-5 text-[#DC2626]" />
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight">Saved Memories</h1>
@@ -162,7 +172,7 @@ const ChatMemories: FC = () => {
                   rows={2}
                   maxLength={500}
                   autoFocus
-                  className="w-full resize-none rounded-lg bg-[#0A0A0A] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#DE0500]/50"
+                  className="w-full resize-none rounded-lg bg-[#0A0A0A] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#DC2626]/50"
                 />
                 <div className="flex items-center justify-end gap-2">
                   <button
@@ -177,7 +187,7 @@ const ChatMemories: FC = () => {
                   <button
                     onClick={handleAdd}
                     disabled={!newContent.trim() || isSaving}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#DE0500] text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#DE0500]/90"
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#DC2626] text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#DC2626]/90"
                   >
                     Save
                   </button>
@@ -186,7 +196,7 @@ const ChatMemories: FC = () => {
             ) : (
               <button
                 onClick={() => setIsAdding(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#DE0500]/10 hover:bg-[#DE0500]/20 border border-[#DE0500]/30 text-[#DE0500] hover:text-white transition-colors text-sm font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#DC2626]/10 hover:bg-[#DC2626]/20 border border-[#DC2626]/30 text-[#DC2626] hover:text-white transition-colors text-sm font-medium"
               >
                 <FiPlus className="h-4 w-4" />
                 Add a memory
@@ -196,7 +206,7 @@ const ChatMemories: FC = () => {
 
           {/* List */}
           {isLoading ? (
-            <div className="text-center py-16 text-white/40 text-sm">Loading memories…</div>
+            <div className="flex justify-center py-16"><LoadingSpinner /></div>
           ) : memories.length === 0 ? (
             <div className="text-center py-16 rounded-2xl border border-white/10 bg-[#151515]">
               <PiBrainLight className="h-8 w-8 text-white/20 mx-auto mb-3" />
@@ -220,7 +230,7 @@ const ChatMemories: FC = () => {
                         rows={2}
                         maxLength={500}
                         autoFocus
-                        className="w-full resize-none rounded-lg bg-[#0A0A0A] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#DE0500]/50"
+                        className="w-full resize-none rounded-lg bg-[#0A0A0A] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#DC2626]/50"
                       />
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -258,7 +268,7 @@ const ChatMemories: FC = () => {
                           <FiEdit2 className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(memory._id)}
+                          onClick={() => setMemoryToDelete(memory)}
                           className="p-1.5 rounded-md text-white/40 hover:text-red-400 hover:bg-red-500/10"
                           aria-label="Delete memory"
                         >
@@ -273,6 +283,26 @@ const ChatMemories: FC = () => {
           )}
         </div>
       </main>
+
+      <AlertModal
+        isOpen={!!memoryToDelete}
+        onClose={() => {
+          if (!isDeleting) setMemoryToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Memory"
+        message={
+          memoryToDelete
+            ? `Are you sure you want to delete this memory? "${memoryToDelete.content}" This action cannot be undone.`
+            : ""
+        }
+        type="danger"
+        action="delete"
+        confirmText="Delete Memory"
+        cancelText="Keep it"
+        isLoading={isDeleting}
+        loadingText="Deleting..."
+      />
     </DashboardLayout>
   );
 };

@@ -795,6 +795,36 @@ export const adminService = {
   },
 
   /**
+   * Manually trigger a full database backup (mongodump/native-driver -> S3).
+   * The same routine also runs automatically on a schedule server-side.
+   */
+  async triggerDatabaseBackup(): Promise<
+    AdminApiResponse<{
+      startedAt: string;
+      method: string | null;
+      success: boolean;
+      filesUploaded: number;
+      prunedCount: number;
+      error: string | null;
+    }>
+  > {
+    try {
+      const response = await apiClient.post<AdminApiResponse<any>>(
+        "/admin/backup/run",
+        {}
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Failed to trigger database backup",
+        error: error.message,
+      };
+    }
+  },
+
+  /**
    * Get API Balance History
    */
   async getAPIBalanceHistory(provider: string): Promise<AdminApiResponse<any[]>> {

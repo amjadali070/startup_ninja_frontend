@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FiX, FiCheck } from 'react-icons/fi';
 import { FaRocket } from 'react-icons/fa';
 import { planService, Plan } from '../../services/plan';
+import LoadingSpinner from '../LoadingSpinner';
 
 interface PlanSelectionModalProps {
   isOpen: boolean;
@@ -109,7 +110,7 @@ const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({
 
         {loading ? (
              <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+                <LoadingSpinner />
             </div>
         ) : (
             <>

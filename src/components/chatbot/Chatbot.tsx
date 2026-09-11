@@ -16,7 +16,7 @@ import ChatbotHeader from "./ChatbotHeader";
 import ChatbotMessages from "./ChatbotMessages";
 import ChatbotQuickPrompts from "./ChatbotQuickPrompts";
 import ChatbotComposer from "./ChatbotComposer";
-import ChatbotDeleteChatModal from "./DeleteChatModal";
+import AlertModal from "../AlertModal";
 
 const QUICK_PROMPTS = [
   "Write a story",
@@ -590,9 +590,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
                   isGenerating={isGenerating}
                 />
 
-                <ChatbotDeleteChatModal
+                <AlertModal
                   isOpen={deleteModalOpen}
-                  chatTitle={chatToDelete?.title ?? ""}
                   onClose={() => {
                     if (!isDeleting) {
                       setDeleteModalOpen(false);
@@ -600,7 +599,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ userProfilePicture }) => {
                     }
                   }}
                   onConfirm={() => void handleConfirmDelete()}
-                  isDeleting={isDeleting}
+                  title="Delete Chat"
+                  type="danger"
+                  action="delete"
+                  confirmText="Delete Chat"
+                  loadingText="Deleting..."
+                  isLoading={isDeleting}
+                  message={
+                    <>
+                      Are you sure you want to delete <b>"{chatToDelete?.title ?? ""}"</b>? This action cannot be undone.
+                    </>
+                  }
                 />
               </div>
             </div>

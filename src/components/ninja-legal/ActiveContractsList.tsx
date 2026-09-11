@@ -2,6 +2,7 @@ import { type FC, useState, useEffect } from "react";
 import { FiBarChart2, FiChevronLeft, FiChevronRight, FiLoader } from "react-icons/fi";
 import { ninjaLegalService, ActiveContractListItem, ContractDetails } from "../../services/ninja-legal";
 import toast from "react-hot-toast";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface PaginationInfo {
   currentPage: number;
@@ -141,7 +142,7 @@ const ActiveContractsList: FC<ActiveContractsListProps> = ({ onViewContract }) =
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <FiLoader className="w-5 h-5 animate-spin text-[#dc2626]" />
+          <LoadingSpinner size="small" />
         </div>
       ) : contracts.length > 0 ? (
         <div className="overflow-x-auto">

@@ -161,6 +161,7 @@ const AdminTicketDetailModal: FC<{ ticket: SupportTicket; onClose: () => void; o
     setSubmitting(false);
     if (res.success && res.data) {
       setReply("");
+      toast.success("Reply sent.");
       onUpdated(res.data);
     } else {
       toast.error(res.message || "Failed to send reply.");

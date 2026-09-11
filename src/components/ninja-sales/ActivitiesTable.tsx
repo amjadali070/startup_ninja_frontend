@@ -4,7 +4,6 @@ import {
   FiCalendar,
   FiFilter,
   FiLink,
-  FiLoader,
   FiMail,
   FiMessageSquare,
   FiPhone,
@@ -12,6 +11,7 @@ import {
   FiSend,
 } from "react-icons/fi";
 import IconSelect from "../IconSelect";
+import LoadingSpinner from "../LoadingSpinner";
 import { ninjaSalesService, type SalesActivity } from "../../services/ninjaSales";
 
 interface ActivitiesTableProps {
@@ -192,8 +192,11 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({ refreshKey }) => {
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <FiLoader className="w-6 h-6 text-red-500 animate-spin" />
-          <span className="ml-3 text-white/40 text-sm">Loading activities...</span>
+          <LoadingSpinner size="small" />
+        </div>
+      ) : activities.length === 0 ? (
+        <div className="px-6 py-16 text-center">
+          <p className="text-white/30 text-sm">No activities found matching your filters</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -208,14 +211,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({ refreshKey }) => {
               </tr>
             </thead>
             <tbody>
-              {activities.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
-                    <p className="text-white/30 text-sm">No activities found matching your filters</p>
-                  </td>
-                </tr>
-              ) : (
-                activities.map((activity) => (
+              {activities.map((activity) => (
                   <tr
                     key={activity.id || activity._id}
                     className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors duration-200"
@@ -244,12 +240,12 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({ refreshKey }) => {
                       <div className="text-sm text-white/50">{formatDateTime(activity.createdAt)}</div>
                     </td>
                   </tr>
-                ))
-              )}
+                ))}
             </tbody>
           </table>
         </div>
       )}
+
 
       <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.03] flex flex-col md:flex-row items-center justify-between gap-6">
         <p className="text-xs text-white/30 font-medium order-2 md:order-1">

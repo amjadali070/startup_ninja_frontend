@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../../hooks/useAuth";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import IconSelect from "../../../components/IconSelect";
 import LegalDisclaimerBanner from "../../../components/ninja-legal/LegalDisclaimerBanner";
 import LegalPageBanner from "../../../components/ninja-legal/LegalPageBanner";
 import {
@@ -179,16 +180,13 @@ const AuditLogs: FC = () => {
           <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-6 space-y-4">
             <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Run a Scan</p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <select
+              <IconSelect
                 value={selectedUploadId}
-                onChange={(e) => setSelectedUploadId(e.target.value)}
-                className="flex-1 bg-[#161618] border border-[#27272A] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EF4444]/50"
-              >
-                <option value="">-- Select an uploaded document --</option>
-                {uploads.map((u) => (
-                  <option key={u._id} value={u._id}>{u.originalFilename}</option>
-                ))}
-              </select>
+                onChange={setSelectedUploadId}
+                placeholder="-- Select an uploaded document --"
+                className="flex-1 bg-[#161618] border border-[#27272A] rounded-lg px-4 h-[46px] text-sm focus:outline-none focus:border-[#EF4444]/50"
+                options={uploads.map((u) => ({ value: u._id, label: u.originalFilename, icon: <FiFileText className="w-4 h-4" /> }))}
+              />
               <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleFileSelect} />
               <button
                 onClick={() => fileInputRef.current?.click()}

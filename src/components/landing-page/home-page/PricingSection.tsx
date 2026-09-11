@@ -106,6 +106,16 @@ export default function PricingSection() {
                         )}
                         <p className="text-gray-300 text-sm mb-5 h-10">{plan.description || "Explore what's included."}</p>
 
+                        <div
+                          className={`mb-4 flex-none text-xs px-2.5 py-1.5 rounded-md h-8 flex items-center justify-center text-center ${
+                            plan.key === "go_student"
+                              ? "bg-amber-500/10 border border-amber-500/30 text-amber-400"
+                              : "invisible"
+                          }`}
+                        >
+                          Requires student ID verification
+                        </div>
+
                         {isEnterprise ? (
                             <Link
                                 to="/contact?plan=custom"

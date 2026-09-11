@@ -20,6 +20,7 @@ import AdminServiceUsageCard from "../components/admin-dashboard/AdminServiceUsa
 import AdminInsightLineChart from "../components/admin-dashboard/AdminInsightLineChart";
 import AdminInsightBarChart from "../components/admin-dashboard/AdminInsightBarChart";
 import RecentErrorsPanel from "../components/admin-dashboard/RecentErrorsPanel";
+import DatabaseBackupCard from "../components/admin-dashboard/DatabaseBackupCard";
 
 const AdminDashboardLayout: React.FC = () => {
   const { stats, loading, error } = useAdminDashboard();
@@ -159,6 +160,8 @@ const AdminDashboardLayout: React.FC = () => {
               ))}
             </div>
           </div>
+
+          <DatabaseBackupCard />
 
           <RecentErrorsPanel />
 

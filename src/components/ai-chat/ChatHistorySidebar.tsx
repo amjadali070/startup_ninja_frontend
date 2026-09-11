@@ -186,7 +186,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
           <div className="p-4 border-b border-white/10">
             <button
               onClick={onNewChat}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#DE0500]/10 hover:bg-[#DE0500]/20 border border-[#DE0500]/30 text-[#DE0500] hover:text-white transition-colors text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#DC2626]/10 hover:bg-[#DC2626]/20 border border-[#DC2626]/30 text-[#DC2626] hover:text-white transition-colors text-sm font-medium"
             >
               <FiPlus className="h-4 w-4" />
               New Chat
@@ -203,7 +203,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search chats..."
-                  className="w-full pl-8 pr-8 py-2 text-sm bg-[#1A1A1A] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-[#DE0500]/50"
+                  className="w-full pl-8 pr-8 py-2 text-sm bg-[#1A1A1A] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-[#DC2626]/50"
                 />
                 {searchQuery && (
                   <button
@@ -247,7 +247,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                       transition-all duration-200
                       ${
                         currentChatId === chat._id
-                          ? "bg-[#DE0500]/10 border border-[#DE0500]/30"
+                          ? "bg-[#DC2626]/10 border border-[#DC2626]/30"
                           : "hover:bg-white/5 border border-transparent"
                       }
                     `}
@@ -264,7 +264,7 @@ const ChatHistorySidebar: FC<ChatHistorySidebarProps> = ({
                           onKeyDown={(e) => handleKeyDown(e, chat._id)}
                           onBlur={() => handleSaveEdit(chat._id)}
                           autoFocus
-                          className="w-full text-sm bg-[#1A1A1A] border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-[#DE0500]"
+                          className="w-full text-sm bg-[#1A1A1A] border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-[#DC2626]"
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (

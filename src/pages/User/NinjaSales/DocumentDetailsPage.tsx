@@ -4,9 +4,10 @@ import DashboardLayout from "../../../layouts/DashboardLayout";
 import { useAuth } from "../../../hooks/useAuth";
 import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { Proposal, Invoice, PricingItem } from "../../../services/ninjaSales";
-import { FiArrowLeft, FiDownload, FiSave, FiSend, FiCheckCircle, FiBookmark } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiSave, FiSend, FiCheckCircle, FiBookmark, FiDollarSign } from "react-icons/fi";
 import { HiSparkles } from "react-icons/hi";
 import toast from "react-hot-toast";
+import IconSelect from "../../../components/IconSelect";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "INR"];
 
@@ -514,9 +515,12 @@ const DocumentDetailsPage: FC = () => {
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Currency</label>
-                      <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30">
-                        {CURRENCIES.map((c) => <option key={c} value={c} className="bg-[#121212]">{c}</option>)}
-                      </select>
+                      <IconSelect
+                        value={currency}
+                        onChange={setCurrency}
+                        className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-2xl px-4 text-sm font-black text-white outline-none focus:border-red-500/30"
+                        options={CURRENCIES.map((c) => ({ value: c, label: c, icon: <FiDollarSign className="w-4 h-4" /> }))}
+                      />
                     </div>
                   </div>
 

@@ -132,6 +132,15 @@ const AllContracts: FC = () => {
 
           {/* Table */}
           <div className="bg-[#121212] border border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
+            {loading ? (
+              <div className="py-16 text-center">
+                <LoadingSpinner />
+              </div>
+            ) : visibleContracts.length === 0 ? (
+              <div className="py-16 text-center text-gray-500 text-sm font-bold uppercase tracking-widest">
+                {contracts.length === 0 ? "No contracts found" : "No contracts match your search"}
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -145,20 +154,7 @@ const AllContracts: FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.02]">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={6} className="py-16 text-center">
-                        <LoadingSpinner />
-                      </td>
-                    </tr>
-                  ) : visibleContracts.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="py-16 text-center text-gray-500 text-sm font-bold uppercase tracking-widest">
-                        {contracts.length === 0 ? "No contracts found" : "No contracts match your search"}
-                      </td>
-                    </tr>
-                  ) : (
-                    visibleContracts.map((contract) => (
+                  {visibleContracts.map((contract) => (
                       <tr key={contract.contractId} className="group hover:bg-white/[0.02] transition-colors">
                         <td className="py-6 px-8">
                           <span className="text-sm font-black text-white group-hover:text-[#EF4444] transition-colors tracking-tight">{contract.contractTitle}</span>
@@ -197,11 +193,11 @@ const AllContracts: FC = () => {
                           </button>
                         </td>
                       </tr>
-                    ))
-                  )}
+                  ))}
                 </tbody>
               </table>
             </div>
+            )}
 
             {pagination.totalPages > 1 && (
               <div className="flex items-center justify-between px-8 py-5 border-t border-white/[0.03]">

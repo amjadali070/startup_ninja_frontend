@@ -21,6 +21,7 @@ export interface TeamMember {
     email: string;
     teamRole: string;
   };
+  createdAt?: string;
 }
 
 export interface TeamMemberResponse {

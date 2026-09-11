@@ -38,7 +38,11 @@ const LegalComplianceCard: FC = () => {
           icon: <FiFileText className="h-4 w-4" />,
         },
         {
-          label: "COMPLIANCE",
+          // Same underlying number as Ninja Legal's "Contract Completeness" card — it tracks
+          // whether contract records have their core fields filled in, not the GDPR/security/
+          // HIPAA wording review from the Compliance Scan page. Labeled to match so the two
+          // dashboards don't appear to disagree about "compliance".
+          label: "COMPLETENESS",
           value: `${data.complianceHealth.complianceScore}%`,
           subtext: `${data.complianceHealth.completeContracts}/${data.complianceHealth.totalContracts} complete`,
           subtextColor: "text-blue-400",

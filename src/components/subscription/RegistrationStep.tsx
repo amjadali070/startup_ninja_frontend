@@ -8,6 +8,7 @@ import { authService } from '../../services/auth';
 import type { RegisterRequest, AuthResponse } from '../../types/auth';
 import { COUNTRY_OPTIONS } from '../../data/countries';
 import EmailVerificationModal from '../../components/EmailVerificationModal';
+import IconSelect from '../../components/IconSelect';
 import GoogleSignUp from '../../components/GoogleSignUp';
 import MicrosoftSignUp from '../../components/MicrosoftSignUp';
 
@@ -135,11 +136,13 @@ const RegistrationStep: React.FC<RegistrationStepProps> = ({ onSuccess }) => {
   };
 
   const inputClass = (hasError: boolean) => `
-    w-full px-4 py-3 bg-white/5 border ${hasError ? 'border-red-500' : 'border-white/10'} 
-    rounded-xl text-white placeholder-gray-500 
-    focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 
+    w-full px-4 py-3 bg-white/5 border ${hasError ? 'border-red-500' : 'border-white/10'}
+    rounded-xl text-white placeholder-gray-500
+    focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20
     transition-all duration-200
   `;
+
+  const countrySelectClass = "w-[132px] h-[50px] px-3 py-0 bg-white/5 border border-white/10 rounded-xl text-white text-sm";
 
   return (
     <div className="w-full bg-gradient-to-br from-[#0a0a0a] to-black rounded-2xl p-6 lg:p-8 border border-white/10">
@@ -226,14 +229,17 @@ const RegistrationStep: React.FC<RegistrationStepProps> = ({ onSuccess }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
                 <div className="flex gap-3">
-                  <select 
-                      className="px-3 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all" 
-                      value={selectedCountry.iso2} 
-                      onChange={(e) => setSelectedCountry(COUNTRY_OPTIONS.find(c => c.iso2 === e.target.value) || selectedCountry)}
-                  >
-                      {COUNTRY_OPTIONS.map(c => <option key={c.iso2} value={c.iso2} className="bg-black">{c.iso2} {c.dialCode}</option>)}
-                  </select>
-                  <input 
+                  <IconSelect
+                      value={selectedCountry.iso2}
+                      onChange={(value) => setSelectedCountry(COUNTRY_OPTIONS.find(c => c.iso2 === value) || selectedCountry)}
+                      className={countrySelectClass}
+                      options={COUNTRY_OPTIONS.map(c => ({
+                        value: c.iso2,
+                        label: `${c.iso2} ${c.dialCode}`,
+                        icon: <span className="text-base leading-none">{c.flag}</span>,
+                      }))}
+                  />
+                  <input
                     type="tel" 
                     placeholder="1234567890" 
                     value={phoneNumber} 

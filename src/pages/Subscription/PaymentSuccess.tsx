@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaCheckCircle, FaSpinner } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 import { apiClient } from "../../services/apiClient";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -30,8 +31,7 @@ const PaymentSuccess: React.FC = () => {
     <div className="min-h-screen bg-[#0D0D0D] flex flex-col items-center justify-center p-6 text-white text-center">
       {status === "loading" ? (
         <div className="flex flex-col items-center">
-            <FaSpinner className="animate-spin text-red-500 w-12 h-12 mb-4" />
-            <h1 className="text-2xl font-bold tracking-tight">Verifying Payment...</h1>
+            <LoadingSpinner />
             <p className="text-gray-400 mt-2">Connecting securely to payment provider...</p>
         </div>
       ) : (

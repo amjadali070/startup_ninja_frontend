@@ -14,6 +14,7 @@ import CreateDealModal from "../../../components/ninja-sales/CreateDealModal";
 import AlertModal from "../../../components/AlertModal";
 import IconSelect from "../../../components/IconSelect";
 import type { SelectOption } from "../../../components/IconSelect";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 import {
   ninjaSalesService,
   Lead,
@@ -301,7 +302,7 @@ const LeadDetailsPage: FC = () => {
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <FiLoader className="w-8 h-8 text-red-500 animate-spin" />
+            <LoadingSpinner />
           </div>
         ) : (
         <div className="p-4 md:p-6 lg:p-8 space-y-8 md:space-y-12 max-w-auto mx-auto text-white pb-20">
@@ -763,6 +764,9 @@ const LeadDetailsPage: FC = () => {
               <h2 className="text-sm font-black text-white/90 uppercase tracking-[0.2em]">Projects</h2>
               <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{projects.length} {projects.length === 1 ? "Project" : "Projects"}</span>
             </div>
+            {projects.length === 0 ? (
+              <div className="px-8 py-12 text-center text-white/30 text-sm">No projects yet for this lead.</div>
+            ) : (
             <div className="overflow-x-auto scrollbar-hide">
               <table className="w-full text-left min-w-[700px]">
                 <thead>
@@ -774,9 +778,7 @@ const LeadDetailsPage: FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.length === 0 ? (
-                    <tr><td colSpan={4} className="px-8 py-12 text-center text-white/30 text-sm">No projects yet for this lead.</td></tr>
-                  ) : projects.map((proj) => (
+                  {projects.map((proj) => (
                     <tr key={proj._id} className="group border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
                       <td className="px-8 py-5">
                         <Link to={`/ai-tools/sales/projects/${proj._id}`} className="text-sm font-black text-white capitalize tracking-tight hover:text-red-500 transition-colors">
@@ -810,6 +812,7 @@ const LeadDetailsPage: FC = () => {
                 </tbody>
               </table>
             </div>
+            )}
           </section>
 
           {/* Bottom Table: History */}

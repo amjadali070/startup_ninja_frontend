@@ -55,11 +55,11 @@ const AdminLoginPage: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-
+    navigate('/forgot-password');
   };
 
   const handleCreateAccount = () => {
-
+    window.location.href = 'mailto:support@startupninja.ai?subject=Admin%20access%20request';
   };
 
   return (

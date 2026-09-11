@@ -133,7 +133,8 @@ const StudentVerifications: React.FC = () => {
 
   return (
     <DashboardLayout activePath="/admin-dashboard/student-verifications" title="Student Verifications" onLogout={handleLogout}>
-      <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto">
+      <main className="flex-1 overflow-y-auto">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="mb-6">
           <h1 className="text-white text-xl sm:text-2xl font-bold font-plus-jakarta mb-1">
             Student ID Verifications
@@ -210,6 +211,20 @@ const StudentVerifications: React.FC = () => {
 
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-white/10">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-sm">
+                        <div>
+                          <div className="text-white/40 text-xs mb-0.5">University / School</div>
+                          <div className="text-white">{s.universityName || '-'}</div>
+                        </div>
+                        <div>
+                          <div className="text-white/40 text-xs mb-0.5">University Email</div>
+                          <div className="text-white break-all">{s.universityEmail || '-'}</div>
+                        </div>
+                        <div>
+                          <div className="text-white/40 text-xs mb-0.5">Student ID Number</div>
+                          <div className="text-white">{s.studentIdNumber || '-'}</div>
+                        </div>
+                      </div>
                       {s.status === 'pending' ? (
                         <VerificationImage id={s._id} />
                       ) : (
@@ -245,7 +260,8 @@ const StudentVerifications: React.FC = () => {
             })}
           </div>
         )}
-      </div>
+        </div>
+      </main>
 
       <AlertModal
         isOpen={!!rejectTargetId}

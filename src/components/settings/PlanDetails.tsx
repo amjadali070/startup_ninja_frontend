@@ -48,9 +48,13 @@ const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
     
     return (
       <div className="relative overflow-hidden bg-[#1E293B]/40 backdrop-blur-xl rounded-xl p-3.5 border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-colors duration-300 hover:bg-[#1E293B]/60 flex flex-col justify-center">
-        <div className="flex justify-between items-center mb-2.5">
-            <span className="text-[#aeb9d0] font-plus-jakarta text-[11px] tracking-widest uppercase font-bold">{label}</span>
-            <div className="text-right flex items-baseline gap-1 font-mono">
+        {/* Stacked (label above the used/limit figure) rather than side-by-side: this card
+            only ever renders in the narrow Settings sidebar, and a horizontal layout forced
+            either the label or the number to truncate depending on which row's value string
+            was longer. Stacking removes the width contention entirely. */}
+        <div className="mb-2.5">
+            <span className="block truncate text-[#aeb9d0] font-plus-jakarta text-[11px] tracking-widest uppercase font-bold">{label}</span>
+            <div className="mt-1 flex items-baseline gap-1 font-mono">
                 <span className="text-white text-[13px] font-bold">
                   {used.toLocaleString()}
                 </span>
@@ -86,7 +90,15 @@ const PlanDetails: FC<PlanDetailsProps> = ({ usage, limits }) => {
         </span>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+      {/*
+        This card only ever renders inside the narrow Settings sidebar (aside column,
+        roughly 300-380px wide even on a 1440px desktop) — Tailwind's sm/lg/xl prefixes key
+        off *viewport* width, not this container's width, so `xl:grid-cols-3` used to force
+        3 columns into ~94px-wide tiles on desktop, clipping the numbers (e.g. "4,000" -> "4,00"
+        and the limit on some tiles disappearing entirely). Capped at 2 columns, which is what
+        the container can actually fit at any viewport size.
+      */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
           {renderUsageItem("AI Chat", usage.ai_chat_messages || 0, limits.ai_chat_messages || 0)}
           {renderUsageItem("AI Posts", usage.ai_post_writer || 0, limits.ai_post_writer || 0)}
           {renderUsageItem("Images", usage.generated_images || 0, limits.generated_images || 0)}

@@ -135,8 +135,22 @@ class ApiClient {
 
         // Handle specific HTTP status codes
         if (error.response) {
-          switch (error.response.status) {
-            case 401:
+          // Several backend services (api-gateway, auth-service, and others behind it) verify
+          // the JWT with jwt.verify() and respond 403 "Invalid or expired token" on failure —
+          // including the *expired* case, not just malformed tokens. HTTP-wise that should be
+          // 401 (403 is meant for "authenticated but not allowed"), but until every service is
+          // aligned, treating a 403 with this signature the same as a 401 here is what actually
+          // makes the refresh-token flow below fire on real expiry. Without this, an expired
+          // access token silently 403s forever: no refresh attempt, no "session expired"
+          // modal, no redirect — every request on the page just fails quietly.
+          const responseMessage = error.response.data?.message || "";
+          const isExpiredOrInvalidToken =
+            error.response.status === 401 ||
+            (error.response.status === 403 &&
+              /invalid|expired/i.test(responseMessage) &&
+              !/csrf/i.test(responseMessage));
+
+          if (isExpiredOrInvalidToken) {
               // Skip token refresh for auth endpoints (login, register, etc.)
               const isAuthEndpoint =
                 originalRequest.url?.includes("/auth/login") ||
@@ -182,10 +196,16 @@ class ApiClient {
                     const { token: newToken, refreshToken: newRefreshToken } =
                       response.data;
                     this.setAuthToken(newToken);
-                    if (sessionStorage.getItem("refreshToken")) {
-                      sessionStorage.setItem("refreshToken", newRefreshToken);
-                    } else {
+                    // Same storage this refreshToken was actually read from
+                    // above (localStorage checked first, matching every
+                    // other read of this value) — writing it back to
+                    // sessionStorage-first instead, as this used to, could
+                    // silently update the storage nothing reads from first,
+                    // leaving the value future requests actually use stale.
+                    if (localStorage.getItem("refreshToken")) {
                       localStorage.setItem("refreshToken", newRefreshToken);
+                    } else {
+                      sessionStorage.setItem("refreshToken", newRefreshToken);
                     }
 
                     // Notify all subscribers
@@ -200,8 +220,18 @@ class ApiClient {
 
                     return this.axiosInstance(originalRequest);
                   }
+
+                  // No refresh token stored at all - genuinely nothing left to recover
+                  // the session with, so this really is the end of it.
+                  this.clearAuthToken();
+                  localStorage.removeItem("refreshToken");
+                  sessionStorage.removeItem("refreshToken");
+                  window.dispatchEvent(new Event("session-expired"));
+                  return Promise.reject(error);
                 } catch (refreshError) {
-                  // Refresh failed - clear tokens and notify user
+                  // The refresh call itself failed, meaning the refresh token is genuinely
+                  // dead (rejected by the backend) - this is the one case that legitimately
+                  // means the session is over. Clear tokens and notify user.
                   this.clearAuthToken();
                   localStorage.removeItem("refreshToken");
                   sessionStorage.removeItem("refreshToken");
@@ -216,44 +246,60 @@ class ApiClient {
                 }
               }
 
-              // If retry failed, clear tokens and redirect
-              this.clearAuthToken();
-              localStorage.removeItem("refreshToken");
-              sessionStorage.removeItem("refreshToken");
-              window.location.href = "/login";
-              break;
-            case 403:
-              // Forbidden - might be CSRF token issue
-              if (error.response.data?.message?.includes("CSRF")) {
-                await this.refreshCsrfToken();
-                if (!originalRequest._retry) {
-                  originalRequest._retry = true;
-                  return this.axiosInstance(originalRequest);
+              // Reaching here means this exact request already went through one
+              // refresh-and-retry cycle (originalRequest._retry was already true) and failed
+              // again. The only ways to get here are: this request was itself the refresher
+              // and its own post-refresh retry failed, or it was queued behind another
+              // request's refresh (via refreshSubscribers) and got notified with a fresh token
+              // whose own retry then failed - either way a refresh had already SUCCEEDED (a
+              // failed refresh is handled entirely by the catch block above, which never
+              // reaches here). So the refresh token is known-good at this point, and this
+              // second failure on one specific request is not proof the whole session is
+              // dead - it can just as easily be an unrelated, transient problem (a slow/flaky
+              // backend, a one-off 5xx-then-401 from a proxy, a CSRF hiccup on this one call).
+              // Previously this branch unconditionally cleared BOTH tokens and hard-redirected
+              // every open tab to /login - logging the user out of an otherwise perfectly
+              // healthy, just-renewed session over one unrelated request's bad luck (verified:
+              // forcing a single unrelated 401 on a post-refresh retry reproduced exactly that,
+              // with a still-valid refresh token in storage getting wiped). Only reject this
+              // one request and let its own caller handle the error (e.g. show a toast) -
+              // don't touch the session.
+              return Promise.reject(error);
+          } else {
+            switch (error.response.status) {
+              case 403:
+                // Forbidden - might be CSRF token issue
+                if (error.response.data?.message?.includes("CSRF")) {
+                  await this.refreshCsrfToken();
+                  if (!originalRequest._retry) {
+                    originalRequest._retry = true;
+                    return this.axiosInstance(originalRequest);
+                  }
                 }
-              }
-              console.warn("Access forbidden - insufficient permissions");
-              break;
-            case 404:
-              console.warn("Resource not found");
-              break;
-            case 422:
-              // Validation error
-              console.warn("Validation error:", error.response.data);
-              break;
-            case 423:
-              // Account locked
-              console.error("Account locked:", error.response.data);
-              break;
-            case 429:
-              // Rate limit exceeded
-              console.warn("Rate limit exceeded - please slow down");
-              break;
-            case 500:
-              // Server error
-              console.error("Server error - please try again later");
-              break;
-            default:
-              console.error("Unexpected error:", error.response.data);
+                console.warn("Access forbidden - insufficient permissions");
+                break;
+              case 404:
+                console.warn("Resource not found");
+                break;
+              case 422:
+                // Validation error
+                console.warn("Validation error:", error.response.data);
+                break;
+              case 423:
+                // Account locked
+                console.error("Account locked:", error.response.data);
+                break;
+              case 429:
+                // Rate limit exceeded
+                console.warn("Rate limit exceeded - please slow down");
+                break;
+              case 500:
+                // Server error
+                console.error("Server error - please try again later");
+                break;
+              default:
+                console.error("Unexpected error:", error.response.data);
+            }
           }
         } else if (error.request) {
           // Network error
@@ -385,10 +431,13 @@ class ApiClient {
 
   // Utility methods
   public setAuthToken(token: string): void {
-    if (sessionStorage.getItem("token")) {
-      sessionStorage.setItem("token", token);
-    } else {
+    // localStorage checked first here too, matching getToken()'s own read
+    // priority below — kept consistent so a write always lands in the same
+    // storage a subsequent read will actually look in first.
+    if (localStorage.getItem("token")) {
       localStorage.setItem("token", token);
+    } else {
+      sessionStorage.setItem("token", token);
     }
   }
 

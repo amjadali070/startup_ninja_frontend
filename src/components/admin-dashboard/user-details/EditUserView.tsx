@@ -5,10 +5,23 @@ import {
   FaEnvelope,
   FaPhone,
   FaMapMarkerAlt,
-  FaCog,
-  FaCheckCircle,
 } from "react-icons/fa";
 import type { ExtendedUserDetails } from "../../../types/admin";
+import IconSelect, { SelectOption } from "../../IconSelect";
+
+const editUserSelectClass =
+  "w-full bg-[#0D0D0D] border border-[#333] rounded-lg px-4 h-[50px] text-white";
+
+const ROLE_OPTIONS: SelectOption[] = [
+  { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
+];
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: "1", label: "Active" },
+  { value: "0", label: "Inactive" },
+  { value: "2", label: "Suspended" },
+];
 
 interface EditForm {
   fullname: string;
@@ -147,39 +160,26 @@ const EditUserView: React.FC<EditUserViewProps> = ({
             <label className="block text-gray-400 text-sm mb-2">
               Account Role
             </label>
-            <div className="relative">
-              <select
-                value={editForm.role}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, role: e.target.value })
-                }
-                className="w-full bg-[#0D0D0D] border border-[#333] rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none appearance-none transition-colors"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              <FaCog className="absolute right-4 top-4 text-gray-500 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={editForm.role}
+              onChange={(v) => setEditForm({ ...editForm, role: v })}
+              options={ROLE_OPTIONS}
+              className={editUserSelectClass}
+            />
           </div>
 
           <div>
             <label className="block text-gray-400 text-sm mb-2">
               Account Status
             </label>
-            <div className="relative">
-              <select
-                value={editForm.status}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, status: Number(e.target.value) })
-                }
-                className="w-full bg-[#0D0D0D] border border-[#333] rounded-lg px-4 py-3 text-white focus:border-red-500 focus:outline-none appearance-none transition-colors"
-              >
-                <option value={1}>Active</option>
-                <option value={0}>Inactive</option>
-                <option value={2}>Suspended</option>
-              </select>
-              <FaCheckCircle className="absolute right-4 top-4 text-gray-500 pointer-events-none" />
-            </div>
+            <IconSelect
+              value={String(editForm.status)}
+              onChange={(v) =>
+                setEditForm({ ...editForm, status: Number(v) })
+              }
+              options={STATUS_OPTIONS}
+              className={editUserSelectClass}
+            />
           </div>
         </div>
       </div>

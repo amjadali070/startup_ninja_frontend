@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { authService } from '../../services/auth';
 import { FiCheckCircle, FiXCircle, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
-import { CgSpinner } from 'react-icons/cg';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const VerifyEmail = () => {
   const [loading, setLoading] = useState(true);
@@ -79,8 +79,7 @@ const VerifyEmail = () => {
 
         {loading || verifying ? (
           <div className="flex flex-col items-center justify-center py-8">
-            <CgSpinner className="h-12 w-12 animate-spin text-red-500 mb-4" />
-            <h3 className="text-xl font-semibold">Verifying your email...</h3>
+            <LoadingSpinner />
             <p className="text-gray-400 mt-2">Please wait while we validate your code.</p>
           </div>
         ) : status === 'success' ? (

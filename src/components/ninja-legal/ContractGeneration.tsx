@@ -3,6 +3,7 @@ import { FiFileText, FiChevronRight, FiInfo, FiLoader, FiChevronLeft, FiZap } fr
 import { ninjaLegalService, ContractDetails, documentTypeLabel } from "../../services/ninja-legal";
 import { ContractListItem, PaginationInfo } from "../../services/ninja-legal";
 import toast from "react-hot-toast";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface ContractWithStatus extends ContractListItem {
   isReadyForGeneration?: boolean;
@@ -176,7 +177,7 @@ const ContractGeneration: FC<ContractGenerationProps> = ({ onViewContract }) => 
         <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <FiLoader className="w-5 h-5 animate-spin text-[#dc2626]" />
+              <LoadingSpinner size="small" />
             </div>
           ) : contracts.length > 0 ? (
             contracts.map((contract) => (

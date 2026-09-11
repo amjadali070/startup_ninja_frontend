@@ -11,6 +11,7 @@ import {
   CardCvcElement,
 } from "@stripe/react-stripe-js";
 import AlertModal from "../AlertModal";
+import LoadingSpinner from "../LoadingSpinner";
 
 export type PaymentMethod = {
   id: string;
@@ -120,9 +121,8 @@ const PaymentMethodCard: FC<PaymentMethodCardProps> = ({ onRefresh }) => {
 
         {/* Loading State */}
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
-            <p className="text-gray-400 text-sm mt-2">Loading cards...</p>
+          <div className="py-8">
+            <LoadingSpinner />
           </div>
         ) : cards.length === 0 ? (
           /* Empty State */

@@ -206,8 +206,10 @@ const PostDetailsView: React.FC<Props> = ({ post }) => {
                         <div className="min-w-0">
                           <div className="text-white text-sm truncate">{acc.name || acc.username || 'Unknown account'}</div>
                           <div className="text-gray-400 text-xs truncate flex items-center gap-2">
+                            {/* Removed a "View account" link that pointed nowhere
+                                (href="#", no onClick) — the account data here
+                                carries no profile URL to actually link to. */}
                             {acc.username ? `@${acc.username.replace(/^@/, '')}` : metaP.name}
-                            <a className="text-indigo-400 hover:text-indigo-300 transition-colors" href="#" title="View account">↗</a>
                           </div>
                         </div>
                       </div>

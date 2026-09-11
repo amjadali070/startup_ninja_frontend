@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
+import { toast } from 'react-hot-toast';
 import schedulerService from '../../services/social-media/scheduler';
 import PostsTable, { TablePost } from './PostsTable';
 import LoadingSpinner from '../LoadingSpinner';
 import SchedulePostModal from './SchedulePostModal';
+import AlertModal from '../AlertModal';
+import IconSelect, { SelectOption } from '../IconSelect';
 import { emitPostStatusUpdate, emitPostRemoval, onPostStatusUpdate, onPostRemoval } from '../../utils/postStatusEvents';
 import { postStatusPoller } from '../../services/social-media/postStatusPoller';
 import { usePost } from './PostContext';
@@ -21,6 +24,12 @@ type ScheduledPost = {
 	publishedAt?: string;
 };
 
+const SORT_OPTIONS: SelectOption[] = [
+	{ value: 'date_desc', label: 'Sort by: Date (newest)' },
+	{ value: 'date_asc', label: 'Sort by: Date (oldest)' },
+	{ value: 'status', label: 'Sort by: Status' },
+];
+
 const ScheduledPostsList: React.FC = () => {
 	const [items, setItems] = useState<ScheduledPost[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -31,6 +40,8 @@ const ScheduledPostsList: React.FC = () => {
 	const [pageHistory, setPageHistory] = useState(1);
 	const [pageSizeHistory, setPageSizeHistory] = useState(5);
 	const { refreshTrigger } = usePost();
+	const [confirmTarget, setConfirmTarget] = useState<{ type: 'cancel' | 'delete'; id: string } | null>(null);
+	const [confirmBusy, setConfirmBusy] = useState(false);
 
 	const fetchData = async () => {
 		if (loading) return;
@@ -126,11 +137,13 @@ const ScheduledPostsList: React.FC = () => {
 	const handleCancel = async (id: string) => {
 		try {
 			await schedulerService.cancelScheduled(id);
-			
+
 			emitPostStatusUpdate({ postId: id, status: 'cancelled' });
-			
+			toast.success('Scheduled post cancelled');
+
 			await fetchData();
-		} catch (e) {
+		} catch (e: any) {
+			toast.error(e?.message || 'Failed to cancel scheduled post');
 		}
 	};
 
@@ -139,19 +152,37 @@ const ScheduledPostsList: React.FC = () => {
       const result = await schedulerService.deletePost(id);
       if (result.success) {
         setItems(prevItems => prevItems.filter(item => item._id !== id));
-        
+
         postStatusPoller.untrackPost(id);
-        
+
         emitPostRemoval({ postId: id });
-        
+        toast.success('Post deleted');
+
         await fetchData();
       } else {
         setError(result.message || 'Failed to delete post');
+        toast.error(result.message || 'Failed to delete post');
       }
     } catch (e: any) {
       setError(e?.message || 'Failed to delete post');
+      toast.error(e?.message || 'Failed to delete post');
     }
   };
+
+	const handleConfirmedAction = async () => {
+		if (!confirmTarget) return;
+		setConfirmBusy(true);
+		try {
+			if (confirmTarget.type === 'cancel') {
+				await handleCancel(confirmTarget.id);
+			} else {
+				await handleDelete(confirmTarget.id);
+			}
+		} finally {
+			setConfirmBusy(false);
+			setConfirmTarget(null);
+		}
+	};
 
 	return (
 		<div className="w-full rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-800">
@@ -169,16 +200,12 @@ const ScheduledPostsList: React.FC = () => {
 							className="w-full bg-[#1E1E1E] border border-gray-700 rounded-lg pr-10 pl-2.5 sm:pl-3 py-2 text-xs sm:text-sm text-gray-200 focus:outline-none focus:border-gray-500"
 						/>
 					</div>
-					<select
+					<IconSelect
 						value={sortBy}
-						onChange={(e) => setSortBy(e.target.value as any)}
+						onChange={(v) => setSortBy(v as any)}
+						options={SORT_OPTIONS}
 						className="bg-[#1E1E1E] border border-gray-700 rounded-lg px-2 py-2 text-xs sm:text-sm text-gray-200"
-						aria-label="Sort by"
-					>
-						<option value="date_desc">Sort by: Date (newest)</option>
-						<option value="date_asc">Sort by: Date (oldest)</option>
-						<option value="status">Sort by: Status</option>
-					</select>
+					/>
 				</div>
 			</div>
 
@@ -192,11 +219,11 @@ const ScheduledPostsList: React.FC = () => {
 				  rows={allRows}
 				  onRowClick={(row) => setSelected(items.find(i => i._id === row._id) || null)}
 				  onEdit={(row) => {
-				    if (row.status === 'scheduled') handleCancel(row._id);
+				    if (row.status === 'scheduled') setConfirmTarget({ type: 'cancel', id: row._id });
 				  }}
 				  onDelete={(row) => {
 				    if (['draft', 'published', 'failed', 'cancelled'].includes(row.status)) {
-				      handleDelete(row._id);
+				      setConfirmTarget({ type: 'delete', id: row._id });
 				    }
 				  }}
 				  page={pageHistory}
@@ -213,6 +240,24 @@ const ScheduledPostsList: React.FC = () => {
 			<SchedulePostModal
 				post={selected as any}
 				onClose={() => setSelected(null)}
+			/>
+
+			<AlertModal
+				isOpen={confirmTarget !== null}
+				type="danger"
+				action="delete"
+				title={confirmTarget?.type === 'cancel' ? 'Cancel Scheduled Post' : 'Delete Post'}
+				message={
+					confirmTarget?.type === 'cancel'
+						? 'Cancel this scheduled post? It will not be published at its scheduled time. This cannot be undone.'
+						: 'Delete this post permanently? This cannot be undone.'
+				}
+				confirmText={confirmTarget?.type === 'cancel' ? 'Cancel Post' : 'Delete Post'}
+				cancelText="Keep It"
+				onClose={() => setConfirmTarget(null)}
+				onConfirm={handleConfirmedAction}
+				isLoading={confirmBusy}
+				loadingText={confirmTarget?.type === 'cancel' ? 'Cancelling...' : 'Deleting...'}
 			/>
 		</div>
 	);

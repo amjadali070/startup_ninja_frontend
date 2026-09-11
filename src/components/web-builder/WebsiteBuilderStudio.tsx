@@ -33,6 +33,7 @@ import html2canvas from "html2canvas";
 import TemplateService from "../../services/web-builder/TemplateService";
 import { PREVIEW_DEVICE_SIZES } from "./config/previewDevices";
 import LoadingSpinner from "../LoadingSpinner";
+import AlertModal from "../AlertModal";
 import { FaFileDownload } from "react-icons/fa";
 import { MdDelete, MdClose, MdWebStories } from "react-icons/md";
 // Backend API base URL
@@ -128,6 +129,7 @@ const WebsiteBuilderStudio: FC = () => {
   const [versions, setVersions] = useState<WebsiteVersionType[]>([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
   const [restoringVersionId, setRestoringVersionId] = useState<string | null>(null);
+  const [confirmingVersionId, setConfirmingVersionId] = useState<string | null>(null);
 
   // "Ask Ninja" — feedback.md asks for an always-visible control for
   // plain-English changes, plus AI Rewrite Section / AI Redesign Section /
@@ -144,6 +146,20 @@ const WebsiteBuilderStudio: FC = () => {
     "idle" | "rewrite" | "redesign" | "ask" | "image"
   >("idle");
   const [askNinjaSelection, setAskNinjaSelection] = useState<{ label: string; isImage: boolean } | null>(null);
+
+  // Uploaded-document delete confirmation — this panel is built as plain
+  // GrapesJS Studio SDK button objects (see the "documents-panel-btn"
+  // handler below), rendered outside JSX, but its onClick closures still
+  // have access to this component's state setters. Rather than a
+  // synchronous window.confirm(), the button just stages what's pending
+  // here and the actual delete runs from the AlertModal's onConfirm below,
+  // matching the confirm-before-destructive-action pattern used elsewhere
+  // in this app (e.g. StudentVerifications.tsx's reject-confirmation).
+  const [documentDeleteConfirm, setDocumentDeleteConfirm] = useState<{
+    name: string;
+    run: () => Promise<void>;
+  } | null>(null);
+  const [documentDeleteLoading, setDocumentDeleteLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -174,10 +190,12 @@ const WebsiteBuilderStudio: FC = () => {
           setWebsiteData(response.data);
         } else {
           console.error("Error:", response.message);
+          toast.error(response.message || "Couldn't open this website. Returning to your projects.");
           navigate("/ai-tools/web-builder", { replace: true });
         }
       } catch (err) {
         console.error("Error fetching website data:", err);
+        toast.error("Couldn't open this website. Returning to your projects.");
         navigate("/ai-tools/web-builder", { replace: true });
       } finally {
         setTimeout(() => {
@@ -228,21 +246,34 @@ const WebsiteBuilderStudio: FC = () => {
       iframeWindow.scrollTo(0, 0);
 
       setTimeout(async () => {
-        const canvas = await html2canvas(iframeBody, {
-          useCORS: true,
-          backgroundColor: "#fff",
-          scale: 1.5,
-          width: iframeBody.scrollWidth,
-          height: 700,
-          windowWidth: iframeBody.scrollWidth,
-          windowHeight: 700,
-          x: 0,
-          y: 0,
-          scrollY: 0,
-        });
+        // This runs outside the outer try/catch (it's a separate setTimeout
+        // callback, not awaited by the function that scheduled it) — without
+        // its own try/catch here, a thrown html2canvas error (a real,
+        // recurring failure mode: tainted/cross-origin canvas, unsupported
+        // CSS) was an unhandled rejection that never called setSaveStatus,
+        // leaving the "Saving…" indicator on screen forever with no way for
+        // the user to know it failed or to retry.
+        try {
+          const canvas = await html2canvas(iframeBody, {
+            useCORS: true,
+            backgroundColor: "#fff",
+            scale: 1.5,
+            width: iframeBody.scrollWidth,
+            height: 700,
+            windowWidth: iframeBody.scrollWidth,
+            windowHeight: 700,
+            x: 0,
+            y: 0,
+            scrollY: 0,
+          });
 
-        const screenshot = canvas.toDataURL("image/jpeg", 0.9);
-        await handleSave(project, screenshot);
+          const screenshot = canvas.toDataURL("image/jpeg", 0.9);
+          await handleSave(project, screenshot);
+        } catch (err) {
+          console.error("Save preview capture failed:", err);
+          toast.error("There is an issue when saving website");
+          setSaveStatus("error");
+        }
       }, 2000);
     } catch (err) {
       console.error(err);
@@ -912,6 +943,23 @@ const WebsiteBuilderStudio: FC = () => {
   const handlePublishWebsite = async (editor: any) => {
     try {
       toast.loading("Publishing your website...", { id: "publish-loading" });
+
+      // Real bug found and fixed: this function renders the current canvas
+      // to static HTML and uploads that to S3 — it never wrote the live
+      // GrapesJS project JSON back to `website.websiteData` in Mongo. A
+      // website published soon after being created (the wizard's own
+      // "Publish" step does exactly this, well under the editor's 100s/
+      // 100-change autosave threshold) ended up published and visibly live,
+      // but reopening its editor loaded an empty project — "New project" on
+      // a blank canvas — because `websiteData` had never actually been
+      // persisted. `editor.store()` triggers the same onSave → saveToServer
+      // path a manual Save uses, so publishing now always leaves the editor
+      // reopenable to what was actually just published.
+      try {
+        await editor.store();
+      } catch (e) {
+        console.error("Pre-publish save failed:", e);
+      }
 
       const files = (await editor.runCommand("studio:projectFiles", {
         styles: "inline",
@@ -2233,7 +2281,11 @@ const WebsiteBuilderStudio: FC = () => {
                                                     a.click();
                                                     a.remove();
                                                     URL.revokeObjectURL(url);
-                                                  } catch {}
+                                                  } catch {
+                                                    toast.error(
+                                                      "Failed to download this document. Please try again."
+                                                    );
+                                                  }
                                                 },
                                               },
                                               {
@@ -2244,55 +2296,78 @@ const WebsiteBuilderStudio: FC = () => {
                                                   padding: "6px",
                                                 },
                                                 icon: ICON_DELETE,
-                                                onClick: async () => {
-                                                  try {
-                                                    const r = await apiFetch(
-                                                      `/website-builder/uploads/documents/${it.id}`,
-                                                      { method: "DELETE" }
-                                                    );
-                                                    if (
-                                                      !(
-                                                        r.status === 204 || r.ok
-                                                      )
-                                                    )
-                                                      throw new Error(
-                                                        "delete failed"
-                                                      );
-                                                    // Show success and refresh the list without closing the panel
-                                                    toast.success(
-                                                      "Document deleted successfully"
-                                                    );
-                                                    // Remove row immediately
-                                                    const row =
-                                                      document.getElementById(
-                                                        `doc-row-${it.id}`
-                                                      );
-                                                    if (
-                                                      row &&
-                                                      row.parentElement
-                                                    )
-                                                      row.parentElement.removeChild(
-                                                        row
-                                                      );
-                                                    // Update total count
-                                                    const totalEl =
-                                                      document.getElementById(
-                                                        "doc-total-count"
-                                                      );
-                                                    if (totalEl) {
-                                                      const m =
-                                                        totalEl.textContent?.match(
-                                                          /\d+/
+                                                onClick: () => {
+                                                  // This permanently removes the uploaded file — confirm
+                                                  // first, matching every other destructive action in
+                                                  // the editor. This panel is built as plain GrapesJS
+                                                  // Studio SDK button objects, rendered outside JSX, but
+                                                  // this closure still has access to this component's
+                                                  // state setters — so instead of a synchronous
+                                                  // window.confirm(), it stages the pending delete here
+                                                  // and the app's own styled AlertModal (rendered near
+                                                  // the bottom of this component) drives the actual
+                                                  // confirm/cancel.
+                                                  setDocumentDeleteConfirm({
+                                                    name: it.name || "this document",
+                                                    run: async () => {
+                                                      setDocumentDeleteLoading(true);
+                                                      try {
+                                                        const r = await apiFetch(
+                                                          `/website-builder/uploads/documents/${it.id}`,
+                                                          { method: "DELETE" }
                                                         );
-                                                      const n = m
-                                                        ? Math.max(
-                                                            0,
-                                                            parseInt(m[0]) - 1
+                                                        if (
+                                                          !(
+                                                            r.status === 204 || r.ok
                                                           )
-                                                        : 0;
-                                                      totalEl.textContent = `Total: ${n}`;
-                                                    }
-                                                  } catch {}
+                                                        )
+                                                          throw new Error(
+                                                            "delete failed"
+                                                          );
+                                                        // Show success and refresh the list without closing the panel
+                                                        toast.success(
+                                                          "Document deleted successfully"
+                                                        );
+                                                        // Remove row immediately
+                                                        const row =
+                                                          document.getElementById(
+                                                            `doc-row-${it.id}`
+                                                          );
+                                                        if (
+                                                          row &&
+                                                          row.parentElement
+                                                        )
+                                                          row.parentElement.removeChild(
+                                                            row
+                                                          );
+                                                        // Update total count
+                                                        const totalEl =
+                                                          document.getElementById(
+                                                            "doc-total-count"
+                                                          );
+                                                        if (totalEl) {
+                                                          const m =
+                                                            totalEl.textContent?.match(
+                                                              /\d+/
+                                                            );
+                                                          const n = m
+                                                            ? Math.max(
+                                                                0,
+                                                                parseInt(m[0]) - 1
+                                                              )
+                                                            : 0;
+                                                          totalEl.textContent = `Total: ${n}`;
+                                                        }
+                                                        setDocumentDeleteConfirm(null);
+                                                      } catch {
+                                                        toast.error(
+                                                          "Failed to delete this document. Please try again."
+                                                        );
+                                                      } finally {
+                                                        setDocumentDeleteLoading(false);
+                                                      }
+                                                    },
+                                                  });
                                                 },
                                               },
                                             ],
@@ -3061,13 +3136,35 @@ const WebsiteBuilderStudio: FC = () => {
                       <div className="text-xs text-gray-300">
                         {formatVersionDate(v.createdAt)}
                       </div>
-                      <button
-                        onClick={() => handleRestoreVersion(v._id)}
-                        disabled={restoringVersionId !== null}
-                        className="px-3 py-1.5 text-xs rounded-md bg-[#DC2626]/10 text-[#DC2626] hover:bg-[#DC2626]/20 border border-[#DC2626]/30 disabled:opacity-50"
-                      >
-                        {restoringVersionId === v._id ? "Restoring…" : "Restore"}
-                      </button>
+                      {confirmingVersionId === v._id ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-gray-400">Overwrite current draft?</span>
+                          <button
+                            onClick={() => setConfirmingVersionId(null)}
+                            className="px-2 py-1.5 text-xs rounded-md bg-[#2a2a2a] text-gray-300 hover:bg-[#333]"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => {
+                              setConfirmingVersionId(null);
+                              handleRestoreVersion(v._id);
+                            }}
+                            disabled={restoringVersionId !== null}
+                            className="px-2 py-1.5 text-xs rounded-md bg-[#DC2626] text-white hover:bg-[#B91C1C] disabled:opacity-50"
+                          >
+                            Yes, restore
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmingVersionId(v._id)}
+                          disabled={restoringVersionId !== null}
+                          className="px-3 py-1.5 text-xs rounded-md bg-[#DC2626]/10 text-[#DC2626] hover:bg-[#DC2626]/20 border border-[#DC2626]/30 disabled:opacity-50"
+                        >
+                          {restoringVersionId === v._id ? "Restoring…" : "Restore"}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -3076,6 +3173,22 @@ const WebsiteBuilderStudio: FC = () => {
           </div>
         </div>
       )}
+
+      <AlertModal
+        isOpen={!!documentDeleteConfirm}
+        type="danger"
+        action="delete"
+        title="Delete Document"
+        message={`Delete "${documentDeleteConfirm?.name || "this document"}"? This cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onClose={() => {
+          if (!documentDeleteLoading) setDocumentDeleteConfirm(null);
+        }}
+        onConfirm={() => documentDeleteConfirm?.run()}
+        isLoading={documentDeleteLoading}
+        loadingText="Deleting..."
+      />
     </div>
   );
 };

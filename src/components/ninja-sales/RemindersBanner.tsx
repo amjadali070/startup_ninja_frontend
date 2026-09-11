@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { FiBell, FiLoader, FiSend, FiCheckCircle } from "react-icons/fi";
 import { ninjaSalesService } from "../../services/ninjaSales";
 import type { ReminderItem } from "../../services/ninjaSales";
+import LoadingSpinner from "../LoadingSpinner";
 
 /**
  * Surfaces the automatic reminders sweep (hourly, in-app notification + once-daily
@@ -46,9 +47,8 @@ const RemindersBanner: FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-5 flex items-center gap-3 text-white/40">
-        <FiLoader className="w-4 h-4 animate-spin" />
-        <span className="text-xs font-black uppercase tracking-widest">Checking reminders...</span>
+      <div className="bg-[#121212] border border-white/[0.03] rounded-3xl p-5 flex items-center justify-center">
+        <LoadingSpinner size="small" />
       </div>
     );
   }

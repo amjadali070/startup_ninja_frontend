@@ -13,6 +13,7 @@ import { ninjaSalesService } from "../../../services/ninjaSales";
 import type { SelectOption } from "../../../components/IconSelect";
 import IconSelect from "../../../components/IconSelect";
 import AlertModal from "../../../components/AlertModal";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 const Field: FC<{ label: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ label, icon, children }) => (
   <div className="space-y-2.5">
@@ -141,7 +142,12 @@ const EditLeadPage: FC = () => {
       lastContactAt: form.lastContactAt ? new Date(form.lastContactAt).toISOString() : undefined,
     });
     setSaving(false);
-    if (res.success) navigate(`/ai-tools/sales/leads/${id}`);
+    if (res.success) {
+      toast.success("Lead updated");
+      navigate(`/ai-tools/sales/leads/${id}`);
+    } else {
+      toast.error(res.message || "Could not save lead changes");
+    }
   };
 
   const handleDelete = async () => {
@@ -169,7 +175,7 @@ const EditLeadPage: FC = () => {
     <DashboardLayout activePath="/ai-tools/sales/leads" title="Edit Lead - Ninja Sales" onLogout={handleLogout} onSettings={() => navigate("/settings")}>
       <main className="flex-1 overflow-y-auto font-plus-jakarta bg-[#07070C] min-h-screen">
         {loading ? (
-          <div className="flex items-center justify-center h-64"><FiLoader className="w-8 h-8 text-red-500 animate-spin" /></div>
+          <div className="flex items-center justify-center h-64"><LoadingSpinner /></div>
         ) : (
           <div className="p-4 md:p-6 lg:p-8 text-white pb-20 space-y-8">
 

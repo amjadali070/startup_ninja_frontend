@@ -272,7 +272,13 @@ const SEOSettingsModal: React.FC<SEOSettingsModalProps> = ({ isOpen, onClose, we
                                 {settings.title || website?.websiteTitle || 'Website Title'}
                             </p>
                             <p className="text-[#006621] text-sm mb-1 truncate">
-                                {website?.customDomain ? `https://${website.publishedLink}` : 'https://yourwebsite.startupninja.ai'}
+                                {/* Was interpolating publishedLink under the customDomain check — showed
+                                    a literal "https://null" once a custom domain was connected but the
+                                    site hadn't been (re)published yet. publishedLink is already a full
+                                    URL (S3 or system domain), so it isn't given its own "https://" prefix. */}
+                                {website?.customDomain
+                                    ? `https://${website.customDomain}`
+                                    : website?.publishedLink || 'https://yourwebsite.startupninja.ai'}
                             </p>
                             <p className="text-[#545454] text-sm line-clamp-2 leading-relaxed">
                                 {settings.description || 'Description of your website will appear here when search engines index your site.'}

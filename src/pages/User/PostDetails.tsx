@@ -59,7 +59,12 @@ export default function PostDetails() {
                 <div className="flex-1 min-w-0">
                   <div className="text-white font-semibold text-md">{relatedNotification.title}</div>
                 </div>
-                <div className="text-white font-semibold text-sm">Post Publish Method:</div>
+                {/* This badge renders the notification's own type (success/
+                    warning/error/info/published/scheduled) — it's a status
+                    indicator for the notification, not the post's actual
+                    publish method (immediate vs. scheduled), which the
+                    label previously (and incorrectly) claimed. */}
+                <div className="text-white font-semibold text-sm">Status:</div>
                 <div className={`px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider 
                   ${relatedNotification.type === 'success' || relatedNotification.type === 'published' ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30' : ''}
                   ${relatedNotification.type === 'warning' || relatedNotification.type === 'scheduled' ? 'bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30' : ''}

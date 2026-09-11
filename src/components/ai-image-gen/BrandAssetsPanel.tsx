@@ -6,6 +6,7 @@ import {
   BrandAssets,
   BrandAssetProductImage,
 } from "../../services/imageGenService";
+import LoadingSpinner from "../LoadingSpinner";
 
 const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
@@ -179,7 +180,7 @@ const BrandAssetsPanel: React.FC<BrandAssetsPanelProps> = ({ onChange }) => {
         <div className="p-4 sm:p-5 bg-[#101010] space-y-5">
           {!loaded ? (
             <div className="flex justify-center py-6">
-              <FiLoader className="w-5 h-5 text-gray-500 animate-spin" />
+              <LoadingSpinner size="small" />
             </div>
           ) : (
             <>

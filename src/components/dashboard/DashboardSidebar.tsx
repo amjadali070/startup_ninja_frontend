@@ -111,12 +111,6 @@ const navSections: SidebarSection[] = [
         icon: <FiMessageSquare className="w-5 h-5" />,
         admin: true,
       },
-      // {
-      //   label: "API Management",
-      //   to: "/admin-dashboard/api-management",
-      //   icon: <TbApi className="w-5 h-5" />,
-      //   admin: true,
-      // },
     ],
   },
   {
