@@ -1,14 +1,20 @@
 import { Editor } from "@grapesjs/studio-sdk-plugins/dist/types.js";
 
 export const accordionPlugin = (editor: Editor) => {
-  editor.Components.addType("accordion", {
-    isComponent: (el: any) => el.classList?.contains("accordion"),
+  // Named "faq-accordion" (not "accordion") — the SDK's own built-in
+  // accordionComponent plugin registers a component type keyed "accordion"
+  // too, and since it initializes after this one in WebsiteBuilderStudio's
+  // plugins array, it silently won the naming collision: dropping this
+  // block instantiated the SDK's generic accordion instead of this one,
+  // with none of the real FAQ content ever appearing.
+  editor.Components.addType("faq-accordion", {
+    isComponent: (el: any) => el.classList?.contains("faq-accordion"),
     model: {
       defaults: {
         tagName: "div",
-        attributes: { class: "accordion" },
+        attributes: { class: "faq-accordion" },
         styles: `
-          .accordion {
+          .faq-accordion {
             max-width: 800px;
             margin: 0 auto;
           }
@@ -144,12 +150,12 @@ export const accordionPlugin = (editor: Editor) => {
     },
   });
 
-  editor.Blocks.add("accordion", {
+  editor.Blocks.add("faq-accordion", {
     label: "Accordion",
     category: "Custom",
     media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#e8eaed" stroke-width="1.5"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="18" height="5" rx="1"/><line x1="6" y1="19" x2="14" y2="19" stroke-linecap="round"/><path d="M16 18l2 2 2-2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     content: {
-      type: "accordion",
+      type: "faq-accordion",
     },
   });
 };
