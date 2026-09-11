@@ -1301,6 +1301,35 @@ const WebsiteBuilderStudio: FC = () => {
           editor.on("component:selected", updateSelectionInfo);
           editor.on("component:deselected", updateSelectionInfo);
 
+          // The Style Manager's "Size" section (Width/Height) starts
+          // collapsed on every selection — easy to miss in favor of the
+          // canvas's own edge-drag handles, which actually adjust margin,
+          // not width (a real but confusing distinction, not a bug: the
+          // margin handles are a legitimate spacing tool, they just look
+          // like a resize control). Auto-expanding Size on selection makes
+          // the real width/height control the path of least resistance.
+          editor.on("component:selected", () => {
+            // The SDK's Style Manager accordion sections track their
+            // expanded state as local UI state, not through the underlying
+            // Sector model's `open` attribute (confirmed: every sector
+            // reports open:true regardless of what's visually expanded), so
+            // there's no data-driven way to open one. Simulating the same
+            // click a user would make on the "Size" header is the only
+            // available lever.
+            setTimeout(() => {
+              const headers = Array.from(document.querySelectorAll<HTMLElement>("div, span, button"));
+              const sizeHeader = headers.find(
+                (el) => el.children.length === 0 && el.textContent?.trim() === "Size"
+              );
+              const alreadyOpen = Array.from(document.querySelectorAll("label, span, div")).some(
+                (el) => el.textContent?.trim() === "Width" && (el.closest("div")?.parentElement?.querySelector("input") as HTMLInputElement | null)?.offsetParent
+              );
+              if (sizeHeader && !alreadyOpen) {
+                sizeHeader.click();
+              }
+            }, 250);
+          });
+
           const observer = new MutationObserver(() => {
             addDeviceIcons();
           });
