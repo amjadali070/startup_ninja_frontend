@@ -114,7 +114,15 @@ export const heroSectionPlugin = (editor: Editor) => {
       },
       init() {
         this.on("change:title change:subtitle change:buttonText change:backgroundImage", this.updateContent);
-        this.updateContent();
+        // Only seed the placeholder content for a genuinely new component
+        // (dragged from the block panel, so it has no children yet) — when
+        // parsing an existing template/website's real HTML into this type,
+        // this used to run unconditionally and immediately throw away the
+        // real, already-parsed content in favor of this component's
+        // hardcoded defaults ("Welcome to Our Platform...").
+        if (!this.components().length) {
+          this.updateContent();
+        }
       },
       updateContent() {
         const title = this.get("title");

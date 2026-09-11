@@ -32,6 +32,7 @@ import { toast } from "react-hot-toast";
 import html2canvas from "html2canvas";
 import TemplateService from "../../services/web-builder/TemplateService";
 import { PREVIEW_DEVICE_SIZES } from "./config/previewDevices";
+import { extractThemeColors, ExtractedTheme } from "./utils/extractThemeColors";
 import LoadingSpinner from "../LoadingSpinner";
 import AlertModal from "../AlertModal";
 import { FaFileDownload } from "react-icons/fa";
@@ -161,6 +162,12 @@ const WebsiteBuilderStudio: FC = () => {
   } | null>(null);
   const [documentDeleteLoading, setDocumentDeleteLoading] = useState(false);
 
+  // Best-effort real colors for this site, used to seed the Global Styles
+  // panel's Primary/Accent defaults instead of a hardcoded placeholder
+  // palette unrelated to whatever's actually loaded. Resolved once, from
+  // whichever source storage.onLoad below will end up using.
+  const [themeColors, setThemeColors] = useState<ExtractedTheme>({});
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const websiteId = params.get("id");
@@ -188,6 +195,7 @@ const WebsiteBuilderStudio: FC = () => {
 
         if (response.success && response.data) {
           setWebsiteData(response.data);
+          setThemeColors(await resolveThemeColors(response.data));
         } else {
           console.error("Error:", response.message);
           toast.error(response.message || "Couldn't open this website. Returning to your projects.");
@@ -203,6 +211,39 @@ const WebsiteBuilderStudio: FC = () => {
         }, 1500);
       }
     };
+
+    // Peeks at whichever source storage.onLoad's own (separate) logic will
+    // end up using, purely to seed the Global Styles panel's color defaults
+    // — read-only, so it never consumes the wizard's sessionStorage draft
+    // that onLoad still needs. Best-effort: any failure just leaves the
+    // panel on its neutral fallback colors.
+    const resolveThemeColors = async (site: WebsiteProject): Promise<ExtractedTheme> => {
+      try {
+        const hasContent = site.websiteData && Object.keys(site.websiteData).length > 0;
+        if (hasContent) {
+          return extractThemeColors(JSON.stringify(site.websiteData));
+        }
+        const params = new URLSearchParams(location.search);
+        if (params.get("draft") === "wizard") {
+          const raw = sessionStorage.getItem("pending-website-draft");
+          if (raw) {
+            const draft = JSON.parse(raw);
+            if (draft?.pages) return extractThemeColors(JSON.stringify(draft.pages));
+          }
+        }
+        const templateId = params.get("template");
+        if (templateId) {
+          const tplRes = await TemplateService.getTemplate(templateId);
+          if (tplRes.success && tplRes.data) {
+            return extractThemeColors(JSON.stringify(tplRes.data.pages));
+          }
+        }
+      } catch {
+        // best-effort only
+      }
+      return {};
+    };
+
     fetchWebsiteData();
   }, [location.search, user?.id, navigate]);
 
@@ -2532,7 +2573,12 @@ const WebsiteBuilderStudio: FC = () => {
                 field: "color",
                 selector: ":root",
                 label: "Primary",
-                defaultValue: "#cf549e",
+                // Best-effort: the actual color found on this site's own
+                // nav/header (or, failing that, the first brand-ish color in
+                // its markup) — not a fixed placeholder unrelated to what's
+                // actually loaded. Falls back to a neutral default when
+                // nothing could be extracted (e.g. a genuinely blank page).
+                defaultValue: themeColors.primary || "#1f2937",
                 category: { id: "colors", label: "Colors", open: true },
               },
               {
@@ -2541,7 +2587,7 @@ const WebsiteBuilderStudio: FC = () => {
                 field: "color",
                 selector: ":root",
                 label: "Secondary",
-                defaultValue: "#b9227d",
+                defaultValue: "#374151",
                 category: { id: "colors" },
               },
               {
@@ -2550,7 +2596,8 @@ const WebsiteBuilderStudio: FC = () => {
                 field: "color",
                 selector: ":root",
                 label: "Accent",
-                defaultValue: "#ffb347",
+                // Best-effort: this site's own button/CTA color.
+                defaultValue: themeColors.accent || "#dc2626",
                 category: { id: "colors" },
               },
               {
@@ -2722,7 +2769,7 @@ const WebsiteBuilderStudio: FC = () => {
                 field: "color",
                 selector: "h2",
                 label: "Color",
-                defaultValue: "#601843",
+                defaultValue: themeColors.primary || "#374151",
                 category: {
                   id: "subheading",
                   label: "Subheading",
@@ -2912,6 +2959,7 @@ const WebsiteBuilderStudio: FC = () => {
             }),
             canvasFullSize.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/canvas/full-size */
+              deviceFixedHeight: true,
             }),
             canvasGridMode.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/canvas/grid-mode */
