@@ -27,9 +27,12 @@ interface CreateWebsiteWizardProps {
 // reused here as the optional Step 1 industry list so it stays in sync with
 // the "Let Ninja choose" heuristic in vibeTemplates.ts.
 const INDUSTRIES = [
-  "SaaS", "Agency", "Restaurant / Coffee", "Real Estate", "E-commerce",
-  "Portfolio", "Personal Brand", "Consulting", "Construction", "Law",
-  "Gym", "Beauty", "Automotive", "Hotel", "Startup", "Local Business",
+  "Agency", "Automotive", "Beauty", "Construction", "Consulting", "Dental",
+  "E-commerce", "Education", "Event Planning", "Financial Advisor", "Gym",
+  "Healthcare", "Hotel", "Interior Design", "Law", "Local Business",
+  "Moving / Storage", "Nonprofit", "Personal Brand", "Photography",
+  "Portfolio", "Real Estate", "Restaurant / Coffee", "SaaS", "Startup",
+  "Travel", "Veterinary",
 ];
 
 interface BusinessInfo {
@@ -137,8 +140,8 @@ const CreateWebsiteWizard: FC<CreateWebsiteWizardProps> = ({ isOpen, onClose, on
 
   const selectedTemplate = useMemo(() => {
     if (!vibe || !templates.length) return null;
-    return pickTemplateForVibe(templates, vibe, info.industry);
-  }, [vibe, info.industry, templates]);
+    return pickTemplateForVibe(templates, vibe, info.industry, info.brandColor);
+  }, [vibe, info.industry, info.brandColor, templates]);
 
   const filledDraft = useMemo(() => {
     if (!selectedTemplate) return null;

@@ -34,6 +34,7 @@ export interface TemplateLike {
   name: string;
   industry: string;
   vibes: string[];
+  primaryColor?: string | null;
   pages: Array<{ name: string; component: string }>;
 }
 
@@ -54,24 +55,65 @@ function findTemplateById(templates: TemplateLike[], id: string): TemplateLike |
   return templates.find((t) => t.templateId === id) || null;
 }
 
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function colorDistance(a: string, b: string): number {
+  const rgbA = hexToRgb(a);
+  const rgbB = hexToRgb(b);
+  if (!rgbA || !rgbB) return Infinity;
+  return Math.sqrt((rgbA[0] - rgbB[0]) ** 2 + (rgbA[1] - rgbB[1]) ** 2 + (rgbA[2] - rgbB[2]) ** 2);
+}
+
+// Used only to break ties between templates that already match on the
+// criteria that matter most (industry, then vibe) — never a primary filter,
+// since most templates won't have a genuinely close match to an arbitrary
+// user-picked color. Falls back to the first candidate when nobody has a
+// tagged primaryColor, or no brand color was chosen.
+function pickClosestByColor(candidates: TemplateLike[], brandColor?: string): TemplateLike {
+  if (!brandColor || candidates.length === 1) return candidates[0];
+  const tagged = candidates.filter((t) => !!t.primaryColor);
+  if (!tagged.length) return candidates[0];
+  return tagged.reduce((best, t) =>
+    colorDistance(t.primaryColor!, brandColor) < colorDistance(best.primaryColor!, brandColor) ? t : best
+  , tagged[0]);
+}
+
 export function pickTemplateForVibe(
   templates: TemplateLike[],
   vibe: Vibe,
-  industry?: string
+  industry?: string,
+  brandColor?: string
 ): TemplateLike | null {
   if (!templates.length) return null;
 
+  const normalizedIndustry = industry ? normalizeIndustry(industry) : "";
+  const industryMatches = normalizedIndustry
+    ? templates.filter((t) => t.industry === normalizedIndustry)
+    : [];
+
   if (vibe === "let-ninja-choose") {
-    const normalizedIndustry = industry ? normalizeIndustry(industry) : "";
-    if (normalizedIndustry) {
-      const match = templates.find((t) => t.industry === normalizedIndustry);
-      if (match) return match;
-    }
+    if (industryMatches.length) return pickClosestByColor(industryMatches, brandColor);
     return findTemplateById(templates, "paksoft-main") || templates[0];
   }
 
-  const candidates = templates.filter((t) => t.vibes.includes(vibe));
-  if (candidates.length) return candidates[0];
+  // A specific vibe was chosen — prefer a template matching BOTH the chosen
+  // industry and vibe; fall back to industry-only, then vibe-only. Never
+  // jump to an unrelated industry's template while a same-industry one
+  // exists, which is what caused Industry="Law" + a popular vibe to
+  // silently return some other industry's template before this fix.
+  if (industryMatches.length) {
+    const industryAndVibe = industryMatches.filter((t) => t.vibes.includes(vibe));
+    if (industryAndVibe.length) return pickClosestByColor(industryAndVibe, brandColor);
+    return pickClosestByColor(industryMatches, brandColor);
+  }
+
+  const vibeMatches = templates.filter((t) => t.vibes.includes(vibe));
+  if (vibeMatches.length) return pickClosestByColor(vibeMatches, brandColor);
   return findTemplateById(templates, "paksoft-main") || templates[0];
 }
 

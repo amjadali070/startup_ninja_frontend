@@ -76,6 +76,14 @@ import {
   documentUploaderPlugin,
   documentUploaderCardPlugin,
   documentUploaderDropzonePlugin,
+  timelinePlugin,
+  logoCloudPlugin,
+  accordionPlugin,
+  comparisonTablePlugin,
+  countdownBannerPlugin,
+  skillBarPlugin,
+  newsletterSignupPlugin,
+  iconListPlugin,
 } from "./custom-components";
 
 const formatVersionDate = (iso?: string): string => {
@@ -2956,6 +2964,14 @@ const WebsiteBuilderStudio: FC = () => {
             documentUploaderPlugin,
             documentUploaderCardPlugin,
             documentUploaderDropzonePlugin,
+            timelinePlugin,
+            logoCloudPlugin,
+            accordionPlugin,
+            comparisonTablePlugin,
+            countdownBannerPlugin,
+            skillBarPlugin,
+            newsletterSignupPlugin,
+            iconListPlugin,
             tableComponent.init({
               /* Plugin options: https://app.grapesjs.com/docs-sdk/plugins/components/table */
             }),

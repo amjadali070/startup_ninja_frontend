@@ -22,4 +22,12 @@ export { breadcrumbPlugin } from "./Breadcrumb";
 export { documentUploaderPlugin } from "./DocumentUploader";
 export { documentUploaderCardPlugin } from "./DocumentUploaderCard";
 export { documentUploaderDropzonePlugin } from "./DocumentUploaderDropzone";
+export { timelinePlugin } from "./Timeline";
+export { logoCloudPlugin } from "./LogoCloud";
+export { accordionPlugin } from "./Accordion";
+export { comparisonTablePlugin } from "./ComparisonTable";
+export { countdownBannerPlugin } from "./CountdownBanner";
+export { skillBarPlugin } from "./SkillBar";
+export { newsletterSignupPlugin } from "./NewsletterSignup";
+export { iconListPlugin } from "./IconList";
 

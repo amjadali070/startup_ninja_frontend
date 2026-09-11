@@ -11,6 +11,7 @@ export interface WebsiteTemplate {
     name: string;
     industry: string;
     vibes: string[];
+    primaryColor?: string | null;
     thumbnail: string | null;
     isActive: boolean;
     pages: TemplatePage[];
